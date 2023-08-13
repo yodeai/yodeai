@@ -40,4 +40,4 @@ class StringInput(BaseModel):
 
 @app.post("/api/echo")
 def echo_string(data: StringInput):
-    return {"result": data.input_string}
+    return {"result": data.input_string+" it's me..."}
