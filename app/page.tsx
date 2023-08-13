@@ -43,13 +43,19 @@ export default async function Index() {
 
       <div className="animate-in flex flex-col gap-14 opacity-0 max-w-4xl px-3 py-16 lg:py-24 text-foreground">
         <div className="flex flex-col items-center mb-4 lg:mb-12">
-          <div className="flex gap-8 justify-center items-center">
+          <div className="flex flex-col gap-4 justify-center items-center">
             Hello!
+            <Link href="/answer">
+              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Ask a Question
+              </button>
+            </Link>
           </div>
+
         </div>
 
 
- 
+
       </div>
     </div>
   )
