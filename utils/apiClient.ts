@@ -1,6 +1,6 @@
 // utils/apiClient.ts
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL
+const API_ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
   : process.env.API_BASE_URL || '' ;
 
@@ -14,7 +14,7 @@ interface FetchOptions extends RequestInit {
 
 const fetchData = async (endpoint: string, options: FetchOptions = {}): Promise<any> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_ENDPOINT}${endpoint}`, {
       ...options,
       headers: {
         ...headers,

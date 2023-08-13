@@ -19,7 +19,7 @@ const AnswerPage: React.FC = () => {
       setAnswer(response.result);
     } catch (error) {
       console.error('Failed to fetch echo:', error);
-      setAnswer('Failed to fetch echo.');
+      setAnswer('Failed to fetch echo. ' + error);
     }
   };
 
