@@ -1,7 +1,7 @@
 // utils/apiClient.ts
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
   : process.env.API_BASE_URL || '' ;
 
 const headers = {
