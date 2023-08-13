@@ -21,7 +21,7 @@ const AnswerPage: React.FC<AnswerProps> = ({ answer }) => {
 export async function getServerSideProps() {
   try {
     const dataToPost = { input_string: "What's up?" };  
-    const response = await fetchData('/api/echo', {
+    const response = await fetchData('/echo', {
       method: 'POST',
       body: JSON.stringify(dataToPost),
     });

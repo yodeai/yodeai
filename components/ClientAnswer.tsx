@@ -4,7 +4,7 @@ const ClientAnswer: React.FC = () => {
   const [answer, setAnswer] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/answer')
+    fetch('/answer')
       .then(response => response.text())
       .then(data => {
         setAnswer(data);
