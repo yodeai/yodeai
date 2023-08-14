@@ -5,21 +5,25 @@ import fetchData from '../utils/apiClient';
 const AnswerPage: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>(''); // For input from text box
   const [answer, setAnswer] = useState<string>('Enter a question and press submit!'); // For answer from API
+  const [isLoading, setIsLoading] = useState<boolean>(false); // For loading state
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault(); // Prevent default form submission
+    setIsLoading(true); // Set loading to true before API call
 
     try {
-      const dataToPost = { input_string: inputValue };  
-      const response = await fetchData('/echo', {
+      const dataToPost = { question: inputValue }; 
+      const response = await fetchData('/api/answer', {
         method: 'POST',
         body: JSON.stringify(dataToPost),
       });
       
       setAnswer(response.result);
     } catch (error) {
-      console.error('Failed to fetch echo:', error);
-      setAnswer('Failed to fetch echo. ' + error);
+      console.error('Failed to fetch answer. ', error);
+      setAnswer('Failed to fetch answer. ' + error);
+    } finally {
+      setIsLoading(false); // Reset loading state after API call completion
     }
   };
 
@@ -33,7 +37,9 @@ const AnswerPage: React.FC = () => {
           onChange={(e) => setInputValue(e.target.value)} 
           placeholder="Enter your question" 
         />
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Submit'}
+        </button>
       </form>
       <p className="text-lg mt-4">{answer}</p>
       <Link href="/">

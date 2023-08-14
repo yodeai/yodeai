@@ -1,11 +1,20 @@
 from typing import Union
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from api import content_parser_and_db_initializer as cp
+from api import qa_interface
+import logging
+
+logging.basicConfig(filename='app.log', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.debug("This is the first debug message.")
+
 
 app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
-
+cp.init()
+vectordb = cp.get_db()
+logger.debug("DB was made")
 
 @app.get("/api/healthchecker")
 def healthchecker():
@@ -20,24 +29,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-qlist = ["what are the grading options?",
-    "what are some important deadlines?",
-    "what types of courses do I need to take in the first year?",
-    "give me some advice about the courses I need to take in the first year",
-    "what are some social activities for me on campus?",
-    "what credits could I transfer from high school?",
-    "what types of advisors do I need?",
-    "How cold is it going to be in the first semester?"
-]
-
-
-@app.get("/api/answer")
-def get_answer():
-    return qlist
 
 class StringInput(BaseModel):
     input_string: str
 
 @app.post("/api/echo")
 def echo_string(data: StringInput):
-    return {"result": data.input_string+" it's me..."}
+    #logger.debug("every day I'm echoinggggg")
+    return {"result": "Echo: " + data.input_string}
+
+
+class QuestionInput(BaseModel):
+    question: str
+
+@app.post("/api/answer")
+async def answer_question(data: QuestionInput):
+    result = qa_interface.qa({"query": data.question})
+    return result

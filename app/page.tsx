@@ -4,7 +4,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import LogoutButton from '../components/LogoutButton'
-
+import QuestionAnswerForm from '../components/QuestionAnswerForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,18 +45,13 @@ export default async function Index() {
         <div className="flex flex-col items-center mb-4 lg:mb-12">
           <div className="flex flex-col gap-4 justify-center items-center">
             Hello!
-            <Link href="/answer">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Ask a Question
-              </button>
-            </Link>
+
+            {/* Include the QuestionAnswerForm component here */}
+            <QuestionAnswerForm />
           </div>
-
         </div>
-
-
-
       </div>
+
     </div>
   )
 }
