@@ -79,17 +79,9 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 
 urls=[
     "https://lsadvising.berkeley.edu/progress-planning/new-student-guides/new-freshman-student-guide",
-    "https://lsadvising.berkeley.edu/home",
-    "https://lsadvising.berkeley.edu/appointments-advice",
-    "https://lsadvising.berkeley.edu/connect-through-mentorship",
-    "https://lsadvising.berkeley.edu/community",
-    "https://lsadvising.berkeley.edu/connect-academic-support",
-    "https://lsadvising.berkeley.edu/progress-planning/schedule-planning-and-enrollment/semester-schedule-planning",
-    "https://lsadvising.berkeley.edu/progress-planning/schedule-planning-and-enrollment/enrollment-add-or-drop-course",
-    "https://lsadvising.berkeley.edu/policies/unit-ceiling-and-semester-limit"
 ]
 
-pdfs=['https://registrar.berkeley.edu/wp-content/uploads/2021/03/050714_Campus-Policies-and-Guidelines-Concerning-the-Academic-Calendar.pdf']
+pdfs=[]
 
 docs=[]
 
