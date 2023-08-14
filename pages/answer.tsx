@@ -11,7 +11,7 @@ const AnswerPage: React.FC = () => {
 
     try {
       const dataToPost = { input_string: inputValue };  
-      const response = await fetchData('api/echo', {
+      const response = await fetchData('/echo', {
         method: 'POST',
         body: JSON.stringify(dataToPost),
       });

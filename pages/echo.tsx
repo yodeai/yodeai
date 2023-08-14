@@ -37,7 +37,7 @@ export async function getServerSideProps() {
     console.error('Failed to fetch echo:', error);
     return {
       props: {
-        answer: 'Failed to fetch echo.'
+        answer: 'Failed to fetch echo. ' + error + " " + process.env.API_URL
       }
     };
   }
