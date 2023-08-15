@@ -2,8 +2,8 @@ from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from api import content_parser_and_db_initializer as cp
-from api import qa_interface
+#from api import content_parser_and_db_initializer as cp
+#from api import qa_interface
 import logging
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -12,8 +12,8 @@ logger.debug("This is the first debug message.")
 
 
 app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
-cp.init()
-vectordb = cp.get_db()
+#cp.init()
+#vectordb = cp.get_db()
 logger.debug("DB was made")
 
 @app.get("/api/healthchecker")
@@ -42,7 +42,7 @@ def echo_string(data: StringInput):
 class QuestionInput(BaseModel):
     question: str
 
-@app.post("/api/answer")
-async def answer_question(data: QuestionInput):
-    result = qa_interface.qa({"query": data.question})
-    return result
+#@app.post("/api/answer")
+#async def answer_question(data: QuestionInput):
+#    result = qa_interface.qa({"query": data.question})
+#    return result
