@@ -14,12 +14,12 @@ const QuestionAnswerForm: React.FC = () => {
 
         try {
             const dataToPost = { question: inputValue };
-            const response = await fetchData('/api/answer', {
+            const response = await fetchData('/api/vectorSearch', {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
-            });
-
-            setAnswer(response.result);
+              });
+              
+            setAnswer(response.text);
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
             setAnswer('Failed to fetch answer. ' + error);
@@ -42,7 +42,7 @@ const QuestionAnswerForm: React.FC = () => {
                 <button 
                     type="submit" 
                     disabled={isLoading}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    className="bg-btn-background font-bold py-2 px-4 rounded"
                 >
                     {isLoading ? 'Loading...' : 'Submit'}
                 </button>
