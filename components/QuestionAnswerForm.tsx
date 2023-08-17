@@ -29,7 +29,7 @@ const QuestionAnswerForm: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4" >
+        <div className="container p-4" >
             <h1 className="text-xl mb-4">Ask anything about UC, Berkeley:</h1>
             <form onSubmit={handleSubmit} className="flex">
                 <input
@@ -37,7 +37,7 @@ const QuestionAnswerForm: React.FC = () => {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Enter your question"
-                    className="text-black mr-2"
+                    className="text-black mr-2 w-full h-12 px-4 text-lg"
                 />
                 <button 
                     type="submit" 

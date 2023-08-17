@@ -19,13 +19,13 @@ export default async function Index() {
   } = await supabase.auth.getUser()
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-        <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm text-foreground">
+    <div className="w-full flex flex-col ">
+      <nav className="w-full flex  border-b border-b-foreground/10 h-16">
+        <div className="w-full max-w-4xl flex justify-between  p-3 text-sm text-foreground">
           <div />
           <div>
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex gap-4">
                 Hey, {user.email}!
                 <LogoutButton />
               </div>
@@ -42,9 +42,9 @@ export default async function Index() {
       </nav>
 
       <div className="animate-in flex flex-col gap-14 opacity-0 max-w-4xl px-3 py-16 lg:py-24 text-foreground">
-        <div className="flex flex-col items-center mb-4 lg:mb-12">
-          <div className="flex flex-col gap-4 justify-center items-center">
-            Hello!
+        <div className="flex flex-col mb-4 lg:mb-12">
+          <div className="flex flex-col gap-4">
+
 
             {/* Include the QuestionAnswerForm component here */}
             <QuestionAnswerForm />
