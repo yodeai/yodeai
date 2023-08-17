@@ -8,12 +8,22 @@ import { createClient } from '@supabase/supabase-js';
 import { RetrievalQAChain } from 'langchain/chains';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', 'https://yodeai.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // If it's a preflight (OPTIONS) request, just send a 200 status
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const question = req.body.question;
 
 
-    if(!question) {
+    if (!question) {
         return res.status(400).json({ error: 'Question not provided' });
     }
 
@@ -49,6 +59,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const resultOne = await chain.call({
         query: question,
-      });
+    });
     return res.status(200).json(resultOne);
 }
