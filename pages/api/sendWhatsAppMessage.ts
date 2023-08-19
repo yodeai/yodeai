@@ -1,10 +1,20 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
+export type WhatsAppPayload = {
+    messaging_product: string;
+    to: string;
+    type: string;
+    text: {
+        preview_url: boolean;
+        body: string;
+    };
+    [key: string]: string | { preview_url: boolean; body: string };
+};
 
-export async function sendWhatsAppMessage(to: string, message: string): Promise<any> {
+export async function sendWhatsAppMessage(to: string, message: string, messageId?: string): Promise<any> {
     const WHATSAPP_API_URL = `https://graph.facebook.com/v17.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`;
 
-    const payload = {
+    const payload: WhatsAppPayload  = {
         messaging_product: "whatsapp",
         to,
         type: "text",
@@ -13,7 +23,9 @@ export async function sendWhatsAppMessage(to: string, message: string): Promise<
             "body": message
         }
     };
-
+    if (messageId) {
+        payload.messageId = messageId;
+    }
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`

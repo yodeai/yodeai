@@ -32,6 +32,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             if (receivedMessages.length > 0) {
                 // Assuming one message at a time, you can loop through for multiple
                 const userMessage = receivedMessages[0].text.body;
+                const originalMessageId = receivedMessages[0].id;
 
                 try {
 
@@ -39,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                         const vectorSearchResponse = await processVectorSearch(userMessage);
                         const responseText = vectorSearchResponse.response;
                         if (responseText) {  // ensure responseText is not null before sending a message
-                            await sendWhatsAppMessage(receivedMessages[0].from, responseText);
+                            await sendWhatsAppMessage(receivedMessages[0].from, responseText, originalMessageId);
                         } else {
                             console.error("No response received from get_completion");
                         }

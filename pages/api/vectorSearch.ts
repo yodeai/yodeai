@@ -53,8 +53,9 @@ export const processVectorSearch = async (question: string) => {
         const docs = [];
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
         docs.push(...ans1);
-        const ans2 = await vectorStore.similaritySearch(q, 8);
+        const ans2 = await vectorStore.similaritySearch(q, 10);
         docs.push(...ans2);
+        console.log(docs);
         return docs;
     };
 

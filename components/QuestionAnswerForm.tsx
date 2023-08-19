@@ -18,7 +18,7 @@ const QuestionAnswerForm: React.FC = () => {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
               });
-              
+            
             setAnswer(response.response);
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
