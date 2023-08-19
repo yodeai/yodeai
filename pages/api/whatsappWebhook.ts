@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { sendWhatsAppMessage } from "./sendWhatsAppMessage";
-import { get_completion } from "./vectorSearch"; 
+import { processVectorSearch } from "./vectorSearch";
 
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
 
@@ -23,8 +23,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     } else if (req.method === 'POST') {
         // Check if it's a received user message
         if (req.body && req.body.entry) {
-            const receivedMessages = req.body.entry.flatMap((entry: any) => 
-                (entry.changes && entry.changes.flatMap((change: any) => 
+            const receivedMessages = req.body.entry.flatMap((entry: any) =>
+                (entry.changes && entry.changes.flatMap((change: any) =>
                     (change.field === "messages" && change.value && change.value.messages) || []
                 )) || []
             );
@@ -34,9 +34,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 const userMessage = receivedMessages[0].text.body;
 
                 try {
-                    
+
                     if (userMessage) {
-                        const responseText = await get_completion(userMessage);
+                        const vectorSearchResponse = await processVectorSearch(userMessage);
+                        const responseText = vectorSearchResponse.response;
                         if (responseText) {  // ensure responseText is not null before sending a message
                             await sendWhatsAppMessage(receivedMessages[0].from, responseText);
                         } else {
