@@ -22,8 +22,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     } else if (req.method === 'POST') {
         // Check if it's a received user message
         if (req.body && req.body.entry) {
-            const hasReceivedMessage = req.body.entry.some(entry => 
-                entry.changes && entry.changes.some(change => 
+            const hasReceivedMessage = req.body.entry.some((entry: any) => 
+                entry.changes && entry.changes.some((change: any) => 
                     change.field === "messages" && change.value && change.value.messages
                 )
             );
