@@ -8,6 +8,7 @@ import { OpenAI as OpenAI } from 'openai';
 import { createClient } from '@supabase/supabase-js';
 import { RetrievalQAChain } from 'langchain/chains';
 
+
 const openai = new OpenAI();
 
 const get_completion = async (prompt: string) => {

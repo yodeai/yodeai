@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 
-async function sendWhatsAppMessage(to: string, message: string): Promise<any> {
+export async function sendWhatsAppMessage(to: string, message: string): Promise<any> {
     const WHATSAPP_API_URL = `https://graph.facebook.com/v17.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`;
 
     const payload = {
