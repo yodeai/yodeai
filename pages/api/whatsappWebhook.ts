@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { sendWhatsAppMessage } from "./sendWhatsAppMessage";
+import { get_completion } from "./vectorSearch"; 
 
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
 
@@ -22,20 +23,32 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     } else if (req.method === 'POST') {
         // Check if it's a received user message
         if (req.body && req.body.entry) {
-            const hasReceivedMessage = req.body.entry.some((entry: any) => 
-                entry.changes && entry.changes.some((change: any) => 
-                    change.field === "messages" && change.value && change.value.messages
-                )
+            const receivedMessages = req.body.entry.flatMap((entry: any) => 
+                (entry.changes && entry.changes.flatMap((change: any) => 
+                    (change.field === "messages" && change.value && change.value.messages) || []
+                )) || []
             );
 
-            if (hasReceivedMessage) {
+            if (receivedMessages.length > 0) {
+                // Assuming one message at a time, you can loop through for multiple
+                const userMessage = receivedMessages[0].text.body;
+
                 try {
-                    // Send a test message and the received body
-                    await sendWhatsAppMessage("16509969470", "Message received!");
-                    await sendWhatsAppMessage("16509969470", JSON.stringify(req.body));
-                    return res.status(200).json({ message: 'Test messages sent.' });
+                    
+                    if (userMessage) {
+                        const responseText = await get_completion(userMessage);
+                        if (responseText) {  // ensure responseText is not null before sending a message
+                            await sendWhatsAppMessage(receivedMessages[0].from, responseText);
+                        } else {
+                            console.error("No response received from get_completion");
+                        }
+                    } else {
+                        console.error("Received empty userMessage");
+                    }
+
+                    return res.status(200).json({ message: 'Message sent.' });
                 } catch (error) {
-                    console.error("Error sending message:", error);
+                    console.error("Error processing or sending message:", error);
                     return res.status(500).json({ error: 'Failed to send message.' });
                 }
             }
