@@ -11,15 +11,17 @@ const SendMessagePage: React.FC = () => {
       
       const url = '/api/sendWhatsAppMessage';
 
-      const payload: Partial<WhatsAppPayload> = {
+      const payload = {
         to: phoneNumber,
-        message: messageText
+        message: messageText,
+        messageId: ""
       };
  
       if (messageId) {
        
         payload['messageId'] = messageId;
       }
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
