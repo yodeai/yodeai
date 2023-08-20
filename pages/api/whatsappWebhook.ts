@@ -30,13 +30,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             );
 
             if (receivedMessages.length > 0) {
-                // Assuming one message at a time, you can loop through for multiple
+                // Assuming one message at a time
                 const userMessage = receivedMessages[0].text.body;
                 const originalMessageId = receivedMessages[0].id;
+                const phoneNumber = receivedMessages[0].from;
 
                 try {
                     if (userMessage) {
-                        const answerResponse = await getAnswerForQuestion(userMessage);  // use the new function here
+                        const answerResponse = await getAnswerForQuestion(userMessage, {
+                            messageId: originalMessageId,
+                            phoneNumber: phoneNumber
+                        });
                         const responseText = answerResponse.response;
 
                         if (responseText) {
