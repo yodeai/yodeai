@@ -16,7 +16,7 @@ const client = createClient(url, supabaseKey);
 
 export const getAnswerForQuestion = async (question: string, whatsappDetails?: { messageId: string, phoneNumber: string }) => {
     const result = await processVectorSearch(question);
-    interface InsertData  {
+    interface InsertData {
         question_text: string;
         generated_answer: string | null;
         asked_on_whatsapp: boolean;
@@ -25,7 +25,7 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     }
 
     // Prepare data for insertion
-    const insertData : InsertData = {
+    const insertData: InsertData = {
         question_text: result.question,
         generated_answer: result.response,
         asked_on_whatsapp: !!whatsappDetails
@@ -50,6 +50,11 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
 
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+    // Set the CORS headers
+    res.setHeader('Access-Control-Allow-Origin', 'https://yodeai.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
     if (req.method === 'POST') {
         try {
             const { question } = req.body;
