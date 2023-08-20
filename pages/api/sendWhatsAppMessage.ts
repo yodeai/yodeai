@@ -8,13 +8,15 @@ export type WhatsAppPayload = {
         preview_url: boolean;
         body: string;
     };
-    [key: string]: string | { preview_url: boolean; body: string };
+    context?: {
+        message_id: string;
+    };
 };
 
 export async function sendWhatsAppMessage(to: string, message: string, messageId?: string): Promise<any> {
     const WHATSAPP_API_URL = `https://graph.facebook.com/v17.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`;
 
-    const payload: WhatsAppPayload  = {
+    const payload: WhatsAppPayload = {
         messaging_product: "whatsapp",
         to,
         type: "text",
@@ -24,17 +26,21 @@ export async function sendWhatsAppMessage(to: string, message: string, messageId
         }
     };
     if (messageId) {
-        payload.messageId = messageId;
+        payload.context = {"message_id": messageId };
     }
+    console.log("message ID");
+    console.log(messageId);
+    console.log("sending message:");
+    console.log(payload);
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
     };
-        // Logging the main API call details
-        console.log('Making API call to:', WHATSAPP_API_URL);
-        console.log('Payload:', payload);
-        console.log('Headers:', headers);
-    
+    // Logging the main API call details
+    console.log('Making API call to:', WHATSAPP_API_URL);
+    console.log('Payload:', payload);
+    console.log('Headers:', headers);
+
     const res = await fetch(WHATSAPP_API_URL, {
         method: 'POST',
         headers,
@@ -55,12 +61,13 @@ export async function sendWhatsAppMessage(to: string, message: string, messageId
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
         try {
-            const { to, message } = req.body;
-            const responseData = await sendWhatsAppMessage(to, message);
-            
+            const { to, message, messageId } = req.body; // Destructure messageId from req.body
+            const responseData = await sendWhatsAppMessage(to, message, messageId); // Pass messageId along
+
             console.log("WhatsApp Message Sent:", {
                 to,
                 message,
+                messageId,
                 responseData
             });
 

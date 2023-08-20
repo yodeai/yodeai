@@ -8,18 +8,18 @@ const SendMessagePage: React.FC = () => {
 
   const sendWhatsApp = async () => {
     try {
-      // Replace this with your endpoint URL
+      
       const url = '/api/sendWhatsAppMessage';
 
       const payload: Partial<WhatsAppPayload> = {
         to: phoneNumber,
         message: messageText
       };
-
+ 
       if (messageId) {
+       
         payload['messageId'] = messageId;
       }
-
       const response = await fetch(url, {
         method: 'POST',
         headers: {
