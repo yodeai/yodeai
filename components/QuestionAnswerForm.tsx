@@ -14,7 +14,7 @@ const QuestionAnswerForm: React.FC = () => {
 
         try {
             const dataToPost = { question: inputValue };
-            const response = await fetchData('/api/vectorSearch', {
+            const response = await fetchData('/api/answerQuestion', {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
               });

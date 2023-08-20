@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { sendWhatsAppMessage } from "./sendWhatsAppMessage";
-import { processVectorSearch } from "./vectorSearch";
+import { getAnswerForQuestion } from "./answerQuestion";  // import the new function
 
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
 
@@ -35,14 +35,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 const originalMessageId = receivedMessages[0].id;
 
                 try {
-
                     if (userMessage) {
-                        const vectorSearchResponse = await processVectorSearch(userMessage);
-                        const responseText = vectorSearchResponse.response;
-                        if (responseText) {  // ensure responseText is not null before sending a message
+                        const answerResponse = await getAnswerForQuestion(userMessage);  // use the new function here
+                        const responseText = answerResponse.response;
+
+                        if (responseText) {
                             await sendWhatsAppMessage(receivedMessages[0].from, responseText, originalMessageId);
                         } else {
-                            console.error("No response received from get_completion");
+                            console.error("No response received from answerQuestionWithLogging");
                         }
                     } else {
                         console.error("Received empty userMessage");

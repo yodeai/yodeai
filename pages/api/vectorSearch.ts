@@ -53,7 +53,7 @@ export const processVectorSearch = async (question: string) => {
         const docs = [];
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
         docs.push(...ans1);
-        const ans2 = await vectorStore.similaritySearch(q, 10);
+        const ans2 = await vectorStore.similaritySearch(q, 8);
         docs.push(...ans2);
         console.log(docs);
         return docs;
@@ -65,8 +65,8 @@ export const processVectorSearch = async (question: string) => {
         text += d.pageContent + "\n\n";
     }
 
-    const prompt = "You are answering the questions of freshmen from UC Berkeley. Write a helpful and concise answer for the question:" + question + " in at most one paragraph from the following text: \n" + text;
-
+    const prompt = "You are answering questions from freshmen at UC Berkeley. Answer the question: " + question + " in a helpful and concise way and in at most one paragraph, using the following text inside tripple quotes: '''" + text +  "''' \n <<<REMEMBER:  If the question is irrelevant to the text, do not try to make up an answer, just say that the question is irrelevant to the context.>>>"
+    
     const response = await get_completion(prompt);
     return {
         question: question,
