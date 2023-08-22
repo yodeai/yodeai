@@ -41,7 +41,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                             messageId: originalMessageId,
                             phoneNumber: phoneNumber
                         });
-                        const responseText = `${answerResponse.response}\n\nSee more details at: ${process.env.BASE_URL}/question/${answerResponse.slug}`;  // Append the URL to the response text
+                        const responseText = `${answerResponse.answer_preview}\n\nSee more details at: ${process.env.BASE_URL}/question/${answerResponse.slug}`;  // Append the URL to the response text
 
 
                         if (responseText) {
