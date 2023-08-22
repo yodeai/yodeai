@@ -41,7 +41,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                             messageId: originalMessageId,
                             phoneNumber: phoneNumber
                         });
-                        const responseText = answerResponse.response;
+                        const responseText = `${answerResponse.response}\n\nSee more details at: yodea.vercel.app/question/${answerResponse.slug}`;  // Append the URL to the response text
+
 
                         if (responseText) {
                             await sendWhatsAppMessage(receivedMessages[0].from, responseText, originalMessageId);

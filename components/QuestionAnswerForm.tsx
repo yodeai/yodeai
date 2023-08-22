@@ -3,9 +3,11 @@
 import React, { useState, FormEvent } from 'react';
 import fetchData from '../utils/apiClient';
 
+
 const QuestionAnswerForm: React.FC = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const [answer, setAnswer] = useState<string>('For instance, you can ask: What types of courses do I need to take in the first year? What credits could I transfer from high school? ');
+    const [slug, setSlug] = useState<string | null>(null); 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSubmit = async (e: FormEvent) => {
@@ -19,7 +21,9 @@ const QuestionAnswerForm: React.FC = () => {
                 body: JSON.stringify(dataToPost),
               });
             
-            setAnswer(response.response);
+            setAnswer(response.answer); 
+            setSlug(response.slug); 
+
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
             setAnswer('Failed to fetch answer. ' + error);
@@ -48,6 +52,8 @@ const QuestionAnswerForm: React.FC = () => {
                 </button>
             </form>
             <p className="text-lg mt-4">{answer}</p>
+            {slug && <a href={`/question/${slug}`} className="text-blue-500 mt-2 block">View more details</a>} {}
+
         </div>
     );
 };
