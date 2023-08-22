@@ -28,18 +28,14 @@ export async function sendWhatsAppMessage(to: string, message: string, messageId
     if (messageId) {
         payload.context = {"message_id": messageId };
     }
-    console.log("message ID");
-    console.log(messageId);
-    console.log("sending message:");
-    console.log(payload);
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
     };
     // Logging the main API call details
-    console.log('Making API call to:', WHATSAPP_API_URL);
-    console.log('Payload:', payload);
-    console.log('Headers:', headers);
+    //console.log('Making API call to:', WHATSAPP_API_URL);
+    //console.log('Payload:', payload);
+    //console.log('Headers:', headers);
 
     const res = await fetch(WHATSAPP_API_URL, {
         method: 'POST',
