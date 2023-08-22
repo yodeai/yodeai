@@ -47,7 +47,7 @@ export default async function Index() {
 
 
             {/* Include the QuestionAnswerForm component here */}
-            <QuestionAnswerForm />
+            <QuestionAnswerForm />  
           </div>
         </div>
       </div>
