@@ -99,9 +99,10 @@ export const processVectorSearch = async (question: string) => {
     const prompt = "You are answering questions from freshmen at UC Berkeley. Answer the question: " + question + " in a helpful and concise way and in at most one paragraph, using the following text inside tripple quotes: '''" + text + "''' \n <<<REMEMBER:  If the question is irrelevant to the text, do not try to make up an answer, just say that the question is irrelevant to the context.>>>"
 
     const response = await get_completion(prompt);
-    console.log("##here is the response: ");
-    console.log(response);
-    const uniqueMetadataList = removeDuplicates(metadataList);
+    const filteredMetadata = metadataList.filter(meta => 
+        typeof meta.source === 'string' 
+    );
+    const uniqueMetadataList = removeDuplicates(filteredMetadata  as Metadata[]);
     console.log(uniqueMetadataList);
     //console.log(metadataList);
     console.log("##end");
