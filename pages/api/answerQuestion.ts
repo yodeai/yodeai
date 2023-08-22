@@ -24,7 +24,7 @@ async function generateUniqueSlug(baseSlug: string): Promise<string> {
             .from('questions')
             .select('id')
             .eq('slug', potentialSlug)
-  
+
         if (error) {
             throw error;
         }
@@ -53,15 +53,37 @@ function generateSlug(text: string, wordLimit = 10): string {
 
 export const getAnswerForQuestion = async (question: string, whatsappDetails?: { messageId: string, phoneNumber: string }) => {
     const result = await processVectorSearch(question);
-    
+
     // Generate a unique slug for the question
     const baseSlug = generateSlug(result.question);
     const uniqueSlug = await generateUniqueSlug(baseSlug);
 
+    // Extract sources from the metadata
+    const sources = result.metadata
+        .map((meta, index) => {
+            const isTempURL = meta.source === "/var/folders/1r/n3tszc0n3zjcxyjf1tby4ng80000gn/T/tmpyaywqsu2";
+
+            const title = isTempURL
+                ? "Campus Policies and Guidelines Concerning the Academic Calendar, RRR Week, Exams, and Commencement"
+                : meta.title;
+
+            const sourceURL = isTempURL
+                ? "https://registrar.berkeley.edu/wp-content/uploads/2021/03/050714_Campus-Policies-and-Guidelines-Concerning-the-Academic-Calendar.pdf"
+                : meta.source;
+
+            return `${index + 1}. [${title}](${sourceURL})`;
+        })
+        .join("\n");
+
+    // Append the sources to the response to create the full answer
+    const fullAnswer = `${result.response}\n\n\nSources:\n${sources}`;
+
+
     interface InsertData {
         question_text: string;
-        generated_answer: string | null;
-        slug: string;  
+        answer_preview: string | null;
+        answer_full: string | null;
+        slug: string;
         asked_on_whatsapp: boolean;
         whatsapp_message_id?: string;
         whatsapp_phone_number?: string;
@@ -70,7 +92,8 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     // Prepare data for insertion
     const insertData: InsertData = {
         question_text: result.question,
-        generated_answer: result.response,
+        answer_preview: result.response,
+        answer_full: fullAnswer,
         slug: uniqueSlug,
         asked_on_whatsapp: !!whatsappDetails
     };
@@ -88,8 +111,15 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         console.error("Error inserting into database:", error);
     }
 
+
+    console.log("HERE WE GO:");
+    console.log(insertData.answer_preview);
+    console.log("full: ");
+    console.log(insertData.answer_full);
+    // Return answer_preview, answer_full, and slug
     return {
-        ...result,
+        answer_preview: insertData.answer_preview,
+        answer_full: insertData.answer_full,
         slug: uniqueSlug
     };
 };
@@ -116,7 +146,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             }
 
             const response = await getAnswerForQuestion(question);
-            res.status(200).json({ answer: response.response, slug: response.slug });
+            res.status(200).json({ answer_preview: response.answer_preview, answer_full: response.answer_full, slug: response.slug });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });

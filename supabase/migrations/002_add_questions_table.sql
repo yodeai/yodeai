@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS questions (
     user_id uuid REFERENCES auth.users(id),  -- Link to the user who asked the question
     question_text text NOT NULL,
     slug text UNIQUE NOT NULL,  -- Added slug column with uniqueness constraint
-    generated_answer text,
+    answer_full text,
+    answer_preview text,
     asked_on_whatsapp boolean NOT NULL DEFAULT false,
     whatsapp_message_id text,
     whatsapp_phone_number text,

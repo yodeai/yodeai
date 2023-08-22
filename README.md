@@ -1,3 +1,6 @@
+Note: If wanting to run fastapi, use this line in package.json:
+     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run fastapi-dev\"",
+
 
 ## Introduction
 
