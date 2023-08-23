@@ -1,7 +1,6 @@
 {
   "private": true,
   "scripts": {
-    "fastapi-dev": ". ./venv/bin/activate && uvicorn api.index:app --reload",
     "next-dev": "next dev",
     "dev": "pnpm run next-dev",
     "build": "next build",
