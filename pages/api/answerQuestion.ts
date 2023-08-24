@@ -98,8 +98,7 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     // Extract sources from the metadata
     const sources = result.metadata
         .map((meta, index) => {
-            const isTempURL = meta.source === "/var/folders/1r/n3tszc0n3zjcxyjf1tby4ng80000gn/T/tmpyaywqsu2";
-
+            const isTempURL = meta.source === "/var/folders/1r/n3tszc0n3zjcxyjf1tby4ng80000gn/T/tmpumhyx40m";
             const title = isTempURL
                 ? "Campus Policies and Guidelines Concerning the Academic Calendar, RRR Week, Exams, and Commencement"
                 : meta.title;
