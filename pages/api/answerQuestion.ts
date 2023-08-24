@@ -51,6 +51,43 @@ function generateSlug(text: string, wordLimit = 10): string {
 }
 
 
+async function fetchLinksFromDatabase(): Promise<{ [title: string]: string }> {
+    const { data, error } = await client.from('links').select('title, url');
+    if (error) throw error;
+
+    const linkMap: { [title: string]: string } = {};
+
+    if (data) {
+        data.forEach(link => {
+            linkMap[link.title] = link.url;
+        });
+    }
+
+    return linkMap;
+}
+
+function addHyperlinksToResponse(response: string, linkMap: { [title: string]: string }): string {
+    const keyList = Object.keys(linkMap).sort((a, b) => b.length - a.length);
+
+    let newResponse = response;
+    let i = 0;
+    while (i < newResponse.length) {
+        for (const key of keyList) {
+            if (newResponse.slice(i).startsWith(key)) {
+                const href = `[${key}](${linkMap[key]})`;
+                newResponse = `${newResponse.slice(0, i)}${href}${newResponse.slice(i + key.length)}`;
+                i += href.length - 1;
+                break;
+            }
+        }
+        i += 1;
+    }
+
+    return newResponse;
+}
+
+
+
 export const getAnswerForQuestion = async (question: string, whatsappDetails?: { messageId: string, phoneNumber: string }) => {
     const result = await processVectorSearch(question);
 
@@ -75,8 +112,20 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         })
         .join("\n");
 
+    const linkMap = await fetchLinksFromDatabase();
+
     // Append the sources to the response to create the full answer
-    const fullAnswer = `${result.response}\n\n\nSources:\n${sources}`;
+    //let fullAnswer = `${result.response}\n\n\nSources:\n${sources}`;
+    let fullAnswer: string;
+
+    if (result.response) {
+        fullAnswer = addHyperlinksToResponse(result.response, linkMap);
+    } else {
+        fullAnswer = "";  
+    }
+
+    // Append the sources to the response to create the full answer
+    const fullAnswer_with_sources = `${fullAnswer}\n\n\nSources:\n${sources}`;
 
 
     interface InsertData {
@@ -93,7 +142,7 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     const insertData: InsertData = {
         question_text: result.question,
         answer_preview: result.response,
-        answer_full: fullAnswer,
+        answer_full: fullAnswer_with_sources,
         slug: uniqueSlug,
         asked_on_whatsapp: !!whatsappDetails
     };
@@ -123,7 +172,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         slug: uniqueSlug
     };
 };
-
 
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
