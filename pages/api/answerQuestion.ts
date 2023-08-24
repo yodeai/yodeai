@@ -127,8 +127,11 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
 
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+    if (!process.env.BASE_URL) {
+        throw new Error('BASE_URL environment variable is not defined');
+    }
     // Set the CORS headers
-    res.setHeader('Access-Control-Allow-Origin', 'https://yodeai.vercel.app');
+    res.setHeader('Access-Control-Allow-Origin', process.env.BASE_URL);
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 

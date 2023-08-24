@@ -115,7 +115,7 @@ export const processVectorSearch = async (question: string) => {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', 'https://yodeai.vercel.app');
+    res.setHeader('Access-Control-Allow-Origin', 'https://cal-lens.vercel.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
