@@ -6,14 +6,14 @@ export const dynamic = 'force-dynamic'
 export default async function Page({ params }: { params: { slug: string } })  {
     const url = '/api/question';
     const tparams = new URLSearchParams({ slug: params.slug }).toString(); 
-    /*
+    
     const response = await fetchData(`${url}?${tparams}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         },
     });
-    const question = response.data;*/
+    /*const question = response.data;*/
     const question = {question_text: "hi", answer_full: "hi", slug: "hi"}
 
     return (
