@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: { slug: string } })  {
         },
     });
     const question = response.data;*/
-    const question = {question_text: `${url}?${tparams}`, answer_full: "hi", slug: "hi"}
+    const question = {question_text: `${url}?${tparams}`, answer_full: "*"+process.env.NEXT_PUBLIC_VERCEL_URL+"*", slug: "hi"}
 
     return (
 
