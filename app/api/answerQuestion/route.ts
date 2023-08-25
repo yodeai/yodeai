@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest} from 'next/server'
 import { createClient } from '@supabase/supabase-js';
-import { getAnswerForQuestion } from './answerQuestion';
+import { getAnswerForQuestion } from './answerQuestionHelper';
 import { headers } from 'next/headers';
 
 

@@ -10,14 +10,15 @@ const QuestionAnswerForm: React.FC = () => {
     const [answer, setAnswer] = useState<string>('For instance, you can ask: What types of courses do I need to take in the first year? What credits can I transfer from high school? ');
     const [slug, setSlug] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
     const handleSubmit = async (e: FormEvent) => {
+        
         e.preventDefault();
         setIsLoading(true);
 
         try {
+            console.log('inputValue', inputValue);
             const dataToPost = { question: inputValue };
-            const response = await fetchData('/api/answerQuestion', {
+            const response = await fetchData('/answerQuestion', {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
             });

@@ -11,19 +11,6 @@ type Question = {
     slug: string
 };
 
-/*
-export async function fetchQuestionBySlug(slug: string): Promise<Question | null> {
-  const { data, error } = await supabase
-    .from('questions')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-  console.log("found question");
-  if (error) throw error;
-
-  return data || null;
-}
-*/
 
 export async function GET(request: NextRequest) {
     console.log("here");
