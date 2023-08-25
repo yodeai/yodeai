@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { sendWhatsAppMessage } from "./sendWhatsAppMessage";
-import { getAnswerForQuestion } from "./answerQuestion";  // import the new function
+import { sendWhatsAppMessage } from "./sendWhatsAppMessage/sendMessage";
+import { getAnswerForQuestion } from "./answerQuestion/answerQuestionHelper";  
 
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
 

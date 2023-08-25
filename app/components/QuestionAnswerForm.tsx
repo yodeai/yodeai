@@ -1,7 +1,7 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 import React, { useState, FormEvent } from 'react';
-import fetchData from '../utils/apiClient';
+import fetchData from '../../utils/apiClient';
 import ReactMarkdown from 'react-markdown';
 
 
@@ -10,14 +10,15 @@ const QuestionAnswerForm: React.FC = () => {
     const [answer, setAnswer] = useState<string>('For instance, you can ask: What types of courses do I need to take in the first year? What credits can I transfer from high school? ');
     const [slug, setSlug] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
     const handleSubmit = async (e: FormEvent) => {
+        
         e.preventDefault();
         setIsLoading(true);
 
         try {
+            console.log('inputValue', inputValue);
             const dataToPost = { question: inputValue };
-            const response = await fetchData('/api/answerQuestion', {
+            const response = await fetchData('/answerQuestion', {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
             });
@@ -35,24 +36,24 @@ const QuestionAnswerForm: React.FC = () => {
 
     return (
         <div className="container p-4" >
-            <h1 className="text-xl mb-4">Ask anything about UC, Berkeley:</h1>
+            <h1 className=" mb-4">Ask anything about UC, Berkeley:</h1>
             <form onSubmit={handleSubmit} className="flex">
                 <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Enter your question"
-                    className="text-black mr-2 w-full h-12 px-4 text-lg"
+                    className="text-black mr-2 w-full h-12 px-4 "
                 />
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-btn-background font-bold py-2 px-4 rounded"
+                    className="bg-btn-background  py-2 px-4 rounded"
                 >
                     {isLoading ? 'Loading...' : 'Submit'}
                 </button>
             </form>
-            <ReactMarkdown className="text-lg mt-4">{answer}</ReactMarkdown>
+            <ReactMarkdown className=" mt-4">{answer}</ReactMarkdown>
             <p>
             {slug && <a href={`/question/${slug}`} className="text-blue-500 mt-2 block">[Link to this question]</a>} { }
             </p>

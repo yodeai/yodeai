@@ -8,6 +8,9 @@
   * {
     @apply border-foreground/20;
   }
+  a {
+    @apply underline; /* This line ensures all anchor tags are underlined */
+  }
 }
 
 .animate-in {
