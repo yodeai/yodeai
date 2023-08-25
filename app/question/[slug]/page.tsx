@@ -23,9 +23,9 @@ export default async function Page({ params }: { params: { slug: string } })  {
         headers: {
             'Content-Type': 'application/json'
         },
-    });/*
-    const question = response.data;*/
-    const question = {question_text: endpoint, answer_full: "*"+adjustedEndpoint+"*", slug: "hi"}
+    });
+    const question = response.data;
+    //const question = {question_text: endpoint, answer_full: "*"+adjustedEndpoint+"*", slug: "hi"}
 
     return (
 
