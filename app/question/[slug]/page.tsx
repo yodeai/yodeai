@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: { slug: string } })  {
                 <div className="flex flex-col mb-4 lg:mb-12">
                     <div className="flex flex-col gap-4">
                         <h1 className="text-2xl font-bold text-gray-800 mb-4">{question.question_text} </h1>
-                        <ReactMarkdown className="text-lg mt-4 text-gray-600">{question.answer_full}</ReactMarkdown>
+                        <ReactMarkdown className=" mt-4 text-gray-600">{question.answer_full}</ReactMarkdown>
                     </div>
                 </div>
             </div>

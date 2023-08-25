@@ -14,17 +14,8 @@ interface FetchOptions extends RequestInit {
 }
 
 const fetchData = async (endpoint: string, options: FetchOptions = {}): Promise<any> => {
-    // Check if running on the server or the client
-    const isServerSide = typeof window === 'undefined';
 
       const adjustedEndpoint = endpoint;
-    console.log("$$$endpoint:", endpoint);
-    console.log("process env:", process.env.NEXT_PUBLIC_API_BASE_URL , "**", isServerSide);
-    console.log("adjusted endpoint", adjustedEndpoint);
-    console.log("api endpoint: ", API_ENDPOINT);
-    console.log("fetching from: ", `${API_ENDPOINT}${adjustedEndpoint}`);
-    console.log("headers: ", headers);
-    console.log("options: "    , options);
     try {
         const response = await fetch(`${API_ENDPOINT}${adjustedEndpoint}`, {
             ...options,
