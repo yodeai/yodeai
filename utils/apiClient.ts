@@ -2,7 +2,7 @@
 
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
     : process.env.API_BASE_URL || '';
 
 const headers = {
@@ -18,12 +18,13 @@ const fetchData = async (endpoint: string, options: FetchOptions = {}): Promise<
     const isServerSide = typeof window === 'undefined';
 
     // Adjust the endpoint based on the context (server side doesn't need the /api prefix)
-    /*const adjustedEndpoint = isServerSide 
+    const adjustedEndpoint = isServerSide 
       ? (endpoint.startsWith('/api') ? endpoint.replace('/api', '') : endpoint) 
       : endpoint;
-    */
+    console.log("adjusted endpoint", adjustedEndpoint);
+    console.log("api endpoint: ", API_ENDPOINT);
     try {
-        const response = await fetch(`${API_ENDPOINT}${API_ENDPOINT}`, {
+        const response = await fetch(`${API_ENDPOINT}${adjustedEndpoint}`, {
             ...options,
             headers: {
                 ...headers,

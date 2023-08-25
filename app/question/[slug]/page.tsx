@@ -6,15 +6,26 @@ export const dynamic = 'force-dynamic'
 export default async function Page({ params }: { params: { slug: string } })  {
     const url = '/api/question';
     const tparams = new URLSearchParams({ slug: params.slug }).toString(); 
-    
-    /*const response = await fetchData(`${url}?${tparams}`, {
+    const API_ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+    : process.env.API_BASE_URL || '';
+    // Check if running on the server or the client
+    const isServerSide = typeof window === 'undefined';
+    const endpoint = `${url}?${tparams}`;
+    // Adjust the endpoint based on the context (server side doesn't need the /api prefix)
+    const adjustedEndpoint = isServerSide 
+      ? (endpoint.startsWith('/api') ? endpoint.replace('/api', '') : endpoint) 
+      : endpoint;
+
+
+    const response = await fetchData(`${url}?${tparams}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         },
-    });
+    });/*
     const question = response.data;*/
-    const question = {question_text: `${url}?${tparams}`, answer_full: "*"+process.env.NEXT_PUBLIC_VERCEL_URL+"*", slug: "hi"}
+    const question = {question_text: endpoint, answer_full: "*"+adjustedEndpoint+"*", slug: "hi"}
 
     return (
 
