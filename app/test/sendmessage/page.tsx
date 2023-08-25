@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { WhatsAppPayload } from '../../api/sendWhatsAppMessage/route';
+import { WhatsAppPayload } from '../../api/sendWhatsAppMessage/sendMessage';
 
 const SendMessagePage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>('16509969470');
