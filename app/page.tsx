@@ -34,7 +34,7 @@ export default async function Index() {
                 href="/login"
                 className="py-2 px-4 rounded-md  bg-btn-background hover:bg-btn-background-hover"
               >
-                Login
+              Yodeai |   Login
               </Link>
             )}
           </div>

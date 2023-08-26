@@ -80,7 +80,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     // Generate a unique slug for the question
     const baseSlug = generateSlug(result.question);
     const uniqueSlug = await generateUniqueSlug(baseSlug);
-
     // Extract sources from the metadata
     const sources = result.metadata
         .map((meta, index) => {
@@ -96,9 +95,7 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
             return `${index + 1}. [${title}](${sourceURL})`;
         })
         .join("\n");
-
     const linkMap = await fetchLinksFromDatabase();
-
     // Append the sources to the response to create the full answer
     //let fullAnswer = `${result.response}\n\n\nSources:\n${sources}`;
     let fullAnswer: string;
@@ -112,7 +109,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     // Append the sources to the response to create the full answer
     const fullAnswer_with_sources = `${fullAnswer}\n\n\nSources:\n${sources}`;
 
-
     interface InsertData {
         question_text: string;
         answer_preview: string | null;
@@ -122,7 +118,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         whatsapp_message_id?: string;
         whatsapp_phone_number?: string;
     }
-
     // Prepare data for insertion
     const insertData: InsertData = {
         question_text: result.question,
@@ -131,16 +126,13 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         slug: uniqueSlug,
         asked_on_whatsapp: !!whatsappDetails
     };
-
     // If the message is from WhatsApp, add additional details
     if (whatsappDetails) {
         insertData['whatsapp_message_id'] = whatsappDetails.messageId;
         insertData['whatsapp_phone_number'] = whatsappDetails.phoneNumber;
     }
-
     // Log to the database
     const { data, error } = await supabase.from('questions').insert(insertData);
-
     if (error) {
         console.error("Error inserting into database:", error);
     }
