@@ -1,5 +1,5 @@
 import { processVectorSearch } from './vectorSearch';
-import { supabase } from "../supabaseClient";
+import supabase from '@utils/supabaseServerClient';
 
 async function generateUniqueSlug(baseSlug: string): Promise<string> {
     let suffix = 1;

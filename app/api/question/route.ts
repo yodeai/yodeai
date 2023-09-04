@@ -1,19 +1,7 @@
-import { supabase } from "../supabaseClient";
+import supabase from '@utils/supabaseServerClient';
 import { NextResponse, NextRequest } from 'next/server'
 
-type Question = {
-    id: string,
-    question_text: string,
-    generated_answer: string,
-    asked_on_whatsapp: boolean,
-    whatsapp_message_id: string | null,
-    whatsapp_phone_number: string | null,
-    slug: string
-};
-
-
 export async function GET(request: NextRequest) {
-    console.log("here");
     try {
         const slug = request.nextUrl.searchParams.get("slug");
         const { data, error } = await supabase
