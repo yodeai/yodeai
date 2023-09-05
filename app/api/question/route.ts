@@ -1,9 +1,16 @@
-import supabase from '@utils/supabaseServerClient';
+
 import { NextResponse, NextRequest } from 'next/server'
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+    const supabase = createServerComponentClient({ cookies });
+
     try {
         const slug = request.nextUrl.searchParams.get("slug");
+        
         const { data, error } = await supabase
             .from('questions')
             .select('*')

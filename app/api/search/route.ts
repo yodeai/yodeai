@@ -1,6 +1,12 @@
+
 import { notOk, ok } from "@lib/ok";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const supabase = createServerComponentClient({ cookies });
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
 
@@ -8,17 +14,15 @@ export async function GET(request: Request) {
     return notOk("Missing query parameter", 422);
   }
 
-  try {
-    const blocks = await prisma.block.findMany({
-      where: {
-        text: {
-          search: query,
-        },
-      },
-    });
+  const { data, error } = await supabase
+    .from('block')
+    .select('*')
+    .filter('content', 'ilike', `%${query}%`);
 
-    return ok(blocks);
-  } catch (error) {
-    return notOk("Something went wrong.", 500);
+  if (error) {
+    console.error("Error fetching data: ", error);
   }
+
+  return data;
+
 }

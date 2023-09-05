@@ -1,6 +1,8 @@
-import supabase from '@utils/supabaseServerClient';
+
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Lens } from "app/_types/lens";
-import { Block } from "app/_types/block";
+
+const supabase = createClientComponentClient();
 
 export default async function getLens(lens_id: string): Promise<Lens> {
     const { data, error } = await supabase

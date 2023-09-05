@@ -1,5 +1,8 @@
-import supabase from '@utils/supabaseServerClient';
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
 
 // Utility function to generate a slug from a string (name)
 function generateSlug(name: string, iteration: number = 0) {
@@ -16,6 +19,7 @@ function generateSlug(name: string, iteration: number = 0) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createServerComponentClient({ cookies });
   try {
     const body = await request.json();
     console.log("body", body);
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
     let slug = generateSlug(name);
     let iteration = 0;
     let data, error;
-
+    //const supabase = createServerComponentClient({ cookies });
     do {
       if (iteration > 0) {
         slug = generateSlug(name, iteration);

@@ -60,14 +60,14 @@ export default function Search({
           <ul className="divide-y divide-gray-200">
             {results.map((result) => (
               <li
-                key={result.id}
+                key={result.block_id}
                 onClick={() => {
                   setOpen(false);
                   handleCommit?.(result);
                 }}
                 className="block cursor-pointer hover:bg-gray-100 p-4 transition-colors"
               >
-                {result.text}
+                {result.content}
               </li>
             ))}
           </ul>

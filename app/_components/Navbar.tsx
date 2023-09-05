@@ -80,19 +80,20 @@ export default function Navbar({ data }: NavbarProps) {
           </div>
           <ul className="mt-4 text-sm text-gray-600 flex flex-col gap-4">
             {data.map((lens) => (
-              <LensComponent lens={lens} compact={true} />
+              <LensComponent key={lens.lens_id} lens={lens} compact={true} />
             ))}
+
           </ul>
         </div>
       </Container>
 
-        <div className="p-4">
-          <Container className="border-t">
+      <div className="p-4">
+        <Container className="border-t">
 
-              <UserAccountHandler />
+          <UserAccountHandler />
 
-          </Container>
-        </div>
+        </Container>
+      </div>
 
     </nav>
   );

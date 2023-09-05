@@ -2,7 +2,6 @@
 import { notFound } from "next/navigation";
 import Container from "@components/Container";
 import Link from "next/link";
-
 import Block from "@components/BlockComponent";
 import getLens from "./get-lens";
 import { useState, useEffect, ChangeEvent } from "react";

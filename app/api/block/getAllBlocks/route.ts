@@ -2,9 +2,14 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
+
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
-        const supabase = createServerComponentClient({ cookies })
+        const supabase = createServerComponentClient({
+            cookies,
+          })
         const { data: blocks } = await supabase.from('block').select()
         return new NextResponse(
             JSON.stringify({ data: blocks }),

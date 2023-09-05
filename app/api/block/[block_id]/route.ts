@@ -3,8 +3,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest } from "next/server";
 import { cookies } from 'next/headers';
 
-// Initialize Supabase client
-const supabase = createServerComponentClient({ cookies });
+export const dynamic = 'force-dynamic';
 
 export async function DELETE(
   _request: NextRequest,
@@ -14,13 +13,14 @@ export async function DELETE(
     params: { id: string };
   }
 ) {
+  const supabase = createServerComponentClient({ cookies });
   const id = Number(params.id);
 
   // Validate the id
   if (isNaN(id)) {
     return notOk("Invalid ID");
   }
-
+  
   try {
     const { error } = await supabase
       .from('block')
@@ -45,6 +45,7 @@ export async function PUT(
     params: { id: string };
   }
 ) {
+  const supabase = createServerComponentClient({ cookies });
   const id = Number(params.id);
 
   // Validate the id
@@ -53,7 +54,7 @@ export async function PUT(
   }
 
   const data = await request.json();
-
+  
   try {
     const { data: block, error } = await supabase
       .from('block')

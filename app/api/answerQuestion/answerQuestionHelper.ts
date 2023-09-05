@@ -1,7 +1,12 @@
 import { processVectorSearch } from './vectorSearch';
-import supabase from '@utils/supabaseServerClient';
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
+export const dynamic = 'force-dynamic';
+
+
 
 async function generateUniqueSlug(baseSlug: string): Promise<string> {
+    const supabase = createServerComponentClient({ cookies });
     let suffix = 1;
     let potentialSlug = baseSlug;
 
@@ -38,6 +43,7 @@ function generateSlug(text: string, wordLimit = 10): string {
 
 
 async function fetchLinksFromDatabase(): Promise<{ [title: string]: string }> {
+    const supabase = createServerComponentClient({ cookies });
     const { data, error } = await supabase.from('links').select('title, url');
     if (error) throw error;
 
@@ -76,7 +82,7 @@ function addHyperlinksToResponse(response: string, linkMap: { [title: string]: s
 
 export const getAnswerForQuestion = async (question: string, whatsappDetails?: { messageId: string, phoneNumber: string }) => {
     const result = await processVectorSearch(question);
-
+    const supabase = createServerComponentClient({ cookies });
     // Generate a unique slug for the question
     const baseSlug = generateSlug(result.question);
     const uniqueSlug = await generateUniqueSlug(baseSlug);

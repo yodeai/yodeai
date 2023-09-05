@@ -1,7 +1,13 @@
-import supabase from '@utils/supabaseServerClient';
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
+
 import { Block } from "app/_types/block";
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function getBlock(block_id: string): Promise< Block >  {
+    const supabase = createServerComponentClient({ cookies });
     const { data, error } = await supabase
         .from('block')
         .select('*')

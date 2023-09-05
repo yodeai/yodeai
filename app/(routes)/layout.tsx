@@ -1,14 +1,13 @@
 import Navbar from "@components/Navbar";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import QuestionAnswerForm from '../_components/QuestionAnswerForm'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import QuestionAnswerForm from '@components/QuestionAnswerForm'
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClientComponentClient();
 
   const { data: session } = await supabase.auth.getSession();
 
