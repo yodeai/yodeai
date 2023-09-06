@@ -21,12 +21,46 @@ export async function POST(request: NextRequest) {
 
     // Add the user_id to the requestData
     requestData.user_id = user.id;
-    console.log("request data:");
-    console.log(requestData);
+
     // Insert the new block into the database
     const { data, error } = await supabase
       .from('block')
       .insert([requestData]);
+
+    // Check for errors
+    if (error) {
+      throw error;
+    }
+
+    // Respond with success
+    return new NextResponse(
+      JSON.stringify({ data: data }),
+      { status: 201 }
+    );
+
+  } catch (error) {
+    console.error("Error inserting block:", error);
+    return new NextResponse(
+      JSON.stringify({ error: 'Failed to insert block.' }),
+      { status: 500 }
+    );
+  }
+}
+
+
+
+
+export async function GET(request: NextRequest) {
+  const supabase = createServerComponentClient({ cookies });
+  console.log("HEREEEE");
+  try {
+    const requestData = await request.json();
+    const id = requestData.id;
+    const { data, error } = await supabase
+      .from('block')
+      .select('*')
+      .eq('id', id)
+      .single();
 
     // Check for errors
     if (error) {

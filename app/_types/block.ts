@@ -3,6 +3,7 @@ export type Block = {
     created_at: Date;
     updated_at: Date;
     block_type: string;
+    title: string;
     content: string;
     parentId?: string;  
     parent?: Block;

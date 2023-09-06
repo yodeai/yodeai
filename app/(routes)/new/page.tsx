@@ -1,5 +1,5 @@
-import Container from "../../_components/Container";
-import UploadNotes from "./UploadNotes";
+import Container from "@components/Container";
+import UploadNotes from "./UploadBlocks";
 
 export default function New() {
   return (

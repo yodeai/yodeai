@@ -9,13 +9,13 @@ import TextareaAutosize from "react-textarea-autosize";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Block } from "app/_types/block";
 
-async function upload(data: string): Promise<Block> {
+async function upload(data: { title: string; content: string; }): Promise<Block> {
   const request = fetch("/api/block", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ block_type: "note", content: data }),
+    body: JSON.stringify({ block_type: "note", title: data.title, content: data.content }),
   });
 
   const { data: created } = await load(request, {
@@ -27,9 +27,9 @@ async function upload(data: string): Promise<Block> {
   return created;
 }
 
-export default function UploadNotes() {
+export default function UploadBlocks() {
   const router = useRouter();
-  const [note, setNote] = useState<string>("");
+  const [block, setBlock] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -41,38 +41,44 @@ export default function UploadNotes() {
     maxFiles: 1,
   });
   const [value, setValue] = useState("write");
-
+  const [title, setTitle] = useState<string>("new block");
   const uploadAndRedirect = useCallback(
-    async (data: string) => {
+    async (data: { title: string; content: string; }) => {
       const created = await upload(data);
       setFiles([]);
-      setNote("");
+      setBlock("");
+      setTitle("new block");
       router.refresh();
       router.push(`/`);
     },
     [router]
   );
-
   const handleFileUpload: FormEventHandler<HTMLFormElement> = useCallback(
     async (event) => {
       event.preventDefault();
 
       const data = await files[0].text();
-
-      uploadAndRedirect(data);
+      uploadAndRedirect({
+        title,
+        content: data,
+      });
     },
-    [files, uploadAndRedirect]
+    [files, uploadAndRedirect, title]
   );
 
-  const handleSubmitWrittenNote: FormEventHandler<HTMLFormElement> =
+  const handleSubmitWrittenBlock: FormEventHandler<HTMLFormElement> =
     useCallback(
       async (event) => {
         event.preventDefault();
 
-        uploadAndRedirect(note);
+        uploadAndRedirect({
+          title: title,
+          content: block,
+        });
       },
-      [note, uploadAndRedirect]
+      [block, uploadAndRedirect, title]
     );
+
 
   return (
     <Tabs.Root value={value} onValueChange={(value: string) => setValue(value)}>
@@ -93,20 +99,27 @@ export default function UploadNotes() {
       <Tabs.Content value="write">
         <form
           className="flex flex-col gap-4 items-start"
-          onSubmit={handleSubmitWrittenNote}
+          onSubmit={handleSubmitWrittenBlock}
         >
+          <input
+            type="text"
+            className="w-full p-2 mb-4 border rounded"
+            placeholder="Title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           <TextareaAutosize
-            id="note"
+            id="block"
             className="w-full min-h-[200px] bg-white resize-none border p-4 rounded"
             placeholder="Write something..."
-            value={note}
+            value={block}
             onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-              setNote(event.target.value)
+              setBlock(event.target.value)
             }
           />
           <Button
-            disabled={note.length === 0}
-            className={clsx(note.length === 0 && "cursor-not-allowed")}
+            disabled={block.length === 0}
+            className={clsx(block.length === 0 && "cursor-not-allowed")}
             variant="primary"
             type="submit"
           >

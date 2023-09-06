@@ -31,20 +31,29 @@ export default function BlockComponent({ block, compact }: BlockProps) {
   return (
     <div
       className={clsx(
-        "flex items-start justify-between",
+        "flex items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
         compact ? "max-w-xs" : ""
       )}
     >
       <div className="flex flex-col gap-1">
         <Link className="flex items-center flex-1" href={`/block/${block.block_id}`}>
           <ReactMarkdown className="text-gray-600 line-clamp-1">
-            {block.content}
+            {block.title}
           </ReactMarkdown>
         </Link>
-        {!compact && (
-          <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
-        )}
+        {!compact ? (
+          <>
+            <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
+            <div className="text-gray-600 line-clamp-2">
+              <ReactMarkdown>
+                {block.content}
+              </ReactMarkdown>
+            </div>
+
+          </>
+        ) : null}
       </div>
+
       {!compact && (
         <div className="flex items-center gap-2">
           <Button

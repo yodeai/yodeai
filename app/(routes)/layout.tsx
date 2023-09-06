@@ -14,7 +14,7 @@ export default async function AppLayout({
   const { data, error } = await supabase
     .from('lens')
     .select('*')
-    //.eq('user_id', session.user.id)
+  //.eq('user_id', session.user.id)
 
   if (error) {
     console.error("An error occurred:", error);
@@ -24,12 +24,14 @@ export default async function AppLayout({
   return (
     <>
       <div className="flex">
-        <Navbar session={session.session} data={data} />
-        <div className="flex-grow min-w-[600px]">
+        <div className="overflow-y-auto flex-shrink-0">
+          <Navbar session={session.session} data={data} />
+        </div>
+        <div className="flex-grow min-w-[600px] overflow-y-auto">
           {children}
         </div>
-        <div className=" bg-white border-l ">
-          <QuestionAnswerForm /> 
+        <div className=" bg-white border-l min-w-[300px] overflow-y-auto">
+          <QuestionAnswerForm />
         </div>
       </div>
     </>
