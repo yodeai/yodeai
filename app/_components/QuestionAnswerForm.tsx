@@ -35,7 +35,7 @@ const QuestionAnswerForm: React.FC = () => {
     };
 
     return (
-        <div className="container p-4" >
+        <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
             <div className="flex flex-col  lg:py-12 text-foreground">
                 <form onSubmit={handleSubmit} className="flex">
@@ -55,9 +55,6 @@ const QuestionAnswerForm: React.FC = () => {
                     </button>
                 </form>
                 <ReactMarkdown className=" mt-4">{answer}</ReactMarkdown>
-                <p>
-                    {slug && <a href={`/question/${slug}`} className="text-blue-500 mt-2 block">[Link to this question]</a>} { }
-                </p>
             </div>
         </div>
     );

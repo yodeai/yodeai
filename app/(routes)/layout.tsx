@@ -27,10 +27,10 @@ export default async function AppLayout({
         <div className="overflow-y-auto flex-shrink-0">
           <Navbar session={session.session} data={data} />
         </div>
-        <div className="flex-grow min-w-[600px] overflow-y-auto">
+        <div className="w-[50vw] overflow-y-auto">
           {children}
         </div>
-        <div className=" bg-white border-l min-w-[300px] overflow-y-auto">
+        <div className="w-[30vw] bg-white border-l  overflow-y-auto ">
           <QuestionAnswerForm />
         </div>
       </div>

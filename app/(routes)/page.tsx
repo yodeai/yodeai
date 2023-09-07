@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Block } from 'app/_types/block';
 import BlockComponent from '@components/BlockComponent';
+import Link from "next/link";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +28,13 @@ export default function Index() {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+
+    return (
+      <div className="flex flex-col p-4 flex-grow">
+        <h1 className=" text-lg">Loading..</h1>
+      </div>
+
+    );
   }
 
   if (error) {
@@ -34,8 +42,15 @@ export default function Index() {
   }
 
   return (
-    <div className="w-full flex flex-col p-4">
+    <div className=" flex flex-col p-4">
       <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">All blocks.</h1>
+      <Link
+        href="/new"
+        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors"
+      >
+        <PlusIcon /> New block
+      </Link>
+
       <div className="flex flex-col  lg:py-12 text-foreground">
 
         {blocks.length > 0 ? (

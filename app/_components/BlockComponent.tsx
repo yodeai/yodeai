@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
+import { Pencil2Icon } from "@radix-ui/react-icons";
 
 interface BlockProps {
   compact?: boolean;
@@ -15,18 +16,6 @@ interface BlockProps {
 }
 export default function BlockComponent({ block, compact }: BlockProps) {
   const router = useRouter();
-
-  const handleDelete = useCallback(async () => {
-    const request = fetch(`/api/block/${block.block_id}`, {
-      method: "DELETE",
-    });
-    await load(request, {
-      loading: "Deleting...",
-      success: "Deleted!",
-      error: "Failed to delete.",
-    });
-    router.refresh();
-  }, [block, router]);
 
   return (
     <div
@@ -56,14 +45,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
 
       {!compact && (
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            className="hover:text-red-500 hover:border-red-500 transition-colors"
-            type="button"
-            onClick={handleDelete}
-          >
-            Delete
-          </Button>
+
         </div>
       )}
     </div>

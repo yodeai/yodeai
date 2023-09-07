@@ -9,7 +9,7 @@ import {
 } from "@supabase/auth-helpers-nextjs";
 import Button from "./Button";
 import Container from "./Container";
-import { PlusIcon, ShadowInnerIcon } from "@radix-ui/react-icons";
+import { ShadowInnerIcon } from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import { useCallback } from "react";
@@ -51,7 +51,7 @@ export default function Navbar({ data }: NavbarProps) {
   }, [router]);
 
   return (
-    <nav className="bg-white border-r  flex flex-col">
+    <nav className="bg-white border-r  flex flex-col fixed-width-nav">
       <Container className="flex flex-1 flex-col">
         <div className="p-4">
           <div className="flex flex-wrap items-center gap-2 justify-between">
@@ -64,12 +64,7 @@ export default function Navbar({ data }: NavbarProps) {
             >
               <ShadowInnerIcon /> New lens
             </button>
-            <Link
-              href="/new"
-              className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors"
-            >
-              <PlusIcon /> New block
-            </Link>
+
           </div>
           <div className="mt-4">
             <Search

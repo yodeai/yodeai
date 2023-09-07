@@ -5,19 +5,12 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(
-  _request: NextRequest,
-  {
-    params,
-  }: {
-    params: { id: string };
-  }
-) {
+export async function DELETE(request: NextRequest, { params,}: {params: { block_id: string };}) {
   const supabase = createServerComponentClient({ cookies });
-  const id = Number(params.id);
+  const block_id = Number(params.block_id);
 
   // Validate the id
-  if (isNaN(id)) {
+  if (isNaN(block_id)) {
     return notOk("Invalid ID");
   }
   
@@ -25,41 +18,34 @@ export async function DELETE(
     const { error } = await supabase
       .from('block')
       .delete()
-      .eq('id', id);
+      .eq('block_id', block_id);
 
     if (error) {
       throw error;
     }
 
-    return ok({ id });
+    return ok({ block_id });
   } catch (err) {
     return notOk(`${err}`);
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  {
-    params,
-  }: {
-    params: { id: string };
-  }
-) {
-  const supabase = createServerComponentClient({ cookies });
-  const id = Number(params.id);
+export async function PUT(request: NextRequest,{params,}: {params: { block_id: string };} ) {
 
+  const supabase = createServerComponentClient({ cookies });
+  const block_id = Number(params.block_id);
+  console.log("PUT", block_id);
   // Validate the id
-  if (isNaN(id)) {
+  if (isNaN(block_id)) {
     return notOk("Invalid ID");
   }
-
   const data = await request.json();
-  
+  console.log("PUT", data);
   try {
     const { data: block, error } = await supabase
       .from('block')
       .update(data)
-      .eq('id', id);
+      .eq('block_id', block_id);
 
     if (error) {
       throw error;
@@ -72,4 +58,27 @@ export async function PUT(
 }
 
 
+export async function GET(request: NextRequest, { params,}: {params: { block_id: string };}) {
+  const supabase = createServerComponentClient({ cookies });
+  
+  const block_id = Number(params.block_id);
+  // Validate the id  
+  if (isNaN(block_id)) {
+    return notOk("Invalid ID");
+  }
+  try {
+    const { data: block, error } = await supabase
+      .from('block')
+      .select('*')
+      .eq('block_id', block_id)
+      .single();
 
+    // Check for errors
+    if (error) {
+      throw error;
+    }
+    return ok(block);
+  } catch (err) {
+    return notOk(`${err}`);
+  }
+}

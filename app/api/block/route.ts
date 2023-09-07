@@ -48,36 +48,3 @@ export async function POST(request: NextRequest) {
 }
 
 
-
-
-export async function GET(request: NextRequest) {
-  const supabase = createServerComponentClient({ cookies });
-  console.log("HEREEEE");
-  try {
-    const requestData = await request.json();
-    const id = requestData.id;
-    const { data, error } = await supabase
-      .from('block')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    // Check for errors
-    if (error) {
-      throw error;
-    }
-
-    // Respond with success
-    return new NextResponse(
-      JSON.stringify({ data: data }),
-      { status: 201 }
-    );
-
-  } catch (error) {
-    console.error("Error inserting block:", error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Failed to insert block.' }),
-      { status: 500 }
-    );
-  }
-}
