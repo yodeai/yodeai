@@ -1,3 +1,9 @@
+export type LensDetail = {
+  lens_id: number;
+  name: string;
+};
+
+
 export type Block = {
     block_id: number;  
     created_at: Date;
@@ -10,5 +16,6 @@ export type Block = {
     kids: Block[];
     links: Block[];
     backlinks: Block[];
+    inLenses?: LensDetail[]; 
   }
   

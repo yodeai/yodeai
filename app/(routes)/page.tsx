@@ -4,6 +4,7 @@ import { Block } from 'app/_types/block';
 import BlockComponent from '@components/BlockComponent';
 import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
+import LoadingSkeleton from '@components/LoadingSkeleton';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +32,7 @@ export default function Index() {
 
     return (
       <div className="flex flex-col p-4 flex-grow">
-        <h1 className=" text-lg">Loading..</h1>
+        <LoadingSkeleton />
       </div>
 
     );
@@ -46,7 +47,9 @@ export default function Index() {
       <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">All blocks.</h1>
       <Link
         href="/new"
-        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors"
+        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors"
+
+
       >
         <PlusIcon /> New block
       </Link>
@@ -55,8 +58,8 @@ export default function Index() {
 
         {blocks.length > 0 ? (
           blocks.map((block: Block) => (
+            
             <div key={block.block_id}>
-
               <BlockComponent block={block} />
             </div>
           ))

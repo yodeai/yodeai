@@ -6,10 +6,21 @@ module.exports = {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+
         btn: {
           background: 'hsl(var(--btn-background))',
           'background-hover': 'hsl(var(--btn-background-hover))',
         },
+
+        // Custom colors
+        royalBlue: {
+          DEFAULT: '#4169E1', 
+          hover: '#345BB0',   
+        },
+        customLightBlue: {
+          DEFAULT: '#05ACDF',
+          hover: '#0490B8',
+        }
       },
     },
   },

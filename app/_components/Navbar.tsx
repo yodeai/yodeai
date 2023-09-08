@@ -60,7 +60,10 @@ export default function Navbar({ data }: NavbarProps) {
             </Link>
             <button
               onClick={handleCreateLens}
-              className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors"
+              className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
+
+
+
             >
               <ShadowInnerIcon /> New lens
             </button>

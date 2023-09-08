@@ -8,6 +8,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { Lens } from "app/_types/lens";
 import { updateLensName } from './update-lens';
 import load from "@lib/load";
+import LoadingSkeleton from '@components/LoadingSkeleton';
 
 
 export default function Lens({ params }: { params: { id: string } }) {
@@ -50,7 +51,11 @@ export default function Lens({ params }: { params: { id: string } }) {
   };
 
   if (!lens) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col p-4 flex-grow">
+      <LoadingSkeleton />
+    </div>
+    );
   }
   return (
     <Container as="main" className="py-8 max-w-screen-sm gap-8">

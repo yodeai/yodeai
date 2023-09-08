@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import BlockEditor from '@components/BlockEditor';
 import Link from "next/link";
 
+
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,11 @@ export default function Block({ params }: { params: { id: string } }) {
 
 
   if (loading || !block) {
-    return <p>Loading...</p>;
+    return (
+      <div className="skeleton-container p-8 mt-12 ">
+        <div className="skeleton line  "></div>
+      </div>
+    );
   }
 
 
@@ -58,14 +63,14 @@ export default function Block({ params }: { params: { id: string } }) {
                 <div className="min-w-full">
                   <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
                   <div className="text-gray-600">
-                     <ReactMarkdown>{block.content}</ReactMarkdown>
+                    <ReactMarkdown>{block.content}</ReactMarkdown>
                   </div>
                 </div>
               </div>
 
             </>
           ) : (
-            <BlockEditor block={block} /> 
+            <BlockEditor block={block} />
           )}
         </div>
       </div>

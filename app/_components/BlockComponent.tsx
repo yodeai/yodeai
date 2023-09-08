@@ -4,19 +4,17 @@ import formatDate from "@lib/format-date";
 import load from "@lib/load";
 import clsx from "clsx";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
-import { Pencil2Icon } from "@radix-ui/react-icons";
+import BlockLenses from "@components/BlockLenses";
 
 interface BlockProps {
   compact?: boolean;
   block: Block;
 }
 export default function BlockComponent({ block, compact }: BlockProps) {
-  const router = useRouter();
-
+ 
   return (
     <div
       className={clsx(
@@ -30,6 +28,9 @@ export default function BlockComponent({ block, compact }: BlockProps) {
             {block.title}
           </ReactMarkdown>
         </Link>
+        {block.inLenses  && (
+          <BlockLenses lenses={block.inLenses} />  
+        )}
         {!compact ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
@@ -43,11 +44,13 @@ export default function BlockComponent({ block, compact }: BlockProps) {
         ) : null}
       </div>
 
-      {!compact && (
-        <div className="flex items-center gap-2">
+      {
+        !compact && (
+          <div className="flex items-center gap-2">
 
-        </div>
-      )}
-    </div>
+          </div>
+        )
+      }
+    </div >
   );
 }
