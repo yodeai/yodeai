@@ -10,7 +10,7 @@ import {
 import Button from "./Button";
 import Container from "./Container";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
-import UserAccountHandler from './UserAccount';
+
 import { Lens } from "app/_types/lens";
 import { useCallback } from "react";
 import { createLens } from "@lib/api";
@@ -51,7 +51,7 @@ export default function Navbar({ data }: NavbarProps) {
   }, [router]);
 
   return (
-    <nav className="bg-white border-r  flex flex-col fixed-width-nav">
+    <nav className="bg-white border-r px-4 flex flex-col fixed-width-nav">
       <Container className="flex flex-1 flex-col">
         <div className="p-4">
           <div className="flex flex-wrap items-center gap-2 justify-between">
