@@ -65,3 +65,49 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+.cross {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: -4px;        /* Positioning adjustments to be at the top-right */
+  right: -4px;
+  background-color: red;
+  border-radius: 50%;   /* Makes it circular */
+  display: none;        /* Initially hidden */
+  cursor: pointer;      /* Change cursor on hover to indicate it's clickable */
+}
+
+.cross:before, .cross:after {
+  content: '';            /* The cross is formed using two pseudo-elements */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 10px;
+  width: 2px;
+  background-color: white;
+}
+
+.cross:before {
+  transform: translate(-50%, -50%) rotate(45deg);  /* Rotating one of them to form a cross */
+}
+
+.cross:after {
+  transform: translate(-50%, -50%) rotate(-45deg); /* Rotating the other in the opposite direction */
+}
+
+.button-hover:hover .cross {
+  display: block;    /* Show on hover */
+}
+
+.cross:hover {
+  transform: scale(1.1);   /* Enlarge the cross slightly on hover */
+}
+
+.cross:before, .cross:after {
+  transition: background-color 0.3s;   /* Smooth transition for color change */
+}
+
+.cross:hover:before, .cross:hover:after {
+  background-color: #f2f2f2;  /* Lighten the cross color on hover */
+}

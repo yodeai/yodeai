@@ -29,7 +29,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
           </ReactMarkdown>
         </Link>
         {block.inLenses  && (
-          <BlockLenses lenses={block.inLenses} />  
+          <BlockLenses lenses={block.inLenses} block_id={block.block_id} />  
         )}
         {!compact ? (
           <>

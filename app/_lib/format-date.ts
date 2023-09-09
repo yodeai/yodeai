@@ -7,7 +7,6 @@ export default function formatDate(
   }
 ): string {
   if (relative) {
-    console.log('Date received:', date);
     return formatDistanceToNow(new Date(date), {
       addSuffix: true,
     });

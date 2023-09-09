@@ -76,7 +76,7 @@ export default function Navbar({ data }: NavbarProps) {
               }}
             />
           </div>
-          <ul className="mt-4 text-sm text-gray-600 flex flex-col gap-4">
+          <ul className="mt-4 text-gray-600 flex flex-col gap-4">
             {data.map((lens) => (
               <LensComponent key={lens.lens_id} lens={lens} compact={true} />
             ))}
