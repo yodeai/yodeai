@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params, }: { params: { lens_i
 
         // Update the updated_at column of the block to the current time
         const { error: updateBlockError } = await supabase
-            .from('blocks')
+            .from('block')
             .update({ updated_at: new Date() })
             .eq('block_id', block_id);
 
