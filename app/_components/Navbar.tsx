@@ -10,7 +10,7 @@ import {
 import Button from "./Button";
 import Container from "./Container";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
-
+import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import { useCallback } from "react";
 import { createLens } from "@lib/api";
