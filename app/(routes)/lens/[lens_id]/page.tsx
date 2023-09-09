@@ -2,8 +2,8 @@
 import { notFound } from "next/navigation";
 import Container from "@components/Container";
 import Link from "next/link";
-import Block from "@components/BlockComponent";
-import getLens from "./get-lens";
+import BlockComponent from "@components/BlockComponent";
+import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent } from "react";
 import { Lens } from "app/_types/lens";
 import { updateLensName } from './update-lens';
@@ -11,23 +11,37 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 
 
-export default function Lens({ params }: { params: { id: string } }) {
+export default function Lens({ params }: { params: { lens_id: string } }) {
   const [lens, setLens] = useState<Lens | null>(null);
-  const [lensName, setLensName] = useState(""); 
+  const [lensName, setLensName] = useState("");
+  const [blocks, setBlocks] = useState<Block[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const lensData = await getLens(params.id);
-      if (!lensData) {
+    // Fetch the blocks associated with the lens
+    fetch(`/api/lens/${params.lens_id}/getBlocks`)
+      .then((response) => response.json())
+      .then((data) => {
+        setBlocks(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching block:", error);
         notFound();
-        return;
-      }
-      setLens(lensData);
-      setLensName(lensData.name);
-    };
+      });
 
-    fetchData();
-  }, [params.id]);
+    // Fetch the lens details
+    fetch(`/api/lens/${params.lens_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setLens(data.data);
+        setLensName(data.data.name);
+      })
+      .catch((error) => {
+        console.error("Error fetching lens:", error);
+        notFound();
+      });
+
+  }, [params.lens_id]);
+
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLensName(e.target.value);
@@ -37,13 +51,13 @@ export default function Lens({ params }: { params: { id: string } }) {
     if (e.key === 'Enter' && lens) {
       e.preventDefault();
       try {
-        const updatePromise = updateLensName(lens.lens_id, lensName); 
+        const updatePromise = updateLensName(lens.lens_id, lensName);
         await load(updatePromise, {
           loading: "Updating lens name...",
           success: "Lens name updated!",
           error: "Failed to update lens name.",
         });
-        setLens({ ...lens, name: lensName }); 
+        setLens({ ...lens, name: lensName });
       } catch (error) {
         console.error('Failed to update lens name', error);
       }
@@ -53,8 +67,8 @@ export default function Lens({ params }: { params: { id: string } }) {
   if (!lens) {
     return (
       <div className="flex flex-col p-4 flex-grow">
-      <LoadingSkeleton />
-    </div>
+        <LoadingSkeleton />
+      </div>
     );
   }
   return (
@@ -70,10 +84,9 @@ export default function Lens({ params }: { params: { id: string } }) {
 
       </header>
       <div className="flex items-stretch flex-col gap-4 mt-4">
-        {/* Display blocks if they exist */}
-        {lens.blocks && lens.blocks.length > 0 ? (
-          lens.blocks.map((block) => (
-            <Block key={block.block_id} block={block} />
+        {blocks && blocks.length > 0 ? (
+          blocks.map((block) => (
+            <BlockComponent key={block.block_id} block={block} />
           ))
         ) : (
           <p>This lens is empty, add blocks here.</p>

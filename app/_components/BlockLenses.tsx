@@ -184,7 +184,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
           className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-200 shadow transition-colors"
           onClick={handleAddNewLens}
         >
-          + Add New
+          + Add to lens
         </button>
       )}
     </div>

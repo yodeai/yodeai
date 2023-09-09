@@ -1,25 +1,24 @@
 import Link from "next/link";
 import 'app/globals.css';
+import UserAccountHandler from './UserAccount';
 
-export default function HeadingBar(){
-    return(
-        <nav>
-        <ul className="flex gap-2 ">
-            <li>
-                <Link href="/" 
-                     className="text-sky-600  hover:underline">
-                      <img src="/yodeai.png" style={{ paddingLeft: '20px' }} alt="Clickable image" width={55} height={55} />
-                </Link>
-            </li>
-            <li className="ml-auto">
-                 
-                <Link  href="/reviews" 
-                        className="text-sky-600 hover:underline" >
-                      Setting
-                </Link>
-            </li>
+export default function HeadingBar() {
+    return (
+        <nav className="border-b px-4">
+            <ul className="flex gap-2  ">
+                <li>
+                    <Link href="/">
+                        <img src="/yodeai.png" className="pl-5" alt="yodeai logo" width={55} height={55} />
+                    </Link>
 
-        </ul>
+                </li>
+                <li className="ml-auto">
+
+                    <UserAccountHandler />
+
+                </li>
+
+            </ul>
         </nav>
     );
 }

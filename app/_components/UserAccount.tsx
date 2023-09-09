@@ -22,10 +22,11 @@ const UserAccountHandler = () => {
     
 
   return (
-    <nav className="w-full   h-16">
-      <div className="w-full max-w-4xl  justify-between p-3 text-sm text-foreground">
+    <nav className="w-full  ">
+      <div className="flex w-full max-w-4xl justify-between p-3 text-sm text-foreground">
+    
           {user ? (
-            <div className=" gap-4">
+            <div className="flex gap-4 items-center">
               Hey, {user.email}!
               <LogoutButton />
             </div>

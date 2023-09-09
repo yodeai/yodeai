@@ -5,13 +5,17 @@
 
 
 @layer base {
-  * {
-    @apply border-foreground/20;
-  }
   a {
     @apply underline; /* This line ensures all anchor tags are underlined */
   }
 }
+
+@layer utilities {
+  .border-lightgrey {
+    border: 1px solid #D1D5DB; 
+  }
+}
+
 
 .animate-in {
   animation: animateIn 0.3s ease 0.15s both;
