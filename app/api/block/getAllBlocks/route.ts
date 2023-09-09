@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
             )
         `)
             .order('updated_at', { ascending: false });
-
+        
         const blocksWithLenses = (blocks || []).map(block => ({
                 ...block,
                 inLenses: block.lens_blocks.map( (lb: LensBlock) => ({

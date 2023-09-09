@@ -42,11 +42,12 @@ interface NavbarProps {
   data: Lens[];
 }
 export default function Navbar({ data }: NavbarProps) {
+
   const supabase = createClientComponentClient();
   const router = useRouter();
 
   const handleCreateLens = useCallback(async () => {
-    await createLens("Untitled lens");
+    await createLens("New lens");
     router.refresh();
   }, [router]);
 
@@ -84,14 +85,6 @@ export default function Navbar({ data }: NavbarProps) {
           </ul>
         </div>
       </Container>
-
-      <div className="p-4">
-        <Container className="border-t">
-
-          <UserAccountHandler />
-
-        </Container>
-      </div>
 
     </nav>
   );

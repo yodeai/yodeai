@@ -43,7 +43,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
             {lens.name}
           </ReactMarkdown>
         </Link>
-        <p className="text-gray-500 text-sm">{formatDate(lens.created_at)}</p>
+        <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
       </div>
       <div className="flex items-center gap-2">
         {!compact && (

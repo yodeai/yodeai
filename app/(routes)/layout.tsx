@@ -14,6 +14,7 @@ export default async function AppLayout({
   const { data, error } = await supabase
     .from('lens')
     .select('*')
+    .order('updated_at', { ascending: false })
   //.eq('user_id', session.user.id)
 
   if (error) {

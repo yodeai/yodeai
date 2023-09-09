@@ -8,7 +8,7 @@ export default function HeadingBar() {
             <ul className="flex gap-2  ">
                 <li>
                     <Link href="/">
-                        <img src="/yodeai.png" className="pl-5" alt="yodeai logo" width={55} height={55} />
+                        <img src="/yodeai.png" className="pl-5 mt-1" alt="yodeai logo" width={65} height={65} />
                     </Link>
 
                 </li>

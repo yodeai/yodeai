@@ -33,7 +33,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
         )}
         {!compact ? (
           <>
-            <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
+            <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="text-gray-600 line-clamp-2">
               <ReactMarkdown>
                 {block.content}
