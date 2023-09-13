@@ -34,7 +34,6 @@ export async function PUT(request: NextRequest,{params,}: {params: { block_id: s
 
   const supabase = createServerComponentClient({ cookies });
   const block_id = Number(params.block_id);
-  console.log("PUT", block_id);
 
   if (isNaN(block_id)) {
     return notOk("Invalid ID");
@@ -43,9 +42,9 @@ export async function PUT(request: NextRequest,{params,}: {params: { block_id: s
 
   const data = {
     ...incomingData,
-    updated_at: new Date().toISOString()
+    updated_at: new Date(),
   };
-
+  //console.log("data: ", data, "block_id: ", block_id, "incomingData: ", incomingData);
   try {
     const { data: block, error } = await supabase
       .from('block')

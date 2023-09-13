@@ -5,5 +5,4 @@ export type Question = {
     asked_on_whatsapp: boolean;
     whatsapp_message_id: string | null;
     whatsapp_phone_number: string | null;
-    slug: string;
 };

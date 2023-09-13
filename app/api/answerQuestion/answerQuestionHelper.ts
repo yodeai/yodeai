@@ -5,42 +5,6 @@ export const dynamic = 'force-dynamic';
 
 
 
-async function generateUniqueSlug(baseSlug: string): Promise<string> {
-    const supabase = createServerComponentClient({ cookies });
-    let suffix = 1;
-    let potentialSlug = baseSlug;
-
-    while (true) {
-        const { data, error } = await supabase
-            .from('questions')
-            .select('id')
-            .eq('slug', potentialSlug)
-
-        if (error) {
-            throw error;
-        }
-
-        if (!data || data.length === 0) {  // Check if data is empty or not.
-            return potentialSlug;
-        }
-
-        // If slug exists, append/increment the suffix and check again.
-        suffix += 1;
-        potentialSlug = `${baseSlug}-${suffix}`;
-    }
-}
-
-function generateSlug(text: string, wordLimit = 10): string {
-    const limitedText = text.split(' ').slice(0, wordLimit).join(' '); // Take the first n words.
-    const slug = limitedText
-        .toLowerCase() // Convert to lowercase
-        .replace(/[^a-z0-9\s]+/g, '') // Remove special characters and punctuations
-        .trim() // Trim any leading or trailing spaces
-        .replace(/\s+/g, '-'); // Replace spaces with hyphens
-
-    return slug;
-}
-
 
 async function fetchLinksFromDatabase(): Promise<{ [title: string]: string }> {
     const supabase = createServerComponentClient({ cookies });
@@ -84,9 +48,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     const lensID = 6;
     const result = await processVectorSearch(question);
     const supabase = createServerComponentClient({ cookies });
-    // Generate a unique slug for the question
-    const baseSlug = generateSlug(result.question);
-    const uniqueSlug = await generateUniqueSlug(baseSlug);
     // Extract sources from the metadata
     const sources = result.metadata
         .map((meta, index) => {
@@ -120,7 +81,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         question_text: string;
         answer_preview: string | null;
         answer_full: string | null;
-        slug: string;
         asked_on_whatsapp: boolean;
         whatsapp_message_id?: string;
         whatsapp_phone_number?: string;
@@ -130,7 +90,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
         question_text: result.question,
         answer_preview: result.response,
         answer_full: fullAnswer_with_sources,
-        slug: uniqueSlug,
         asked_on_whatsapp: !!whatsappDetails
     };
     // If the message is from WhatsApp, add additional details
@@ -149,10 +108,9 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     console.log(insertData.answer_preview);
     console.log("full: ");
     console.log(insertData.answer_full);
-    // Return answer_preview, answer_full, and slug
+    // Return answer_preview, answer_full
     return {
         answer_preview: insertData.answer_preview,
         answer_full: insertData.answer_full,
-        slug: uniqueSlug
     };
 };

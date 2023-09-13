@@ -26,7 +26,8 @@
       "@api/*": ["app/api/*"],
       "@types/*": ["app/_types/*"],
       "@lib/*": ["app/_lib/*"],
-      "@utils/*": ["app/_utils/*"]
+      "@utils/*": ["app/_utils/*"],
+      "@contexts/*": ["app/_contexts/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "middleware.js", "app/_components/QuestionAnswerForm.jsx"],

@@ -4,19 +4,6 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-// Utility function to generate a slug from a string (name)
-function generateSlug(name: string, iteration: number = 0) {
-  let slug = name
-    .toLowerCase()
-    .replace(/ /g, '-')
-    .replace(/[^\w-]+/g, '');
-
-  if (iteration > 0) {
-    slug = `${slug}-${iteration}`;
-  }
-
-  return slug;
-}
 
 export async function POST(request: NextRequest) {
   const supabase = createServerComponentClient({ cookies });
@@ -32,27 +19,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let slug = generateSlug(name);
-    let iteration = 0;
     let data, error;
     //const supabase = createServerComponentClient({ cookies });
-    do {
-      if (iteration > 0) {
-        slug = generateSlug(name, iteration);
-      }
-
-      ({ data, error } = await supabase
-        .from('lens')
-        .insert([
-          {
-            name: name,
-            slug: slug,
-          },
-        ]));
-
-      iteration++;
-    } while (error && error.message.includes('duplicate key value violates unique constraint'));
-
+    
     if (error) {
       throw error;
     }
