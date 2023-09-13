@@ -29,6 +29,6 @@
       "@utils/*": ["app/_utils/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "middleware.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "middleware.js", "app/_components/QuestionAnswerForm.jsx"],
   "exclude": ["node_modules"]
 }

@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
 
     try {
         const { question } = await request.json();
-
         if (!question) {
             return new NextResponse(
                 JSON.stringify({error: "Question is required" }),
