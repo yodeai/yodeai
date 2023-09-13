@@ -8,14 +8,15 @@ import { useDropzone } from "react-dropzone";
 import TextareaAutosize from "react-textarea-autosize";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Block } from "app/_types/block";
+import { useLens } from "@contexts/lensContext";
 
-async function upload(data: { title: string; content: string; }): Promise<Block> {
+async function upload(data: { title: string; content: string; lens_id: string | null }): Promise<Block> {
   const request = fetch("/api/block", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ block_type: "note", title: data.title, content: data.content }),
+    body: JSON.stringify({ block_type: "note", title: data.title, content: data.content, lens_id: data.lens_id }),
   });
 
   const { data: created } = await load(request, {
@@ -31,6 +32,8 @@ export default function UploadBlocks() {
   const router = useRouter();
   const [block, setBlock] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
+  const { lensId } = useLens();
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
       setFiles(acceptedFiles as File[]);
@@ -43,13 +46,16 @@ export default function UploadBlocks() {
   const [value, setValue] = useState("write");
   const [title, setTitle] = useState<string>("new block");
   const uploadAndRedirect = useCallback(
-    async (data: { title: string; content: string; }) => {
+    async (data: { title: string; content: string; lens_id: string | null }) => {
       const created = await upload(data);
       setFiles([]);
       setBlock("");
       setTitle("new block");
       router.refresh();
-      router.push(`/`);
+      if (!lensId)
+        router.push(`/`);
+      else
+        router.push(`/lens/${lensId}`);
     },
     [router]
   );
@@ -61,6 +67,7 @@ export default function UploadBlocks() {
       uploadAndRedirect({
         title,
         content: data,
+        lens_id: lensId
       });
     },
     [files, uploadAndRedirect, title]
@@ -74,6 +81,7 @@ export default function UploadBlocks() {
         uploadAndRedirect({
           title: title,
           content: block,
+          lens_id: lensId
         });
       },
       [block, uploadAndRedirect, title]
@@ -82,6 +90,7 @@ export default function UploadBlocks() {
 
   return (
     <Tabs.Root value={value} onValueChange={(value: string) => setValue(value)}>
+      {lensId && <h1>Adding to lens</h1>}
       <Tabs.List className="divide-x border overflow-hidden rounded-lg inline-flex my-4">
         <Tabs.Trigger
           value="write"
@@ -117,6 +126,7 @@ export default function UploadBlocks() {
               setBlock(event.target.value)
             }
           />
+
           <Button
             disabled={block.length === 0}
             className={clsx(block.length === 0 && "cursor-not-allowed")}

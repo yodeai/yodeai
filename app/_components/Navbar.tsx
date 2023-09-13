@@ -87,6 +87,7 @@ export default function Navbar() {
           >
             <ShadowInnerIcon /> New lens
           </button>
+          
         </div>
 
 

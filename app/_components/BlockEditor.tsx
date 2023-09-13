@@ -5,10 +5,8 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
 import formatDate from "@lib/format-date";
 import load from "@lib/load";
-import Link from "next/link";
 import { useCallback } from "react";
 import { TrashIcon } from "@radix-ui/react-icons";
-import ReactMarkdown from 'react-markdown';
 import { useRouter } from "next/navigation";
 
 export default function BlockEditor({ block }: { block: NonNullable<Block> }) {

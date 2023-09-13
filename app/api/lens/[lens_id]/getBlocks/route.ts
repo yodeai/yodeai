@@ -23,20 +23,25 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                 *,
                 block!fk_block (*) 
             `)
-            .eq('lens_id', params.lens_id);
+            .eq('lens_id', params.lens_id)
+
 
         if (error) {
             throw error;
         }
-        
+
 
         // Extract the associated blocks from the lensBlocks data
-        const blocksForLens = lensBlocks 
-    ? lensBlocks
-          .map((lensBlock: LensBlock) => lensBlock.block)
-          .filter(block => block !== null )  : [];
+        const blocksForLens = lensBlocks
+            ? lensBlocks
+                .map((lensBlock: LensBlock) => lensBlock.block)
+                .filter(block => block !== null) : [];
 
-        //console.log("blocks: ", blocksForLens);
+        blocksForLens.sort((a, b) => {
+            if (a.updated_at > b.updated_at) return -1;
+            if (a.updated_at < b.updated_at) return 1;
+            return 0;
+        });
         return new NextResponse(
             JSON.stringify({ data: blocksForLens }),
             { status: 200 }

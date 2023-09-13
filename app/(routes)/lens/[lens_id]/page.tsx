@@ -8,8 +8,9 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
+import { Pencil2Icon, TrashIcon, PlusIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -142,6 +143,11 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
+      <Link
+            href="/new"
+            className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
+            <PlusIcon /> New block
+          </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
             <BlockComponent key={block.block_id} block={block} />
