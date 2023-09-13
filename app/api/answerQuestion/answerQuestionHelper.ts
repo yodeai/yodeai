@@ -84,8 +84,9 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     const result = await processVectorSearch(question);
     const supabase = createServerComponentClient({ cookies });
     // Generate a unique slug for the question
-    const baseSlug = generateSlug(result.question);
-    const uniqueSlug = await generateUniqueSlug(baseSlug);
+    //const baseSlug = generateSlug(result.question);
+    //const uniqueSlug = await generateUniqueSlug(baseSlug);
+    const uniqueSlug = "TODO";
     // Extract sources from the metadata
     const sources = result.metadata
         .map((meta, index) => {

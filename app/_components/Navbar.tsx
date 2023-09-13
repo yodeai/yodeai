@@ -71,43 +71,41 @@ export default function Navbar() {
     setLensId(null);
     router.push(`/`);
   }
-  
-  
+
+
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
       <Container className="flex flex-1 flex-col">
-        
-          <div className="flex flex-wrap items-center gap-2 justify-between p-4">
-            <button className="font-semibold text-lg" onClick={handleHomeClick}>
-              Home
-            </button>
-            <button
-              onClick={handleCreateLens}
-              className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
+
+        <div className="flex flex-col items-start gap-2 p-4">
+          <button className="font-semibold text-lg" onClick={handleHomeClick}>
+            Home
+          </button>
+          <button
+            onClick={handleCreateLens}
+            className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
+          >
+            <ShadowInnerIcon /> New lens
+          </button>
+        </div>
 
 
+        <div className="mt-4 p-4">
+          <Search
+            onCommit={(block) => {
+              router.push(`/blocks/${block.block_id}`);
+            }}
+          />
+        </div>
 
-            >
-              <ShadowInnerIcon /> New lens
-            </button>
 
-          </div>
-          <div className="mt-4 p-4">
-            <Search
-              onCommit={(block) => {
-                router.push(`/blocks/${block.block_id}`);
-              }}
-            />
-          </div>
-
-          
-          <ul className="mt-4 text-gray-600 flex flex-col gap-4">
-            {lenses.map((lens) => (
-              <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-            ))}
-          </ul>
+        <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+          {lenses.map((lens) => (
+            <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+          ))}
+        </ul>
       </Container>
 
-    </nav>
+    </nav >
   );
 }
