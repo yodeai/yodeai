@@ -4,6 +4,7 @@ import React, { useState, FormEvent } from 'react';
 import fetchData from '../_utils/apiClient';
 import ReactMarkdown from 'react-markdown';
 const chatHistory = new Map();
+import { useLens } from "@contexts/lensContext";
 
 import { useRef, useEffect } from "react";
 
@@ -16,9 +17,9 @@ const QuestionAnswerForm: React.FC = () => {
 
 
     const [inputValue, setInputValue] = useState<string>('');
-    const lensID='7';
-    if (chatHistory.has(lensID) === false)
-        chatHistory.set(lensID,'');
+    const { lensId, setLensId } = useLens();
+    if (chatHistory.has(lensId) === false)
+        chatHistory.set(lensId,'');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const handleSubmit = async (e: FormEvent) => {
         console.log('\n\n\n-----------\n\n\n');
@@ -33,15 +34,15 @@ const QuestionAnswerForm: React.FC = () => {
                 body: JSON.stringify(dataToPost),
             });
 
-            const newResponse  =chatHistory.get(lensID)+"  \n"+inputValue+"  \nAnswer:  \n"+response.answer_full;
-            console.log("---->"+chatHistory.get(lensID));
+            const newResponse  =chatHistory.get(lensId)+"  \n"+inputValue+"  \nAnswer:  \n"+response.answer_full;
+            console.log("---->"+chatHistory.get(lensId));
             console.log("---->"+newResponse);
-            chatHistory.set(lensID, newResponse);            
+            chatHistory.set(lensId, newResponse);            
 
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
-            const newResponse=chatHistory.get(lensID)+'Failed to fetch answer. ' + error;
-            chatHistory.set(lensID, newResponse);            
+            const newResponse=chatHistory.get(lensId)+'Failed to fetch answer. ' + error;
+            chatHistory.set(lensId, newResponse);            
         } finally {
             setIsLoading(false);
         }
@@ -54,11 +55,12 @@ const QuestionAnswerForm: React.FC = () => {
     }
 
     
-    const answer = chatHistory.has(lensID)?chatHistory.get(lensID):'The answer will be limited to the content of the lens.';
+    const answer = chatHistory.has(lensId)?chatHistory.get(lensId):'The answer will be limited to the content of the lens.';
     
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
+            <p>LensID: {lensId}</p>
             <div className="flex flex-col  lg:py-12 text-foreground">
                 <form onSubmit={handleSubmit} className="flex">
                     <input
