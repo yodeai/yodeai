@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         }
         const response = await getAnswerForQuestion(question);
         return new NextResponse(
-            JSON.stringify({ answer_preview: response.answer_preview, answer_full: response.answer_full, slug: response.slug }),
+            JSON.stringify({ answer_preview: response.answer_preview, answer_full: response.answer_full}),
             { status: 200 }
         );
     } catch (error) {

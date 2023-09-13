@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS questions (
     asked_on_whatsapp boolean NOT NULL DEFAULT false,
     whatsapp_message_id text,
     whatsapp_phone_number text,
-    slug text NOT NULL UNIQUE,
     -- Ensure that whatsapp_message_id and whatsapp_phone_number are only 
     -- populated if asked_on_whatsapp is true
     CHECK ((asked_on_whatsapp = false AND whatsapp_message_id IS NULL AND whatsapp_phone_number IS NULL) OR

@@ -9,7 +9,6 @@ import ReactMarkdown from 'react-markdown';
 const QuestionAnswerForm: React.FC = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const [answer, setAnswer] = useState<string>('The answer will be limited to the content of the lens.');
-    const [slug, setSlug] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { lensId, setLensId } = useLens();
     const handleSubmit = async (e: FormEvent) => {
@@ -26,7 +25,6 @@ const QuestionAnswerForm: React.FC = () => {
             });
 
             setAnswer(response.answer_full);
-            setSlug(response.slug);
 
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
