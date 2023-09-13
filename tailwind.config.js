@@ -20,6 +20,7 @@ module.exports = {
         customLightBlue: {
           DEFAULT: '#05ACDF',
           hover: '#0490B8',
+          light: '#E6F7FF'
         }
       },
     },

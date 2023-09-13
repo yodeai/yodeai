@@ -16,7 +16,7 @@ export async function PUT(request: NextRequest, { params,}: {params: { lens_id: 
     try {
       const { data: lens, error } = await supabase
         .from('lens')
-        .update({ name: name })
+        .update({ name: name, updated_at: new Date()})
         .eq('lens_id', lens_id)
         .single();
   

@@ -61,7 +61,7 @@ export default function Block({ params }: { params: { id: string } }) {
                   </div>
                 </div>
                 <div className="min-w-full">
-                  <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
+                  <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
                   <div className="text-gray-600">
                     <ReactMarkdown>{block.content}</ReactMarkdown>
                   </div>

@@ -1,6 +1,7 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 import React, { useState, FormEvent } from 'react';
+import { useLens } from "@contexts/lensContext";
 import fetchData from '../_utils/apiClient';
 import ReactMarkdown from 'react-markdown';
 
@@ -10,6 +11,7 @@ const QuestionAnswerForm: React.FC = () => {
     const [answer, setAnswer] = useState<string>('The answer will be limited to the content of the lens.');
     const [slug, setSlug] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { lensId, setLensId } = useLens();
     const handleSubmit = async (e: FormEvent) => {
 
         e.preventDefault();
@@ -37,6 +39,7 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
+            <p>LensID: {lensId}</p>
             <div className="flex flex-col  lg:py-12 text-foreground">
                 <form onSubmit={handleSubmit} className="flex">
                     <input
