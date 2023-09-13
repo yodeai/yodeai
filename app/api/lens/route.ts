@@ -19,8 +19,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let data, error;
-    //const supabase = createServerComponentClient({ cookies });
+    
+    const supabase = createServerComponentClient({ cookies });
+    const { data, error } = await supabase
+        .from('lens')
+        .insert([
+          {
+            name: name,
+          },
+        ]);
     
     if (error) {
       throw error;

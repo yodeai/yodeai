@@ -1,16 +1,20 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// 1. Define the type for the context value
+// 1. Update the type for the context value
 type LensContextType = {
   lensId: string | null;
   setLensId: React.Dispatch<React.SetStateAction<string | null>>;
+  reloadKey: number;
+  reloadLenses: () => void;
 };
 
 // Provide a default value for the context
 const defaultValue: LensContextType = {
   lensId: null,
   setLensId: () => {},
+  reloadKey: 0,
+  reloadLenses: () => {},
 };
 
 const LensContext = createContext<LensContextType>(defaultValue);
@@ -25,12 +29,17 @@ export const useLens = () => {
 };
 
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
-  const [lensId, setLensId] = useState<string | null>(null); // This could be initialized from local storage or a cookie
+  const [lensId, setLensId] = useState<string | null>(null); 
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const value = {
-    lensId,
-    setLensId,
+  const reloadLenses = () => {
+    setReloadKey(prevKey => prevKey + 1);
   };
 
-  return <LensContext.Provider value={value}>{children}</LensContext.Provider>;
+  // Remember to return the Provider component
+  return (
+    <LensContext.Provider value={{ lensId, setLensId, reloadKey, reloadLenses }}>
+      {children}
+    </LensContext.Provider>
+  );
 };

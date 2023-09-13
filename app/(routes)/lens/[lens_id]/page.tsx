@@ -4,12 +4,13 @@ import Container from "@components/Container";
 import Link from "next/link";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+import { useLens } from "@contexts/lensContext";
 
 
 
@@ -19,6 +20,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
+  const { reloadLenses } = useLens();
 
   useEffect(() => {
     // Fetch the blocks associated with the lens
@@ -52,6 +54,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       method: "PUT",
       body: JSON.stringify({ name: name }),
     });
+    reloadLenses();
     return updatePromise;
   };
 
@@ -90,6 +93,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         });
 
         if (deleteResponse.ok) {
+          reloadLenses();
           router.push("/");
         } else {
           console.error("Failed to delete lens");

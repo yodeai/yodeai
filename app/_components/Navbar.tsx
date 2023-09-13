@@ -44,9 +44,9 @@ export default function Navbar() {
 
 
   const router = useRouter();
-  const { lensId, setLensId } = useLens();
+  const { lensId, setLensId, reloadKey, reloadLenses } = useLens();
   const [lenses, setLenses] = useState<Lens[]>([]);
-
+  
 
   useEffect(() => {
     // Fetch the lenses
@@ -60,11 +60,12 @@ export default function Navbar() {
         notFound();
       });
 
-  }, []);
+  }, [reloadKey]);
 
   const handleCreateLens = useCallback(async () => {
     await createLens("New lens");
     router.refresh();
+    reloadLenses();
   }, [router]);
 
   const handleHomeClick = () => {
