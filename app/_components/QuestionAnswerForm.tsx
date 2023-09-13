@@ -1,14 +1,9 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 import React, { useState, FormEvent } from 'react';
-import { useLens } from "@contexts/lensContext";
 import fetchData from '../_utils/apiClient';
 import ReactMarkdown from 'react-markdown';
-
-
 const chatHistory = new Map();
-
-import styled from 'styled-components';
 
 import { useRef, useEffect } from "react";
 
@@ -24,10 +19,7 @@ const QuestionAnswerForm: React.FC = () => {
     const lensID='7';
     if (chatHistory.has(lensID) === false)
         chatHistory.set(lensID,'');
-
-    const [slug, setSlug] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { lensId, setLensId } = useLens();
     const handleSubmit = async (e: FormEvent) => {
         console.log('\n\n\n-----------\n\n\n');
         e.preventDefault();
@@ -41,8 +33,10 @@ const QuestionAnswerForm: React.FC = () => {
                 body: JSON.stringify(dataToPost),
             });
 
-            setAnswer(response.answer_full);
-            setSlug(response.slug);
+            const newResponse  =chatHistory.get(lensID)+"  \n"+inputValue+"  \nAnswer:  \n"+response.answer_full;
+            console.log("---->"+chatHistory.get(lensID));
+            console.log("---->"+newResponse);
+            chatHistory.set(lensID, newResponse);            
 
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
@@ -65,7 +59,6 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
-            <p>LensID: {lensId}</p>
             <div className="flex flex-col  lg:py-12 text-foreground">
                 <form onSubmit={handleSubmit} className="flex">
                     <input
@@ -84,7 +77,7 @@ const QuestionAnswerForm: React.FC = () => {
                     </button>
                 </form>
                 <div className="scrollable-div" 
-                    style={{ maxHeight: '200px' , overflowY: 'auto'}} 
+                    style={{ maxHeight: '400px' , overflowY: 'auto'}} 
                     id="ChatBox"
                     ref={scrollableDivRef}>
                     <ReactMarkdown className=" mt-4">{answer}</ReactMarkdown>
