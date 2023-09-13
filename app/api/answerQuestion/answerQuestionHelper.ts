@@ -81,6 +81,7 @@ function addHyperlinksToResponse(response: string, linkMap: { [title: string]: s
 
 
 export const getAnswerForQuestion = async (question: string, whatsappDetails?: { messageId: string, phoneNumber: string }) => {
+    const lensID = 6;
     const result = await processVectorSearch(question);
     const supabase = createServerComponentClient({ cookies });
     // Generate a unique slug for the question

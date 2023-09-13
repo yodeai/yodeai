@@ -29,7 +29,6 @@ export default function Index() {
   }, []);
 
   if (loading) {
-
     return (
       <div className="flex flex-col p-4 flex-grow">
         <LoadingSkeleton />
