@@ -51,6 +51,7 @@ type Metadata = {
   
   
 export const processVectorSearch = async (question: string) => {
+    console.log("processVectorSearch");
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -63,7 +64,7 @@ export const processVectorSearch = async (question: string) => {
     }
     const client = createClient(url, supabaseKey);
     const model = new LCOpenAI({});  // add in the temperature parameter
-
+    console.log("create vector store");
     const vectorStore = new SupabaseVectorStore(embeddings, {
         client: client,
         tableName: 'documents',
@@ -73,23 +74,27 @@ export const processVectorSearch = async (question: string) => {
 
     const vectorStoreRetriever = vectorStore.asRetriever();
     const chain = RetrievalQAChain.fromLLM(model, vectorStoreRetriever);
-    
+    console.log("get rel docs");
     const getRelDocs = async (q: string) => {
         const  t0 = performance.now();
         const docs = [];
         const metadataList = [];
+        console.log("getting relevant docs from vector store");
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
 //        const  t1 = performance.now();
 //        clearConsole("first retrieval completed"+(t1-t0).toString());
         docs.push(...ans1);
         for (let doc of ans1) {
+            console.log(doc.metadata);
             metadataList.push(doc.metadata);
         }
+        console.log("getting relevant docs from second vector store");
         const ans2 = await vectorStore.similaritySearch(q, 8);
 //        const  t2 = performance.now();
 //        clearConsole("second retrieval completed"+(t2-t1).toString());
         docs.push(...ans2);
         for (let doc of ans2) {
+            console.log(doc.metadata);
             metadataList.push(doc.metadata);
         }
         return { documents: docs, metadata: metadataList };;
@@ -97,6 +102,7 @@ export const processVectorSearch = async (question: string) => {
 
     const t1 = performance.now();
 
+    
     const results = await getRelDocs(question);
     
 //    const t2 = performance.now();
@@ -110,12 +116,13 @@ export const processVectorSearch = async (question: string) => {
     }
 
     const prompt = "You are answering questions from freshmen at UC Berkeley. Answer the question: " + question + " in a helpful and concise way and in at most one paragraph, using the following text inside tripple quotes: '''" + text + "''' \n <<<REMEMBER:  If the question is irrelevant to the text, do not try to make up an answer, just say that the question is irrelevant to the context.>>>"
-
+    console.log("###PROMPT:", prompt);
     const response = await get_completion(prompt);
     
 //    const t3 = performance.now();
 //    clearConsole("total run time for first LLM call: "+ (t3-t2).toString());
 
+    console.log("###RESPONSE:", response);
     const filteredMetadata = metadataList.filter(meta => 
         typeof meta.source === 'string' 
     );

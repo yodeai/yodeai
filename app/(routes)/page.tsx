@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Block } from 'app/_types/block';
 import BlockComponent from '@components/BlockComponent';
 import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
 import LoadingSkeleton from '@components/LoadingSkeleton';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,7 @@ export default function Index() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     // Fetch blocks from the API
@@ -54,7 +56,7 @@ export default function Index() {
 
         {blocks.length > 0 ? (
           blocks.map((block: Block) => (
-            
+
             <div key={block.block_id}>
               <BlockComponent block={block} />
             </div>
