@@ -1,14 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { SupabaseVectorStore } from 'langchain/vectorstores/supabase';
-import { HuggingFaceInferenceEmbeddings } from "langchain/embeddings/hf";
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { OpenAI as LCOpenAI } from "langchain/llms/openai";
 import { OpenAI as OpenAI } from 'openai';
 import { createClient } from '@supabase/supabase-js';
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from 'next/headers';
 import { RetrievalQAChain } from 'langchain/chains';
 
-const openai  = new OpenAI();
+const openai = new OpenAI();
 
 const get_completion = async (prompt: string) => {
     try {
@@ -53,27 +51,21 @@ type Metadata = {
   
 export const processVectorSearch = async (question: string) => {
     console.log("processVectorSearch");
-    //const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    //const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-    const embeddings = new HuggingFaceInferenceEmbeddings({
-        apiKey: process.env.HUGGINGFACEHUB_API_KEY, 
-      });
-    const documentRes = await embeddings.embedDocuments(["Hello world", "Bye bye"]);
-
-    //if (!url) {
-    //    throw new Error('SUPABASE_URL environment variable is not defined');
-    //}
-    //if (!supabaseKey) {
-    //    throw new Error('supabasekey environment variable is not defined');
-   // }
-   /*
-    const supabase = createServerComponentClient({ cookies });
-    //const client = createClient(url, supabaseKey);
+    const embeddings = new OpenAIEmbeddings();
+    if (!url) {
+        throw new Error('SUPABASE_URL environment variable is not defined');
+    }
+    if (!supabaseKey) {
+        throw new Error('supabasekey environment variable is not defined');
+    }
+    const client = createClient(url, supabaseKey);
     const model = new LCOpenAI({});  // add in the temperature parameter
     console.log("create vector store");
     const vectorStore = new SupabaseVectorStore(embeddings, {
-        client: supabase,
+        client: client,
         tableName: 'documents',
         queryName: 'match_documents',
     });
@@ -86,22 +78,21 @@ export const processVectorSearch = async (question: string) => {
         const metadataList = [];
         console.log("getting relevant docs from vector store");
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
-        console.log("received relevant docs from vector store");
+        console.log("received");
         docs.push(...ans1);
         for (let doc of ans1) {
-           console.log(doc.metadata);
-           metadataList.push(doc.metadata);
+            console.log(doc.metadata);
+            metadataList.push(doc.metadata);
         }
         console.log("getting relevant docs from second vector store");
-        //const ans2 = await vectorStore.similaritySearch(q, 8);
-        console.log("received relevant docs from vector store");
+        const ans2 = await vectorStore.similaritySearch(q, 8);
         
-        //docs.push(...ans2);
-        //for (let doc of ans2) {
-        //    console.log(doc.metadata);
-        //    metadataList.push(doc.metadata);
-       // }
-        return { documents: docs, metadata: metadataList };;*/
+        docs.push(...ans2);
+        for (let doc of ans2) {
+            console.log(doc.metadata);
+            metadataList.push(doc.metadata);
+        }
+        return { documents: docs, metadata: metadataList };;
     };
     
     const results = await getRelDocs(question);
