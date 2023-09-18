@@ -5,6 +5,7 @@ import { OpenAI as LCOpenAI } from "langchain/llms/openai";
 import { OpenAI as OpenAI } from 'openai';
 import { createClient } from '@supabase/supabase-js';
 import { RetrievalQAChain } from 'langchain/chains';
+import { clearConsole } from 'debug/tools';
 
 const openai = new OpenAI();
 
@@ -69,18 +70,24 @@ export const processVectorSearch = async (question: string) => {
         queryName: 'match_documents',
     });
 
+
     const vectorStoreRetriever = vectorStore.asRetriever();
     const chain = RetrievalQAChain.fromLLM(model, vectorStoreRetriever);
-
+    
     const getRelDocs = async (q: string) => {
+        const  t0 = performance.now();
         const docs = [];
         const metadataList = [];
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
+//        const  t1 = performance.now();
+//        clearConsole("first retrieval completed"+(t1-t0).toString());
         docs.push(...ans1);
         for (let doc of ans1) {
             metadataList.push(doc.metadata);
         }
         const ans2 = await vectorStore.similaritySearch(q, 8);
+//        const  t2 = performance.now();
+//        clearConsole("second retrieval completed"+(t2-t1).toString());
         docs.push(...ans2);
         for (let doc of ans2) {
             metadataList.push(doc.metadata);
@@ -88,7 +95,13 @@ export const processVectorSearch = async (question: string) => {
         return { documents: docs, metadata: metadataList };;
     };
 
+    const t1 = performance.now();
+
     const results = await getRelDocs(question);
+    
+//    const t2 = performance.now();
+//    clearConsole("total run time for getRelDocs: "+ (t2-t1).toString());
+
     const dlist = results.documents;  // Get the documents
     const metadataList = results.metadata;  // Get the metadata
     let text = "";
@@ -99,13 +112,17 @@ export const processVectorSearch = async (question: string) => {
     const prompt = "You are answering questions from freshmen at UC Berkeley. Answer the question: " + question + " in a helpful and concise way and in at most one paragraph, using the following text inside tripple quotes: '''" + text + "''' \n <<<REMEMBER:  If the question is irrelevant to the text, do not try to make up an answer, just say that the question is irrelevant to the context.>>>"
 
     const response = await get_completion(prompt);
+    
+//    const t3 = performance.now();
+//    clearConsole("total run time for first LLM call: "+ (t3-t2).toString());
+
     const filteredMetadata = metadataList.filter(meta => 
         typeof meta.source === 'string' 
     );
     const uniqueMetadataList = removeDuplicates(filteredMetadata  as Metadata[]);
-    console.log(uniqueMetadataList);
+    //console.log(uniqueMetadataList);
     //console.log(metadataList);
-    console.log("##end");
+    //console.log("##end");
     return {
         question: question,
         response: response,

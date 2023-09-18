@@ -1,7 +1,9 @@
 import { processVectorSearch } from './vectorSearch';
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { clearConsole } from 'debug/tools';
 import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
+
 
 
 
