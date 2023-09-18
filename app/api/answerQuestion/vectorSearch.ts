@@ -1,12 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { SupabaseVectorStore } from 'langchain/vectorstores/supabase';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { HuggingFaceInferenceEmbeddings } from "langchain/embeddings/hf";
 import { OpenAI as LCOpenAI } from "langchain/llms/openai";
 import { OpenAI as OpenAI } from 'openai';
 import { createClient } from '@supabase/supabase-js';
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
 import { RetrievalQAChain } from 'langchain/chains';
 
-const openai = new OpenAI();
+const openai  = new OpenAI();
 
 const get_completion = async (prompt: string) => {
     try {
@@ -50,45 +52,60 @@ type Metadata = {
   
   
 export const processVectorSearch = async (question: string) => {
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    console.log("processVectorSearch");
+    //const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    //const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-    const embeddings = new OpenAIEmbeddings();
-    if (!url) {
-        throw new Error('SUPABASE_URL environment variable is not defined');
-    }
-    if (!supabaseKey) {
-        throw new Error('supabasekey environment variable is not defined');
-    }
-    const client = createClient(url, supabaseKey);
+    const embeddings = new HuggingFaceInferenceEmbeddings({
+        apiKey: process.env.HUGGINGFACEHUB_API_KEY, 
+      });
+    const documentRes = await embeddings.embedDocuments(["Hello world", "Bye bye"]);
+
+    //if (!url) {
+    //    throw new Error('SUPABASE_URL environment variable is not defined');
+    //}
+    //if (!supabaseKey) {
+    //    throw new Error('supabasekey environment variable is not defined');
+   // }
+   /*
+    const supabase = createServerComponentClient({ cookies });
+    //const client = createClient(url, supabaseKey);
     const model = new LCOpenAI({});  // add in the temperature parameter
-
+    console.log("create vector store");
     const vectorStore = new SupabaseVectorStore(embeddings, {
-        client: client,
+        client: supabase,
         tableName: 'documents',
         queryName: 'match_documents',
     });
 
     const vectorStoreRetriever = vectorStore.asRetriever();
     const chain = RetrievalQAChain.fromLLM(model, vectorStoreRetriever);
-
+    console.log("get rel docs");
     const getRelDocs = async (q: string) => {
         const docs = [];
         const metadataList = [];
+        console.log("getting relevant docs from vector store");
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
+        console.log("received relevant docs from vector store");
         docs.push(...ans1);
         for (let doc of ans1) {
-            metadataList.push(doc.metadata);
+           console.log(doc.metadata);
+           metadataList.push(doc.metadata);
         }
-        const ans2 = await vectorStore.similaritySearch(q, 8);
-        docs.push(...ans2);
-        for (let doc of ans2) {
-            metadataList.push(doc.metadata);
-        }
-        return { documents: docs, metadata: metadataList };;
+        console.log("getting relevant docs from second vector store");
+        //const ans2 = await vectorStore.similaritySearch(q, 8);
+        console.log("received relevant docs from vector store");
+        
+        //docs.push(...ans2);
+        //for (let doc of ans2) {
+        //    console.log(doc.metadata);
+        //    metadataList.push(doc.metadata);
+       // }
+        return { documents: docs, metadata: metadataList };;*/
     };
-
+    
     const results = await getRelDocs(question);
+    console.log("get rel docs done");
     const dlist = results.documents;  // Get the documents
     const metadataList = results.metadata;  // Get the metadata
     let text = "";
@@ -97,8 +114,9 @@ export const processVectorSearch = async (question: string) => {
     }
 
     const prompt = "You are answering questions from freshmen at UC Berkeley. Answer the question: " + question + " in a helpful and concise way and in at most one paragraph, using the following text inside tripple quotes: '''" + text + "''' \n <<<REMEMBER:  If the question is irrelevant to the text, do not try to make up an answer, just say that the question is irrelevant to the context.>>>"
-
+    console.log("###PROMPT:", prompt);
     const response = await get_completion(prompt);
+    console.log("###RESPONSE:", response);
     const filteredMetadata = metadataList.filter(meta => 
         typeof meta.source === 'string' 
     );
