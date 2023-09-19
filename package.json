@@ -1,9 +1,8 @@
 {
   "private": true,
   "scripts": {
-    
     "next-dev": "next dev", 
-    "dev": "concurrently \"pnpm run next-dev\" ",
+    "dev": "concurrently \"pnpm run next-dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

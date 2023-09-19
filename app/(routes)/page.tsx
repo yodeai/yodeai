@@ -14,6 +14,30 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+
+    async function fetchData() {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+      if (!backendUrl) {
+        console.error('Backend URL is not defined.');
+      } else {
+        try {
+          const response = await fetch(backendUrl);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          console.log("retrieveing data 2");
+          const result = await response.json();
+          console.log("results: ", result);
+        } catch (error) {
+          console.error('There was an error fetching the data:', error);
+        }
+      }
+    }
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // Fetch blocks from the API
