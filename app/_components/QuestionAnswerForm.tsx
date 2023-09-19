@@ -7,7 +7,6 @@ const chatHistory = new Map();
 import { useLens } from "@contexts/lensContext";
 
 import { useRef, useEffect } from "react";
-import { clearConsole } from 'debug/tools';
 
 
   
@@ -23,10 +22,10 @@ const QuestionAnswerForm: React.FC = () => {
         chatHistory.set(lensId,'');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const handleSubmit = async (e: FormEvent) => {
+        console.log('\n\n\n-----------\n\n\n');
         e.preventDefault();
         setIsLoading(true);
         
-//        const t1 = performance.now();
         try {
             console.log('inputValue', inputValue);
             const dataToPost = { question: inputValue };
@@ -34,8 +33,10 @@ const QuestionAnswerForm: React.FC = () => {
                 method: 'POST',
                 body: JSON.stringify(dataToPost),
             });
-            
-            const newResponse  ="**"+inputValue+"**"+"  \nAnswer:  \n"+response.answer_full+"  \n  \n"+chatHistory.get(lensId);
+
+            const newResponse  =chatHistory.get(lensId)+"  \n"+inputValue+"  \nAnswer:  \n"+response.answer_full;
+            console.log("---->"+chatHistory.get(lensId));
+            console.log("---->"+newResponse);
             chatHistory.set(lensId, newResponse);            
 
         } catch (error) {
@@ -45,8 +46,6 @@ const QuestionAnswerForm: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-//        const t2 = performance.now();
-//        clearConsole("total run time: "+ (t2-t1).toString());
         setTimeout(() => {
             if (scrollableDivRef.current) {
                 scrollableDivRef.current.scrollTop = 0;
@@ -57,7 +56,7 @@ const QuestionAnswerForm: React.FC = () => {
 
     
     const answer = chatHistory.has(lensId)?chatHistory.get(lensId):'The answer will be limited to the content of the lens.';
-    clearConsole(answer);
+    
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
