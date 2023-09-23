@@ -1,29 +1,29 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./app/**/*.{js,ts,jsx,tsx,mdx}'],
+  content: ["./app/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
 
         btn: {
-          background: 'hsl(var(--btn-background))',
-          'background-hover': 'hsl(var(--btn-background-hover))',
+          background: "hsl(var(--btn-background))",
+          "background-hover": "hsl(var(--btn-background-hover))",
         },
 
         // Custom colors
         royalBlue: {
-          DEFAULT: '#4169E1', 
-          hover: '#345BB0',   
+          DEFAULT: "#4169E1",
+          hover: "#345BB0",
         },
         customLightBlue: {
-          DEFAULT: '#05ACDF',
-          hover: '#0490B8',
-          light: '#E6F7FF'
-        }
+          DEFAULT: "#05ACDF",
+          hover: "#0490B8",
+          light: "#E6F7FF",
+        },
       },
     },
   },
-  plugins: [],
-}
+  plugins: [require("@tailwindcss/typography")],
+};
