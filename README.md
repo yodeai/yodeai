@@ -39,31 +39,12 @@ npx create-next-app nextjs-fastapi --example "https://github.com/digitros/nextjs
 First, install the dependencies:
 
 ```bash
-npm install
-# or
-yarn
-# or
 pnpm install
 ```
 
 install pnpm
 ```bash
-npm i -g pnpm
 pnpm install
-```
-
-Then create the virtual environment:
-```bash
-python3 -m venv venv
-```
-
-To activate the virtual environment use:
-```bash
-source venv/bin/activate
-```
-and install uvicorn in the virtual enviroment:
-```bash
-pip install fastapi 'uvicorn[standard]'
 ```
 
 
@@ -71,11 +52,7 @@ pip install fastapi 'uvicorn[standard]'
 Then, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
