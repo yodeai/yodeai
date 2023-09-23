@@ -50,7 +50,7 @@ export default function Block({ params }: { params: { id: string } }) {
               <div className="flex flex-col gap-1 w-full">
                 <div className="flex justify-between items-center w-full">
                   <Link className="flex items-center flex-1" href={`/block/${block.block_id}`}>
-                    <ReactMarkdown className="text-gray-600 line-clamp-1 text-xl">
+                    <ReactMarkdown className="prose text-gray-600 line-clamp-1 text-xl">
                       {block.title}
                     </ReactMarkdown>
                   </Link>
@@ -62,9 +62,9 @@ export default function Block({ params }: { params: { id: string } }) {
                 </div>
                 <div className="min-w-full">
                   <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
-                  <div className="text-gray-600">
-                    <ReactMarkdown>{block.content}</ReactMarkdown>
-                  </div>
+                  <ReactMarkdown className="prose text-gray-600">
+                    {block.content}
+                  </ReactMarkdown>
                 </div>
               </div>
 
