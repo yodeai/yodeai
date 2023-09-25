@@ -21,12 +21,12 @@ const QuestionAnswerForm: React.FC = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-
+        const startTime = performance.now();
         try {
             const dataToPost = { question: inputValue, lensID: lensId };
-            console.log('dataToPost', dataToPost)
+            //console.log('dataToPost', dataToPost)
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
-            console.log('response', response)
+            //console.log('response', response)
 
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
@@ -79,6 +79,9 @@ const QuestionAnswerForm: React.FC = () => {
                 return newQuestionHistory;
             });
         } finally {
+            const endTime = performance.now(); // Capture end time
+            const duration = endTime - startTime; // Calculate the duration
+            console.log(`Time taken to get the answer: ${duration.toFixed(2)} ms`);
             setIsLoading(false);
         }
     }
@@ -110,14 +113,14 @@ const QuestionAnswerForm: React.FC = () => {
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
                         (questionHistory.get(lensId || '') || []).map(({ question, answer, sources }, index) => (
-                            <QuestionComponent 
-                                key={index} 
-                                question={question} 
-                                answer={answer} 
-                                sources={sources} 
+                            <QuestionComponent
+                                key={index}
+                                question={question}
+                                answer={answer}
+                                sources={sources}
                             />
                         ))
-                        
+
                     }
                 </div>
             </div>
