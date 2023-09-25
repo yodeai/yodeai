@@ -1,4 +1,4 @@
-// utils/apiClient.js
+// utils/apiClient.ts
 
 async function apiClient(
     endpoint: string,

@@ -2,10 +2,11 @@ import { ok, notOk } from "@lib/ok";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest } from "next/server";
 import { cookies } from 'next/headers';
+import apiClient from '@utils/apiClient';
 
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(request: NextRequest, { params,}: {params: { block_id: string };}) {
+export async function DELETE(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
   const block_id = Number(params.block_id);
 
@@ -13,7 +14,7 @@ export async function DELETE(request: NextRequest, { params,}: {params: { block_
   if (isNaN(block_id)) {
     return notOk("Invalid ID");
   }
-  
+
   try {
     const { error } = await supabase
       .from('block')
@@ -24,13 +25,25 @@ export async function DELETE(request: NextRequest, { params,}: {params: { block_
       throw error;
     }
 
+    /* // commenting this out for now because gets called with every auto save :-s
+    // Initiate the processBlock call without awaiting it.
+    apiClient('/processBlock', 'POST', { block_id: block_id })
+      .then(result => {
+        // You can handle the result or error here if needed.
+        console.log('Block processed successfully', result);
+      })
+      .catch(error => {
+        console.error('Error processing block', error);
+      });
+      */
+
     return ok({ block_id });
   } catch (err) {
     return notOk(`${err}`);
   }
 }
 
-export async function PUT(request: NextRequest,{params,}: {params: { block_id: string };} ) {
+export async function PUT(request: NextRequest, { params, }: { params: { block_id: string }; }) {
 
   const supabase = createServerComponentClient({ cookies });
   const block_id = Number(params.block_id);
@@ -51,6 +64,8 @@ export async function PUT(request: NextRequest,{params,}: {params: { block_id: s
       throw error;
     }
 
+
+
     return ok(block);
   } catch (err) {
     return notOk(`${err}`);
@@ -58,9 +73,9 @@ export async function PUT(request: NextRequest,{params,}: {params: { block_id: s
 }
 
 
-export async function GET(request: NextRequest, { params,}: {params: { block_id: string };}) {
+export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
-  
+
   const block_id = Number(params.block_id);
   // Validate the id  
   if (isNaN(block_id)) {

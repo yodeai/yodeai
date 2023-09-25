@@ -3,6 +3,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from 'next/headers';
 import { Block } from "app/_types/block";
 export const dynamic = 'force-dynamic';
+import apiClient from '@utils/apiClient';
 
 export async function POST(request: NextRequest) {
   const supabase = createServerComponentClient({ cookies });
@@ -33,7 +34,18 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
+    if (data && data[0]) {
+      const newBlock: Block = data[0];
 
+      // Initiate the processBlock call without awaiting it.
+      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
+        .then(result => {
+          console.log('Block processed successfully', result);
+        })
+        .catch(error => {
+          console.error('Error processing block', error);
+        });
+    }
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {
       const newBlock: Block = data[0];
