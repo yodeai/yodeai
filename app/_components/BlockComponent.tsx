@@ -18,7 +18,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
   return (
     <div
       className={clsx(
-        "flex items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
+        " items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
         compact ? "max-w-xs" : ""
       )}
     >

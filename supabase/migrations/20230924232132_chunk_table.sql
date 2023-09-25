@@ -40,8 +40,17 @@ CREATE OR REPLACE FUNCTION match_chunks (
 )
 LANGUAGE plpgsql
 AS $$
-#variable_conflict use_column
+DECLARE
+  chunk_ids BIGINT[];
 BEGIN
+  -- Extract chunk_ids from the filter JSONB
+  SELECT ARRAY(
+    SELECT jsonb_array_elements_text(filter#>'{chunk_id,in}')
+  )::BIGINT[]
+  INTO chunk_ids;
+  
+  -- If chunk_ids are provided in the filter, apply them in the WHERE clause.
+  -- If not, the WHERE clause will not be affected by chunk_ids.
   RETURN QUERY
   SELECT
     c.chunk_id,
@@ -49,8 +58,8 @@ BEGIN
     c.metadata,
     1 - (c.embedding <=> query_embedding) AS similarity
   FROM chunk c
-  WHERE c.metadata @> filter
+  WHERE (chunk_ids IS NULL OR c.chunk_id = ANY(chunk_ids))
   ORDER BY c.embedding <=> query_embedding
-  LIMIT COALESCE(match_count, 10); -- 10 is a default limit if none is provided
+  LIMIT COALESCE(match_count, 10);
 END;
 $$;
