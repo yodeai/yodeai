@@ -38,12 +38,8 @@ export async function PUT(request: NextRequest,{params,}: {params: { block_id: s
   if (isNaN(block_id)) {
     return notOk("Invalid ID");
   }
-  const incomingData = await request.json();
+  const data = await request.json();
 
-  const data = {
-    ...incomingData,
-    updated_at: new Date(),
-  };
   //console.log("data: ", data, "block_id: ", block_id, "incomingData: ", incomingData);
   try {
     const { data: block, error } = await supabase

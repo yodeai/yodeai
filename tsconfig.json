@@ -28,6 +28,7 @@
       "@lib/*": ["app/_lib/*"],
       "@utils/*": ["app/_utils/*"],
       "@contexts/*": ["app/_contexts/*"],
+      "@hooks/*": ["_hooks/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "middleware.js", "app/_components/QuestionAnswerForm.jsx"],

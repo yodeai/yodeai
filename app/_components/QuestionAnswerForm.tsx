@@ -5,12 +5,10 @@ import fetchData from '../_utils/apiClient';
 import ReactMarkdown from 'react-markdown';
 const chatHistory = new Map();
 import { useLens } from "@contexts/lensContext";
-
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
+import serverAPIFetch from 'app/_hooks/serverAPIFetch';
 
-
-  
 
 
 const QuestionAnswerForm: React.FC = () => {
@@ -20,43 +18,50 @@ const QuestionAnswerForm: React.FC = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, setLensId } = useLens();
     if (chatHistory.has(lensId) === false)
-        chatHistory.set(lensId,'');
+        chatHistory.set(lensId, '');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
-//        const t1 = performance.now();
+
+        //const t1 = performance.now();
         try {
             console.log('inputValue', inputValue);
-            const dataToPost = { question: inputValue };
-            const response = await fetchData('/answerQuestion', {
-                method: 'POST',
-                body: JSON.stringify(dataToPost),
-            });
-            
-            const newResponse  ="**"+inputValue+"**"+"  \nAnswer:  \n"+response.answer_full+"  \n  \n"+chatHistory.get(lensId);
-            chatHistory.set(lensId, newResponse);            
+            const dataToPost = { question: inputValue, lensID: lensId };
+
+            const { data: response, error } = serverAPIFetch('/answerFromLens', 'POST', dataToPost);
+
+            useEffect(() => {
+                if (error) {
+                    console.error('Error fetching data:', error);
+                }
+                if (response) {
+                    console.log('Retrieved response:', response);
+                }
+            }, [response, error]);
+            console.log('response', response);
+            const newResponse = "**" + inputValue + "**" + "  \nAnswer:  \n" + response.answer + "  \n  \n" + chatHistory.get(lensId);
+            chatHistory.set(lensId, newResponse);
 
         } catch (error) {
             console.error('Failed to fetch answer. ', error);
-            const newResponse=chatHistory.get(lensId)+'Failed to fetch answer. ' + error;
-            chatHistory.set(lensId, newResponse);            
+            const newResponse = chatHistory.get(lensId) + 'Failed to fetch answer. ' + error;
+            chatHistory.set(lensId, newResponse);
         } finally {
             setIsLoading(false);
         }
-//        const t2 = performance.now();
-//        clearConsole("total run time: "+ (t2-t1).toString());
+        //        const t2 = performance.now();
+        //        clearConsole("total run time: "+ (t2-t1).toString());
         setTimeout(() => {
             if (scrollableDivRef.current) {
                 scrollableDivRef.current.scrollTop = 0;
-//              scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
+                //              scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
             }
-          }, 0);
+        }, 0);
     }
 
-    
-    const answer = chatHistory.has(lensId)?chatHistory.get(lensId):'The answer will be limited to the content of the lens.';
+
+    const answer = chatHistory.has(lensId) ? chatHistory.get(lensId) : 'The answer will be limited to the content of the lens.';
     clearConsole(answer);
     return (
         <div className="container p-4 " >
@@ -79,8 +84,8 @@ const QuestionAnswerForm: React.FC = () => {
                         {isLoading ? 'Loading...' : 'Submit'}
                     </button>
                 </form>
-                <div className="scrollable-div" 
-                    style={{ maxHeight: '400px' , overflowY: 'auto'}} 
+                <div className="scrollable-div"
+                    style={{ maxHeight: '400px', overflowY: 'auto' }}
                     id="ChatBox"
                     ref={scrollableDivRef}>
                     <ReactMarkdown className=" mt-4">{answer}</ReactMarkdown>
