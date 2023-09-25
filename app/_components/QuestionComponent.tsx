@@ -14,7 +14,7 @@ const QuestionComponent: React.FC<QuestionProps> = ({ question, answer, sources 
     <div className={clsx("elevated-block p-4 rounded-md bg-white border-orange-200 border mb-4 orange-shadow")}>
       <div className="flex flex-col gap-3">
         <div className="flex items-center">
-          <div className="prose text-gray-600 line-clamp-1 ">
+          <div className="prose text-gray-600  ">
             <strong>{question}</strong>
           </div>
         </div>
