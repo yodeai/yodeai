@@ -44,7 +44,7 @@ export default function Index() {
   }
 
   return (
-    <div className=" flex flex-col p-4">
+    <div className=" flex flex-col p-4 " >
       <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">All blocks.</h1>
       <Link
         href="/new"
@@ -52,7 +52,7 @@ export default function Index() {
         <PlusIcon /> New block
       </Link>
 
-      <div className="flex flex-col  lg:py-12 text-foreground">
+      <div className="flex flex-col  lg:py-12 text-foreground ">
 
         {blocks.length > 0 ? (
           blocks.map((block: Block) => (

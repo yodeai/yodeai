@@ -16,7 +16,7 @@ export default async function AppLayout({
         <div className="overflow-y-auto max-h-[90vh]">
           <Navbar />
         </div>
-        <div className="w-[50vw] overflow-y-auto max-h-[90vh]">
+        <div className="w-[50vw] overflow-y-auto max-h-[90vh] ">
           {children}
         </div>
         <div className="w-[30vw] bg-white border-l  overflow-y-auto max-h-[90vh]">

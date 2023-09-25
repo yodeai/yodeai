@@ -1,41 +1,28 @@
-// utils/apiClient.ts
+// utils/apiClient.js
 
-
-const API_ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
-    : process.env.NEXT_PUBLIC_API_BASE_URL || '';
-
-const headers = {
-    'Content-Type': 'application/json',
-};
-
-interface FetchOptions extends RequestInit {
-    headers?: Record<string, string>;
-}
-
-const fetchData = async (endpoint: string, options: FetchOptions = {}): Promise<any> => {
-
-      const adjustedEndpoint = endpoint;
-    try {
-        const response = await fetch(`${API_ENDPOINT}${adjustedEndpoint}`, {
-            ...options,
-            headers: {
-                ...headers,
-                ...options.headers
-            }
-        }); 
-        console.log("RESPONSE: ", response);
-
-        if (!response.ok) {
-            const errorData = await response.text();
-            throw new Error(errorData || 'An error occurred');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        throw error;
+async function apiClient(
+    endpoint: string,
+    method: string = 'GET',
+    body: any = null 
+  ) {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!baseUrl) throw new Error('Base URL is not defined.');
+    const url = `${baseUrl}${endpoint}`;
+  
+    const options: RequestInit = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+  
+    if (body) options.body = JSON.stringify(body);
+  
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-};
-
-export default fetchData;
+    const result = await response.json();
+    return result;
+  }
+  
+  export default apiClient;
+  

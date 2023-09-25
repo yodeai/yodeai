@@ -115,3 +115,7 @@
 .cross:hover:before, .cross:hover:after {
   background-color: #f2f2f2;  /* Lighten the cross color on hover */
 }
+
+.orange-shadow {
+  box-shadow: 0 4px 6px 0 rgba(255, 165, 0, 0.1);
+}

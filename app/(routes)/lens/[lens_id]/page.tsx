@@ -114,7 +114,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     );
   }
   return (
-    <Container as="main" className="py-8 max-w-screen-sm gap-8">
+    <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
       <header className="flex items-center justify-between">
         {!isEditingLensName ? (
           <>

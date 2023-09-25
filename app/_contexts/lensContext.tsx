@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // 1. Update the type for the context value
 type LensContextType = {
@@ -31,6 +31,15 @@ export const useLens = () => {
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [lensId, setLensId] = useState<string | null>(null); 
   const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    
+    if (parts[1] === 'lens') {
+      setLensId(parts[2]);
+    }
+  }, []);
 
   const reloadLenses = () => {
     setReloadKey(prevKey => prevKey + 1);

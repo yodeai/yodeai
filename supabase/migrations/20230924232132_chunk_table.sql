@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
-CREATE TABLE chunks (
+CREATE TABLE chunk (
     chunk_id bigserial PRIMARY KEY,
     block_id bigint REFERENCES block(block_id), 
     content TEXT,
@@ -22,7 +22,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tr_update_updated_at
-BEFORE UPDATE ON chunks
+BEFORE UPDATE ON chunk
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
@@ -48,7 +48,7 @@ BEGIN
     c.content,
     c.metadata,
     1 - (c.embedding <=> query_embedding) AS similarity
-  FROM chunks c
+  FROM chunk c
   WHERE c.metadata @> filter
   ORDER BY c.embedding <=> query_embedding
   LIMIT COALESCE(match_count, 10); -- 10 is a default limit if none is provided

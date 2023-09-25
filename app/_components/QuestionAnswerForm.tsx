@@ -1,72 +1,79 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 import React, { useState, FormEvent } from 'react';
-import fetchData from '../_utils/apiClient';
-import ReactMarkdown from 'react-markdown';
-const chatHistory = new Map();
+import apiClient from '@utils/apiClient';
 import { useLens } from "@contexts/lensContext";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
-import serverAPIFetch from 'app/_hooks/serverAPIFetch';
+import QuestionComponent from './QuestionComponent';
 
 
 
 const QuestionAnswerForm: React.FC = () => {
-    const scrollableDivRef = useRef<HTMLDivElement | null>(null);
-
-
+    const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string }>>>(new Map());
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, setLensId } = useLens();
-    if (chatHistory.has(lensId) === false)
-        chatHistory.set(lensId, '');
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const scrollableDivRef = useRef<HTMLDivElement | null>(null);
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        //const t1 = performance.now();
         try {
-            console.log('inputValue', inputValue);
             const dataToPost = { question: inputValue, lensID: lensId };
+            console.log('dataToPost', dataToPost)
+            const response = await apiClient('/answerFromLens', 'POST', dataToPost);
+            console.log('response', response)
+            setQuestionHistory((prevQuestionHistory) => {
+                const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
+                const previousQAs = newQuestionHistory.get(lensId || '') || []; // Get the existing array of Q&A for the lens_id or an empty array
 
-            const { data: response, error } = serverAPIFetch('/answerFromLens', 'POST', dataToPost);
+                if (response && response.answer) {
+                    // Create a new question-answer pair and add it to the array
+                    const newQA = { question: inputValue, answer: response.answer };
+                    previousQAs.unshift(newQA);
 
-            useEffect(() => {
-                if (error) {
-                    console.error('Error fetching data:', error);
+                    // Update the map with the updated array of Q&A
+                    newQuestionHistory.set(lensId || '', previousQAs);
+                } else {
+                    // In case of no answer in the response, you can push an error object to the array or handle it differently depending on your needs
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.' };
+                    previousQAs.push(newQA);
+
+                    // Update the map with the updated array of Q&A
+                    newQuestionHistory.set(lensId || '', previousQAs);
                 }
-                if (response) {
-                    console.log('Retrieved response:', response);
-                }
-            }, [response, error]);
-            console.log('response', response);
-            const newResponse = "**" + inputValue + "**" + "  \nAnswer:  \n" + response.answer + "  \n  \n" + chatHistory.get(lensId);
-            chatHistory.set(lensId, newResponse);
 
-        } catch (error) {
-            console.error('Failed to fetch answer. ', error);
-            const newResponse = chatHistory.get(lensId) + 'Failed to fetch answer. ' + error;
-            chatHistory.set(lensId, newResponse);
+                return newQuestionHistory;
+            });
+
+        } catch (error: any) {
+            console.error('Failed to fetch answer.', error);
+
+            setQuestionHistory((prevQuestionHistory) => {
+                const newQuestionHistory = new Map(prevQuestionHistory);
+                const previousQAs = newQuestionHistory.get(lensId || '') || [];
+
+                // Create an error object and push it to the array
+                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}` };
+                previousQAs.push(errorQA);
+
+                // Update the map with the updated array of Q&A
+                newQuestionHistory.set(lensId || '', previousQAs);
+                return newQuestionHistory;
+            });
         } finally {
             setIsLoading(false);
         }
-        //        const t2 = performance.now();
-        //        clearConsole("total run time: "+ (t2-t1).toString());
-        setTimeout(() => {
-            if (scrollableDivRef.current) {
-                scrollableDivRef.current.scrollTop = 0;
-                //              scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
-            }
-        }, 0);
     }
 
-
-    const answer = chatHistory.has(lensId) ? chatHistory.get(lensId) : 'The answer will be limited to the content of the lens.';
-    clearConsole(answer);
     return (
         <div className="container p-4 " >
-            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Ask questions:</h1>
-            <p>LensID: {lensId}</p>
+            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
+                {lensId ? 'Ask a question from this lens' : 'Ask a question globally'}
+            </h1>
+
             <div className="flex flex-col  lg:py-12 text-foreground">
                 <form onSubmit={handleSubmit} className="flex">
                     <input
@@ -84,11 +91,16 @@ const QuestionAnswerForm: React.FC = () => {
                         {isLoading ? 'Loading...' : 'Submit'}
                     </button>
                 </form>
-                <div className="scrollable-div"
-                    style={{ maxHeight: '400px', overflowY: 'auto' }}
-                    id="ChatBox"
-                    ref={scrollableDivRef}>
-                    <ReactMarkdown className=" mt-4">{answer}</ReactMarkdown>
+                <div className="scrollable-div mt-4" ref={scrollableDivRef}>
+                    {
+                        questionHistory.has(lensId || '') ? (
+                            (questionHistory.get(lensId || '') || []).map(({ question, answer }, index) => (
+                                <QuestionComponent key={index} question={question} answer={answer} />
+                            ))
+                        ) : (
+                            <p>The answer will be limited to the content of the lens.</p>
+                        )
+                    }
                 </div>
             </div>
         </div>
