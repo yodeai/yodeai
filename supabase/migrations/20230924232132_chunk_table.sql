@@ -34,6 +34,7 @@ CREATE OR REPLACE FUNCTION match_chunks (
   filter JSONB DEFAULT '{}'
 ) RETURNS TABLE (
   chunk_id BIGINT,
+  block_id BIGINT,
   content TEXT,
   metadata JSONB,
   similarity FLOAT
@@ -54,6 +55,7 @@ BEGIN
   RETURN QUERY
   SELECT
     c.chunk_id,
+    c.block_id,
     c.content,
     c.metadata,
     1 - (c.embedding <=> query_embedding) AS similarity

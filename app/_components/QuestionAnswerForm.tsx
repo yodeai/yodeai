@@ -10,7 +10,9 @@ import QuestionComponent from './QuestionComponent';
 
 
 const QuestionAnswerForm: React.FC = () => {
-    const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string }>>>(new Map());
+    const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
+
+
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, setLensId } = useLens();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -25,23 +27,40 @@ const QuestionAnswerForm: React.FC = () => {
             console.log('dataToPost', dataToPost)
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             console.log('response', response)
+
+            let blockTitles: { title: string, blockId: string }[] = [];
+            if (response && response.answer) {
+                blockTitles = await Promise.all(
+                    (response.metadata.blocks || []).map(async (blockId: string) => {
+                        try {
+                            const blockResponse = await fetch(`/api/block/${blockId}`);
+                            if (!blockResponse.ok) throw new Error('Failed to fetch block title');
+                            const blockData = await blockResponse.json();
+
+                            if (!blockData.ok) throw new Error('Failed to retrieve valid block data');
+
+                            return { title: blockData.data.title, blockId }; // Store title and blockId
+                        } catch (error) {
+                            console.error("Error fetching block title:", error);
+                            return { title: 'Unknown Source', blockId };
+                        }
+                    })
+                );
+            }
+
+
+
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
                 const previousQAs = newQuestionHistory.get(lensId || '') || []; // Get the existing array of Q&A for the lens_id or an empty array
 
                 if (response && response.answer) {
-                    // Create a new question-answer pair and add it to the array
-                    const newQA = { question: inputValue, answer: response.answer };
+                    const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
                     previousQAs.unshift(newQA);
-
-                    // Update the map with the updated array of Q&A
                     newQuestionHistory.set(lensId || '', previousQAs);
                 } else {
-                    // In case of no answer in the response, you can push an error object to the array or handle it differently depending on your needs
-                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.' };
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
                     previousQAs.push(newQA);
-
-                    // Update the map with the updated array of Q&A
                     newQuestionHistory.set(lensId || '', previousQAs);
                 }
 
@@ -54,12 +73,8 @@ const QuestionAnswerForm: React.FC = () => {
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory);
                 const previousQAs = newQuestionHistory.get(lensId || '') || [];
-
-                // Create an error object and push it to the array
-                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}` };
+                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
                 previousQAs.push(errorQA);
-
-                // Update the map with the updated array of Q&A
                 newQuestionHistory.set(lensId || '', previousQAs);
                 return newQuestionHistory;
             });
@@ -67,6 +82,7 @@ const QuestionAnswerForm: React.FC = () => {
             setIsLoading(false);
         }
     }
+
 
     return (
         <div className="container p-4 " >
@@ -93,13 +109,15 @@ const QuestionAnswerForm: React.FC = () => {
                 </form>
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
-                        questionHistory.has(lensId || '') ? (
-                            (questionHistory.get(lensId || '') || []).map(({ question, answer }, index) => (
-                                <QuestionComponent key={index} question={question} answer={answer} />
-                            ))
-                        ) : (
-                            <p>The answer will be limited to the content of the lens.</p>
-                        )
+                        (questionHistory.get(lensId || '') || []).map(({ question, answer, sources }, index) => (
+                            <QuestionComponent 
+                                key={index} 
+                                question={question} 
+                                answer={answer} 
+                                sources={sources} 
+                            />
+                        ))
+                        
                     }
                 </div>
             </div>

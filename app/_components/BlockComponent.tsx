@@ -23,10 +23,10 @@ export default function BlockComponent({ block, compact }: BlockProps) {
       )}
     >
       <div className="flex flex-col gap-1">
-        <Link className="flex items-center flex-1" href={`/block/${block.block_id}`}>
-          <ReactMarkdown className="prose text-gray-600 line-clamp-1">
-            {block.title}
-          </ReactMarkdown>
+        <Link className="flex items-center flex-1 no-underline" href={`/block/${block.block_id}`}>
+          <div className="prose text-gray-600 line-clamp-1">
+            <strong>{block.title}</strong>
+          </div>
         </Link>
         {block.inLenses  && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
