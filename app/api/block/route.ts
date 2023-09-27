@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    requestData.user_id = user.id;
+    requestData.owner_id = user.id;
+    console.log("saving: ", requestData);
     // Extract lens_id and delete it from requestData
     const lensId = requestData.lens_id;
     delete requestData.lens_id;
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       throw error;
     }
-
+    console.log("data: ", data);  
     if (data && data[0]) {
       const newBlock: Block = data[0];
 

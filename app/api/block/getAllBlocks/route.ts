@@ -27,14 +27,15 @@ export async function GET(request: NextRequest) {
             )
         `)
             .order('updated_at', { ascending: false });
-        
+
         const blocksWithLenses = (blocks || []).map(block => ({
-                ...block,
-                inLenses: block.lens_blocks.map( (lb: LensBlock) => ({
-                    lens_id: lb.lens.lens_id,
-                    name: lb.lens.name
-                }))
-            }));
+            ...block,
+            inLenses: block.lens_blocks.map((lb: LensBlock) =>
+                lb.lens
+                    ? { lens_id: lb.lens.lens_id, name: lb.lens.name }
+                    : { lens_id: null, name: null }
+            )
+        }));
 
         return new NextResponse(
             JSON.stringify({ data: blocksWithLenses }),

@@ -90,10 +90,12 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Ask a question globally'}
+                {lensId ? 'Ask a question from this lens' : 'Select a lens to ask a question'}
             </h1>
 
+            
             <div className="flex flex-col  lg:py-12 text-foreground">
+            {lensId && (
                 <form onSubmit={handleSubmit} className="flex">
                     <input
                         type="text"
@@ -110,6 +112,7 @@ const QuestionAnswerForm: React.FC = () => {
                         {isLoading ? 'Loading...' : 'Submit'}
                     </button>
                 </form>
+            )}
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
                         (questionHistory.get(lensId || '') || []).map(({ question, answer, sources }, index) => (
