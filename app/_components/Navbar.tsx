@@ -91,7 +91,8 @@ export default function Navbar() {
           
         </div>
 
-
+        {/* Commenting out the Search component for now */}
+        {/*
         <div className="mt-4 p-4">
           <Search
             onCommit={(block) => {
@@ -99,6 +100,7 @@ export default function Navbar() {
             }}
           />
         </div>
+          */}
 
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">

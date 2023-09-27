@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 
+
 interface BlockProps {
   compact?: boolean;
   block: Block;

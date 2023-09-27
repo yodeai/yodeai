@@ -8,10 +8,11 @@ import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon, PlusIcon } from "@radix-ui/react-icons";
+import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useLens } from "@contexts/lensContext";
-
+import { Button, Tooltip } from 'flowbite-react';
+import ShareLensComponent from "@components/ShareLensComponent";
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -21,6 +22,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
   const { reloadLenses } = useLens();
+
 
   useEffect(() => {
     // Fetch the blocks associated with the lens
@@ -47,6 +49,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       });
 
   }, [params.lens_id]);
+
+
 
 
   const updateLensName = async (lens_id: number, name: string) => {
@@ -114,14 +118,22 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     );
   }
   return (
+
     <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
+
       <header className="flex items-center justify-between">
+
         {!isEditingLensName ? (
           <>
             <span className="text-xl font-semibold">{lensName}</span>
-            <button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
-              <Pencil2Icon className="w-6 h-6" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <Tooltip content="Edit lens." style="light" >
+                <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
+                  <Pencil2Icon className="w-6 h-6" />
+                </Button>
+              </Tooltip>
+              <ShareLensComponent />
+            </div>
 
           </>
         ) : (
@@ -133,25 +145,34 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               onKeyUp={handleKeyPress}
               className="text-xl font-semibold flex-grow"
             />
-            <button onClick={() => {saveNewLensName(); setIsEditingLensName(false)} } className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
-              Save
+            <button onClick={() => { saveNewLensName(); setIsEditingLensName(false) }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
+              <Pencil2Icon className="w-6 h-6" />
             </button>
             <div className="flex gap-2">
               <button onClick={handleDeleteLens} className="no-underline gap-2 font-semibold rounded px-2 py-1  text-red-500 hover:text-red-600 border-0">
                 <TrashIcon className="w-6 h-6" />
               </button>
+
             </div>
+
           </div>
 
         )}
+
+
+
+
+
+
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
-      <Link
-            href="/new"
-            className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
-            <PlusIcon /> New block
-          </Link>
+
+        <Link
+          href="/new"
+          className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
+          <PlusIcon /> New block
+        </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
             <BlockComponent key={block.block_id} block={block} />

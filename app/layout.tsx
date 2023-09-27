@@ -26,6 +26,7 @@ export default async function RootLayout({
   return (
     <html lang="en" >
       <body
+      
       className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
       >
         <header>
@@ -33,6 +34,7 @@ export default async function RootLayout({
         </header>
         <Toaster />
         {children}
+        
       </body>
     </html>
   );
