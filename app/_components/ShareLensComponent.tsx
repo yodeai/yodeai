@@ -8,7 +8,6 @@ import { Share1Icon } from "@radix-ui/react-icons";
 export default function DefaultModal() {
     const [openModal, setOpenModal] = useState<string | undefined>();
     const props = { openModal, setOpenModal };
-    const [isSharing, setIsSharing] = useState(false);
     const [shareEmail, setShareEmail] = useState("");
     const [lens, setLens] = useState<Lens | null>(null);
 
@@ -27,7 +26,7 @@ export default function DefaultModal() {
             // Handle success
             alert("Shared successfully!");
             setShareEmail(""); // Reset email input
-            setIsSharing(false); // Close the sharing panel
+            props.setOpenModal(undefined);
         } catch (error) {
             console.error(error);
             alert("Failed to share the lens!");
@@ -53,19 +52,15 @@ export default function DefaultModal() {
                             placeholder="Enter email to share"
                             className="flex-grow px-2 py-1 border rounded"
                         />
-                        <button onClick={handleShare} className="ml-2 px-4 py-2 bg-green-500 text-white rounded">
-                            Send
-                        </button>
-                        <button onClick={() => setIsSharing(false)} className="ml-2 px-4 py-2 bg-red-500 text-white rounded">
-                            Cancel
-                        </button>
                     </div>
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => props.setOpenModal(undefined)}>I accept</Button>
+                    <Button color="gray" onClick={handleShare}>
+                        Send
+                        </Button>
                     <Button color="gray" onClick={() => props.setOpenModal(undefined)}>
-                        Decline
+                        Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>
