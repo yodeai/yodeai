@@ -10,6 +10,7 @@ export default function DefaultModal() {
     const props = { openModal, setOpenModal };
     const [isSharing, setIsSharing] = useState(false);
     const [shareEmail, setShareEmail] = useState("");
+    const [lens, setLens] = useState<Lens | null>(null);
 
     const handleShare = async () => {
         // Logic to handle the share, for example, send the email to server
