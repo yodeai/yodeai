@@ -28,6 +28,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
             <strong>{block.title}</strong>
           </div>
         </Link>
+        { block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : '' }
         {block.inLenses  && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

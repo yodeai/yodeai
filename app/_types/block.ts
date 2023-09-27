@@ -11,6 +11,7 @@ export type Block = {
     block_type: string;
     title: string;
     content: string;
+    status: string;
     parentId?: string;  
     parent?: Block;
     kids: Block[];

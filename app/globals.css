@@ -119,3 +119,18 @@
 .orange-shadow {
   box-shadow: 0 4px 6px 0 rgba(255, 165, 0, 0.1);
 }
+
+.processing-text {
+  color: rgb(100, 101, 102);
+  font-weight: bold;
+  animation: fadeInOut 2s infinite;
+}
+
+@keyframes fadeInOut {
+  0%,80% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
