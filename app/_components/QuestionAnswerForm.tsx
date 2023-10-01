@@ -6,18 +6,69 @@ import { useLens } from "@contexts/lensContext";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
+type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": "", "4": "", "5":""}}
 
 
 
 const QuestionAnswerForm: React.FC = () => {
     const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
-
-
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, setLensId } = useLens();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
+    const [relatedQuestions, setRelatedQuestions] = useState<[]>([])
 
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+          try {
+            if (inputValue) {
+                console.log('inputValue', inputValue);
+                const url = `/searchableFeed/${inputValue}`;
+                const tparams = new URLSearchParams({ question: inputValue }).toString(); 
+                console.log("Making GET request")
+                await apiClient(`${url}?${tparams}`, 'GET'
+                ).then((response) => {
+                    setRelatedQuestions(response.answer.documents)
+                });
+            }
+            } catch (error) {
+                console.error('Failed to retrieve searchable feed. ', error);
+            } finally {
+            }
+        }, 200)
+    
+        return () => clearTimeout(delayDebounceFn)
+      }, [inputValue])
+
+
+    const makePatchRequest = async (q: Question, id: string, diff:number) => {
+        let url;
+        if (diff > 0) {
+            url = `/increasePopularity/${id}`
+        } else {
+            url = `/decreasePopularity/${id}`
+        }
+        try {
+            console.log('id', id, "diff", diff);
+            console.log("Making patch request")
+            const response = await apiClient(url, 'PATCH')
+            console.log("error?")
+            if(response.error == null){
+                updateQuestion(q, diff);
+            }
+
+        } catch (error) {
+            console.error('Failed to increase answer. ', error);
+        } finally {
+        }
+    }
+    const updateQuestion = (question: Question, diff:number) => {
+        let newRelatedQuestions: Question[] = [...relatedQuestions]
+        let indexOfQuestion = newRelatedQuestions.findIndex((q:Question) => q.metadata["3"] === question.metadata["3"])
+        question = newRelatedQuestions[indexOfQuestion]
+        newRelatedQuestions[indexOfQuestion] = {...question, metadata: {...newRelatedQuestions[indexOfQuestion].metadata, "3": question.metadata["3"] + diff}}
+        setRelatedQuestions(newRelatedQuestions);
+    }
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -125,6 +176,11 @@ const QuestionAnswerForm: React.FC = () => {
                         ))
 
                     }
+                </div>
+                <div>
+                <br></br>
+                <h1> Related Questions </h1>
+                {relatedQuestions?.map(q => <div key={q.metadata["5"]}> <br></br><div>{q.pageContent}</div><div>Popularity: {q.metadata["3"]}</div> <div> {q.metadata["1"]} </div> <button onClick={() => {makePatchRequest(q, q.metadata["5"], 1)}}> Thumbs up </button>  <button onClick={() => {makePatchRequest(q, q.metadata["5"], -1)}}> Thumbs Down </button> </div>)}
                 </div>
             </div>
         </div>

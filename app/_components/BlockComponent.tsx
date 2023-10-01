@@ -4,10 +4,11 @@ import formatDate from "@lib/format-date";
 import load from "@lib/load";
 import clsx from "clsx";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef} from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
+import apiClient from "@utils/apiClient";
 
 
 interface BlockProps {
@@ -15,6 +16,40 @@ interface BlockProps {
   block: Block;
 }
 export default function BlockComponent({ block, compact }: BlockProps) {
+  const [blockStatus, setBlockStatus] = useState(block.status);
+  const [blockId, setBlockId] = useState(block.block_id);
+  const [stopPolling, setStopPolling] = useState(false)
+  function useInterval(callback, delay, stopPolling) {
+    const savedCallback = useRef();
+    useEffect(() => {
+      savedCallback.current = callback;
+    }, [callback])
+
+    useEffect(() => {
+      function tick() {
+        savedCallback.current();
+      }
+      if (delay != null) {
+        const id = setInterval(tick, delay)
+        if (stopPolling) {
+          clearInterval(id);
+        }
+        return () => {
+          clearInterval(id);
+        }
+      }
+    }, [callback, delay])
+
+  }
+  useInterval(async() => {
+    console.log("polling")
+    const block = await fetch(`/api/block/${blockId}`).then((response) => response.json())
+    if (block.data.status == 'ready') {
+      console.log("STOPPING polling")
+      setStopPolling(true);
+    }
+    setBlockStatus(block.data.status)
+  }, 10000, stopPolling)
 
   return (
     <div
@@ -29,7 +64,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
             <strong>{block.title}</strong>
           </div>
         </Link>
-        { block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : '' }
+        { blockStatus === 'processing' ? (<span className="processing-text">[Processing...]</span>) : ''}
         {block.inLenses  && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

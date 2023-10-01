@@ -1,3 +1,4 @@
+import { UUID } from "crypto";
 export type LensDetail = {
   lens_id: number;
   name: string;
@@ -18,5 +19,6 @@ export type Block = {
     links: Block[];
     backlinks: Block[];
     inLenses?: LensDetail[]; 
+    task_id: UUID;
   }
   
