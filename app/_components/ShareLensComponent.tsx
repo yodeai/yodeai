@@ -4,6 +4,7 @@ import { Button, Modal, Tooltip } from 'flowbite-react';
 import { useState } from 'react';
 import { Lens } from "app/_types/lens";
 import { Share1Icon } from "@radix-ui/react-icons";
+import ShareLensButton from './ShareLensButton';
 
 export default function DefaultModal() {
     const [openModal, setOpenModal] = useState<string | undefined>();
@@ -35,7 +36,7 @@ export default function DefaultModal() {
     return (
         <>
 
-            <Tooltip content="Share lens." style="light" >
+    <Tooltip content="Share lens." style="light" >
                 <Button onClick={() => props.setOpenModal('default')} data-tooltip-target="tooltip-animation" className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
                     <Share1Icon className="w-6 h-6" />
                 </Button>
@@ -64,6 +65,11 @@ export default function DefaultModal() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+   
+            <Tooltip content="Get Link" style="light" >
+               <ShareLensButton/>
+            </Tooltip >
+            
         </>
     )
 }
