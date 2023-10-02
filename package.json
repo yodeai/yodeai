@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@catppuccin/highlightjs": "^0.1.2",
+    "@heroicons/react": "^2.0.18",
     "@huggingface/agents": "^0.0.5",
     "@huggingface/hub": "^0.8.4",
     "@huggingface/inference": "^1.8.0",
