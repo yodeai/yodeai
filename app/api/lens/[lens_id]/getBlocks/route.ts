@@ -4,11 +4,7 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-type LensBlock = {
-    block: {
-        [key: string]: any; // To represent that block can have any number of properties
-    };
-};
+
 
 export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
     try {
@@ -16,25 +12,34 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             cookies,
         });
 
-        // Fetch all blocks associated with the given lens_id
+        // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: lensBlocks, error } = await supabase
             .from('lens_blocks')
             .select(`
                 *,
-                block!fk_block (*) 
+                block!fk_block (
+                    *,
+                    lens_blocks!fk_block (
+                        lens: lens!fk_lens (lens_id, name)
+                    )
+                ) 
             `)
             .eq('lens_id', params.lens_id)
-
 
         if (error) {
             throw error;
         }
 
-
-        // Extract the associated blocks from the lensBlocks data
+        // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = lensBlocks
             ? lensBlocks
-                .map((lensBlock: LensBlock) => lensBlock.block)
+                .map((lensBlock) => ({
+                    ...lensBlock.block,
+                    inLenses: lensBlock.block.lens_blocks.map((lb: any) => ({
+                        lens_id: lb.lens.lens_id,
+                        name: lb.lens.name,
+                    }))
+                }))
                 .filter(block => block !== null) : [];
 
         blocksForLens.sort((a, b) => {
@@ -42,6 +47,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             if (a.updated_at < b.updated_at) return 1;
             return 0;
         });
+
         return new NextResponse(
             JSON.stringify({ data: blocksForLens }),
             { status: 200 }

@@ -175,7 +175,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
+            <BlockComponent block={block} />
           ))
         ) : (
           <p>This lens is empty, add blocks here.</p>
