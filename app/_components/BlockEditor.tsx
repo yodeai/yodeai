@@ -1,7 +1,8 @@
 "use client";
 import Tiptap from "@components/Tiptap";
 
-import SimpleMDE from 'react-simplemde-editor';
+import SimpleMDEReact from 'react-simplemde-editor';
+import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
 import { useEffect, useState } from "react";
@@ -32,6 +33,7 @@ export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
       });
     }
   };
+
   const handleDelete = useCallback(() => {
     if (block && window.confirm("Are you sure you want to delete this block?")) {
       const deletePromise = fetch(`/api/block/${block.block_id}`, {
@@ -79,14 +81,14 @@ export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
       </div>
       <div className="min-w-full">
         <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
-        <div className="text-gray-600">
+        <div className="prose text-gray-600">
           {/* <Tiptap defaultValue={content} onChange={(t) => setContent(t)} /> */}
-          <SimpleMDE
+          <SimpleMDEReact
             value={content}
-            onChange={(t) => setContent(t)}
+            onChange={setContent}
             options={{
-              // You can customize options here
-              spellChecker: true,
+              // autofocus: false,
+              spellChecker: false,
             }}
           />
         </div>
