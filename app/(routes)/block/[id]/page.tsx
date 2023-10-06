@@ -67,10 +67,12 @@ export default function Block({ params }: { params: { id: string } }) {
                   </ReactMarkdown>
                 </div>
               </div>
-
             </>
           ) : (
-            <BlockEditor block={block} />
+            <BlockEditor block={block} /> // this recreates the entire block view but allows for editing
+            // issue with save button, hitting save does not take you back to the noneditting view block
+            // replace BlockEditor with https://github.com/sparksuite/simplemde-markdown-editor
+            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
           )}
         </div>
       </div>

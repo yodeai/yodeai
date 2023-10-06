@@ -1,5 +1,8 @@
 "use client";
 import Tiptap from "@components/Tiptap";
+
+import SimpleMDE from 'react-simplemde-editor';
+
 import { Block } from "app/_types/block";
 import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
@@ -12,7 +15,7 @@ import { useRouter } from "next/navigation";
 export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
   const router = useRouter();
   const [content, setContent] = useState(block.content);
-  const [title, setTitle] = useState(block.title); 
+  const [title, setTitle] = useState(block.title);
   const debouncedContent = useDebounce(content, 2000);
   const debouncedTitle = useDebounce(title, 2000);
 
@@ -20,7 +23,7 @@ export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
     if (content !== block.content || title !== block.title) {
       const savePromise = fetch(`/api/block/${block.block_id}`, {
         method: "PUT",
-        body: JSON.stringify({ content: content, title: title }), 
+        body: JSON.stringify({ content: content, title: title }),
       });
       load(savePromise, {
         loading: "Saving...",
@@ -58,11 +61,11 @@ export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
     saveContent();
   }, [debouncedContent, debouncedTitle]);
 
-  
+
   return (
     <div className="flex flex-col gap-1 w-full">
       <div className="flex justify-between items-center w-full">
-        <input 
+        <input
           className="text-gray-600 line-clamp-1 text-xl"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -77,7 +80,15 @@ export default function BlockEditor({ block }: { block: NonNullable<Block> }) {
       <div className="min-w-full">
         <p className="text-gray-500 text-sm">{formatDate(block.created_at)}</p>
         <div className="text-gray-600">
-          <Tiptap defaultValue={content} onChange={(t) => setContent(t)} />
+          {/* <Tiptap defaultValue={content} onChange={(t) => setContent(t)} /> */}
+          <SimpleMDE
+            value={content}
+            onChange={(t) => setContent(t)}
+            options={{
+              // You can customize options here
+              spellChecker: true,
+            }}
+          />
         </div>
         <button
           onClick={saveContent}

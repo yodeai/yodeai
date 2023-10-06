@@ -54,6 +54,7 @@
     "react-hot-toast": "^2.4.1",
     "react-markdown": "^8.0.7",
     "react-simple-chatbot": "^0.6.1",
+    "react-simplemde-editor": "^5.2.0",
     "react-textarea-autosize": "^8.5.3",
     "status": "^0.0.13",
     "styled-components": "^6.0.7",
