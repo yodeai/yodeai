@@ -18,7 +18,7 @@ const QuestionAnswerForm: React.FC = () => {
 
 
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, setLensId } = useLens();
+    const { lensId, lensName } = useLens();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
