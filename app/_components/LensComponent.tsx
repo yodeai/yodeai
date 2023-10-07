@@ -19,11 +19,11 @@ export default function LensComponent({ lens, compact }: LensProps) {
   const { lensId, setLensId } = useLens(); // the selected lens retrieved from the context
 
   const handleLensClick = (e: React.MouseEvent) => {
-    setLensId(lens.lens_id.toString()); 
+    setLensId(lens.lens_id.toString());
     router.push(`/lens/${lens.lens_id}`);
   };
 
-  
+
   const handleDelete = useCallback(async () => {
     const request = fetch(`/api/blocks/${lens.lens_id}`, {
       method: "DELETE",
@@ -39,33 +39,23 @@ export default function LensComponent({ lens, compact }: LensProps) {
 
   return (
     <div
-    className={clsx(
-      "flex items-start justify-between py-2 p-4 transition-colors",
-      compact && "max-w-xs",
-      Number(lensId) === lens.lens_id && "bg-customLightBlue-light" 
-    )}
+      className={clsx(
+        "flex items-start justify-between py-2 p-4 transition-colors",
+        compact && "max-w-xs",
+        Number(lensId) === lens.lens_id && "bg-customLightBlue-light"
+      )}
     >
-      <div className="flex flex-col gap-1">
-        <button className="flex items-center flex-1" onClick={handleLensClick} >
-          <ShadowInnerIcon className="mr-2" />  
-          <ReactMarkdown className="text-gray-600 line-clamp-1">
-            {lens.name}
+      <div className="flex flex-col gap-1 justify-start">
+        <button className="flex items-center flex-1" onClick={handleLensClick}>
+          <ShadowInnerIcon className="mr-2" />
+          <ReactMarkdown className="text-gray-600">
+            {lens.name.length > 23 ? `${lens.name.substring(0, 20)}...` : lens.name}
           </ReactMarkdown>
         </button>
         <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
       </div>
-      <div className="flex items-center gap-2">
-        {!compact && (
-          <Button
-            variant="secondary"
-            className="hover:text-red-500 hover:border-red-500 transition-colors"
-            type="button"
-            onClick={handleDelete}
-          >
-            Delete
-          </Button>
-        )}
-      </div>
+
+
     </div>
   );
 }
