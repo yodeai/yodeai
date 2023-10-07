@@ -6,6 +6,10 @@ import { useLens } from "@contexts/lensContext";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
+import { getUserID } from 'utils/getUserID';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+
 
 
 
@@ -18,15 +22,22 @@ const QuestionAnswerForm: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
-    const handleSubmit = async (e: FormEvent) => {
+    
+    const handleSubmit = async (e: FormEvent) => {        
         e.preventDefault();
         setIsLoading(true);
         const startTime = performance.now();
         try {
-            const dataToPost = { question: inputValue, lensID: lensId };
-            //console.log('dataToPost', dataToPost)
+
+            const supabase = createClientComponentClient()
+
+            let { data, error } = await supabase.auth.getUser();
+            if (error) {
+                throw error;
+            }
+            
+            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", userID: data.user?.id };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
-            //console.log('response', response)
 
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
@@ -90,12 +101,12 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Select a lens to ask a question'}
+                {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
             </h1>
 
             
             <div className="flex flex-col  lg:py-12 text-foreground">
-            {lensId && (
+            { (
                 <form onSubmit={handleSubmit} className="flex">
                     <input
                         type="text"

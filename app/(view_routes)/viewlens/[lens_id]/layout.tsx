@@ -1,4 +1,4 @@
-import LensViewForm from '@components/LensViewForm';
+import LensViewOnlyForm from '@components/LensViewOnlyForm';
 import QuestionAnswerForm from '@components/QuestionAnswerForm';
 import React, { ReactNode } from 'react';
 

@@ -18,7 +18,7 @@ import ShareLensComponent from "@components/ShareLensComponent";
 //import { useRouter } from 'next/router';
 import { useRouter } from "next/navigation";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
-import LensViewForm from "@components/LensViewForm";
+import LensViewOnlyForm from "@components/LensViewOnlyForm";
 
 export default function ViewLens({ params }: { params: { lens_id: string } }) {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function ViewLens({ params }: { params: { lens_id: string } }) {
 
   return (
     <> 
-      <LensViewForm lensId={params.lens_id}/>
+      <LensViewOnlyForm lensId={params.lens_id}/>
     </>
   );
 }
