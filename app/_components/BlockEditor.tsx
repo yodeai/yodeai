@@ -1,11 +1,10 @@
 "use client";
-import SimpleMDEReact from 'react-simplemde-editor';
+import SimpleMDEReact from "react-simplemde-editor";
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
 import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
-import formatDate from "@lib/format-date";
 import load from "@lib/load";
 import { useCallback } from "react";
 import { TrashIcon } from "@radix-ui/react-icons";

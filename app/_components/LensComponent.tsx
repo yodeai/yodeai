@@ -3,7 +3,6 @@ import Button from "@components/Button";
 import formatDate from "@lib/format-date";
 import load from "@lib/load";
 import clsx from "clsx";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
