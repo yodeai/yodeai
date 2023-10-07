@@ -67,10 +67,10 @@ export default function Block({ params }: { params: { id: string } }) {
                   </ReactMarkdown>
                 </div>
               </div>
-
             </>
           ) : (
-            <BlockEditor block={block} />
+            <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
           )}
         </div>
       </div>
