@@ -14,7 +14,7 @@ const QuestionAnswerForm: React.FC = () => {
 
 
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, setLensId } = useLens();
+    const { lensId, lensName } = useLens();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -90,7 +90,7 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Select a lens to ask a question'}
+                {lensId ? `Ask a question from: ${lensName}` : 'Select a lens to ask a question'}
             </h1>
 
             

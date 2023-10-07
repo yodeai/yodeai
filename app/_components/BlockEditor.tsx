@@ -1,5 +1,5 @@
 "use client";
-import SimpleMDEReact from "react-simplemde-editor";
+
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
@@ -9,10 +9,21 @@ import load from "@lib/load";
 import { useCallback } from "react";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+import dynamic from 'next/dynamic';
+import { SimpleMDEEditorProps } from 'react-simplemde-editor';
+import { useLens } from "@contexts/lensContext";
+
+
+const DynamicSimpleMDE = dynamic<SimpleMDEEditorProps>(
+  () => import('react-simplemde-editor'),
+  { ssr: false, loading: () => <p>Loading editor...</p> }
+);
+
 
 export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
   const router = useRouter();
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
+  const { lensId } = useLens();
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 2000);
@@ -42,9 +53,26 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       return;
     }
 
+    type RequestBodyType = {
+      block_type: string;
+      content: string;
+      title: string;
+      lens_id?: string; 
+    };
+
+    const requestBody: RequestBodyType = {
+      block_type: "note",
+      content: content,
+      title: title,
+    };
+
+    if (lensId) {
+      requestBody.lens_id = lensId;
+    }
+
     const savePromise = fetch(endpoint, {
       method: method,
-      body: JSON.stringify({ block_type: "note", content: content, title: title }),
+      body: JSON.stringify(requestBody),
     });
 
     load(savePromise, {
@@ -112,7 +140,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       </div>
       <div className="min-w-full">
         <div className="prose text-gray-600">
-          <SimpleMDEReact
+          <DynamicSimpleMDE
             value={content}
             onChange={setContent}
           />

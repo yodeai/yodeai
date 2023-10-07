@@ -8,13 +8,18 @@ import { useLens } from "@contexts/lensContext";
 
 export default function New() {
   const [value, setValue] = useState("write");
-  const { lensId } = useLens();
+  const { lensId, lensName } = useLens();
   return (
     <Container className="max-w-3xl ">
+      
       <div className="w-full flex flex-col p-8">
+      {lensId && <span className="text-xl font-semibold">Adding to: {lensName}</span>}
+      
+      
         <div className="flex items-start justify-between elevated-block p-8 rounded-md bg-white border border-gray-200 mb-4 mt-12">
-        {lensId && <h1>Adding to lens</h1>}
-        <Tabs.Root value={value} onValueChange={(value: string) => setValue(value)}>
+        
+        <Tabs.Root className="w-full" value={value} onValueChange={(value: string) => setValue(value)}>
+          
           <Tabs.List className="divide-x border overflow-hidden rounded-lg inline-flex my-4">
             <Tabs.Trigger
               value="write"

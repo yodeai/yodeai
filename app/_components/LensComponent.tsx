@@ -24,19 +24,6 @@ export default function LensComponent({ lens, compact }: LensProps) {
   };
 
 
-  const handleDelete = useCallback(async () => {
-    const request = fetch(`/api/blocks/${lens.lens_id}`, {
-      method: "DELETE",
-    });
-    await load(request, {
-      loading: "Deleting...",
-      success: "Deleted!",
-      error: "Failed to delete.",
-    });
-    router.refresh();
-  }, [lens, router]);
-
-
   return (
     <div
       className={clsx(

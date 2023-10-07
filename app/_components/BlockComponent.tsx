@@ -2,7 +2,6 @@
 import formatDate from "@lib/format-date";
 import clsx from "clsx";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 
