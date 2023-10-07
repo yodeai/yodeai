@@ -43,7 +43,7 @@ export default function UploadBlocks() {
     },
     maxFiles: 1,
   });
-  const [value, setValue] = useState("write");
+ 
   const [title, setTitle] = useState<string>("new block");
   const uploadAndRedirect = useCallback(
     async (data: { title: string; content: string; lens_id: string | null }) => {
@@ -73,71 +73,11 @@ export default function UploadBlocks() {
     [files, uploadAndRedirect, title]
   );
 
-  const handleSubmitWrittenBlock: FormEventHandler<HTMLFormElement> =
-    useCallback(
-      async (event) => {
-        event.preventDefault();
-
-        uploadAndRedirect({
-          title: title,
-          content: block,
-          lens_id: lensId
-        });
-      },
-      [block, uploadAndRedirect, title]
-    );
-
 
   return (
-    <Tabs.Root value={value} onValueChange={(value: string) => setValue(value)}>
-      {lensId && <h1>Adding to lens</h1>}
-      <Tabs.List className="divide-x border overflow-hidden rounded-lg inline-flex my-4">
-        <Tabs.Trigger
-          value="write"
-          className="px-4 py-2 font-medium text-gray-500 data-[state=active]:text-black data-[state=active]:bg-gray-50"
-        >
-          Write
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="upload"
-          className="px-4 py-2 font-medium text-gray-500 data-[state=active]:text-black data-[state=active]:bg-gray-50"
-        >
-          Upload
-        </Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="write">
-        <form
-          className="flex flex-col gap-4 items-start"
-          onSubmit={handleSubmitWrittenBlock}
-        >
-          <input
-            type="text"
-            className="w-full p-2 mb-4 border rounded"
-            placeholder="Title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <TextareaAutosize
-            id="block"
-            className="w-full min-h-[200px] bg-white resize-none border p-4 rounded"
-            placeholder="Write something..."
-            value={block}
-            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-              setBlock(event.target.value)
-            }
-          />
-
-          <Button
-            disabled={block.length === 0}
-            className={clsx(block.length === 0 && "cursor-not-allowed")}
-            variant="primary"
-            type="submit"
-          >
-            Upload
-          </Button>
-        </form>
-      </Tabs.Content>
-      <Tabs.Content value="upload">
+    
+        
+      
         <form
           className="flex flex-col gap-4 items-start"
           encType="multipart/form-data"
@@ -168,7 +108,6 @@ export default function UploadBlocks() {
             Upload
           </Button>
         </form>
-      </Tabs.Content>
-    </Tabs.Root>
+      
   );
 }
