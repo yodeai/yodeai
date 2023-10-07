@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       throw error;
     }
-    console.log("data: ", data);  
+     
     if (data && data[0]) {
       const newBlock: Block = data[0];
 
