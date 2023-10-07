@@ -10,12 +10,11 @@ import { useCallback } from "react";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
-import { SimpleMDEEditorProps } from 'react-simplemde-editor';
 import { useLens } from "@contexts/lensContext";
 
 
-const DynamicSimpleMDE = dynamic<SimpleMDEEditorProps>(
-  () => import('react-simplemde-editor'),
+const DynamicSimpleMDE = dynamic(
+  () => import('react-simplemde-editor').then(mod => mod.SimpleMdeReact),
   { ssr: false, loading: () => <p>Loading editor...</p> }
 );
 
