@@ -63,16 +63,16 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
-                const previousQAs = newQuestionHistory.get(lensId || '') || []; // Get the existing array of Q&A for the lens_id or an empty array
+                const previousQAs = newQuestionHistory.get(lensId?lensId:"") || []; // Get the existing array of Q&A for the lens_id or an empty array
 
                 if (response && response.answer) {
                     const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
                     previousQAs.unshift(newQA);
-                    newQuestionHistory.set(lensId || '', previousQAs);
+                    newQuestionHistory.set(lensId?lensId:"", previousQAs);
                 } else {
                     const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
                     previousQAs.push(newQA);
-                    newQuestionHistory.set(lensId || '', previousQAs);
+                    newQuestionHistory.set(lensId?lensId:"", previousQAs);
                 }
 
                 return newQuestionHistory;
@@ -83,10 +83,10 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory);
-                const previousQAs = newQuestionHistory.get(lensId || '') || [];
+                const previousQAs = newQuestionHistory.get(lensId?lensId:"") || [];
                 const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
                 previousQAs.push(errorQA);
-                newQuestionHistory.set(lensId || '', previousQAs);
+                newQuestionHistory.set(lensId?lensId:"", previousQAs);
                 return newQuestionHistory;
             });
         } finally {
@@ -126,7 +126,7 @@ const QuestionAnswerForm: React.FC = () => {
             )}
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
-                        (questionHistory.get(lensId || '') || []).map(({ question, answer, sources }, index) => (
+                        (questionHistory.get(lensId?lensId:"") || []).map(({ question, answer, sources }, index) => (
                             <QuestionComponent
                                 key={index}
                                 question={question}
