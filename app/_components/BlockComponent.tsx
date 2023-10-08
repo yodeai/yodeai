@@ -12,7 +12,7 @@ interface BlockProps {
 }
 export default function BlockComponent({ block, compact }: BlockProps) {
 
-  const firstTwoLines = block.content.split('\n').slice(0, 2).join('\n');
+  const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
   return (
     <div
       className={clsx(
@@ -30,7 +30,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}
-        {!compact ? (
+        {!compact && firstTwoLines ?  (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">
