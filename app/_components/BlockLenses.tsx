@@ -1,4 +1,5 @@
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
+import { FaInbox } from 'react-icons/fa';
 import { id } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";

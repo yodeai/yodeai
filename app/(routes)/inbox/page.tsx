@@ -85,16 +85,7 @@ export default function Inbox() {
         )}
 
         {/* Display child lenses if they exist */}
-        {lens.children && lens.children.length > 0 ? (
-          lens.children.map((childLens) => (
-            <div key={childLens.lens_id}>
-              {/* Child lens display logic */}
-              Child Lens: {childLens.name}
-            </div>
-          ))
-        ) : (
-          <p></p>
-        )}
+
       </div>
     </Container>
   );
