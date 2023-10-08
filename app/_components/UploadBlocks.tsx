@@ -89,18 +89,25 @@ export default function UploadBlocks() {
   const [title, setTitle] = useState<string>("new block");
   const uploadAndRedirect = useCallback(
     async (data: UploadData) => {
-      const created = await upload(data);
-      setFiles([]);
-      setBlock("");
-      setTitle("new block");
-      router.refresh();
-      if (!lensId)
-        router.push(`/`);
-      else
-        router.push(`/lens/${lensId}`);
+      try {
+        const created = await upload(data);
+        setFiles([]);
+        setBlock("");
+        setTitle("new block");
+        router.refresh();
+        if (!lensId)
+          router.push(`/`);
+        else
+          router.push(`/lens/${lensId}`);
+      } catch (error) {
+        console.error("Error in uploadAndRedirect:", error);
+        toast.error("There was an error uploading the file.");
+      }
     },
     [router]
   );
+
+
   const handleFileUpload: FormEventHandler<HTMLFormElement> = useCallback(
     async (event) => {
       event.preventDefault();
