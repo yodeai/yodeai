@@ -31,6 +31,7 @@
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
     "@xenova/transformers": "^2.6.0",
+    "aws-sdk": "^2.1472.0",
     "clsx": "^2.0.0",
     "common": "link:lowlight/lib/common",
     "concurrently": "^8.2.0",
