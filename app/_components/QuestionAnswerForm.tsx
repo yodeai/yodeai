@@ -6,7 +6,7 @@ import { useLens } from "@contexts/lensContext";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
-type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": "", "4": "", "5":""}}
+type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": string, "4": "", "5":""}}
 
 
 
@@ -16,17 +16,16 @@ const QuestionAnswerForm: React.FC = () => {
     const { lensId, setLensId } = useLens();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
-    const [relatedQuestions, setRelatedQuestions] = useState<[]>([])
+    const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {
           try {
             if (inputValue) {
                 console.log('inputValue', inputValue);
-                const url = `/searchableFeed/${inputValue}`;
-                const tparams = new URLSearchParams({ question: inputValue }).toString(); 
-                console.log("Making GET request")
-                await apiClient(`${url}?${tparams}`, 'GET'
+                const dataToPost = { question: inputValue, lens_id: lensId };
+                console.log("Making POST request")
+                await apiClient('/searchableFeed', 'POST', dataToPost
                 ).then((response) => {
                     setRelatedQuestions(response.answer.documents)
                 });
@@ -35,7 +34,7 @@ const QuestionAnswerForm: React.FC = () => {
                 console.error('Failed to retrieve searchable feed. ', error);
             } finally {
             }
-        }, 200)
+        }, 2000)
     
         return () => clearTimeout(delayDebounceFn)
       }, [inputValue])
@@ -44,14 +43,13 @@ const QuestionAnswerForm: React.FC = () => {
     const makePatchRequest = async (q: Question, id: string, diff:number) => {
         let url;
         if (diff > 0) {
-            url = `/increasePopularity/${id}`
+            url = `/increasePopularity`
         } else {
-            url = `/decreasePopularity/${id}`
+            url = `/decreasePopularity`
         }
         try {
-            console.log('id', id, "diff", diff);
-            console.log("Making patch request")
-            const response = await apiClient(url, 'PATCH')
+            const dataToPatch = { row_id: id, lens_id: lensId };
+            const response = await apiClient(url, 'PATCH', dataToPatch)
             console.log("error?")
             if(response.error == null){
                 updateQuestion(q, diff);
@@ -74,7 +72,7 @@ const QuestionAnswerForm: React.FC = () => {
         setIsLoading(true);
         const startTime = performance.now();
         try {
-            const dataToPost = { question: inputValue, lensID: lensId };
+            const dataToPost = { question: inputValue, lens_id: lensId };
             //console.log('dataToPost', dataToPost)
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             //console.log('response', response)
