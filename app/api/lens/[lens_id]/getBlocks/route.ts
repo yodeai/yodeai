@@ -26,21 +26,32 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             `)
             .eq('lens_id', params.lens_id)
 
+        console.log('lensBlocks', lensBlocks);
+
         if (error) {
             throw error;
         }
 
+        console.log("trying");
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = lensBlocks
             ? lensBlocks
-                .map((lensBlock) => ({
-                    ...lensBlock.block,
-                    inLenses: lensBlock.block.lens_blocks.map((lb: any) => ({
-                        lens_id: lb.lens.lens_id,
-                        name: lb.lens.name,
-                    }))
-                }))
-                .filter(block => block !== null) : [];
+                .map((lensBlock) => {
+                    if (lensBlock.block && lensBlock.block.lens_blocks) {
+                        return {
+                            ...lensBlock.block,
+                            inLenses: lensBlock.block.lens_blocks.map((lb: any) => ({
+                                lens_id: lb.lens.lens_id,
+                                name: lb.lens.name,
+                            }))
+                        };
+                    }
+                    return null;
+                })
+                .filter(block => block !== null)
+            : [];
+
+        
 
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;

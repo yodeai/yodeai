@@ -22,6 +22,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
   const { reloadLenses } = useLens();
+  const [dbLenses, setDbLenses] = useState<{ lens_id: number, name: string }[]>([]);
+
+  useEffect(() => {
+
+
+    fetch('/api/lens/getAllNames')
+      .then(response => response.json())
+      .then(data => {
+        setDbLenses(data.data);
+      });
+  }, []);
 
 
   useEffect(() => {
@@ -175,7 +186,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
+            <BlockComponent key={block.block_id} block={block} dbLenses={dbLenses} />
           ))
         ) : (
           <p>This lens is empty, add blocks here.</p>

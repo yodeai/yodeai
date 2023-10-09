@@ -7,10 +7,11 @@ import { useState, useRef, useEffect } from "react";
 interface LensProps {
   lenses: { lens_id: number, name: string }[];
   block_id: number;
+  dbLenses: { lens_id: number, name: string }[];
 }
 
-const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
-  const [dbLenses, setDbLenses] = useState<{ lens_id: number, name: string }[]>([]);
+const BlockLenses: React.FC<LensProps> = ({ lenses, block_id, dbLenses }) => {
+
   const router = useRouter();
   const [showInput, setShowInput] = useState(false);
   const [newLensName, setNewLensName] = useState("");
@@ -19,18 +20,6 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const [currentLenses, setCurrentLenses] = useState(lenses);
   const [processingLensId, setProcessingLensId] = useState<number | null>(null);
   const [addingNewLens, setAddingNewLens] = useState(false);
-
-
-
-  useEffect(() => {
-
-
-    fetch('/api/lens/getAllNames')
-      .then(response => response.json())
-      .then(data => {
-        setDbLenses(data.data);
-      });
-  }, []);
 
 
   const fetchBlockLenses = async () => {

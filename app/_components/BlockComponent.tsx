@@ -6,11 +6,15 @@ import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 
 
+
+
 interface BlockProps {
   compact?: boolean;
   block: Block;
+  dbLenses: { lens_id: number, name: string }[];
 }
-export default function BlockComponent({ block, compact }: BlockProps) {
+export default function BlockComponent({ block, compact, dbLenses }: BlockProps) {
+
 
   const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
   return (
@@ -28,9 +32,9 @@ export default function BlockComponent({ block, compact }: BlockProps) {
         </Link>
         {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : ''}
         {block.inLenses && (
-          <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
+          <BlockLenses lenses={block.inLenses} block_id={block.block_id} dbLenses={dbLenses} />
         )}
-        {!compact && firstTwoLines ?  (
+        {!compact && firstTwoLines ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">
