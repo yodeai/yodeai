@@ -17,6 +17,8 @@ import { createLens } from "@lib/api";
 import LensComponent from "@components/LensComponent";
 import { useLens } from "@contexts/lensContext";
 import { useCallback, useState, useEffect } from "react";
+import { FaInbox } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
 
 export function ActiveLink({
   href,
@@ -68,6 +70,10 @@ export default function Navbar() {
     reloadLenses();
   }, [router]);
 
+  const handleOpenInbox = (e: React.MouseEvent) => {
+    router.push(`/inbox`);
+  };
+
   const handleHomeClick = () => {
     setLensId(null);
     router.push(`/`);
@@ -87,8 +93,7 @@ export default function Navbar() {
             className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
           >
             <ShadowInnerIcon /> New lens
-          </button>
-          
+          </button>          
         </div>
 
         {/* Commenting out the Search component for now */}
@@ -102,8 +107,18 @@ export default function Navbar() {
         </div>
           */}
 
+          <button
+            className="flex items-center mt-4 text-gray-600   gap-4"
+            onClick={handleOpenInbox}
+            style={{ paddingLeft: '12px' , paddingRight: '5px'}} // Add padding to the left
+          >            
+            <FaInbox style={{ marginLeft: '5px' }} /> { }
+            <span> Inbox</span>
+          </button>
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+          
+
           {lenses.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
