@@ -11,6 +11,7 @@ type LensContextType = {
   setLensName: React.Dispatch<React.SetStateAction<string | null>>;
   reloadKey: number;
   reloadLenses: () => void;
+  allLenses: { lens_id: number, name: string }[];
 };
 
 
@@ -22,6 +23,7 @@ const defaultValue: LensContextType = {
   setLensName: () => { },
   reloadKey: 0,
   reloadLenses: () => { },
+  allLenses: []
 };
 
 const LensContext = createContext<LensContextType>(defaultValue);
@@ -40,15 +42,26 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [lensId, setLensId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [lensName, setLensName] = useState<string | null>(null);
+  // allLenses is a list of the lenses that this user has, is used to suggest lenses
+  const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string }[]>([]);
 
-  // This useEffect will only run once when the component is mounted
+  
   useEffect(() => {
+    // Get the lensId from the URL
     const path = window.location.pathname;
     const parts = path.split('/');
     if (parts[1] === 'lens') {
       const newID = parts[2];
       setLensId(newID);  // Set the lensId based on the URL
     }
+
+    // Get all the lenses that this user has
+    fetch('/api/lens/getAllNames')
+      .then(response => response.json())
+      .then(data => {
+        setAllLenses(data.data);
+      });
+
   }, []);
 
   // This useEffect will run whenever lensId changes
@@ -64,8 +77,17 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
         }
       }
     };
+    const fetchAllLenses = async () => {
+      fetch('/api/lens/getAllNames')
+      .then(response => response.json())
+      .then(data => {
+        setAllLenses(data.data);
+      });
+    }
 
     fetchLensName();
+    fetchAllLenses();
+    
   }, [lensId]);
 
 
@@ -74,7 +96,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   };
 
   return (
-    <LensContext.Provider value={{ lensId, setLensId, lensName, setLensName, reloadKey, reloadLenses }}>
+    <LensContext.Provider value={{ lensId, setLensId, lensName, setLensName, reloadKey, reloadLenses, allLenses }}>
       {children}
     </LensContext.Provider>
   );

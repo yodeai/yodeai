@@ -26,13 +26,12 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             `)
             .eq('lens_id', params.lens_id)
 
-        console.log('lensBlocks', lensBlocks);
+        //console.log('lensBlocks', lensBlocks);
 
         if (error) {
             throw error;
         }
 
-        console.log("trying");
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = lensBlocks
             ? lensBlocks

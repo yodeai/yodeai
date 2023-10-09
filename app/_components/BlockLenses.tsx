@@ -2,16 +2,15 @@ import { ShadowInnerIcon } from "@radix-ui/react-icons";
 import { id } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { useLens } from "@contexts/lensContext";
 
 
 interface LensProps {
   lenses: { lens_id: number, name: string }[];
   block_id: number;
-  dbLenses: { lens_id: number, name: string }[];
 }
 
-const BlockLenses: React.FC<LensProps> = ({ lenses, block_id, dbLenses }) => {
-
+const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const router = useRouter();
   const [showInput, setShowInput] = useState(false);
   const [newLensName, setNewLensName] = useState("");
@@ -20,7 +19,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id, dbLenses }) => {
   const [currentLenses, setCurrentLenses] = useState(lenses);
   const [processingLensId, setProcessingLensId] = useState<number | null>(null);
   const [addingNewLens, setAddingNewLens] = useState(false);
-
+  const { allLenses } = useLens();
 
   const fetchBlockLenses = async () => {
     try {
@@ -44,7 +43,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id, dbLenses }) => {
     setNewLensName(e.target.value);
 
     if (e.target.value) {
-      const filtered = dbLenses.filter(lens =>
+      const filtered = allLenses.filter(lens =>
         lens.name.toLowerCase().includes(e.target.value.toLowerCase())
       );
       setSuggestions(filtered);
@@ -74,7 +73,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id, dbLenses }) => {
         setAddingNewLens(false); // Reset even if there's an error
       });
 
-    const selectedSuggestion = dbLenses.find(lens => lens.lens_id === suggestionId);
+    const selectedSuggestion = allLenses.find(lens => lens.lens_id === suggestionId);
     if (selectedSuggestion) {
       setNewLensName(selectedSuggestion.name);
     }
