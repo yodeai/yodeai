@@ -52,10 +52,6 @@ export default function Inbox() {
 
 
 
-
-
-
-
   return (
 
     <Container as="main" className="py-8 max-w-screen-sm gap-8 ">

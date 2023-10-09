@@ -101,7 +101,7 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
+                {lensId ? 'Ask a question from: '+lensName : 'Ask a question from your data'}
             </h1>
 
             
