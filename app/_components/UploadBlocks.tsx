@@ -59,7 +59,8 @@ async function upload(data: UploadData): Promise<Block> {
       loading: "Uploading...",
       success: "Uploaded!",
       error: "Failed to upload.",
-    }).then((response) => response.json());
+    }).then((response: Response) => response.json());
+
 
     return created;
   } catch (error) {

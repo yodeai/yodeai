@@ -79,7 +79,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       success: "Saved!",
       error: "Failed to save.",
     })
-      .then(async (response) => {
+      .then(async (response: Response) => {
         // Update the block state if a new block is created
         if (method === "POST" && response.ok) {
           const responseData = await response.json();
