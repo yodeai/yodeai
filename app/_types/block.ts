@@ -18,5 +18,6 @@ export type Block = {
     links: Block[];
     backlinks: Block[];
     inLenses?: LensDetail[]; 
+    file_url?: string;
   }
   

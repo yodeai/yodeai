@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import clsx from "clsx";
 import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    
     <html lang="en" >
+
       <body
         
       className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
