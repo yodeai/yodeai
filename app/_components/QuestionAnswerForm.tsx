@@ -99,7 +99,7 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }
 
-    clearConsole(activeComponent)
+    
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
