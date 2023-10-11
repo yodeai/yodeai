@@ -18,7 +18,7 @@ const QuestionAnswerForm: React.FC = () => {
 
 
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName } = useAppContext();
+    const { lensId, lensName, activeComponent } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,7 +36,7 @@ const QuestionAnswerForm: React.FC = () => {
                 throw error;
             }
             
-            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", userID: data.user?.id };            
+            const dataToPost = { question: inputValue, lensID: lensId, activeComponent, userID: data.user?.id };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
 
             let blockTitles: { title: string, blockId: string }[] = [];
