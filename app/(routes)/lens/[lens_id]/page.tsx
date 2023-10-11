@@ -10,7 +10,7 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 
@@ -21,7 +21,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
-  const { reloadLenses } = useLens();
+  const { reloadLenses } = useAppContext();
   
 
 

@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, FormEvent } from 'react';
 import apiClient from '@utils/apiClient';
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
@@ -18,7 +18,7 @@ const QuestionAnswerForm: React.FC = () => {
 
 
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName } = useLens();
+    const { lensId, lensName } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 

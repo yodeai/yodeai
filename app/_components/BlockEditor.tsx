@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 
 
 const DynamicSimpleMDE = dynamic(
@@ -22,7 +22,7 @@ const DynamicSimpleMDE = dynamic(
 export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
   const router = useRouter();
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
-  const { lensId } = useLens();
+  const { lensId } = useAppContext();
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 2000);

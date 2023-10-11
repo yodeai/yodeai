@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEventHandler, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Block } from "app/_types/block";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import toast from 'react-hot-toast';
 
 
@@ -74,7 +74,7 @@ export default function UploadBlocks() {
   const router = useRouter();
   const [block, setBlock] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
-  const { lensId } = useLens();
+  const { lensId } = useAppContext();
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {

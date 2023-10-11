@@ -4,7 +4,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { set } from 'date-fns';
 
 // Update the type for the context value
-type LensContextType = {
+type contextType = {
   lensId: string | null;
   setLensId: React.Dispatch<React.SetStateAction<string | null>>;
   lensName: string | null;
@@ -12,29 +12,35 @@ type LensContextType = {
   reloadKey: number;
   reloadLenses: () => void;
   allLenses: { lens_id: number, name: string }[];
+  // activeComponent can be "global", "lens", or "inbox"
+  activeComponent: string;
+  setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
 };
 
 
 // Provide a default value for the context
-const defaultValue: LensContextType = {
+const defaultValue: contextType = {
   lensId: null,
   setLensId: () => { },
   lensName: null,
   setLensName: () => { },
   reloadKey: 0,
   reloadLenses: () => { },
-  allLenses: []
+  allLenses: [],
+  activeComponent: "global",
+  setActiveComponent: () => { },
+  
 };
 
-const LensContext = createContext<LensContextType>(defaultValue);
+const context = createContext<contextType>(defaultValue);
 
 // Define the type for the provider props
 type LensProviderProps = {
   children: ReactNode;
 };
 
-export const useLens = () => {
-  return useContext(LensContext);
+export const useAppContext = () => {
+  return useContext(context);
 };
 
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
@@ -44,13 +50,19 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [lensName, setLensName] = useState<string | null>(null);
   // allLenses is a list of the lenses that this user has, is used to suggest lenses
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string }[]>([]);
+  const [activeComponent, setActiveComponent] = useState<string>("global");
 
-  
+
   useEffect(() => {
     // Get the lensId from the URL
     const path = window.location.pathname;
     const parts = path.split('/');
-    if (parts[1] === 'lens') {
+    // Check if the URL is '/inbox' and set isInbox to true
+    if (path === '/inbox') {
+      console.log("setting true");
+      setActiveComponent("inbox");
+    }
+    else if (parts[1] === 'lens') {
       const newID = parts[2];
       setLensId(newID);  // Set the lensId based on the URL
     }
@@ -72,6 +84,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
         if (!error && data && data.length > 0) {
           setLensName(data[0].name);
+          setActiveComponent("lens");
         } else {
           console.error("Error fetching lens name:", error);
         }
@@ -79,15 +92,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     };
     const fetchAllLenses = async () => {
       fetch('/api/lens/getAllNames')
-      .then(response => response.json())
-      .then(data => {
-        setAllLenses(data.data);
-      });
+        .then(response => response.json())
+        .then(data => {
+          setAllLenses(data.data);
+        });
     }
 
     fetchLensName();
     fetchAllLenses();
-    
+
   }, [lensId]);
 
 
@@ -96,8 +109,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   };
 
   return (
-    <LensContext.Provider value={{ lensId, setLensId, lensName, setLensName, reloadKey, reloadLenses, allLenses }}>
+    <context.Provider value={{ lensId, setLensId, lensName, setLensName, reloadKey, reloadLenses, allLenses, activeComponent, setActiveComponent }}>
       {children}
-    </LensContext.Provider>
+    </context.Provider>
   );
 };

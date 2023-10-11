@@ -3,7 +3,7 @@ import { FaInbox } from 'react-icons/fa';
 import { id } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 
 
 interface LensProps {
@@ -20,7 +20,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const [currentLenses, setCurrentLenses] = useState(lenses);
   const [processingLensId, setProcessingLensId] = useState<number | null>(null);
   const [addingNewLens, setAddingNewLens] = useState(false);
-  const { allLenses } = useLens();
+  const { allLenses } = useAppContext();
 
   const fetchBlockLenses = async () => {
     try {

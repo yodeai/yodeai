@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 
 export async function GET(request: NextRequest) {
-    console.log("trying out inbox");
+    
     try {
         const supabase = createServerComponentClient({
             cookies,
@@ -25,8 +25,6 @@ export async function GET(request: NextRequest) {
                     )
                 ) 
             `)
-
-        console.log('inboxBlocks', inboxBlocks);
 
         if (error) {
             throw error;

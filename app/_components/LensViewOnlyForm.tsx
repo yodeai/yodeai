@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, FormEvent } from 'react';
 import apiClient from '@utils/apiClient';
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';

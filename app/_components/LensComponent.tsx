@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
 
@@ -16,7 +16,7 @@ interface LensProps {
 }
 export default function LensComponent({ lens, compact }: LensProps) {
   const router = useRouter();
-  const { lensId, setLensId } = useLens(); // the selected lens retrieved from the context
+  const { lensId, setLensId } = useAppContext(); // the selected lens retrieved from the context
 
   const handleLensClick = (e: React.MouseEvent) => {
     setLensId(lens.lens_id.toString());

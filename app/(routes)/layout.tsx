@@ -1,6 +1,6 @@
 import Navbar from "@components/Navbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { LensProvider } from "@contexts/lensContext";
+import { LensProvider } from "@contexts/context";
 
 export default function AppLayout({ children }: { children: React.ReactNode; }) {
 
