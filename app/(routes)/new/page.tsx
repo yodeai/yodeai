@@ -4,11 +4,11 @@ import UploadBlocks from "@components/UploadBlocks";
 import BlockEditor from "@components/BlockEditor";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState } from "react";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 
 export default function New() {
   const [value, setValue] = useState("write");
-  const { lensId, lensName } = useLens();
+  const { lensId, lensName } = useAppContext();
   return (
     <Container className="max-w-3xl ">
       

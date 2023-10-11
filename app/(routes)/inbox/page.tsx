@@ -1,7 +1,6 @@
 "use client";
 import { notFound } from "next/navigation";
 import Container from "@components/Container";
-import Link from "next/link";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
@@ -10,7 +9,7 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 
@@ -64,8 +63,6 @@ export default function Inbox() {
         ) : (
           <p>Inbox is empty.</p>
         )}
-
-        {/* Display child lenses if they exist */}
 
       </div>
     </Container>

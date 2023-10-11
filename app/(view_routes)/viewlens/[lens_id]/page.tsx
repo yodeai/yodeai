@@ -10,7 +10,7 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 
