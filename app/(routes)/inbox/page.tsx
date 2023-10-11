@@ -16,16 +16,12 @@ import ShareLensComponent from "@components/ShareLensComponent";
 
 
 export default function Inbox() {
-  const [InboxData, setInboxData] = useState(null);
-  //const [lensName, setLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  //const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
-  //const { reloadLenses } = useLens();
 
 
   useEffect(() => {
-    // Fetch the blocks associated with the lens
+    // Fetch the blocks associated with the Inbox
     fetch(`/api/inbox/getBlocks`)
       .then((response) => response.json())
       .then((data) => {
@@ -33,17 +29,6 @@ export default function Inbox() {
       })
       .catch((error) => {
         console.error("Error fetching block:", error);
-        notFound();
-      });
-
-    // Fetch the lens details
-    fetch(`/api/inbox`)
-      .then((response) => response.json())
-      .then((data) => {
-        setInboxData(data.data);        
-      })
-      .catch((error) => {
-        console.error("Error fetching lens:", error);
         notFound();
       });
 
