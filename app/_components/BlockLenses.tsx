@@ -90,7 +90,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
       success: "Lens added!",
       error: "Failed to add lens."
     })
-      .then(response => response.json())
+      .then((response: Response) => response.json())
       .then(data => {
         fetchBlockLenses();
         resetComponentState();
@@ -124,7 +124,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
       success: "Lens removed!",
       error: "Failed to remove lens."
     })
-    .then(response => response.json())
+    .then((response: Response) => response.json())
     .then(data => {
       fetchBlockLenses();
       resetComponentState();
