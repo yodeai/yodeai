@@ -19,6 +19,7 @@ const QuestionAnswerForm: React.FC = () => {
 
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, lensName, activeComponent } = useAppContext();
+    const mapKey=  activeComponent + lensId;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,6 +28,7 @@ const QuestionAnswerForm: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
         const startTime = performance.now();
+         
         try {
 
             const supabase = createClientComponentClient()
@@ -36,9 +38,9 @@ const QuestionAnswerForm: React.FC = () => {
                 throw error;
             }
             
-            const dataToPost = { question: inputValue, lensID: lensId, activeComponent, userID: data.user?.id };            
+            // we CANNOT pass a null lensId to the backend server (python cannot accept it)
+            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", activeComponent: activeComponent, userID: data.user?.id };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
-
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
                 blockTitles = await Promise.all(
@@ -63,16 +65,16 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
-                const previousQAs = newQuestionHistory.get(lensId?lensId:"") || []; // Get the existing array of Q&A for the lens_id or an empty array
+                const previousQAs = newQuestionHistory.get(mapKey) || []; // Get the existing array of Q&A for the lens_id or an empty array
 
                 if (response && response.answer) {
                     const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
                     previousQAs.unshift(newQA);
-                    newQuestionHistory.set(lensId?lensId:"", previousQAs);
+                    newQuestionHistory.set(mapKey, previousQAs);
                 } else {
                     const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
                     previousQAs.push(newQA);
-                    newQuestionHistory.set(lensId?lensId:"", previousQAs);
+                    newQuestionHistory.set(mapKey, previousQAs);
                 }
 
                 return newQuestionHistory;
@@ -83,10 +85,10 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory);
-                const previousQAs = newQuestionHistory.get(lensId?lensId:"") || [];
+                const previousQAs = newQuestionHistory.get(mapKey) || [];
                 const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
                 previousQAs.push(errorQA);
-                newQuestionHistory.set(lensId?lensId:"", previousQAs);
+                newQuestionHistory.set(mapKey, previousQAs);
                 return newQuestionHistory;
             });
         } finally {
@@ -97,11 +99,11 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }
 
-
+    const altMessage = (activeComponent=="global")? "Ask a question from your data":"Ask a question from Inbox";
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from: '+lensName : 'Ask a question from your data'}
+                {lensId ? 'Ask a question from: '+lensName : altMessage}
             </h1>
 
             
@@ -126,7 +128,7 @@ const QuestionAnswerForm: React.FC = () => {
             )}
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
-                        (questionHistory.get(lensId?lensId:"") || []).map(({ question, answer, sources }, index) => (
+                        (questionHistory.get(mapKey) || []).map(({ question, answer, sources }, index) => (
                             <QuestionComponent
                                 key={index}
                                 question={question}
