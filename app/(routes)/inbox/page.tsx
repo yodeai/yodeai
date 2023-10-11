@@ -42,7 +42,7 @@ export default function Inbox() {
 
       <header className="flex items-center justify-between">
 
-        { 
+        {
           <>
             <span className="text-xl font-semibold">Inbox</span>
             <div className="flex items-center space-x-2">
@@ -50,7 +50,7 @@ export default function Inbox() {
             </div>
 
           </>
-         }
+        }
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
@@ -61,7 +61,9 @@ export default function Inbox() {
             <BlockComponent key={block.block_id} block={block} />
           ))
         ) : (
-          <p>Inbox is empty.</p>
+          <div className="flex flex-col p-4 flex-grow">
+            <LoadingSkeleton />
+          </div>
         )}
 
       </div>
