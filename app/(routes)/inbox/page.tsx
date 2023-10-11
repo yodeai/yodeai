@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
+import { clearConsole } from "debug/tools";
+import { SolidArchiveBoxArrowDown } from 'heroicons/react/solid';
 
 
 export default function Inbox() {
@@ -42,7 +44,7 @@ export default function Inbox() {
 
       <header className="flex items-center justify-between">
 
-        {
+        { 
           <>
             <span className="text-xl font-semibold">Inbox</span>
             <div className="flex items-center space-x-2">
@@ -50,7 +52,7 @@ export default function Inbox() {
             </div>
 
           </>
-        }
+         }
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">

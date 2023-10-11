@@ -43,6 +43,7 @@
     "flowbite": "^1.8.1",
     "flowbite-react": "^0.6.1",
     "framer-motion": "^10.16.2",
+    "heroicons": "^2.0.18",
     "install": "^0.13.0",
     "langchain": "^0.0.128",
     "lowlight": "^2.9.0",
