@@ -10,7 +10,8 @@ import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
 import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
+import Link from 'next/link';
+import { PlusIcon } from "@radix-ui/react-icons";
 
 
 export default function Inbox() {
@@ -100,7 +101,11 @@ export default function Inbox() {
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
-
+      <Link
+        href="/new"
+        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
+        <PlusIcon /> New block
+      </Link>
 
         {
           loading ? (
