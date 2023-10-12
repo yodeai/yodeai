@@ -23,6 +23,8 @@ const QuestionAnswerForm: React.FC = () => {
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
+
+
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
     //       try {
@@ -151,7 +153,7 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from: '+lensName : ((activeComponent==="global")? "Ask a question from your data":"Ask a question from Inbox")}
+                {lensId && lensName ? 'Ask a question from: ' + lensName : ((activeComponent==="global")? "Ask a question from your data":"Ask a question from Inbox")}
             </h1>
 
             

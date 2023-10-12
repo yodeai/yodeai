@@ -18,18 +18,22 @@ import ShareLensComponent from "@components/ShareLensComponent";
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
   const [lens, setLens] = useState<Lens | null>(null);
-  const [lensName, setLensName] = useState("");
+  const [editingLensName, setEditingLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
-  const { reloadLenses } = useAppContext();
+  const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    setEditingLensName(lensName);
+  }, [lensName]);
 
 
   useEffect(() => {
     // Check if 'edit' query parameter is present and set isEditingLensName accordingly
     if (searchParams.get("edit") === 'true') {
+      setEditingLensName(lensName);
       setIsEditingLensName(true);
     }
 
@@ -99,30 +103,32 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     };
   }, [blocks]);
 
-  const updateLensName = async (lens_id: number, name: string) => {
+  const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
       method: "PUT",
-      body: JSON.stringify({ name: name }),
+      body: JSON.stringify({ name: newName }),
     });
-    
+    setLensName(newName); // Update the global context here
     return updatePromise;
   };
 
+
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLensName(e.target.value);
+    setEditingLensName(e.target.value);
   };
+
 
 
   const saveNewLensName = async () => {
     if (lens) {
       try {
-        const updatePromise = updateLensName(lens.lens_id, lensName);
+        const updatePromise = updateLensName(lens.lens_id, editingLensName);
         await load(updatePromise, {
           loading: "Updating lens name...",
           success: "Lens name updated!",
           error: "Failed to update lens name.",
         });
-        setLens({ ...lens, name: lensName });
+        setLens({ ...lens, name: editingLensName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
         reloadLenses();
       } catch (error) {
@@ -130,6 +136,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       }
     }
   };
+
   const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -144,6 +151,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         });
 
         if (deleteResponse.ok) {
+          setLensId(null);
+          setLensName(null);
+          setActiveComponent("global");
           reloadLenses();
           router.push("/");
         } else {
@@ -187,11 +197,12 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           <div className="flex items-center w-full">
             <input
               type="text"
-              value={lensName}
+              value={editingLensName || ""}
               onChange={handleNameChange}
               onKeyUp={handleKeyPress}
               className="text-xl font-semibold flex-grow"
             />
+
             <button onClick={() => { saveNewLensName(); setIsEditingLensName(false) }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
               <CheckIcon className="w-6 h-6" />
             </button>
