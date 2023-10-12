@@ -2,8 +2,6 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Search from "./Search";
-import Button from "./Button";
 import { notFound } from "next/navigation";
 import Container from "./Container";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
