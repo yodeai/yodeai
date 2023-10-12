@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
-import { createClient } from '@supabase/supabase-js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 
@@ -20,38 +20,36 @@ export default function BlockComponent({ block, compact }: BlockProps) {
   const [blockStatus, setBlockStatus] = useState(block.status);
 
     // Function to update a specific item by its ID
-    const updateBlock = (block_id: number, status: string, old_status: string) => {
-      // Set the state with the updated array
-      if (block_id == block.block_id && old_status != status) setBlockStatus(status);
-    };
+    // const updateBlock = (block_id: number, status: string, old_status: string) => {
+    //   // Set the state with the updated array
+    //   if (block_id == block.block_id && old_status != status) setBlockStatus(status);
+    // };
   
-    // listen to block status updates
-    useEffect(() => {
-      // Assuming you have an asynchronous operation like fetching data here
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabase = createClient(url, supabaseKey)
-      const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'block'
-        },
-        (payload) => {
-          console.log("Payload")
-          console.log(payload)
-          updateBlock(payload["new"]["block_id"], payload["new"]["status"], payload['old']['status'])
+    // // listen to block status updates
+    // useEffect(() => {
+    //   // Assuming you have an asynchronous operation like fetching data here
+    //   const supabase = createClientComponentClient()
+    //   const channel = supabase
+    //   .channel('schema-db-changes')
+    //   .on(
+    //     'postgres_changes',
+    //     {
+    //       event: 'UPDATE',
+    //       schema: 'public',
+    //       table: 'block'
+    //     },
+    //     (payload) => {
+    //       console.log("Payload")
+    //       console.log(payload)
+    //       updateBlock(payload["new"]["block_id"], payload["new"]["status"], payload['old']['status'])
   
-        }
-      ).subscribe()
+    //     }
+    //   ).subscribe()
   
-      return () => {
-        if (channel) channel.unsubscribe();
-      };
-    });
+    //   return () => {
+    //     if (channel) channel.unsubscribe();
+    //   };
+    // });
 
     const retryProcessBlock = async () => {
       console.log("Retrying")
@@ -115,7 +113,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
             <strong>{block.title}</strong>
           </div>
         </Link>
-        { blockStatus === 'processing' ? (<span className="processing-text">[Processing...]</span>) : blockStatus === 'failure' ? (<div><span className="failed-text">[Failed]</span> <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button></div>) : ''}
+        { block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button></div>) : ''}
         {block.inLenses  && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

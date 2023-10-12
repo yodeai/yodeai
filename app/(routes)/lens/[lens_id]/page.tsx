@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -22,13 +23,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
   const { reloadLenses } = useAppContext();
-  
-
-
 
   useEffect(() => {
-
-
     // Fetch the blocks associated with the lens
     fetch(`/api/lens/${params.lens_id}/getBlocks`)
       .then((response) => response.json())
@@ -39,7 +35,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         console.error("Error fetching block:", error);
         notFound();
       });
-
+  
     // Fetch the lens details
     fetch(`/api/lens/${params.lens_id}`)
       .then((response) => response.json())
@@ -51,8 +47,48 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         console.error("Error fetching lens:", error);
         notFound();
       });
-
   }, [params.lens_id]);
+  
+  useEffect(() => {
+    const supabase = createClientComponentClient()
+  
+    const updateBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      let new_status = payload["new"]["status"]
+      let old_status = payload['old']['status']
+      if (new_status == old_status) {
+        return;
+      }
+      setBlocks(prevBlocks =>
+        prevBlocks.map(item => {
+          if (item.block_id === block_id) {
+            console.log('Updating block status:', item.block_id, " to ", new_status);
+            return { ...item, status: new_status };
+          }
+          return item;
+        })
+      );
+    };
+  
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'block'
+        },
+        (payload) => {
+          updateBlocks(payload)
+        }
+      ).subscribe();
+  
+    return () => {
+      if (channel) channel.unsubscribe();
+    };
+  }, [blocks]);
+  
 
 
 
@@ -178,9 +214,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           <PlusIcon /> New block
         </Link>
         {blocks && blocks.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block}  />
-          ))
+        blocks.map((block) => (
+          <BlockComponent key={block.block_id} block={block} />
+        ))
         ) : (
           <p>This lens is empty, add blocks here.</p>
         )}
