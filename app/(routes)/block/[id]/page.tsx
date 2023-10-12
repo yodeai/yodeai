@@ -9,6 +9,7 @@ import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/BlockEditor';
 import Link from "next/link";
+import PDFViewerIframe from "@components/PDFViewer";
 
 
 export default function Block({ params }: { params: { id: string } }) {
@@ -16,6 +17,10 @@ export default function Block({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
+
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -32,6 +37,18 @@ export default function Block({ params }: { params: { id: string } }) {
   }, [params.id]);
 
 
+  useEffect(() => {
+    async function fetchPresignedUrl() {
+      if (block && block.block_type === "pdf") {
+        const url = await getPresignedUrl(block.file_url);
+        setPresignedUrl(url);
+      }
+    }
+
+    fetchPresignedUrl();
+  }, [block]);
+
+
   if (loading || !block) {
     return (
       <div className="skeleton-container p-8 mt-12 ">
@@ -40,6 +57,34 @@ export default function Block({ params }: { params: { id: string } }) {
     );
   }
 
+
+
+  const renderContent = () => {
+    if (block.block_type === "pdf" && presignedUrl) {
+      return <PDFViewerIframe url={presignedUrl} />;
+    } else {
+      return (
+        <ReactMarkdown className="prose text-gray-600">
+          {block.content}
+        </ReactMarkdown>
+      );
+    }
+  }
+
+
+
+  async function getPresignedUrl(key) {
+    const response = await fetch(`/api/getPresignedUrl?key=${key}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return data.data;
+  }
 
   return (
     <main className="container">
@@ -55,22 +100,24 @@ export default function Block({ params }: { params: { id: string } }) {
                     </ReactMarkdown>
                   </Link>
                   <div className="flex gap-2">
-                    <button onClick={() => setIsEditing(!isEditing)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
-                      <Pencil2Icon className="w-6 h-6" />
-                    </button>
+                    {block.block_type !== "pdf" && (
+                      <button onClick={() => setIsEditing(!isEditing)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
+                        <Pencil2Icon className="w-6 h-6" />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="min-w-full">
-                  <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
-                  <ReactMarkdown className="prose text-gray-600">
-                    {block.content}
-                  </ReactMarkdown>
+                  <div className="min-w-full">
+                    <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
+                    {renderContent()}
+                  </div>
                 </div>
               </div>
-
             </>
           ) : (
-            <BlockEditor block={block} />
+            <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
           )}
         </div>
       </div>

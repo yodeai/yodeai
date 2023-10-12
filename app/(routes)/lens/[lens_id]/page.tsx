@@ -10,7 +10,7 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 
@@ -21,10 +21,14 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
-  const { reloadLenses } = useLens();
+  const { reloadLenses } = useAppContext();
+  
+
 
 
   useEffect(() => {
+
+
     // Fetch the blocks associated with the lens
     fetch(`/api/lens/${params.lens_id}/getBlocks`)
       .then((response) => response.json())
@@ -128,7 +132,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             <span className="text-xl font-semibold">{lensName}</span>
             <div className="flex items-center space-x-2">
               <Tooltip content="Edit lens." style="light" >
-                <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
+                <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
                   <Pencil2Icon className="w-6 h-6" />
                 </Button>
               </Tooltip>
@@ -175,7 +179,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
+            <BlockComponent key={block.block_id} block={block}  />
           ))
         ) : (
           <p>This lens is empty, add blocks here.</p>

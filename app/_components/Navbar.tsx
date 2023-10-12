@@ -15,8 +15,10 @@ import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import { createLens } from "@lib/api";
 import LensComponent from "@components/LensComponent";
-import { useLens } from "@contexts/lensContext";
+import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
+import { FaInbox } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
 
 export function ActiveLink({
   href,
@@ -44,9 +46,9 @@ export default function Navbar() {
 
 
   const router = useRouter();
-  const { lensId, setLensId, reloadKey, reloadLenses } = useLens();
+  const { lensId, setLensId, reloadKey, reloadLenses, activeComponent, setActiveComponent } = useAppContext();
   const [lenses, setLenses] = useState<Lens[]>([]);
-  
+
 
   useEffect(() => {
     // Fetch the lenses
@@ -68,11 +70,18 @@ export default function Navbar() {
     reloadLenses();
   }, [router]);
 
+  const handleOpenInbox = (e: React.MouseEvent) => {
+    setLensId(null);
+    setActiveComponent("inbox");
+    router.push(`/inbox`);
+  };
+
   const handleHomeClick = () => {
     setLensId(null);
+    setActiveComponent("global");
     router.push(`/`);
   }
-
+  console.log("Active component is: ", activeComponent);
 
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
@@ -88,7 +97,6 @@ export default function Navbar() {
           >
             <ShadowInnerIcon /> New lens
           </button>
-          
         </div>
 
         {/* Commenting out the Search component for now */}
@@ -102,6 +110,15 @@ export default function Navbar() {
         </div>
           */}
 
+        <button
+          className={`flex items-center mt-4 text-gray-600 gap-4 py-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
+          onClick={handleOpenInbox}
+          style={{ paddingLeft: '12px', paddingRight: '5px' }} // Add padding to the left
+        >
+          <FaInbox style={{ marginLeft: '5px' }} /> { }
+              Inbox
+          
+        </button>
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">
           {lenses?.map((lens) => (

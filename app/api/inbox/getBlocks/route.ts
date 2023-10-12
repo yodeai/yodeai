@@ -6,40 +6,38 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
+export async function GET(request: NextRequest) {
+    
     try {
         const supabase = createServerComponentClient({
             cookies,
         });
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
-        const { data: lensBlocks, error } = await supabase
-            .from('lens_blocks')
+        const { data: inboxBlocks, error } = await supabase
+            .from('inbox')
             .select(`
                 *,
-                block!fk_block (
+                block!inbox_block_id_fkey (
                     *,
                     lens_blocks!fk_block (
                         lens: lens!fk_lens (lens_id, name)
                     )
                 ) 
             `)
-            .eq('lens_id', params.lens_id)
-
-        //console.log('lensBlocks', lensBlocks);
 
         if (error) {
             throw error;
         }
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
-        const blocksForLens = lensBlocks
-            ? lensBlocks
-                .map((lensBlock) => {
-                    if (lensBlock.block && lensBlock.block.lens_blocks) {
+        const blocksForLens = inboxBlocks
+            ? inboxBlocks
+                .map((inboxBlock) => {
+                    if (inboxBlock.block && inboxBlock.block.lens_blocks) {
                         return {
-                            ...lensBlock.block,
-                            inLenses: lensBlock.block.lens_blocks.map((lb: any) => ({
+                            ...inboxBlock.block,
+                            inLenses: inboxBlock.block.lens_blocks.map((lb: any) => ({
                                 lens_id: lb.lens.lens_id,
                                 name: lb.lens.name,
                             }))

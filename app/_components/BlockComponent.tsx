@@ -1,7 +1,5 @@
 "use client";
-import Button from "./Button";
 import formatDate from "@lib/format-date";
-import load from "@lib/load";
 import clsx from "clsx";
 import Link from "next/link";
 import { useCallback, useState, useEffect, useRef} from "react";
@@ -10,6 +8,8 @@ import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClient } from '@supabase/supabase-js';
+
+
 
 
 interface BlockProps {
@@ -101,6 +101,7 @@ export default function BlockComponent({ block, compact }: BlockProps) {
   //   setBlockStatus(block.data.status)
   // }, 10000, stopPolling)
 
+  const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
   return (
     <div
       className={clsx(
@@ -118,27 +119,18 @@ export default function BlockComponent({ block, compact }: BlockProps) {
         {block.inLenses  && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}
-
-        {!compact ? (
+        {!compact && firstTwoLines ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">
-              <ReactMarkdown>
-                {block.content}
-              </ReactMarkdown>
+              {firstTwoLines}
             </div>
 
           </>
         ) : null}
       </div>
 
-      {
-        !compact && (
-          <div className="flex items-center gap-2">
 
-          </div>
-        )
-      }
     </div >
   );
 }

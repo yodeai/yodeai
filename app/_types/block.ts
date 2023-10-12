@@ -19,6 +19,6 @@ export type Block = {
     links: Block[];
     backlinks: Block[];
     inLenses?: LensDetail[]; 
-    task_id: UUID;
+    file_url?: string;
   }
   

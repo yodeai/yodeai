@@ -81,17 +81,15 @@ export const processVectorSearch = async (question: string) => {
         const metadataList = [];
         console.log("getting relevant docs from vector store");
         const ans1 = await vectorStoreRetriever.getRelevantDocuments(q);
-//        const  t1 = performance.now();
-//        clearConsole("first retrieval completed"+(t1-t0).toString());
+
         docs.push(...ans1);
         for (let doc of ans1) {
-            console.log(doc.metadata);
+            //console.log(doc.metadata);
             metadataList.push(doc.metadata);
         }
         console.log("getting relevant docs from second vector store");
         const ans2 = await vectorStore.similaritySearch(q, 8);
-//        const  t2 = performance.now();
-//        clearConsole("second retrieval completed"+(t2-t1).toString());
+
         docs.push(...ans2);
         for (let doc of ans2) {
             console.log(doc.metadata);
@@ -102,12 +100,8 @@ export const processVectorSearch = async (question: string) => {
 
     const t1 = performance.now();
 
-    
     const results = await getRelDocs(question);
     
-//    const t2 = performance.now();
-//    clearConsole("total run time for getRelDocs: "+ (t2-t1).toString());
-
     const dlist = results.documents;  // Get the documents
     const metadataList = results.metadata;  // Get the metadata
     let text = "";
@@ -119,17 +113,12 @@ export const processVectorSearch = async (question: string) => {
     console.log("###PROMPT:", prompt);
     const response = await get_completion(prompt);
     
-//    const t3 = performance.now();
-//    clearConsole("total run time for first LLM call: "+ (t3-t2).toString());
-
     console.log("###RESPONSE:", response);
     const filteredMetadata = metadataList.filter(meta => 
         typeof meta.source === 'string' 
     );
     const uniqueMetadataList = removeDuplicates(filteredMetadata  as Metadata[]);
-    //console.log(uniqueMetadataList);
-    //console.log(metadataList);
-    //console.log("##end");
+
     return {
         question: question,
         response: response,

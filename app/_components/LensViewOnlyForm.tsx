@@ -6,89 +6,28 @@ import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
-import { getUserID } from 'utils/getUserID';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+interface LensViewOnlyFormProps {
+    lensId: string;
+  }
 
-
-
-type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": string, "4": "", "5":""}}
-
-const QuestionAnswerForm: React.FC = () => {
+const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
+    const lensId = props.lensId;
     const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
-    const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName, activeComponent } = useAppContext();
-    const mapKey=  activeComponent + lensId;
+
+
+    const [inputValue, setInputValue] = useState<string>('');    
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
-    const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
-    // useEffect(() => {
-    //     const delayDebounceFn = setTimeout(async () => {
-    //       try {
-    //         if (inputValue) {
-    //             console.log('inputValue', inputValue);
-    //             const dataToPost = { question: inputValue, lens_id: lensId };
-    //             console.log("Making POST request")
-    //             await apiClient('/searchableFeed', 'POST', dataToPost
-    //             ).then((response) => {
-    //                 setRelatedQuestions(response.answer.documents)
-    //             });
-    //         }
-    //         } catch (error) {
-    //             console.error('Failed to retrieve searchable feed. ', error);
-    //         } finally {
-    //         }
-    //     }, 2000)
-    
-    //     return () => clearTimeout(delayDebounceFn)
-    //   }, [inputValue])
-
-
-    const makePatchRequest = async (q: Question, id: string, diff:number) => {
-        let url;
-        if (diff > 0) {
-            url = `/increasePopularity`
-        } else {
-            url = `/decreasePopularity`
-        }
-        try {
-            const dataToPatch = { row_id: id, lens_id: lensId };
-            const response = await apiClient(url, 'PATCH', dataToPatch)
-            console.log("error?")
-            if(response.error == null){
-                updateQuestion(q, diff);
-            }
-
-        } catch (error) {
-            console.error('Failed to increase answer. ', error);
-        } finally {
-        }
-    }
-    const updateQuestion = (question: Question, diff:number) => {
-        let newRelatedQuestions: Question[] = [...relatedQuestions]
-        let indexOfQuestion = newRelatedQuestions.findIndex((q:Question) => q.metadata["3"] === question.metadata["3"])
-        question = newRelatedQuestions[indexOfQuestion]
-        newRelatedQuestions[indexOfQuestion] = {...question, metadata: {...newRelatedQuestions[indexOfQuestion].metadata, "3": question.metadata["3"] + diff}}
-        setRelatedQuestions(newRelatedQuestions);
-    }
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         const startTime = performance.now();
-         
         try {
+            const dataToPost = { question: inputValue, lensID: lensId };            
+            const response = await apiClient('/answerFromLens', 'POST', dataToPost);            
 
-            const supabase = createClientComponentClient()
-
-            let { data, error } = await supabase.auth.getUser();
-            if (error) {
-                throw error;
-            }
-            
-            // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", activeComponent: activeComponent, userID: data.user?.id };            
-            const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
                 blockTitles = await Promise.all(
@@ -113,16 +52,16 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
-                const previousQAs = newQuestionHistory.get(mapKey) || []; // Get the existing array of Q&A for the lens_id or an empty array
+                const previousQAs = newQuestionHistory.get(lensId || '') || []; // Get the existing array of Q&A for the lens_id or an empty array
 
                 if (response && response.answer) {
                     const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
                     previousQAs.unshift(newQA);
-                    newQuestionHistory.set(mapKey, previousQAs);
+                    newQuestionHistory.set(lensId || '', previousQAs);
                 } else {
                     const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
                     previousQAs.push(newQA);
-                    newQuestionHistory.set(mapKey, previousQAs);
+                    newQuestionHistory.set(lensId || '', previousQAs);
                 }
 
                 return newQuestionHistory;
@@ -133,10 +72,10 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const newQuestionHistory = new Map(prevQuestionHistory);
-                const previousQAs = newQuestionHistory.get(mapKey) || [];
+                const previousQAs = newQuestionHistory.get(lensId || '') || [];
                 const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
                 previousQAs.push(errorQA);
-                newQuestionHistory.set(mapKey, previousQAs);
+                newQuestionHistory.set(lensId || '', previousQAs);
                 return newQuestionHistory;
             });
         } finally {
@@ -147,16 +86,15 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }
 
-    
-    return (
+
+    return (        
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from: '+lensName : ((activeComponent==="global")? "Ask a question from your data":"Ask a question from Inbox")}
+                {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
             </h1>
-
             
             <div className="flex flex-col  lg:py-12 text-foreground">
-            { (
+            {(
                 <form onSubmit={handleSubmit} className="flex">
                     <input
                         type="text"
@@ -176,7 +114,7 @@ const QuestionAnswerForm: React.FC = () => {
             )}
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
-                        (questionHistory.get(mapKey) || []).map(({ question, answer, sources }, index) => (
+                        (questionHistory.get(lensId || '') || []).map(({ question, answer, sources }, index) => (
                             <QuestionComponent
                                 key={index}
                                 question={question}
@@ -187,14 +125,9 @@ const QuestionAnswerForm: React.FC = () => {
 
                     }
                 </div>
-                {/* <div>
-                <br></br>
-                <h1> Related Questions </h1>
-                {relatedQuestions?.map(q => <div key={q.metadata["5"]}> <br></br><div>{q.pageContent}</div><div>Popularity: {q.metadata["3"]}</div> <div> {q.metadata["1"]} </div> <button onClick={() => {makePatchRequest(q, q.metadata["5"], 1)}}> Thumbs up </button>  <button onClick={() => {makePatchRequest(q, q.metadata["5"], -1)}}> Thumbs Down </button> </div>)}
-                </div> */}
             </div>
         </div>
     );
 };
 
-export default QuestionAnswerForm;
+export default LensViewOnlyForm;

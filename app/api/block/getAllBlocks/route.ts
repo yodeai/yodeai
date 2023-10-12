@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-type LensBlock = {
+type ListofLensesforBlock = {
     lens: {
         lens_id: number;
         name: string;
@@ -27,15 +27,14 @@ export async function GET(request: NextRequest) {
             )
         `)
             .order('updated_at', { ascending: false });
-
+        
         const blocksWithLenses = (blocks || []).map(block => ({
-            ...block,
-            inLenses: block.lens_blocks.map((lb: LensBlock) =>
-                lb.lens
-                    ? { lens_id: lb.lens.lens_id, name: lb.lens.name }
-                    : { lens_id: null, name: null }
-            )
-        }));
+                ...block,
+                inLenses: block.lens_blocks.map( (lb: ListofLensesforBlock) => ({
+                    lens_id: lb.lens.lens_id,
+                    name: lb.lens.name
+                }))
+            }));
 
         return new NextResponse(
             JSON.stringify({ data: blocksWithLenses }),
