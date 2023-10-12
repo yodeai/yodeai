@@ -19,7 +19,9 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const router = useRouter();
-  
+  const [loading, setLoading] = useState(true);
+
+
   useEffect(() => {
     const supabase = createClientComponentClient()
     const updateBlocks = (payload) => {
@@ -39,7 +41,7 @@ export default function Inbox() {
         })
       );
     };
-  
+
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -54,7 +56,7 @@ export default function Inbox() {
           updateBlocks(payload)
         }
       ).subscribe();
-  
+
     return () => {
       if (channel) channel.unsubscribe();
     };
@@ -66,13 +68,15 @@ export default function Inbox() {
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching block:", error);
         notFound();
+        setLoading(false);
       });
-
   }, []);
+
 
 
 
@@ -83,7 +87,7 @@ export default function Inbox() {
 
       <header className="flex items-center justify-between">
 
-        { 
+        {
           <>
             <span className="text-xl font-semibold">Inbox</span>
             <div className="flex items-center space-x-2">
@@ -91,21 +95,28 @@ export default function Inbox() {
             </div>
 
           </>
-         }
+        }
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
 
 
-        {blocks && blocks.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
-          ))
-        ) : (
-          <div className="flex flex-col p-4 flex-grow">
-            <LoadingSkeleton />
-          </div>
-        )}
+        {
+          loading ? (
+            <div className="flex flex-col p-4 flex-grow">
+              <LoadingSkeleton />
+            </div>
+          ) : blocks.length > 0 ? (
+            blocks.map((block) => (
+              <BlockComponent key={block.block_id} block={block} />
+            ))
+          ) : (
+            <div className="flex flex-col p-4 flex-grow">
+              Nothing to show here. As you add blocks they will initially show up in your Inbox.
+            </div>
+          )
+        }
+
 
       </div>
     </Container>

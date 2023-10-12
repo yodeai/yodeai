@@ -90,7 +90,6 @@ export default function Navbar() {
     setActiveComponent("global");
     router.push(`/`);
   }
-  console.log("Active component is: ", activeComponent);
 
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
