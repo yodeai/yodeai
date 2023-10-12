@@ -4,10 +4,7 @@ import Container from "@components/Container";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
-import { Lens } from "app/_types/lens";
-import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
@@ -62,8 +59,8 @@ export default function Inbox() {
     };
   }, [blocks]);
 
-  useEffect(() => {
-    // Fetch the blocks associated with the Inbox
+
+  const fetchBlocks = () => {
     fetch(`/api/inbox/getBlocks`)
       .then((response) => response.json())
       .then((data) => {
@@ -75,6 +72,10 @@ export default function Inbox() {
         notFound();
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+      fetchBlocks();
   }, []);
 
 
@@ -108,7 +109,7 @@ export default function Inbox() {
             </div>
           ) : blocks.length > 0 ? (
             blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} />
+              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true}  onArchive={fetchBlocks} />
             ))
           ) : (
             <div className="flex flex-col p-4 flex-grow">
