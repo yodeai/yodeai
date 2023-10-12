@@ -12,6 +12,7 @@ import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
 import { FaInbox } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
+import { set } from "date-fns";
 
 export function ActiveLink({
   href,
@@ -71,8 +72,11 @@ export default function Navbar() {
     const data = await response.json();
     const newLensId = data.data[0].lens_id;
     // Route to the new lens page and pass a 'edit' query parameter
-    router.push(`/lens/${newLensId}?edit=true`);
+    setLensId(newLensId);
+    console.log(lensId);
     reloadLenses();
+    router.push(`/lens/${newLensId}?edit=true`);
+    
   }, [router]);
 
   const handleOpenInbox = (e: React.MouseEvent) => {

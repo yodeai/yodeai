@@ -104,7 +104,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       method: "PUT",
       body: JSON.stringify({ name: name }),
     });
-    reloadLenses();
+    
     return updatePromise;
   };
 
@@ -124,6 +124,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         });
         setLens({ ...lens, name: lensName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
+        reloadLenses();
       } catch (error) {
         console.error('Failed to update lens name', error);
       }
