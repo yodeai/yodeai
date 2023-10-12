@@ -14,6 +14,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
+
+
 export default function Lens({ params }: { params: { lens_id: string } }) {
   const [lens, setLens] = useState<Lens | null>(null);
   const [lensName, setLensName] = useState("");
@@ -21,14 +23,12 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const router = useRouter();
   const { reloadLenses } = useAppContext();
-  const searchParams = useSearchParams();
+  
+
 
 
   useEffect(() => {
-    // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-    if ( searchParams.get("edit") === 'true') {
-      setIsEditingLensName(true);
-    }
+
 
     // Fetch the blocks associated with the lens
     fetch(`/api/lens/${params.lens_id}/getBlocks`)
@@ -40,7 +40,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         console.error("Error fetching block:", error);
         notFound();
       });
-
+  
     // Fetch the lens details
     fetch(`/api/lens/${params.lens_id}`)
       .then((response) => response.json())
@@ -53,7 +53,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         notFound();
       });
 
-  }, [params.lens_id, , searchParams]);
+  }, [params.lens_id]);
 
 
 
@@ -181,7 +181,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         </Link>
         {blocks && blocks.length > 0 ? (
           blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
+            <BlockComponent key={block.block_id} block={block}  />
           ))
         ) : (
           <p>This lens is empty, add blocks here.</p>
