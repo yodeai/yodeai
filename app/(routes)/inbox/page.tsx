@@ -13,13 +13,53 @@ import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 import { clearConsole } from "debug/tools";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const router = useRouter();
+  
+  useEffect(() => {
+    const supabase = createClientComponentClient()
+    const updateBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      let new_status = payload["new"]["status"]
+      let old_status = payload['old']['status']
+      if (new_status == old_status) {
+        return;
+      }
+      setBlocks(prevBlocks =>
+        prevBlocks.map(item => {
+          if (item.block_id === block_id) {
+            console.log('Updating block status:', item.block_id, " to ", new_status);
+            return { ...item, status: new_status };
+          }
+          return item;
+        })
+      );
+    };
+  
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'block'
+        },
+        (payload) => {
 
+          updateBlocks(payload)
+        }
+      ).subscribe();
+  
+    return () => {
+      if (channel) channel.unsubscribe();
+    };
+  }, [blocks]);
 
   useEffect(() => {
     // Fetch the blocks associated with the Inbox
