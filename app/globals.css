@@ -126,6 +126,11 @@
   animation: fadeInOut 2s infinite;
 }
 
+.failed-text {
+  color: rgb(145, 12, 0);
+  font-weight: bold;
+}
+
 @keyframes fadeInOut {
   0%,80% {
     opacity: 1;

@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
       .select();
 
     if (error) {
+      console.log("error")
+      console.log(error)
       throw error;
     }
-
     if (data && data[0]) {
       const newBlock: Block = data[0];
-
-      // Initiate the processBlock call without awaiting it.
-      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
+      console.log("processing block now")
+      await apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
         .then(result => {
           console.log('Block processed successfully', result);
         })
@@ -48,12 +48,13 @@ export async function POST(request: NextRequest) {
           console.error('Error processing block', error);
         });
     }
+    
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {
       const newBlock: Block = data[0];
       const { error: lensBlockError } = await supabase
         .from('lens_blocks')
-        .insert([{ block_id: newBlock.block_id, lens_id: lensId }]);
+        .insert([{ block_id: newBlock.block_id, lens_id: lensId}]);
 
       if (lensBlockError) {
         throw lensBlockError;

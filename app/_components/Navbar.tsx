@@ -121,9 +121,7 @@ export default function Navbar() {
         </button>
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">
-
-
-          {lenses.map((lens) => (
+          {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
         </ul>
