@@ -10,7 +10,6 @@ import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@contexts/context";
-import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
