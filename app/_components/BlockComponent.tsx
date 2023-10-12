@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
-import { createClient } from '@supabase/supabase-js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 
@@ -25,12 +25,9 @@ export default function BlockComponent({ block, compact }: BlockProps) {
       if (block_id == block.block_id && old_status != status) setBlockStatus(status);
     };
   
-    // listen to block status updates
+
     useEffect(() => {
-      // Assuming you have an asynchronous operation like fetching data here
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabase = createClient(url, supabaseKey)
+      const supabase = createClientComponentClient()
       const channel = supabase
       .channel('schema-db-changes')
       .on(
