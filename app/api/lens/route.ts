@@ -6,12 +6,10 @@ export const dynamic = 'force-dynamic';
 
 
 export async function POST(request: NextRequest) {
-  const supabase = createServerComponentClient({ cookies });
+  
   try {
     const body = await request.json();
-    console.log("body", body);
     const name = body.text;
-    console.log("name", name);
     if (!name) {
       return new NextResponse(
         JSON.stringify({ error: 'Name is required' }),
@@ -27,11 +25,11 @@ export async function POST(request: NextRequest) {
           {
             name: name,
           },
-        ]);
+        ]).select();
     
     if (error) {
       throw error;
-    }
+    } 
 
     return new NextResponse(
       JSON.stringify({ data: data }),

@@ -3,17 +3,12 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Search from "./Search";
-import {
-  Session,
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
 import Button from "./Button";
 import { notFound } from "next/navigation";
 import Container from "./Container";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
-import { createLens } from "@lib/api";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
@@ -65,8 +60,20 @@ export default function Navbar() {
   }, [reloadKey]);
 
   const handleCreateLens = useCallback(async () => {
-    await createLens("New lens");
-    router.refresh();
+    const response = await fetch("/api/lens", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: "New lens" }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    const newLensId = data.data[0].lens_id;
+    // Route to the new lens page and pass a 'edit' query parameter
+    router.push(`/lens/${newLensId}?edit=true`);
     reloadLenses();
   }, [router]);
 
