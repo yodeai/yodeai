@@ -11,11 +11,12 @@ export default async function load<T>(
   messages: Parameters<typeof toast.promise>[1],
   handleAbortError=false
 ) {
-  function handleAbortErrorFunction(error) {
+  function handleAbortErrorFunction(error, id) {
     if (error.name == 'AbortError') {
       console.log("abort error")
+      toast.success("Saved!", {id})
     } else {
-      toast.error("Failed to save.")
+      toast.error("Failed to save.", {id})
     }
   }
   if (handleAbortError) {
@@ -26,7 +27,7 @@ export default async function load<T>(
         toast.success("Saved!", {id});
         return p;
       })
-      .catch(handleAbortErrorFunction);
+      .catch((error) => handleAbortErrorFunction(error, id));
   
     return promise;
   } else {
