@@ -70,14 +70,16 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       let block_id = payload["new"]["block_id"]
       let new_status = payload["new"]["status"]
       let old_status = payload['old']['status']
-      if (new_status == old_status) {
+      let old_title = payload['old']['title']
+      let new_title = payload['new']['title']
+      if (new_status == old_status && old_title == new_title) {
         return;
       }
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item.block_id, " to ", new_status);
-            return { ...item, status: new_status };
+            console.log('Updating block status:', item.block_id, " to ", new_status, ' and title to ', item.title, ' to ', new_title );
+            return { ...item, status: new_status, title: new_title };
           }
           return item;
         })

@@ -27,8 +27,18 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 2000);
   const debouncedTitle = useDebounce(title, 2000);
+  const [shouldRunEffect, setShouldRunEffect] = useState(false);
+
+  let controller;
 
   const saveContent = async () => {
+    if (controller) {
+      controller.abort()
+      console.log("ABORTED")
+    }
+    controller = new AbortController();
+    const signal = controller.signal;
+
     let method: 'POST' | 'PUT';
     let endpoint: string;
 
@@ -72,19 +82,37 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     const savePromise = fetch(endpoint, {
       method: method,
       body: JSON.stringify(requestBody),
-    });
+      signal: signal
+    })
 
     load(savePromise, {
       loading: "Saving...",
       success: "Saved!",
-      error: "Failed to save.",
-    })
+      error: "Failed to save."
+    }, true)
       .then(async (response: Response) => {
         // Update the block state if a new block is created
         if (method === "POST" && response.ok) {
           const responseData = await response.json();
           const newBlock = responseData.data[0];
           setBlock(newBlock);
+          if (lensId) {
+            fetch(`/api/lens/${lensId}/getBlocks`)
+            .then((response) => response.json())
+            .then((data) => {
+            })
+            .catch((error) => {
+              console.error("Error fetching block:", error);
+            });
+          } else {
+            fetch('/api/block/getAllBlocks')
+            .then((response) => response.json())
+            .then((data) => {
+            })
+            .catch((error) => {
+              console.error("Error fetching block:", error);
+            });
+          }
         }
       });
   };
@@ -115,9 +143,35 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
   }, [block, router]);
 
+
   useEffect(() => {
-    saveContent();
-  }, [debouncedContent, debouncedTitle]);
+    let timeoutId;
+
+    if (shouldRunEffect) {
+      timeoutId = setTimeout(() => {
+        saveContent();
+      }, 5000); // 5000 milliseconds (5 seconds)
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [shouldRunEffect, debouncedContent, debouncedTitle]);
+
+  // Set the flag to true after 5 seconds
+  useEffect(() => {
+    const initialDelay = setTimeout(() => {
+      setShouldRunEffect(true);
+    }, 5000); // 5000 milliseconds (5 seconds)
+
+    return () => {
+      clearTimeout(initialDelay);
+    };
+  }, []);
+
+
 
 
   return (
