@@ -35,20 +35,21 @@ export default function Index() {
         })
       );
     };
-  
+
+    const addBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Added a block", block_id)
+      let newBlock = payload["new"]
+      if (!blocks.some(item => item.block_id === block_id)) {
+        setBlocks([...blocks, newBlock]);
+      }
+    }
+      
     const channel = supabase
       .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'block'
-        },
-        (payload) => {
-          updateBlocks(payload)
-        }
-      ).subscribe();
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .subscribe();
   
     return () => {
       if (channel) channel.unsubscribe();

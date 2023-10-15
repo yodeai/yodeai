@@ -96,23 +96,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
           const responseData = await response.json();
           const newBlock = responseData.data[0];
           setBlock(newBlock);
-          if (lensId) {
-            fetch(`/api/lens/${lensId}/getBlocks`)
-            .then((response) => response.json())
-            .then((data) => {
-            })
-            .catch((error) => {
-              console.error("Error fetching block:", error);
-            });
-          } else {
-            fetch('/api/block/getAllBlocks')
-            .then((response) => response.json())
-            .then((data) => {
-            })
-            .catch((error) => {
-              console.error("Error fetching block:", error);
-            });
-          }
         }
       });
   };
