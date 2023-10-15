@@ -125,6 +125,10 @@
   font-weight: bold;
   animation: fadeInOut 2s infinite;
 }
+.waiting-text {
+  color: rgb(100, 101, 102);
+  font-weight: bold;
+}
 
 .failed-text {
   color: rgb(145, 12, 0);
