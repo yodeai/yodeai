@@ -41,7 +41,7 @@ export default function Index() {
       console.log("Added a block", block_id)
       let newBlock = payload["new"]
       if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([...blocks, newBlock]);
+        setBlocks([newBlock, ...blocks]);
       }
     }
       
