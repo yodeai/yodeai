@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     requestData.owner_id = user.id;
     console.log("saving: ", requestData);
-    requestData.status = "processing";
+    requestData.status = "waiting to process";
     // Extract lens_id and delete it from requestData
     const lensId = requestData.lens_id;
     delete requestData.lens_id;
