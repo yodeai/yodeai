@@ -5,7 +5,7 @@ import React, { use, useState } from 'react';
 const featureData = [
   {
     imageUrl: '/image1.png',
-    text: 'Organize: your unstructured data (e.g. docs, pdfs, etc.).',
+    text: 'Organize: your unstructured data (e.g. docs, pdfs).',
   },
   {
     imageUrl: '/image2.png',
