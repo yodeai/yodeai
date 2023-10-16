@@ -13,8 +13,12 @@ export default function Index() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const supabase = createClientComponentClient()
+  
+
   useEffect(() => {
-    const supabase = createClientComponentClient()
+    
   
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]

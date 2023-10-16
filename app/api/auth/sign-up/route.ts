@@ -1,15 +1,56 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const dynamic = 'force-dynamic'
 
+
+async function isValidSignupCode(signupCode, supabase) {
+  const { data, error } = await supabase
+    .from('signup_code')
+    .select('id, used')
+    .eq('code', signupCode)
+    .single();
+  
+  if (error) {
+    console.error('Error fetching signup code:', error);
+    return false;
+  }
+  
+  if (data && !data.used) {
+    console.log("marking as used");
+    console.log(data);
+    // Mark code as used
+   await supabase
+      .from('signup_code')
+      .update({ used: true })
+      .eq('id', data.id);
+    return true;
+  }
+
+  return false;
+}
+
+
 export async function POST(request: Request) {
+  const supabase = createServerComponentClient({ cookies });
   const requestUrl = new URL(request.url)
   const formData = await request.formData()
   const email = String(formData.get('email'))
   const password = String(formData.get('password'))
-  const supabase = createRouteHandlerClient({ cookies })
+  const signupCode = String(formData.get('signup_code'))
+
+  // Validate the signup code
+  const validCode = await isValidSignupCode(signupCode, supabase);
+  if (!validCode) {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/signup?error=Invalid Signup Code`,
+      {
+        status: 301,
+      }
+    )
+  }
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -23,7 +64,6 @@ export async function POST(request: Request) {
     return NextResponse.redirect(
       `${requestUrl.origin}/login?error=Could not authenticate user`,
       {
-        // a 301 status is required to redirect from a POST to a GET route
         status: 301,
       }
     )
@@ -32,7 +72,6 @@ export async function POST(request: Request) {
   return NextResponse.redirect(
     `${requestUrl.origin}/login?message=Check email to continue sign in process`,
     {
-      // a 301 status is required to redirect from a POST to a GET route
       status: 301,
     }
   )

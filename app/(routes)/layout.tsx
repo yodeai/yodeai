@@ -1,8 +1,18 @@
 import Navbar from "@components/Navbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AppLayout({ children }: { children: React.ReactNode; }) {
+export default async function AppLayout({ children }: { children: React.ReactNode; }) {
+  // redirect if not logged in
+  const supabase = createServerComponentClient({ cookies })
+  const { data: { session } } = await supabase.auth.getSession();
+  console.log("session: ", session);
+  if (!session) {
+    redirect("/landing");
+  }
 
   return (
     <LensProvider>
@@ -20,3 +30,4 @@ export default function AppLayout({ children }: { children: React.ReactNode; }) 
     </LensProvider>
   );
 }
+
