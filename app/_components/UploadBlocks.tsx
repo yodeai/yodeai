@@ -166,7 +166,7 @@ export default function UploadBlocks() {
         })}
       >
         <input {...getInputProps()} />
-        Drag and drop some Markdown files or click to select.
+        Drag and drop a PDF file or click to select.
       </div>
       {files.length > 0 && (
         <ul>

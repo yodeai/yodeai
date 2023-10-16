@@ -47,37 +47,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
 
 
-  // Function to update a specific item by its ID
-  // const updateBlock = (block_id: number, status: string, old_status: string) => {
-  //   // Set the state with the updated array
-  //   if (block_id == block.block_id && old_status != status) setBlockStatus(status);
-  // };
-
-  // // listen to block status updates
-  // useEffect(() => {
-  //   // Assuming you have an asynchronous operation like fetching data here
-  //   const supabase = createClientComponentClient()
-  //   const channel = supabase
-  //   .channel('schema-db-changes')
-  //   .on(
-  //     'postgres_changes',
-  //     {
-  //       event: 'UPDATE',
-  //       schema: 'public',
-  //       table: 'block'
-  //     },
-  //     (payload) => {
-  //       console.log("Payload")
-  //       console.log(payload)
-  //       updateBlock(payload["new"]["block_id"], payload["new"]["status"], payload['old']['status'])
-
-  //     }
-  //   ).subscribe()
-
-  //   return () => {
-  //     if (channel) channel.unsubscribe();
-  //   };
-  // });
 
   const retryProcessBlock = async () => {
     console.log("Retrying")
@@ -91,41 +60,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   }
 
 
-  // const [blockId, setBlockId] = useState(block.block_id);
-  // const [stopPolling, setStopPolling] = useState(false)
-
-  // function useInterval(callback, delay, stopPolling) {
-  //   const savedCallback = useRef();
-  //   useEffect(() => {
-  //     savedCallback.current = callback;
-  //   }, [callback])
-
-  //   useEffect(() => {
-  //     function tick() {
-  //       savedCallback.current();
-  //     }
-  //     if (delay != null) {
-  //       const id = setInterval(tick, delay)
-  //       if (stopPolling) {
-  //         clearInterval(id);
-  //       }
-  //       return () => {
-  //         clearInterval(id);
-  //       }
-  //     }
-  //   }, [callback, delay])
-
-  // }
-
-  // useInterval(async() => {
-  //   console.log("polling")
-  //   const block = await fetch(`/api/block/${blockId}`).then((response) => response.json())
-  //   if (block.data.status == 'ready') {
-  //     console.log("STOPPING polling")
-  //     setStopPolling(true);
-  //   }
-  //   setBlockStatus(block.data.status)
-  // }, 10000, stopPolling)
 
   const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
   return (
@@ -141,7 +75,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
             onClick={() => window.location.href = `/block/${block.block_id}`}
             className="prose text-gray-600 line-clamp-1 no-underline"
           >
-            <strong>{block.title}</strong>
+            <div className="truncate">
+              {block.title}
+            </div>
           </button>
           {hasArchiveButton && (
             <Tooltip content="Archive" style="light">

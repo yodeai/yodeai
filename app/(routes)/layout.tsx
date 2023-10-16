@@ -9,7 +9,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // redirect if not logged in
   const supabase = createServerComponentClient({ cookies })
   const { data: { session } } = await supabase.auth.getSession();
-  console.log("session: ", session);
   if (!session) {
     redirect("/landing");
   }

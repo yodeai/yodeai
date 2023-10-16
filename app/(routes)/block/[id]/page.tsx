@@ -15,12 +15,9 @@ import PDFViewerIframe from "@components/PDFViewer";
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-
+  
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -28,12 +25,14 @@ export default function Block({ params }: { params: { id: string } }) {
       .then((data) => {
         setBlock(data.data);
         setLoading(false);
+
       })
       .catch((error) => {
         console.error("Error fetching block:", error);
         setLoading(false);
         notFound();
       });
+      
   }, [params.id]);
 
 
@@ -60,7 +59,7 @@ export default function Block({ params }: { params: { id: string } }) {
 
 
   const renderContent = () => {
-    if (block.block_type === "pdf" && presignedUrl) {
+    if (block && block.block_type === "pdf" && presignedUrl) {
       return <PDFViewerIframe url={presignedUrl} />;
     } else {
       return (
@@ -100,11 +99,11 @@ export default function Block({ params }: { params: { id: string } }) {
                     </ReactMarkdown>
                   </Link>
                   <div className="flex gap-2">
-                    {block.block_type !== "pdf" && (
+                    
                       <button onClick={() => setIsEditing(!isEditing)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
                         <Pencil2Icon className="w-6 h-6" />
                       </button>
-                    )}
+                    
                   </div>
                 </div>
                 <div className="min-w-full">
