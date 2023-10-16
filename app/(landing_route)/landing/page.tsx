@@ -110,7 +110,7 @@ export default function Landing() {
         <img src="/Yodeai-text.png" alt="Yodeai Logo" className="w-1/4  " />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-8 mt-8">
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mb-8 mt-8">
 
         <div>
           <div>
@@ -155,7 +155,7 @@ export default function Landing() {
       </div>
 
 
-      <div className="grid grid-cols-3 gap-4 mt-16">
+      <div className="grid md:grid-cols-3 gap-4 mt-16 grid-cols-1">
         {featureData.map((item, index) => (
           <div key={index} className="text-center">
             <img
