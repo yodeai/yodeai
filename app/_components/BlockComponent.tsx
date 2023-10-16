@@ -1,8 +1,7 @@
 "use client";
 import formatDate from "@lib/format-date";
 import clsx from "clsx";
-import Link from "next/link";
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import { FaArchive } from "react-icons/fa";
@@ -73,7 +72,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         <div className="flex items-center justify-between flex-1">
           <button
             onClick={() => window.location.href = `/block/${block.block_id}`}
-            className="prose text-gray-600 line-clamp-1 no-underline"
+            className="prose line-clamp-1 no-underline font-semibold"
           >
             <div className="truncate">
               {block.title}
@@ -87,11 +86,24 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
             </Tooltip>
           )}
 
+
         </div>
+
+
         {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button></div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}
+
+        {block.block_type == "pdf" ? (
+          <>
+            <div className="flex text-gray-600 ">
+              <img src="/pdf-icon.png" alt="Lens Icon" className="mr-2 w-6" />
+              {block.file_url.split('/').pop()}
+            </div>
+          </>
+        ) : null}
+
         {!compact && firstTwoLines ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>

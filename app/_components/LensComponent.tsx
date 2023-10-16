@@ -4,11 +4,11 @@ import formatDate from "@lib/format-date";
 import load from "@lib/load";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
+
 
 interface LensProps {
   compact?: boolean;
@@ -34,10 +34,12 @@ export default function LensComponent({ lens, compact }: LensProps) {
     >
       <div className="flex flex-col gap-1 justify-start">
         <button className="flex items-center flex-1" onClick={handleLensClick}>
-          <ShadowInnerIcon className="mr-2" />
-          <ReactMarkdown className="text-gray-600">
-            {lens.name.length > 23 ? `${lens.name.substring(0, 20)}...` : lens.name}
-          </ReactMarkdown>
+          <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-5" /> 
+          <div className="text-gray-600  line-clamp-1  ">
+          <div className="truncate">
+            {lens.name}
+            </div>
+          </div>
         </button>
         <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
       </div>
