@@ -12,8 +12,13 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
 
   if (code) {
-    const supabase = createRouteHandlerClient({ cookies })
-    await supabase.auth.exchangeCodeForSession(code)
+    try {
+      const supabase = createRouteHandlerClient({ cookies })
+      await supabase.auth.exchangeCodeForSession(code)
+    } catch (error) {
+      console.error('Error during code exchange:', error)
+      return NextResponse.redirect(requestUrl.origin+'/login')
+    }
   }
 
   // URL to redirect to after sign in process completes
