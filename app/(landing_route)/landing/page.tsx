@@ -107,7 +107,7 @@ export default function Landing() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex">
-        <img src="/Yodeai-text.png" alt="Yodeai Logo" className="w-1/4  " />
+        <img src="/Yodeai-text.png" alt="Yodeai Logo" className="md:w-1/4  " />
       </div>
 
       <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mb-8 mt-8">
