@@ -1,5 +1,6 @@
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
+import { useRouter } from 'next/router'
 
 import type { NextRequest } from 'next/server'
 

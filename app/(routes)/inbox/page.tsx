@@ -5,7 +5,6 @@ import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { useRouter } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
 import { clearConsole } from "debug/tools";
@@ -16,7 +15,6 @@ import { PlusIcon } from "@radix-ui/react-icons";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
 
 

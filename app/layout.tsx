@@ -1,9 +1,8 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import clsx from "clsx";
 import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,16 +13,16 @@ export const metadata = {
   description: "Created at the UC, Berkeley School of Information",
 };
 
-/*className={clsx(
-  inter.className,
-  "bg-[#fffefc] text-[#1a202c] font-sans antialiased flex items-stretch h-full"
-)}*/
+
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  
+
   return (
     
     <html lang="en" >
