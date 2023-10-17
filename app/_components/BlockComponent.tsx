@@ -108,7 +108,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 onClick={toggleExpand}
                 style={{ marginLeft: '10px', textDecoration: 'underline', cursor: 'pointer' }}
               >
-                [Show less]
+               {previewText.length>0?"[Show less]":""} 
               </a>
             )}
             {!expanded && (
@@ -117,7 +117,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 onClick={toggleExpand}
                 style={{ marginLeft: '10px', textDecoration: 'underline', cursor: 'pointer' }}
               >
-                [Show more]
+                {previewText.length>0?"[Show less]":""} 
               </a>
             )}
           </p>
