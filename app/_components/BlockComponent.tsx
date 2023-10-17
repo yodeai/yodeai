@@ -61,6 +61,17 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
 
   const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
+
+  const [expanded, setExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  
+  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 70)}...`):"";
+
+
   return (
     <div
       className={clsx(
@@ -85,9 +96,34 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               </button>
             </Tooltip>
           )}
-
-
         </div>
+
+        <div className="text-gray-500">
+        <div>
+          <p className="text-gray-500 text-sm">
+            {previewText}
+            {expanded && (
+              <a
+                href="#"
+                onClick={toggleExpand}
+                style={{ marginLeft: '10px', textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                [Show less]
+              </a>
+            )}
+            {!expanded && (
+              <a
+                href="#"
+                onClick={toggleExpand}
+                style={{ marginLeft: '10px', textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                [Show more]
+              </a>
+            )}
+          </p>
+        </div>
+      </div>
+
 
 
         {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button></div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
