@@ -224,7 +224,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
             <div className="prose text-gray-600">
               <DynamicSimpleMDE
                 value={content}
-                onChange={setContent}
+                onChange={setContent}  
               />
             </div>
             <button
