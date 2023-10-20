@@ -97,7 +97,7 @@ export default function Navbar() {
 
         <div className="flex flex-col items-start gap-2 p-4">
           <button className="font-semibold text-lg" onClick={handleHomeClick}>
-            Home
+            All Blocks
           </button>
           <button
             onClick={handleCreateLens}
