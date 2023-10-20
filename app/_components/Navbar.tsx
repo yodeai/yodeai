@@ -10,7 +10,7 @@ import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox } from "react-icons/fa";
+import { FaInbox, FaHome } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
 
@@ -91,6 +91,15 @@ export default function Navbar() {
     router.push(`/`);
   }
 
+  const homeIconStyle = {
+    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
+    marginLeft: '4px'
+  };
+  const inboxIconStyle = {
+    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
+    marginLeft: '4px'
+  };
+
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
       <Container className="flex flex-1 flex-col">
@@ -116,7 +125,7 @@ export default function Navbar() {
         </div>
           */}
         <button className={`flex items-center mt-4 text-gray-600 gap-4 py-4 px-4 ${activeComponent === "global" ? "bg-customLightBlue-light" : ""}`} onClick={handleHomeClick}>
-        <HomeIcon style={{ marginLeft: '5px' }} /> { }
+        <FaHome  style={homeIconStyle  } /> { }
         All Blocks
         </button>
         <button
@@ -124,7 +133,7 @@ export default function Navbar() {
           onClick={handleOpenInbox}
           
         >
-          <FaInbox style={{ marginLeft: '5px' }} /> { }
+          <FaInbox  style={inboxIconStyle  } /> { }
           Inbox
 
         </button>

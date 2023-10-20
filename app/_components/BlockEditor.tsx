@@ -3,7 +3,7 @@
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
@@ -11,6 +11,7 @@ import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
+import { FaCheckCircle } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
 
 
@@ -26,13 +27,17 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const { lensId } = useAppContext();
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
-  const debouncedContent = useDebounce(content, 2000);
+  const debouncedContent = useDebounce(content, 1000);
   const debouncedTitle = useDebounce(title, 2000);
-  const [shouldRunEffect, setShouldRunEffect] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isInitialEdit, setIsInitialEdit] = useState(true);
+  const isInitialRender = useRef(true);
 
   let controller;
 
   const saveContent = async () => {
+    setIsSaving(true);
     if (controller) {
       controller.abort()
       console.log("ABORTED")
@@ -55,6 +60,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
     // If block doesn't exist, create a new block
     else if (!block && (content !== "" || title !== "")) {
+      //console.log("making block");
       method = "POST";
       endpoint = `/api/block`;
     }
@@ -86,18 +92,22 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       signal: signal
     })
 
-    load(savePromise, {
-      loading: "Saving...",
-      success: "Saved!",
-      error: "Failed to save."
-    }, true)
+    savePromise
       .then(async (response: Response) => {
-        // Update the block state if a new block is created
+        if (response.ok) {
+          setIsSaved(true);
+          setIsSaving(false);
+        }
         if (method === "POST" && response.ok) {
           const responseData = await response.json();
           const newBlock = responseData.data[0];
           setBlock(newBlock);
+          setIsInitialEdit(false);
         }
+      })
+      .catch(() => {
+        setIsSaved(false);
+        setIsSaving(false);
       });
   };
 
@@ -109,6 +119,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         title: title,
       }),
     });
+
     load(savePDFPromise, {
       loading: "Saving...",
       success: "Saved!",
@@ -143,41 +154,33 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
   }, [block, router]);
 
+  // This is for the very beginning to make sure a block is created to prevent a future race condition.
+  useEffect(() => {
+    setIsSaved(false);
+    // don't run this when first rendering hte page.
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    if (isInitialEdit && !isSaving) {
+      saveContent();
+    }
+  }, [content, title]);
+
 
   useEffect(() => {
-    let timeoutId;
+    if (!isInitialEdit)
+      saveContent();
+  }, [debouncedContent, debouncedTitle]);
 
-    if (shouldRunEffect) {
-      timeoutId = setTimeout(() => {
-        saveContent();
-      }, 5000); // 5000 milliseconds (5 seconds)
-    }
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [shouldRunEffect, debouncedContent, debouncedTitle]);
-
-  // Set the flag to true after 5 seconds
-  useEffect(() => {
-    if ( block && block.block_type == 'note') {
-      const initialDelay = setTimeout(() => {
-        setShouldRunEffect(true);
-      }, 5000); // 5000 milliseconds (5 seconds)
-  
-      return () => {
-        clearTimeout(initialDelay);
-      };
-    }
-  }, []);
 
 
 
 
   return (
     <div className="flex flex-col gap-1 w-full">
+
 
       {block && block.block_type === 'pdf' ? (
         <>
@@ -192,13 +195,14 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
               <button onClick={() => { savePDFtitle(); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
                 <CheckIcon className="w-6 h-6" />
               </button>
+
               {block && (
                 <button onClick={handleDelete} className="no-underline gap-2 font-semibold rounded px-2 py-1 text-red-500 border-0">
                   <TrashIcon className="w-6 h-6" />
                 </button>
               )}
             </div>
-            
+
 
           </div>
         </>
@@ -213,6 +217,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
               placeholder="Enter title..."
             />
             <div className="flex gap-2">
+              {isSaved && (
+                <div className="flex items-center text-green-500">
+                  <FaCheckCircle className="w-4 h-4 mr-2" /> Saved
+                </div>
+              )}
               {block && (
                 <button onClick={handleDelete} className="no-underline gap-2 font-semibold rounded px-2 py-1 text-red-500 border-0">
                   <TrashIcon className="w-6 h-6" />
@@ -220,11 +229,14 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
               )}
             </div>
           </div>
+
+
+
           <div className="min-w-full">
             <div className="prose text-gray-600">
               <DynamicSimpleMDE
                 value={content}
-                onChange={setContent}  
+                onChange={setContent}
               />
             </div>
             <button

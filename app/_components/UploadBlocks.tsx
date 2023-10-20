@@ -166,7 +166,7 @@ export default function UploadBlocks() {
         })}
       >
         <input {...getInputProps()} />
-        Drag and drop a PDF file or click to select.
+        Drag and drop a PDF file or click here to select.
       </div>
       {files.length > 0 && (
         <ul>
@@ -175,14 +175,16 @@ export default function UploadBlocks() {
           ))}
         </ul>
       )}
-      <Button
-        disabled={files.length === 0}
-        className={clsx(files.length === 0 && "cursor-not-allowed")}
-        variant="primary"
-        type="submit"
-      >
-        Upload
-      </Button>
+      { files.length !== 0 && (
+        <Button
+          disabled={files.length === 0}
+          className={clsx(files.length === 0 && "cursor-not-allowed")}
+          variant="primary"
+          type="submit"
+        >
+          Upload
+        </Button>
+      )}
     </form>
 
   );
