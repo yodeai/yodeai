@@ -38,6 +38,9 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   let controller;
 
   const saveContent = async (isAutoSave) => {
+    if (isSaving) {
+      return;
+    }
     setIsSaving(true);
     if (controller) {
       controller.abort()
