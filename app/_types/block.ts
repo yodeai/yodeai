@@ -4,6 +4,11 @@ export type LensDetail = {
   name: string;
 };
 
+export type LensBlock = {
+  lens_id: number;
+  block_id: number;
+}
+
 
 export type Block = {
     block_id: number;  
@@ -21,5 +26,6 @@ export type Block = {
     inLenses?: LensDetail[]; 
     file_url?: string;
     preview: string;
+    lens_blocks: LensBlock;
   }
   
