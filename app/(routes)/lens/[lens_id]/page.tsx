@@ -52,15 +52,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
     // Fetch the lens details
     fetch(`/api/lens/${params.lens_id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setLens(data.data);
-        setLensName(data.data.name);
-      })
-      .catch((error) => {
-        console.error("Error fetching lens:", error);
-        notFound();
-      });
+    .then((response) => {
+      if (!response.ok) {
+        console.log("Error fetching lens")
+        router.push("/notFound")
+      } else {
+        response.json().then((data) => {
+          setLens(data.data);
+          setLensName(data.data.name)
+        })
+      }
+    })
 
   }, [params.lens_id, searchParams]);
 
