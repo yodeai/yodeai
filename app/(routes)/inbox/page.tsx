@@ -16,24 +16,15 @@ import { PlusIcon } from "@radix-ui/react-icons";
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
-
-
+  const supabase = createClientComponentClient()
   useEffect(() => {
-    const supabase = createClientComponentClient()
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
-      let new_status = payload["new"]["status"]
-      let old_status = payload['old']['status']
-      let old_title = payload['old']['title']
-      let new_title = payload['new']['title']
-      if (new_status == old_status && old_title == new_title) {
-        return;
-      }
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item.block_id, " to ", new_status, ' and title to ', item.title, ' to ', new_title );
-            return { ...item, status: new_status, title: new_title };
+            console.log('Updating block status:', item, " to ", payload['new'] );
+            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
           }
           return item;
         })
@@ -55,7 +46,6 @@ export default function Inbox() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .subscribe();
   
-
     return () => {
       if (channel) channel.unsubscribe();
     };

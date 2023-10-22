@@ -22,7 +22,7 @@ async function uploadToS3(base64: string, fileType: string): Promise<any> {
     if (!response.ok) throw new Error('Failed to upload to S3');
     return await response.json();
   } catch (error) {
-    console.error(error);
+    toast.error(error.message);
     throw error;
   }
 }
