@@ -86,7 +86,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
           setLensName(data[0].name);
           setActiveComponent("lens");
         } else {
-          console.error("Error fetching lens name:", error);
+          console.error("Error fetching lens name:" + error.message);
         }
       }
     };

@@ -13,6 +13,8 @@ import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { FaCheckCircle } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
+import toast from "react-hot-toast";
+
 
 
 const DynamicSimpleMDE = dynamic(
@@ -60,14 +62,20 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       }
     }
     // If block doesn't exist, create a new block
+    else if (!block && (title !== "")) {
+      //console.log("making block");
     else if (!block && (content !== "" || title !== "")) {
       console.log(4);
       method = "POST";
       endpoint = `/api/block`;
     }
+    else if (title === "" && content !== "" && !isAutoSave) {
+      toast.error("Title cannot be empty")
+      return false;
+    }
     // If neither condition is met, exit the function early
     else {
-      return;
+      return true;
     }
     console.log("starting to save");
     setIsSaving(true);
@@ -150,7 +158,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         success: "Deleted!",
         error: "Failed to delete.",
       }).then(() => {
-        router.push('/');
+        router.back();
       })
         .catch((error) => {
           console.error("Error deleting block:", error);

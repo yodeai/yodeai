@@ -39,15 +39,34 @@ export async function POST(request: NextRequest) {
     }
     if (data && data[0]) {
       const newBlock: Block = data[0];
-      console.log("processing block now")
-      await apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
+      console.log("processing block now");
+      
+      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
         .then(result => {
           console.log('Block processed successfully', result);
         })
         .catch(error => {
           console.error('Error processing block', error);
+    
+          // Return a promise to handle the update in the outer then block
+          return supabase
+            .from('block')
+            .update({ 'status': 'failure' })
+            .eq('block_id', newBlock.block_id);
+        })
+        .then(() => {
+          console.log('Block status updated to failure');
+        })
+        .catch(updateError => {
+          console.error('Error updating block status', updateError);
         });
     }
+    
+    
+    
+    
+    
+    
     
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {
