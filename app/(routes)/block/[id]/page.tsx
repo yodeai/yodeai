@@ -115,7 +115,7 @@ export default function Block({ params }: { params: { id: string } }) {
               </div>
             </>
           ) : (
-            <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+            <BlockEditor block={block}  /> // this recreates the entire block view but allows for editing            
             // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
           )}
         </div>
