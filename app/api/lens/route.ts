@@ -28,7 +28,27 @@ export async function POST(request: NextRequest) {
         ]).select();
     
     if (error) {
+      console.log("error", error)
       throw error;
+    } 
+
+    console.log()
+
+    const lensUsersObj = await supabase
+    .from('lens_users')
+    .insert(
+      {
+        "lens_id": data[0]["lens_id"],
+        "user_id": data[0]["owner_id"],
+        "access_type": "owner",
+      },
+    );
+    console.log("HEY")
+    console.log(data[0])
+
+    if (lensUsersObj.error) {
+      console.log("ERROR", lensUsersObj.error)
+      throw lensUsersObj.error;
     } 
 
     return new NextResponse(

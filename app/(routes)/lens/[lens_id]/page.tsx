@@ -186,7 +186,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
         {!isEditingLensName ? (
           <>
-
             <span className="text-xl font-semibold">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
@@ -199,7 +198,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   <Pencil2Icon className="w-6 h-6" />
                 </Button>
               </Tooltip>
-              {/* <ShareLensComponent /> */}
+              <ShareLensComponent lensId={lens.lens_id}/>
             </div>
 
           </>
@@ -236,7 +235,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       </header>
 
       <div className="flex items-stretch flex-col gap-4 mt-4">
-
         <Link
           href="/new"
           className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">

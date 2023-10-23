@@ -5,33 +5,31 @@ import { useState } from 'react';
 import { Lens } from "app/_types/lens";
 import { Share1Icon } from "@radix-ui/react-icons";
 import ShareLensButton from './ShareLensButton';
+import apiClient from '@utils/apiClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-export default function DefaultModal() {
+export default function DefaultModal({ lensId }) {
     const [openModal, setOpenModal] = useState<string | undefined>();
     const props = { openModal, setOpenModal };
     const [shareEmail, setShareEmail] = useState("");
-    const [lens, setLens] = useState<Lens | null>(null);
 
     const handleShare = async () => {
-        // Logic to handle the share, for example, send the email to server
-        try {
-            // Suppose `/api/share` is the endpoint that handles the sharing
-            const response = await fetch('/api/share', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lensId: lens?.lens_id, email: shareEmail }),
-            });
+        const supabase = createClientComponentClient();
+        const { data: { user }, error } = await supabase.auth.getUser();
 
-            if (!response.ok) throw new Error("Failed to share");
-
+        await apiClient('/shareLens', 'POST', 
+            { "sender": user["email"], "lensId": lensId, "email": shareEmail, "role": "owner" },
+        )
+        .then(result => {
             // Handle success
             alert("Shared successfully!");
             setShareEmail(""); // Reset email input
             props.setOpenModal(undefined);
-        } catch (error) {
+        })
+        .catch(error => {
             console.error(error);
             alert("Failed to share the lens!");
-        }
+        });
     };
     return (
         <>

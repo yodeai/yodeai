@@ -42,6 +42,7 @@ export default function Navbar() {
   const router = useRouter();
   const { lensId, setLensId, reloadKey, reloadLenses, activeComponent, setActiveComponent } = useAppContext();
   const [lenses, setLenses] = useState<Lens[]>([]);
+  const [ownedLenses, setOwnedLenses] = useState<Lens[]>([]);
 
 
   useEffect(() => {
@@ -56,7 +57,18 @@ export default function Navbar() {
         notFound();
       });
 
+      fetch(`/api/lens/getOwnedLenses`)
+      .then((response) => response.json())
+      .then((data) => {
+        setOwnedLenses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching owned lens:", error);
+        notFound();
+      });
+
   }, [reloadKey]);
+  
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -137,12 +149,24 @@ export default function Navbar() {
           Inbox
 
         </button>
+        <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
+        Private Lenses
+        </h1>
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">
           {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
         </ul>
+        <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
+        Collaborative Lenses
+        </h1>
+        Owned Lenses
+      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+        {ownedLenses?.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))}
+      </ul>
       </Container>
 
     </nav >
