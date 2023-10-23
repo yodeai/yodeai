@@ -30,7 +30,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 500);
-  const debouncedTitle = useDebounce(title, 2000);
+  const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -52,7 +52,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     console.log(2);
     // If block exists and there are changes, update it
     if (block && (content !== block.content || title !== block.title)) {
-      console.log(3);
       if (!block.block_id) {
         method = "POST";
         endpoint = `/api/block`;
@@ -62,22 +61,14 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       }
     }
     // If block doesn't exist, create a new block
-    else if (!block && (title !== "")) {
-      //console.log("making block");
     else if (!block && (content !== "" || title !== "")) {
-      console.log(4);
       method = "POST";
       endpoint = `/api/block`;
-    }
-    else if (title === "" && content !== "" && !isAutoSave) {
-      toast.error("Title cannot be empty")
-      return false;
     }
     // If neither condition is met, exit the function early
     else {
       return true;
     }
-    console.log("starting to save");
     setIsSaving(true);
 
     type RequestBodyType = {
@@ -90,7 +81,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     const requestBody: RequestBodyType = {
       block_type: "note",
       content: content,
-      title: title,
+      title: (title ? title : "Untitled"),
     };
 
     if (lensId) {
