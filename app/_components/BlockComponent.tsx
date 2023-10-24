@@ -69,7 +69,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   };
 
   
-  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 70)}...`):"";
+  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`):"";
 
 
   return (
@@ -140,7 +140,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null}
 
-        {!compact && firstTwoLines ? (
+        {!compact && firstTwoLines && false ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">
