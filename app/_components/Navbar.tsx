@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import Container from "./Container";
-import { ShadowInnerIcon } from "@radix-ui/react-icons";
+import { ShadowInnerIcon, HomeIcon} from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox } from "react-icons/fa";
+import { FaInbox, FaHome } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
 
@@ -76,7 +76,7 @@ export default function Navbar() {
     console.log(lensId);
     reloadLenses();
     router.push(`/lens/${newLensId}?edit=true`);
-    
+
   }, [router]);
 
   const handleOpenInbox = (e: React.MouseEvent) => {
@@ -91,14 +91,21 @@ export default function Navbar() {
     router.push(`/`);
   }
 
+  const homeIconStyle = {
+    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
+    marginLeft: '4px'
+  };
+  const inboxIconStyle = {
+    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
+    marginLeft: '4px'
+  };
+
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
       <Container className="flex flex-1 flex-col">
 
         <div className="flex flex-col items-start gap-2 p-4">
-          <button className="font-semibold text-lg" onClick={handleHomeClick}>
-            Home
-          </button>
+
           <button
             onClick={handleCreateLens}
             className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
@@ -117,15 +124,18 @@ export default function Navbar() {
           />
         </div>
           */}
-
+        <button className={`flex items-center mt-4 text-gray-600 gap-4 py-4 px-4 ${activeComponent === "global" ? "bg-customLightBlue-light" : ""}`} onClick={handleHomeClick}>
+        <FaHome  style={homeIconStyle  } /> { }
+        All Blocks
+        </button>
         <button
-          className={`flex items-center mt-4 text-gray-600 gap-4 py-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
+          className={`flex items-center mt-4 text-gray-600 gap-4 py-4 px-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
           onClick={handleOpenInbox}
-          style={{ paddingLeft: '12px', paddingRight: '5px' }} // Add padding to the left
-        >
-          <FaInbox style={{ marginLeft: '5px' }} /> { }
-              Inbox
           
+        >
+          <FaInbox  style={inboxIconStyle  } /> { }
+          Inbox
+
         </button>
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">

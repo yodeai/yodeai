@@ -10,6 +10,7 @@ import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import { Button, Tooltip } from 'flowbite-react';
+import toast from "react-hot-toast";
 
 interface BlockProps {
   compact?: boolean;
@@ -54,7 +55,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         console.log('Block processed successfully', result);
       })
       .catch(error => {
-        console.error('Error processing block', error);
+        toast.error('Error processing block: ' + error.message);
       });
   }
 

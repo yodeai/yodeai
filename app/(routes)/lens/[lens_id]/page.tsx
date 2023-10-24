@@ -14,6 +14,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
+import toast from "react-hot-toast";
+
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -50,36 +52,29 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
     // Fetch the lens details
     fetch(`/api/lens/${params.lens_id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setLens(data.data);
-        setLensName(data.data.name);
-      })
-      .catch((error) => {
-        console.error("Error fetching lens:", error);
-        notFound();
-      });
+    .then((response) => {
+      if (!response.ok) {
+        console.log("Error fetching lens")
+        router.push("/notFound")
+      } else {
+        response.json().then((data) => {
+          setLens(data.data);
+          setLensName(data.data.name)
+        })
+      }
+    })
 
   }, [params.lens_id, searchParams]);
 
-
+  const supabase = createClientComponentClient()
   useEffect(() => {
-    const supabase = createClientComponentClient()
-
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
-      let new_status = payload["new"]["status"]
-      let old_status = payload['old']['status']
-      let old_title = payload['old']['title']
-      let new_title = payload['new']['title']
-      if (new_status == old_status && old_title == new_title) {
-        return;
-      }
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item.block_id, " to ", new_status, ' and title to ', item.title, ' to ', new_title);
-            return { ...item, status: new_status, title: new_title };
+            console.log('Updating block status:', item, " to ", payload['new'] );
+            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
           }
           return item;
         })
@@ -94,14 +89,13 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         setBlocks([newBlock, ...blocks]);
       }
     }
-
+      
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .subscribe();
-
-
+  
     return () => {
       if (channel) channel.unsubscribe();
     };
@@ -126,6 +120,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const saveNewLensName = async () => {
     if (lens) {
       try {
+        if (editingLensName === "") {
+          throw new Error("Lens title cannot be empty");
+        }
         const updatePromise = updateLensName(lens.lens_id, editingLensName);
         await load(updatePromise, {
           loading: "Updating lens name...",
@@ -135,8 +132,11 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         setLens({ ...lens, name: editingLensName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
         reloadLenses();
+        return true;
       } catch (error) {
-        console.error('Failed to update lens name', error);
+        console.log("error", error.message)
+        toast.error('Failed to update lens name: '+ error.message);
+        return false;
       }
     }
   };
@@ -213,7 +213,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               className="text-xl font-semibold flex-grow"
             />
 
-            <button onClick={() => { saveNewLensName(); setIsEditingLensName(false) }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
+            <button onClick={() => { saveNewLensName().then(result => {console.log("Success", result); if (result) setIsEditingLensName(false);}); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
               <CheckIcon className="w-6 h-6" />
             </button>
 

@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.redirect(
-    `${requestUrl.origin}/login?message=Check email to continue sign in process`,
+    `${requestUrl.origin}/login?message=Success! Please sign in here.`,
     {
       status: 301,
     }

@@ -10,28 +10,30 @@ import { useEffect } from 'react';
 import BlockEditor from '@components/BlockEditor';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
-
+import { useRouter } from "next/navigation";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-  
+  const router = useRouter();
+
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setBlock(data.data);
+    .then((response) => {
+      if (!response.ok) {
+        console.log("Error fetching url")
         setLoading(false);
-
-      })
-      .catch((error) => {
-        console.error("Error fetching block:", error);
-        setLoading(false);
-        notFound();
-      });
+        router.push("/notFound")
+      } else {
+        response.json().then((data) => {
+          setBlock(data.data);
+          setLoading(false);
+        })
+      }
+    })
       
   }, [params.id]);
 
@@ -115,7 +117,7 @@ export default function Block({ params }: { params: { id: string } }) {
               </div>
             </>
           ) : (
-            <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+            <BlockEditor block={block}  /> // this recreates the entire block view but allows for editing            
             // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
           )}
         </div>
