@@ -49,7 +49,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
     let method: 'POST' | 'PUT';
     let endpoint: string;
-    console.log(2);
     // If block exists and there are changes, update it
     if (block && (content !== block.content || title !== block.title)) {
       if (!block.block_id) {
