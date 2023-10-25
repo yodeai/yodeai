@@ -70,7 +70,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   };
 
   
-  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`):"";
+  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`):firstTwoLines;
+
 
 
   return (
