@@ -61,8 +61,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
 
 
-  const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
-
+  const firstTwoLinesComplete = block.content?.split('\n').slice(0, 2).join('\n');
+  const firstTwoLines = firstTwoLinesComplete?.length<300?firstTwoLinesComplete:firstTwoLinesComplete?.slice(0,300);
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -70,7 +70,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   };
 
   
-  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`):firstTwoLines;
+
+  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines?(expanded?firstTwoLines:firstTwoLines.slice(0,80)):"");
 
 
 
