@@ -26,7 +26,9 @@ export default async function RootLayout({
   return (
     
     <html lang="en" >
-
+      <head>
+        <link rel="icon" href="/yodeai.png" />
+      </head>
       <body
         
       className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
