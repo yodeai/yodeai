@@ -144,3 +144,7 @@
   }
 }
 
+.iconStyle {
+  transform: scale(1.2);
+  margin-left: 4px;
+}

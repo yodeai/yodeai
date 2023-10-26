@@ -78,7 +78,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   return (
     <div
       className={clsx(
-        " items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
+        " items-start justify-between  p-4 rounded-md bg-white border border-gray-200 mb-4",
         compact ? "max-w-xs" : ""
       )}
     >

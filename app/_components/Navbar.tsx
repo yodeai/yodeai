@@ -10,7 +10,7 @@ import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaHome } from "react-icons/fa";
+import { FaInbox, FaHome, FaCodepen } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
 
@@ -64,7 +64,7 @@ export default function Navbar() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: "New lens" }),
+      body: JSON.stringify({ text: "New space" }),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -91,14 +91,7 @@ export default function Navbar() {
     router.push(`/`);
   }
 
-  const homeIconStyle = {
-    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
-    marginLeft: '4px'
-  };
-  const inboxIconStyle = {
-    transform: 'scale(1.2)', // Increase the size by 10% (1.0 is the default size)    
-    marginLeft: '4px'
-  };
+
 
   return (
     <nav className="bg-white border-r flex flex-col fixed-width-nav ">
@@ -110,7 +103,7 @@ export default function Navbar() {
             onClick={handleCreateLens}
             className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
           >
-            <ShadowInnerIcon /> New lens
+            <ShadowInnerIcon /> New space
           </button>
         </div>
 
@@ -124,21 +117,21 @@ export default function Navbar() {
           />
         </div>
           */}
-        <button className={`flex items-center mt-4 text-gray-600 gap-4 py-4 px-4 ${activeComponent === "global" ? "bg-customLightBlue-light" : ""}`} onClick={handleHomeClick}>
-        <FaHome  style={homeIconStyle  } /> { }
+        <button className={`flex items-center mt-4 text-gray-600 gap-4 py-2 px-4 ${activeComponent === "global" ? "bg-customLightBlue-light" : ""}`} onClick={handleHomeClick}>
+        <FaHome  className="iconStyle" /> { }
         All Blocks
         </button>
         <button
-          className={`flex items-center mt-4 text-gray-600 gap-4 py-4 px-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
+          className={`flex items-center mt-4 text-gray-600 gap-4 py-2 px-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
           onClick={handleOpenInbox}
           
         >
-          <FaInbox  style={inboxIconStyle  } /> { }
+          <FaInbox  className="iconStyle" /> { }
           Inbox
 
         </button>
 
-        <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+        <ul className="text-gray-600 flex flex-col">
           {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}

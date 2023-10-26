@@ -247,7 +247,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             <BlockComponent key={block.block_id} block={block} />
           ))
         ) : (
-          <p>This lens is empty, add blocks here.</p>
+          <p>This space is empty, add blocks here. A space can be a good place to organize information related to a project, a goal, or a long-term interest.</p>
         )}
 
         {/* Display child lenses if they exist */}
