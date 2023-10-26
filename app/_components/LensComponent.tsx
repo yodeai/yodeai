@@ -37,7 +37,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
         <button className="flex items-center mt-4 text-gray-600 gap-4" onClick={handleLensClick}>
         
           { /*<img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-5" />*/ }
-          <FaThLarge className="iconStyle" /> 
+          <FaThLarge className="iconStyle spaceIconStyle"  /> 
           <div className="text-gray-600  line-clamp-1  ">
           <div className="truncate">
             {lens.name}
