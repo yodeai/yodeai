@@ -90,7 +90,7 @@ export default function Block({ params }: { params: { id: string } }) {
   return (
     <main className="container">
       <div className="w-full flex flex-col p-8">
-        <div className="flex items-start justify-between elevated-block p-8 rounded-md bg-white border border-gray-200 mb-4 mt-12">
+        <div className="flex items-start justify-between p-8 rounded-md bg-white border border-gray-200 mb-4 mt-12">
           {!isEditing ? (
             <>
               <div className="flex flex-col gap-1 w-full">
