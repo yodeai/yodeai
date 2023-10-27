@@ -144,3 +144,12 @@
   }
 }
 
+.iconStyle {
+  transform: scale(1.2);
+  margin-left: 4px;
+}
+
+.spaceIconStyle {
+  transform: scale(0.95);
+  margin-left: 4px;
+}

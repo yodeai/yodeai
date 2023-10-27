@@ -61,8 +61,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
 
 
-  const firstTwoLines = block.content?.split('\n').slice(0, 2).join('\n');
-
+  const firstTwoLinesComplete = block.content?.split('\n').slice(0, 2).join('\n');
+  const firstTwoLines = firstTwoLinesComplete?.length<300?firstTwoLinesComplete:firstTwoLinesComplete?.slice(0,300);
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -70,13 +70,15 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   };
 
   
-  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 70)}...`):"";
+
+  const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines?(expanded?firstTwoLines:firstTwoLines.slice(0,80)):"");
+
 
 
   return (
     <div
       className={clsx(
-        " items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
+        " items-start justify-between  p-4 rounded-md bg-white border border-gray-200 mb-4",
         compact ? "max-w-xs" : ""
       )}
     >
@@ -139,7 +141,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null}
 
-        {!compact && firstTwoLines ? (
+        {!compact && firstTwoLines && false ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">

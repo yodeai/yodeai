@@ -15,6 +15,7 @@ import { useAppContext } from "@contexts/context";
 import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 import toast from "react-hot-toast";
+import { FaThLarge } from "react-icons/fa";
 
 
 
@@ -52,17 +53,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
     // Fetch the lens details
     fetch(`/api/lens/${params.lens_id}`)
-    .then((response) => {
-      if (!response.ok) {
-        console.log("Error fetching lens")
-        router.push("/notFound")
-      } else {
-        response.json().then((data) => {
-          setLens(data.data);
-          setLensName(data.data.name)
-        })
-      }
-    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log("Error fetching lens")
+          router.push("/notFound")
+        } else {
+          response.json().then((data) => {
+            setLens(data.data);
+            setLensName(data.data.name)
+          })
+        }
+      })
 
   }, [params.lens_id, searchParams]);
 
@@ -73,8 +74,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item, " to ", payload['new'] );
-            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
+            console.log('Updating block status:', item, " to ", payload['new']);
+            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
           }
           return item;
         })
@@ -89,13 +90,13 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         setBlocks([newBlock, ...blocks]);
       }
     }
-      
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .subscribe();
-  
+
     return () => {
       if (channel) channel.unsubscribe();
     };
@@ -135,7 +136,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         return true;
       } catch (error) {
         console.log("error", error.message)
-        toast.error('Failed to update lens name: '+ error.message);
+        toast.error('Failed to update lens name: ' + error.message);
         return false;
       }
     }
@@ -188,6 +189,11 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         </div>
         {!isEditingLensName ? (
           <>
+            <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+              <FaThLarge className="iconStyle spaceIconStyle" />
+              <span className="text-xl font-semibold ">{lensName}</span>
+            </div>
+
             <div className="flex items-center space-x-2">
               <Tooltip content="Edit lens." style="light" >
                 <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
@@ -208,7 +214,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               className="text-xl font-semibold flex-grow"
             />
 
-            <button onClick={() => { saveNewLensName().then(result => {console.log("Success", result); if (result) setIsEditingLensName(false);}); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
+            <button onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
               <CheckIcon className="w-6 h-6" />
             </button>
 
@@ -245,7 +251,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             <BlockComponent key={block.block_id} block={block} />
           ))
         ) : (
-          <p>This lens is empty, add blocks here.</p>
+          <p>This space is empty, add blocks here. A space can be a good place to organize information related to a project, a goal, or a long-term interest.</p>
         )}
 
         {/* Display child lenses if they exist */}

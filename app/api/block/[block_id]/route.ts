@@ -53,7 +53,11 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
   }
   const data = await request.json();
 
-  //console.log("data: ", data, "block_id: ", block_id, "incomingData: ", incomingData);
+   // Extract lens_id and delete it from requestData
+   const lensId = data.lens_id;
+   delete data.lens_id;
+
+  console.log("data: ", data, "block_id: ", block_id);
   try {
     const { data: block, error } = await supabase
       .from('block')
@@ -63,8 +67,6 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
     if (error) {
       throw error;
     }
-
-
 
     return ok(block);
   } catch (err) {

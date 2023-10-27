@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
+import { FaThLarge } from "react-icons/fa";
 
 
 interface LensProps {
@@ -33,8 +34,10 @@ export default function LensComponent({ lens, compact }: LensProps) {
       )}
     >
       <div className="flex flex-col gap-1 justify-start">
-        <button className="flex items-center flex-1" onClick={handleLensClick}>
-          <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-5" /> 
+        <button className="flex items-center mt-4 text-gray-600 gap-4" onClick={handleLensClick}>
+        
+          { /*<img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-5" />*/ }
+          <FaThLarge className="iconStyle spaceIconStyle"  /> 
           <div className="text-gray-600  line-clamp-1  ">
           <div className="truncate">
             {lens.name}

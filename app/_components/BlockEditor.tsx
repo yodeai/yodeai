@@ -29,31 +29,28 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const { lensId } = useAppContext();
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
-  const debouncedContent = useDebounce(content, 1000);
-  const debouncedTitle = useDebounce(title, 2000);
+  const debouncedContent = useDebounce(content, 500);
+  const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [isInitialEdit, setIsInitialEdit] = useState(true);
 
-  let controller;
 
-  const saveContent = async (isAutoSave) => {
-    if (isSaving) {
-      return;
-    }
-    setIsSaving(true);
+  //let controller;
+
+  const saveContent = async () => {
+
+    /*
     if (controller) {
       controller.abort()
       console.log("ABORTED")
     }
     controller = new AbortController();
-    const signal = controller.signal;
+    const signal = controller.signal;*/
 
     let method: 'POST' | 'PUT';
     let endpoint: string;
-
     // If block exists and there are changes, update it
-    if (block && (content !== block.content || title !== block.title) && (title !== "" || isAutoSave)) {
+    if (block && (content !== block.content || title !== block.title)) {
       if (!block.block_id) {
         method = "POST";
         endpoint = `/api/block`;
@@ -63,19 +60,15 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       }
     }
     // If block doesn't exist, create a new block
-    else if (!block && (title !== "")) {
-      //console.log("making block");
+    else if (!block && (content !== "" || title !== "")) {
       method = "POST";
       endpoint = `/api/block`;
-    }
-    else if (title === "" && content !== "" && !isAutoSave) {
-      toast.error("Title cannot be empty")
-      return false;
     }
     // If neither condition is met, exit the function early
     else {
       return true;
     }
+    setIsSaving(true);
 
     type RequestBodyType = {
       block_type: string;
@@ -87,7 +80,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     const requestBody: RequestBodyType = {
       block_type: "note",
       content: content,
-      title: title,
+      title: (title ? title : "Untitled"),
     };
 
     if (lensId) {
@@ -96,28 +89,28 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
     const savePromise = fetch(endpoint, {
       method: method,
-      body: JSON.stringify(requestBody),
-      signal: signal
+      body: JSON.stringify(requestBody)
     })
 
-    savePromise
-      .then(async (response: Response) => {
-        if (response.ok) {
-          setIsSaved(true);
-          setIsSaving(false);
-        }
-        if (method === "POST" && response.ok) {
-          const responseData = await response.json();
-          const newBlock = responseData.data[0];
-          setBlock(newBlock);
-          setIsInitialEdit(false);
-        }
-      })
-      .catch(() => {
-        setIsSaved(false);
+    try {
+      const response = await savePromise;
+      // create artificial two second delay for testing
+      //await new Promise(r => setTimeout(r, 3000));
+      if (response.ok) {
+        setIsSaved(true);
         setIsSaving(false);
-      });
-      return true;
+      }
+
+      if (method === "POST" && response.ok) {
+        const responseData = await response.json();
+        const newBlock = responseData.data[0];
+        setBlock(newBlock);
+      }
+    } catch (error) {
+      setIsSaved(false);
+      setIsSaving(false);
+    }
+
   };
 
 
@@ -163,30 +156,33 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
   }, [block, router]);
 
-  // This is for the very beginning to make sure a block is created to prevent a future race condition.
+  // auto-save
   useEffect(() => {
-    setIsSaved(false);
-    // don't run this when first rendering the page.
-    if (isInitialEdit) {
-      setIsInitialEdit(false);
-      return;
-    }
-    if (isInitialEdit && !isSaving) {
-      saveContent(true);
-    }
-  }, [content, title]);
-
-
-  useEffect(() => {
-    console.log("Checking")
-    if (!isInitialEdit) {
-      saveContent(true);
-      console.log("Saved content")
-    }
+    if (!isSaving)
+      saveContent();
   }, [debouncedContent, debouncedTitle]);
 
+  useEffect(() => {
+    setIsSaved(false);
+  }, [content, title]);
 
+  // when the save button is clicked on the block editor
+  const handleSaveAndNavigate = async () => {
+    // remove the "saved" sign
+    setIsSaved(false);
+    if (isSaving) {
+      // If isSaving is true, wait for it to become false
+      while (isSaving) {
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100 milliseconds
+      }
+    }
 
+    // Save one last time
+    await saveContent();
+
+    // Navigate back using the router
+    router.back();
+  };
 
 
 
@@ -229,6 +225,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
               placeholder="Enter title..."
             />
             <div className="flex gap-2">
+              {isSaving && (
+                <div className="flex items-center">
+                  <FaCheckCircle className="w-4 h-4 mr-2" /> Saving...
+                </div>
+              )}
               {isSaved && (
                 <div className="flex items-center text-green-500">
                   <FaCheckCircle className="w-4 h-4 mr-2" /> Saved
@@ -251,18 +252,24 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
                 onChange={setContent}
               />
             </div>
-            <button
-              onClick={() => {
-                saveContent(false).then(result => {
-                  console.log("Success", result); // Log the result inside the `then` block
-                  if (result) {
-                    router.back();
-                  }
-                });
-              }}
-              className="flex items-center mt-4 text-sm font-semibold rounded px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors">
-              Save
-            </button>
+
+
+            {
+              <button
+                onClick={handleSaveAndNavigate}
+                className={`flex items-center mt-4 text-sm font-semibold rounded px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors ${isSaving ? "cursor-not-allowed" : ""}`}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  // Display loading indicator while saving
+                  "Saving..."
+                ) : (
+                  // Display "Save" text when not saving
+                  "Save"
+                )}
+              </button>
+            }
+
           </div>
         </>
       )}
