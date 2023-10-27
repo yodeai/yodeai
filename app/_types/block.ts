@@ -27,6 +27,6 @@ export type Block = {
     file_url?: string;
     preview: string;
     lens_blocks: LensBlock;
-    readyOnly?: boolean;
+    readOnly?: boolean;
   }
   
