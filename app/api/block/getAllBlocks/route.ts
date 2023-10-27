@@ -13,6 +13,7 @@ type ListofLensesforBlock = {
 };
 
 export async function GET(request: NextRequest) {
+    console.log("getting all blocks");
     try {
         const supabase = createServerComponentClient({
             cookies,
@@ -29,12 +30,16 @@ export async function GET(request: NextRequest) {
             .order('updated_at', { ascending: false });
         
         const blocksWithLenses = (blocks || []).map(block => ({
-                ...block,
-                inLenses: block.lens_blocks.map( (lb: ListofLensesforBlock) => ({
+            ...block,
+            inLenses: block.lens_blocks
+                .filter(lb => lb.lens)  // This will filter out lens_blocks with lens set to null
+                .map(lb => ({
                     lens_id: lb.lens.lens_id,
                     name: lb.lens.name
                 }))
-            }));
+        }));
+        
+        
 
         return new NextResponse(
             JSON.stringify({ data: blocksWithLenses }),
