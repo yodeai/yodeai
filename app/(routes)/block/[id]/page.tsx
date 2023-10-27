@@ -101,10 +101,11 @@ export default function Block({ params }: { params: { id: string } }) {
                     </ReactMarkdown>
                   </Link>
                   <div className="flex gap-2">
-                    
+                    {block.readOnly ? "" :
                       <button onClick={() => setIsEditing(!isEditing)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
                         <Pencil2Icon className="w-6 h-6" />
                       </button>
+                    }
                     
                   </div>
                 </div>

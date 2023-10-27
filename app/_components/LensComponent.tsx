@@ -42,6 +42,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
           </div>
         </button>
         <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
+        <p className="text-blue-500 text-sm">{lens.shared ? `Collaborative: ${lens.shared ?  `${lens.lens_users[0]?.access_type}` : ''} ` : ''}</p>
       </div>
 
 

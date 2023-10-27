@@ -103,7 +103,7 @@ export default function Inbox() {
             <div className="flex flex-col p-4 flex-grow">
               <LoadingSkeleton />
             </div>
-          ) : blocks.length > 0 ? (
+          ) : blocks?.length > 0 ? (
             blocks.map((block) => (
               <BlockComponent key={block.block_id} block={block} hasArchiveButton={true}  onArchive={fetchBlocks} />
             ))

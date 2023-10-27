@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         cookies,
     })
     try {
-        const { data, error } = await supabase.rpc('get_owner_lens');
+        const { data, error } = await supabase.rpc('get_reader_lens');
         console.log("Data,", data, error)
         // Check for errors
         if (error) {

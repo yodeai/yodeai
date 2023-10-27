@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     try {
       const { data: lenses, error } = await supabase
         .from('lens')
-        .select('*')
+        .select('*, lens_users(access_type)')
         .order('updated_at', { ascending: false });
   
       // Check for errors

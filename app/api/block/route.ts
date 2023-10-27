@@ -55,18 +55,12 @@ export async function POST(request: NextRequest) {
             .eq('block_id', newBlock.block_id);
         })
         .then(() => {
-          console.log('Block status updated to failure');
+          console.log('Block status updated to failure', newBlock.block_id);
         })
         .catch(updateError => {
           console.error('Error updating block status', updateError);
         });
     }
-    
-    
-    
-    
-    
-    
     
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {

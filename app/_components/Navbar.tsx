@@ -43,7 +43,8 @@ export default function Navbar() {
   const { lensId, setLensId, reloadKey, reloadLenses, activeComponent, setActiveComponent } = useAppContext();
   const [lenses, setLenses] = useState<Lens[]>([]);
   const [ownedLenses, setOwnedLenses] = useState<Lens[]>([]);
-
+  const [editorLenses, setEditorLenses] = useState<Lens[]>([]);
+  const [readerLenses, setReaderLenses] = useState<Lens[]>([]);
 
   useEffect(() => {
     // Fetch the lenses
@@ -57,15 +58,53 @@ export default function Navbar() {
         notFound();
       });
 
-      fetch(`/api/lens/getOwnedLenses`)
-      .then((response) => response.json())
-      .then((data) => {
-        setOwnedLenses(data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching owned lens:", error);
-        notFound();
-      });
+      // fetch(`/api/lens/getOwnedLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setOwnedLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching owned lens:", error);
+      //   notFound();
+      // });
+
+
+      // fetch(`/api/lens/getEditorLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setEditorLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching editor lens:", error);
+      //   notFound();
+      // });
+
+            
+      // fetch(`/api/lens/getReaderLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setReaderLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching reader lens:", error);
+      //   notFound();
+      // });
+
 
   }, [reloadKey]);
   
@@ -149,24 +188,38 @@ export default function Navbar() {
           Inbox
 
         </button>
-        <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
+        {/* <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
         Private Lenses
-        </h1>
+        </h1> */}
 
         <ul className="mt-4 text-gray-600 flex flex-col gap-4">
           {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
         </ul>
-        <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
+        {/* <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
         Collaborative Lenses
         </h1>
-        Owned Lenses
+        <h2>Lenses with owner access</h2>
       <ul className="mt-4 text-gray-600 flex flex-col gap-4">
         {ownedLenses?.map((lens) => (
           <LensComponent key={lens.lens_id} lens={lens} compact={true} />
         ))}
-      </ul>
+      </ul> */}
+      {/* <h2>Lenses with editor access</h2>
+      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+        {editorLenses?.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))}
+      </ul> */}
+
+      {/* <h2>Lenses with reader accesss</h2>
+      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
+        {readerLenses?.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))}
+      </ul> */}
+      
       </Container>
 
     </nav >

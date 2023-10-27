@@ -179,19 +179,15 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     );
   }
   return (
-
     <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
-
+      {!lens.shared || lens.lens_users[0].access_type == 'owner'? 
       <header className="flex items-center justify-between">
-
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
+          {lensName}
+        </div>
         {!isEditingLensName ? (
           <>
-            <span className="text-xl font-semibold">
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
-                {lensName}
-              </div>
-            </span>
             <div className="flex items-center space-x-2">
               <Tooltip content="Edit lens." style="light" >
                 <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
@@ -226,14 +222,18 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           </div>
 
         )}
-
-
-
-
-
-
       </header>
+      : <span className="text-xl font-semibold">
 
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
+      {lensName}
+      <p style={{ marginLeft: 'auto' }} className="text-blue-500 text-sm">
+        {lens.shared ? `Collaborative: ${lens.shared ?  `${lens.lens_users[0]?.access_type}` : ''}` : ''}
+      </p>
+    </div>
+    </span>}
+      {!lens.shared || lens.lens_users[0].access_type == 'editor' || lens.lens_users[0].access_type == 'owner' ? 
       <div className="flex items-stretch flex-col gap-4 mt-4">
         <Link
           href="/new"
@@ -260,6 +260,19 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           <p></p>
         )}
       </div>
+        :
+        <div className="flex items-stretch flex-col gap-4 mt-4">
+
+        {blocks && blocks.length > 0 ? (
+          blocks.map((block) => (
+            <BlockComponent key={block.block_id} block={block} />
+          ))
+        ) : (
+          <p>This lens is empty.</p>
+        )}
+        </div>
+        
+        }
     </Container>
   );
 }

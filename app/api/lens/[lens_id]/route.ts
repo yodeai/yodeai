@@ -42,7 +42,7 @@ export async function GET(request: NextRequest, { params,}: {params: { lens_id: 
     try {
       const { data: lens, error } = await supabase
         .from('lens')
-        .select('*')
+        .select('*, lens_users(access_type)')
         .eq('lens_id', lens_id)
         .single();
   

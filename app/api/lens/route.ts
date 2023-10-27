@@ -31,9 +31,6 @@ export async function POST(request: NextRequest) {
       console.log("error", error)
       throw error;
     } 
-
-    console.log()
-
     const lensUsersObj = await supabase
     .from('lens_users')
     .insert(
@@ -43,11 +40,7 @@ export async function POST(request: NextRequest) {
         "access_type": "owner",
       },
     );
-    console.log("HEY")
-    console.log(data[0])
-
     if (lensUsersObj.error) {
-      console.log("ERROR", lensUsersObj.error)
       throw lensUsersObj.error;
     } 
 

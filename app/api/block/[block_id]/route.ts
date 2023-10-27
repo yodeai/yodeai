@@ -82,16 +82,22 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
     return notOk("Invalid ID");
   }
   try {
-    const { data: block, error } = await supabase
+    const { data: block, error: blockError } = await supabase
       .from('block')
       .select('*')
       .eq('block_id', block_id)
       .single();
 
     // Check for errors
-    if (error) {
-      throw error;
+    if (blockError) {
+      throw blockError;
     }
+
+    const {data: accessLevel, error: accessLevelError} = await supabase.rpc('get_access_type_block', {"chosen_block_id": block_id})
+    if (accessLevelError) {
+      throw accessLevelError;
+    }
+    block.readOnly = accessLevel == 'reader';
     return ok(block);
   } catch (err) {
     return notOk(`${err}`);
