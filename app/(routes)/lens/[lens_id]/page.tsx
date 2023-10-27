@@ -183,16 +183,12 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
       {!lens.shared || lens.lens_users[0].access_type == 'owner'? 
       <header className="flex items-center justify-between">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
-          {lensName}
-        </div>
-        {!isEditingLensName ? (
-          <>
-            <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
               <FaThLarge className="iconStyle spaceIconStyle" />
               <span className="text-xl font-semibold ">{lensName}</span>
             </div>
+        {!isEditingLensName ? (
+          <>
 
             <div className="flex items-center space-x-2">
               <Tooltip content="Edit lens." style="light" >
@@ -230,14 +226,13 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         )}
       </header>
       : <span className="text-xl font-semibold">
-
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-6" />
-      {lensName}
-      <p style={{ marginLeft: 'auto' }} className="text-blue-500 text-sm">
+          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+              <FaThLarge className="iconStyle spaceIconStyle" />
+              <span className="text-xl font-semibold ">{lensName}</span>
+              <p style={{ marginLeft: 'auto' }} className="text-blue-500 text-sm">
         {lens.shared ? `Collaborative: ${lens.shared ?  `${lens.lens_users[0]?.access_type}` : ''}` : ''}
       </p>
-    </div>
+            </div>
     </span>}
       {!lens.shared || lens.lens_users[0].access_type == 'editor' || lens.lens_users[0].access_type == 'owner' ? 
       <div className="flex items-stretch flex-col gap-4 mt-4">

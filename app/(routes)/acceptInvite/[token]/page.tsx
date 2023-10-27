@@ -70,7 +70,7 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
             <main className="container">
               <div className="w-full flex flex-col p-8">
                 <div className="flex items-start justify-between elevated-block p-8 rounded-md bg-white border border-gray-200 mb-4 mt-12">
-                  The invite has already been accepted.
+                  The invite has been accepted.
                 </div>
               </div>
             </main>
