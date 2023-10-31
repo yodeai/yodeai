@@ -31,27 +31,51 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
         checkRecipient();
       }, []);
     const handleAcceptInvite = async () => {
-        let { error } = await supabase
-        .from('lens_invites')
-        .update({ "status": "accepted" })
-        .eq('token', params.token);
-
-        if (error) {
-            console.log('Error in updating invite status' + error);
-            throw error;
-        } 
         const { data: { user } } = await supabase.auth.getUser()
         let {data} = await supabase.from('lens_invites').select().eq('token', params.token);
-        console.log("hey", {"user_id": user["id"], "lens_id": data[0]["lens_id"], "access_type": data[0]["access_type"]})
-        let addLens = await supabase.from('lens_users').insert({"user_id": user["id"], "lens_id": data[0]["lens_id"], "access_type": data[0]["access_type"]})
-        if (addLens.error) {
-            console.error('Error in inserting into the lens_users table', addLens.error.message);
-            throw addLens.error;
+        let {data: existingUserData} = await supabase.from('lens_users').select().eq('user_id', user["id"]).eq('lens_id', data[0]["lens_id"]);
+        console.log("DANA", existingUserData)
+        if (existingUserData.length > 0) {
+          let addLens = await supabase.from('lens_users').update({"access_type": data[0]["access_type"]}).eq("user_id", user["id"]).eq("lens_id", data[0]["lens_id"])
+          if (addLens.error) {
+              console.error('Error in inserting into the lens_users table', addLens.error.message);
+              throw addLens.error;
+          } else {
+              let { error } = await supabase
+              .from('lens_invites')
+              .update({ "status": "accepted" })
+              .eq('token', params.token);
+      
+              if (error) {
+                  console.log('Error in updating invite status' + error);
+                  throw error;
+              } 
+              setAccepted(true);
+              // router.push("/")
+              handleRefresh();
+          } 
+
         } else {
-            setAccepted(true);
-            router.push("/")
-            handleRefresh();
-        } 
+          let addLens = await supabase.from('lens_users').insert({"user_id": user["id"], "lens_id": data[0]["lens_id"], "access_type": data[0]["access_type"]})
+          if (addLens.error) {
+              console.error('Error in inserting into the lens_users table', addLens.error.message);
+              throw addLens.error;
+          } else {
+              let { error } = await supabase
+              .from('lens_invites')
+              .update({ "status": "accepted" })
+              .eq('token', params.token);
+      
+              if (error) {
+                  console.log('Error in updating invite status' + error);
+                  throw error;
+              } 
+              setAccepted(true);
+              // router.push("/")
+              handleRefresh();
+          } 
+
+        }
     };
     return (
         <div>

@@ -133,6 +133,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
         setLens({ ...lens, name: editingLensName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
         reloadLenses();
+        router.push(`/lens/${lens.lens_id}`);
         return true;
       } catch (error) {
         console.log("error", error.message)
@@ -181,15 +182,14 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   }
   return (
     <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
-      {!lens.shared || lens.lens_users[0].access_type == 'owner'? 
+      {!lens.shared || lens.lens_users[0]?.access_type == 'owner'? 
       <header className="flex items-center justify-between">
+        {!isEditingLensName ? (
+          <>
           <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
               <FaThLarge className="iconStyle spaceIconStyle" />
               <span className="text-xl font-semibold ">{lensName}</span>
             </div>
-        {!isEditingLensName ? (
-          <>
-
             <div className="flex items-center space-x-2">
               <Tooltip content="Edit lens." style="light" >
                 <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
@@ -234,7 +234,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       </p>
             </div>
     </span>}
-      {!lens.shared || lens.lens_users[0].access_type == 'editor' || lens.lens_users[0].access_type == 'owner' ? 
+      {!lens.shared || lens.lens_users[0]?.access_type == 'editor' || lens.lens_users[0]?.access_type == 'owner' ? 
       <div className="flex items-stretch flex-col gap-4 mt-4">
         <Link
           href="/new"
