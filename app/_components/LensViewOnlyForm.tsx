@@ -6,6 +6,7 @@ import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
 import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface LensViewOnlyFormProps {
     lensId: string;
@@ -14,7 +15,6 @@ interface LensViewOnlyFormProps {
 const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     const lensId = props.lensId;
     const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
-
 
     const [inputValue, setInputValue] = useState<string>('');    
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -25,8 +25,16 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
         setIsLoading(true);
         const startTime = performance.now();
         try {
-            const dataToPost = { question: inputValue, lensID: lensId };            
-            const response = await apiClient('/answerFromLens', 'POST', dataToPost);            
+            const supabase = createClientComponentClient()
+
+            let { data, error } = await supabase.auth.getUser();
+            if (error) {
+                throw error;
+            }
+            
+            // we CANNOT pass a null lensId to the backend server (python cannot accept it)
+            const dataToPost = { question: inputValue, lensID: lensId, activeComponent: 'lens', userID: data.user.id };            
+            const response = await apiClient('/answerFromLens', 'POST', dataToPost);
 
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {

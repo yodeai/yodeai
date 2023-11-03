@@ -40,16 +40,23 @@ export async function GET(request: NextRequest, { params,}: {params: { lens_id: 
       return notOk("Invalid ID");
     }
     try {
+
       const { data: lens, error } = await supabase
         .from('lens')
-        .select('*, lens_users(access_type)')
+        .select('*, lens_users(user_id, access_type)')
         .eq('lens_id', lens_id)
         .single();
-  
-      // Check for errors
-      if (error) {
-        throw error;
-      }
+
+        // Check for errors
+        if (error) {
+          throw error;
+        }
+      
+
+      lens.user_to_access_type = {}
+      lens.lens_users.forEach(obj => {
+        lens.user_to_access_type[obj.user_id] = obj.access_type;
+      });
       return ok(lens);
     } catch (err) {
       return notOk(`${err}`);

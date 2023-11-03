@@ -8,6 +8,7 @@ import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import ShareLensComponent from "@components/ShareLensComponent";
 
@@ -18,13 +19,28 @@ import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensViewOnlyForm from "@components/LensViewOnlyForm";
 
 export default function ViewLens({ params }: { params: { lens_id: string } }) {
+  const supabase = createClientComponentClient()
+  const [published, setPublished] = useState(false);
   const router = useRouter();
-
-  console.log(params.lens_id);
+  useEffect(()=> {
+    const checkPublishedLens = async() => {
+      const { data: lens, error } = await supabase
+      .from('lens')
+      .select()
+      .eq('lens_id', params.lens_id);
+      if (error) {
+          console.log("error", error.message)
+      } else {
+          setPublished(lens[0].public)
+          if (!lens[0].public) router.push("/notFound");
+      }
+  } 
+    checkPublishedLens();
+  }, [])
 
   return (
     <> 
-      <LensViewOnlyForm lensId={params.lens_id}/>
+      {published ? <LensViewOnlyForm lensId={params.lens_id}/> : ""}
     </>
   );
 }
