@@ -25,14 +25,14 @@ export default function ViewLens({ params }: { params: { lens_id: string } }) {
   useEffect(()=> {
     const checkPublishedLens = async() => {
       const { data: lens, error } = await supabase
-      .from('lens')
+      .from('lens_published')
       .select()
       .eq('lens_id', params.lens_id);
       if (error) {
           console.log("error", error.message)
       } else {
-          setPublished(lens[0].public)
-          if (!lens[0].public) router.push("/notFound");
+          if (!lens[0]) router.push("/notFound");
+          setPublished(true)
       }
   } 
     checkPublishedLens();

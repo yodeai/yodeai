@@ -89,7 +89,7 @@ const QuestionAnswerForm: React.FC = () => {
             }
             
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", activeComponent: activeComponent, userID: data.user.id };            
+            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", activeComponent: activeComponent, userID: data.user.id, published: false };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
@@ -184,6 +184,7 @@ const QuestionAnswerForm: React.FC = () => {
                                 question={question}
                                 answer={answer}
                                 sources={sources}
+                                published={false}
                             />
                         ))
 

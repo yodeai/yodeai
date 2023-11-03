@@ -7,9 +7,10 @@ interface QuestionProps {
   question: string;
   answer: string;
   sources: { title: string; blockId: string }[];
+  published: boolean
 }
 
-const QuestionComponent: React.FC<QuestionProps> = ({ question, answer, sources }) => {
+const QuestionComponent: React.FC<QuestionProps> = ({ question, answer, sources, published }) => {
   return (
     <div className={clsx("elevated-block p-4 rounded-md bg-white border-orange-200 border mb-4 orange-shadow")}>
       <div className="flex flex-col gap-3">
@@ -27,7 +28,7 @@ const QuestionComponent: React.FC<QuestionProps> = ({ question, answer, sources 
               <strong>Sources:</strong>
               <ul>
                 {sources.map(({ title, blockId }) => (
-                  <li key={blockId}><a href={`/block/${blockId}`}>{title}</a></li>
+                  published ? <li key={blockId}><a href={`/publishedBlocks/${blockId}`}>{title}</a></li> :  <li key={blockId}><a href={`/block/${blockId}`}>{title}</a></li>
                 ))}
               </ul>
             </div>

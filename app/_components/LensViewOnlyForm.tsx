@@ -33,7 +33,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
             }
             
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId, activeComponent: 'lens', userID: data.user.id };            
+            const dataToPost = { question: inputValue, lensID: lensId, activeComponent: 'lens', userID: data.user.id, published: true };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
 
             let blockTitles: { title: string, blockId: string }[] = [];
@@ -41,7 +41,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
                 blockTitles = await Promise.all(
                     (response.metadata.blocks || []).map(async (blockId: string) => {
                         try {
-                            const blockResponse = await fetch(`/api/block/${blockId}`);
+                            const blockResponse = await fetch(`/api/publishedBlocks/${blockId}`);
                             if (!blockResponse.ok) throw new Error('Failed to fetch block title');
                             const blockData = await blockResponse.json();
 
@@ -128,6 +128,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
                                 question={question}
                                 answer={answer}
                                 sources={sources}
+                                published={true}
                             />
                         ))
 

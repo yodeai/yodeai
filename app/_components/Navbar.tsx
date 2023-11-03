@@ -181,37 +181,14 @@ export default function Navbar() {
           Inbox
 
         </button>
-        {/* <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-        Private Lenses
-        </h1> */}
+
 
         <ul className="text-gray-600 flex flex-col">
           {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
         </ul>
-        {/* <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-        Collaborative Lenses
-        </h1>
-        <h2>Lenses with owner access</h2>
-      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
-        {ownedLenses?.map((lens) => (
-          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-        ))}
-      </ul> */}
-      {/* <h2>Lenses with editor access</h2>
-      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
-        {editorLenses?.map((lens) => (
-          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-        ))}
-      </ul> */}
 
-      {/* <h2>Lenses with reader accesss</h2>
-      <ul className="mt-4 text-gray-600 flex flex-col gap-4">
-        {readerLenses?.map((lens) => (
-          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-        ))}
-      </ul> */}
       
       </Container>
 

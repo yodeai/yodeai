@@ -4,8 +4,8 @@ import { Button, Modal, Tooltip } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import { Lens } from "app/_types/lens";
 import { Share1Icon } from "@radix-ui/react-icons";
-import PublishLensButton from './PublishLensButton';
 import {LinkIcon} from '@heroicons/react/20/solid'
+import formatDate from "@lib/format-date";
 
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -18,9 +18,9 @@ export default function DefaultModal({ lensId }) {
     const [selectedRole, setSelectedRole] = useState('');
     const supabase = createClientComponentClient();
     const [lensCollaborators, setLensCollaborators] = useState([]);
-    const [currentUser, setCurrentUser] = useState("");
     const [published, setPublished] = useState(false);
     const [clicked, setClicked] = useState(false);
+    const [publishInformation, setPublishInformation] = useState("");
 
     const handleRevocation= async(user_id, lensId) => {
         let confirmation = confirm("Are you sure?")
@@ -50,6 +50,13 @@ export default function DefaultModal({ lensId }) {
                 console.log("error", error.message)
             } else {
                 setPublished(lens[0].public)
+                if (lens[0].public) {
+                    const { data: lens, error } = await supabase
+                    .from('lens_published')
+                    .select()
+                    .eq('lens_id', lensId);
+                    setPublishInformation(lens[0].published_at);
+                }
             }
         } 
         checkPublishedLens();
@@ -85,6 +92,69 @@ export default function DefaultModal({ lensId }) {
         });
     };
 
+    const handleRepublishClick = async() => {
+        const { data: lens, error } = await supabase
+        .from('lens')
+        .select()
+        .eq('lens_id', lensId);
+        if (error) {
+            console.log("error", error.message)
+        } else {
+            const { error: updateError } = await supabase
+            .from('lens_published')
+            .update(lens)
+            .eq('lens_id', lensId);
+        
+            if (updateError) {
+                console.error('Error updating row:', updatingError.message);
+                return;
+            }
+
+            // insert all the mappings to lens_blocks_published
+            const { data: mappings, error } = await supabase
+            .from('lens_blocks')
+            .select()
+            .eq('lens_id', lensId)
+
+            const { error: insertMappingError } = await supabase
+            .from('lens_blocks_published')
+            .update(mappings); // Insert the first row from the selection
+        
+            if (insertMappingError) {
+                console.error('Error inserting row into the destination table:', insertMappingError.message);
+                return;
+            }
+
+            // insert all blocks to blocks_published
+            const block_ids = mappings.map(obj => obj.block_id);   
+            const { data: blocks, error:blocksError } = await supabase
+            .from('block')
+            .select()
+            .in('block_id', block_ids)
+
+            if (blocksError) {
+                console.error("Error");
+                throw blocksError;
+            }
+
+            const { error: insertBlocksError } = await supabase
+            .from('block_published')
+            .update(blocks); // Insert the first row from the selection
+        
+            if (insertBlocksError) {
+                console.error('Error inserting row into the destination table:', insertBlocksError.message);
+                return;
+            }
+
+            alert("Updated privacy successfully!");
+            props.setOpenModal(undefined);
+            handleRefresh();
+
+            
+        }
+
+    }
+
     const handleClick = async() => {
         if (published) {
             if (window.confirm("Are you sure you want to unpublish this lens?")) {
@@ -95,18 +165,106 @@ export default function DefaultModal({ lensId }) {
                 if (error) {
                     console.log("error", error.message)
                 } else {
+                    // delete lens_published
+                    const { error: deleteError } = await supabase
+                    .from('lens_published')
+                    .delete()
+                    .eq('lens_id', lensId);
+                
+                    if (deleteError) {
+                        console.error('Error deleting row from the source table:', deleteError.message);
+                        return;
+                    }
+                    // delete lens_blocks_published
+                    const { error: deleteMappingError } = await supabase
+                    .from('lens_blocks_published')
+                    .delete()
+                    .eq('lens_id', lensId);
+                
+                    if (deleteMappingError) {
+                        console.error('Error deleting row from the source table:', deleteMappingError.message);
+                        return;
+                    }
+    
+                    const { data: mappings, error } = await supabase
+                    .from('lens_blocks')
+                    .select()
+                    .eq('lens_id', lensId)
+    
+        
+                    const block_ids = mappings.map(obj => obj.block_id);   
+
+                    // delete blocks_published
+                    const { error: deleteBlockError } = await supabase
+                    .from('block_published')
+                    .delete()
+                    .in('block_id', block_ids);
+                
+                    if (deleteBlockError) {
+                        console.error('Error deleting row from the source table:', deleteBlockError.message);
+                        return;
+                    }
+
                     setPublished(false)
+                    
                 }
             }
         } else {
             const { data: lens, error } = await supabase
             .from('lens')
             .update({'public': true})
-            .eq('lens_id', lensId);
+            .eq('lens_id', lensId).select();
+
+            // insert to lens_published
             if (error) {
                 console.log("error", error.message)
             } else {
-                setPublished(true)
+            const { error: insertError } = await supabase
+            .from('lens_published')
+            .upsert(lens);
+        
+            if (insertError) {
+                console.error('Error inserting row into the destination table:', insertError.message);
+                return;
+            }
+
+            // insert all the mappings to lens_blocks_published
+            const { data: mappings, error } = await supabase
+            .from('lens_blocks')
+            .select()
+            .eq('lens_id', lensId)
+
+           const { error: insertMappingError } = await supabase
+            .from('lens_blocks_published')
+            .upsert(mappings); // Insert the first row from the selection
+        
+            if (insertMappingError) {
+                console.error('Error inserting row into the destination table:', insertMappingError.message);
+                return;
+            }
+
+            // insert all blocks to blocks_published
+            const block_ids = mappings.map(obj => obj.block_id);   
+            const { data: blocks, error:blocksError } = await supabase
+            .from('block')
+            .select()
+            .in('block_id', block_ids)
+
+            if (blocksError) {
+                console.error("Error");
+                throw blocksError;
+            }
+
+            const { error: insertBlocksError } = await supabase
+            .from('block_published')
+            .upsert(blocks); // Insert the first row from the selection
+        
+            if (insertBlocksError) {
+                console.error('Error inserting row into the destination table:', insertBlocksError.message);
+                return;
+            }
+            
+            setPublished(true)
             }
         }
         alert("Updated privacy successfully!");
@@ -140,12 +298,23 @@ export default function DefaultModal({ lensId }) {
                         {published ? 'Unpublish' : 'Publish'}
                     </button>
                     {published ?
+                    <div>
                     <button onClick = {handleGetLink}
                     className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
                     <LinkIcon className="h-4 w-4"/>
                     {clicked ? 'Link copied' : 'Get Link'}
-                </button> : ""
-                    }
+                </button> 
+                <h1>Last Published: <p className="text-gray-500 text-sm">{publishInformation}</p></h1>
+                
+                {/* <button onClick = {handleRepublishClick}
+                    className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
+                    Republish
+                </button>  */}
+                </div>
+                
+                
+                
+                : ""}
                 </div>
                 </div>
 
