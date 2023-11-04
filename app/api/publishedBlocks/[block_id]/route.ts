@@ -23,7 +23,6 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
         .single();
 
 
-        console.log("Hi im in here")
   
       // Check for errors
       if (blockError) {
