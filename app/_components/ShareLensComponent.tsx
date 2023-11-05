@@ -55,7 +55,7 @@ export default function DefaultModal({ lensId }) {
                     .from('lens_published')
                     .select()
                     .eq('lens_id', lensId);
-                    setPublishInformation(lens[0].published_at);
+                    setPublishInformation(lens[0].updated_at);
                 }
             }
         } 
