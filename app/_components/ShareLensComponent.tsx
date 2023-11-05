@@ -208,6 +208,9 @@ export default function DefaultModal({ lensId }) {
                     setPublished(false)
                     
                 }
+                alert("Updated privacy successfully!");
+                props.setOpenModal(undefined);
+                handleRefresh();
             }
         } else {
             const { data: lens, error } = await supabase
@@ -265,11 +268,11 @@ export default function DefaultModal({ lensId }) {
             }
             
             setPublished(true)
+            alert("Updated privacy successfully!");
+            props.setOpenModal(undefined);
+            handleRefresh();
             }
         }
-        alert("Updated privacy successfully!");
-        props.setOpenModal(undefined);
-        handleRefresh();
     };
 
     const handleGetLink = () => {
