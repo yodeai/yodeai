@@ -180,6 +180,8 @@ const QuestionAnswerForm: React.FC = () => {
                     {
                         (questionHistory.get(mapKey) || []).map(({ question, answer, sources }, index) => (
                             <QuestionComponent
+                                lensID={lensId}
+                                id={null}
                                 key={index}
                                 question={question}
                                 answer={answer}
