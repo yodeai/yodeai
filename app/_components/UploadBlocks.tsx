@@ -75,6 +75,7 @@ export default function UploadBlocks() {
   const [block, setBlock] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const { lensId } = useAppContext();
+  const [isUploading, setIsUploading] = useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -112,6 +113,8 @@ export default function UploadBlocks() {
   const handleFileUpload: FormEventHandler<HTMLFormElement> = useCallback(
     async (event) => {
       event.preventDefault();
+      setIsUploading(true);
+      
       try {
         if (files[0].type === "text/markdown") {
           const data = await files[0].text();
@@ -144,6 +147,8 @@ export default function UploadBlocks() {
       } catch (error) {
         console.error(error);
         toast.error(`Error: ${error}`);
+      } finally {
+        
       }
     },
     [files, uploadAndRedirect]
@@ -175,14 +180,14 @@ export default function UploadBlocks() {
           ))}
         </ul>
       )}
-      { files.length !== 0 && (
+      {files.length !== 0 && (
         <Button
-          disabled={files.length === 0}
+          disabled={isUploading || files.length === 0}  
           className={clsx(files.length === 0 && "cursor-not-allowed")}
           variant="primary"
           type="submit"
         >
-          Upload
+          {isUploading ? "Uploading..." : "Upload"} 
         </Button>
       )}
     </form>
