@@ -106,7 +106,7 @@ export default function DefaultModal({ lensId }) {
             .eq('lens_id', lensId);
         
             if (updateError) {
-                console.error('Error updating row:', updatingError.message);
+                console.error('Error updating row:', updateError.message);
                 return;
             }
 
