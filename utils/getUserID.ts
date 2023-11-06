@@ -10,6 +10,6 @@ export async function getUserID() {
     if (error) {
         throw error;
     }
-    return data.user?.id;
+    return data.user.id;
   }
   

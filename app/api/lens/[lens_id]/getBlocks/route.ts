@@ -25,9 +25,6 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                 ) 
             `)
             .eq('lens_id', params.lens_id)
-
-        //console.log('lensBlocks', lensBlocks);
-
         if (error) {
             throw error;
         }

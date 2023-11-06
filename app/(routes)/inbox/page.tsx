@@ -23,7 +23,6 @@ export default function Inbox() {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item, " to ", payload['new'] );
             return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
           }
           return item;
@@ -103,7 +102,7 @@ export default function Inbox() {
             <div className="flex flex-col p-4 flex-grow">
               <LoadingSkeleton />
             </div>
-          ) : blocks.length > 0 ? (
+          ) : blocks?.length > 0 ? (
             blocks.map((block) => (
               <BlockComponent key={block.block_id} block={block} hasArchiveButton={true}  onArchive={fetchBlocks} />
             ))
