@@ -50,7 +50,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
   const retryProcessBlock = async () => {
     console.log("Retrying")
-    await apiClient('/processBlock', 'POST', { block_id: block.block_id })
+    await apiClient('/processBlock', 'POST', { block_id: block.block_id, delay: 0 })
       .then(result => {
         console.log('Block processed successfully', result);
       })

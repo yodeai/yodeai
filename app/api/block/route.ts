@@ -19,10 +19,13 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-
-    requestData.owner_id = user.id;
+    let delay = requestData.delay;
     console.log("saving: ", requestData);
+
+    delete requestData["delay"]
+    requestData.owner_id = user.id;
     requestData.status = "waiting to process";
+    
     // Extract lens_id and delete it from requestData
     const lensId = requestData.lens_id;
     delete requestData.lens_id;
@@ -41,7 +44,7 @@ export async function POST(request: NextRequest) {
       const newBlock: Block = data[0];
       console.log("processing block now");
       
-      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
+      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id, delay: delay })
         .then(result => {
           console.log('Block processed successfully', result);
         })

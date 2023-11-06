@@ -58,6 +58,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
    delete data.lens_id;
 
   console.log("data: ", data, "block_id: ", block_id);
+  delete data["delay"]
   try {
     const { data: block, error } = await supabase
       .from('block')
@@ -65,6 +66,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
       .eq('block_id', block_id);
 
     if (error) {
+      console.log("error", error.message)
       throw error;
     }
 
