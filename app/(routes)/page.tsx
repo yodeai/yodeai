@@ -21,7 +21,6 @@ export default function Index() {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item, " to ", payload['new'] );
             return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
           }
           return item;

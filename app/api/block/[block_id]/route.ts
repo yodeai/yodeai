@@ -58,6 +58,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
    delete data.lens_id;
 
   console.log("data: ", data, "block_id: ", block_id);
+  let delay = data["delay"]
   delete data["delay"]
   try {
     const { data: block, error } = await supabase
@@ -69,6 +70,14 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
       console.log("error", error.message)
       throw error;
     }
+
+    await apiClient('/processBlock', 'POST', { block_id: block_id, delay: delay })
+    .then(result => {
+      console.log('Block processed successfully', result);
+    })
+    .catch(error => {
+      console.error('Error processing block: ' + error.message);
+    });
 
     return ok(block);
   } catch (err) {
