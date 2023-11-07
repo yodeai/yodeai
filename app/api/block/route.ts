@@ -5,6 +5,30 @@ import { Block } from "app/_types/block";
 export const dynamic = 'force-dynamic';
 import apiClient from '@utils/apiClient';
 
+async function addBlockToInbox(supabase, block_id, user_id){
+  console.log("Adding block to inbox function")
+  type InboxRequestBody = {
+    block_id: number;
+    user_id: string;
+  };
+
+  const inboxRequestBody: InboxRequestBody = {
+    block_id: block_id,
+    user_id: user_id
+  }
+
+  /* add to inbox here */
+  const { error } =  await supabase
+  .from('inbox')
+  .insert(inboxRequestBody)
+  .select();
+  
+
+  if (error) {
+    console.log("error inserting block into inbox: ", error)
+    throw error;
+  }
+}
 export async function POST(request: NextRequest) {
   const supabase = createServerComponentClient({ cookies });
   try {
@@ -37,10 +61,12 @@ export async function POST(request: NextRequest) {
       console.log(error)
       throw error;
     }
+
+    console.log("Request data: ", requestData)
     if (data && data[0]) {
       const newBlock: Block = data[0];
+      addBlockToInbox(supabase, newBlock.block_id, user.id);
       console.log("processing block now");
-      
       apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
         .then(result => {
           console.log('Block processed successfully', result);
