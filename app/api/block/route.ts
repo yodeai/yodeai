@@ -22,7 +22,6 @@ async function addBlockToInbox(supabase, block_id, user_id){
   .from('inbox')
   .insert(inboxRequestBody)
   .select();
-  
 
   if (error) {
     console.log("error inserting block into inbox: ", error)
