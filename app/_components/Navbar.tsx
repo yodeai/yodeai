@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import Container from "./Container";
-import { ShadowInnerIcon, HomeIcon} from "@radix-ui/react-icons";
+import { ShadowInnerIcon, HomeIcon } from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaHome, FaCodepen } from "react-icons/fa";
+import { FaInbox, FaHome, FaCodepen, FaThLarge } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
+import { Button, Flex, NavLink } from "@mantine/core";
+
+import { IconHome2, IconGauge, IconChevronRight, IconActivity, IconCircleOff } from '@tabler/icons-react';
 
 export function ActiveLink({
   href,
@@ -58,56 +61,56 @@ export default function Navbar() {
         notFound();
       });
 
-      // fetch(`/api/lens/getOwnedLenses`)
-      // .then((response) => {
-      //   if (!response.ok) {
-      //     throw new Error('Network response was not ok');
-      //   }
-      //   return response.json();
-      // })
-      // .then((data) => {
-      //   setOwnedLenses(data.data);
-      // })
-      // .catch((error) => {
-      //   console.error("Error fetching owned lens:", error);
-      //   notFound();
-      // });
+    // fetch(`/api/lens/getOwnedLenses`)
+    // .then((response) => {
+    //   if (!response.ok) {
+    //     throw new Error('Network response was not ok');
+    //   }
+    //   return response.json();
+    // })
+    // .then((data) => {
+    //   setOwnedLenses(data.data);
+    // })
+    // .catch((error) => {
+    //   console.error("Error fetching owned lens:", error);
+    //   notFound();
+    // });
 
 
-      // fetch(`/api/lens/getEditorLenses`)
-      // .then((response) => {
-      //   if (!response.ok) {
-      //     throw new Error('Network response was not ok');
-      //   }
-      //   return response.json();
-      // })
-      // .then((data) => {
-      //   setEditorLenses(data.data);
-      // })
-      // .catch((error) => {
-      //   console.error("Error fetching editor lens:", error);
-      //   notFound();
-      // });
+    // fetch(`/api/lens/getEditorLenses`)
+    // .then((response) => {
+    //   if (!response.ok) {
+    //     throw new Error('Network response was not ok');
+    //   }
+    //   return response.json();
+    // })
+    // .then((data) => {
+    //   setEditorLenses(data.data);
+    // })
+    // .catch((error) => {
+    //   console.error("Error fetching editor lens:", error);
+    //   notFound();
+    // });
 
-            
-      // fetch(`/api/lens/getReaderLenses`)
-      // .then((response) => {
-      //   if (!response.ok) {
-      //     throw new Error('Network response was not ok');
-      //   }
-      //   return response.json();
-      // })
-      // .then((data) => {
-      //   setReaderLenses(data.data);
-      // })
-      // .catch((error) => {
-      //   console.error("Error fetching reader lens:", error);
-      //   notFound();
-      // });
+
+    // fetch(`/api/lens/getReaderLenses`)
+    // .then((response) => {
+    //   if (!response.ok) {
+    //     throw new Error('Network response was not ok');
+    //   }
+    //   return response.json();
+    // })
+    // .then((data) => {
+    //   setReaderLenses(data.data);
+    // })
+    // .catch((error) => {
+    //   console.error("Error fetching reader lens:", error);
+    //   notFound();
+    // });
 
 
   }, [reloadKey]);
-  
+
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -142,56 +145,51 @@ export default function Navbar() {
     router.push(`/`);
   }
 
-
+  // https://ui.mantine.dev/component/navbar-search/
 
   return (
-    <nav className="bg-white border-r flex flex-col fixed-width-nav ">
-      <Container className="flex flex-1 flex-col">
+    <nav className="flex flex-col">
+      <NavLink
+        onClick={handleCreateLens}
+        style={{ minWidth: 220 }}
+        label="New Space"
+        leftSection={<ShadowInnerIcon />}
+        active
+        variant="gradient"
+      />
 
-        <div className="flex flex-col items-start gap-2 p-4">
+      <NavLink
+        onClick={handleHomeClick}
+        label="All Blocks"
+        leftSection={<FaHome />}
+        color={ (!lensId && activeComponent === "global") ? "blue" : "#888" }
+        variant={ (!lensId && activeComponent === "global") ? "light" : "subtle" }
+        active
+      />
 
-          <button
-            onClick={handleCreateLens}
-            className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue shadow transition-colors"
-          >
-            <ShadowInnerIcon /> New space
-          </button>
-        </div>
+      <NavLink
+        onClick={handleOpenInbox}
+        label="Inbox"
+        leftSection={<FaInbox style={{ marginTop: 2 }} />}
+        color={ (!lensId && activeComponent === "inbox") ? "blue" : "#888" }
+        variant={ (!lensId && activeComponent === "inbox") ? "light" : "subtle" }
+        active
+      />
 
-        {/* Commenting out the Search component for now */}
-        {/*
-        <div className="mt-4 p-4">
-          <Search
-            onCommit={(block) => {
-              router.push(`/blocks/${block.block_id}`);
-            }}
-          />
-        </div>
-          */}
-        <button className={`flex items-center mt-4 text-gray-600 gap-4 py-2 px-4 ${activeComponent === "global" ? "bg-customLightBlue-light" : ""}`} onClick={handleHomeClick}>
-        <FaHome  className="iconStyle" /> { }
-        All Blocks
-        </button>
-        <button
-          className={`flex items-center mt-4 text-gray-600 gap-4 py-2 px-4 ${activeComponent === "inbox" ? "bg-customLightBlue-light" : ""}`}
-          onClick={handleOpenInbox}
-          
-        >
-          <FaInbox  className="iconStyle" /> { }
-          Inbox
-
-        </button>
-
-
-        <ul className="text-gray-600 flex flex-col">
-          {lenses?.map((lens) => (
-            <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-          ))}
-        </ul>
-
-      
-      </Container>
-
-    </nav >
+      <NavLink
+        label="My Spaces"
+        leftSection={<FaThLarge size={14} style={{ marginLeft: 0.75 }} />}
+        childrenOffset={28}
+        defaultOpened
+        color="#888"
+        variant="subtle"
+        active
+      >
+        {lenses?.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))}
+      </NavLink>
+    </nav>
   );
 }
+

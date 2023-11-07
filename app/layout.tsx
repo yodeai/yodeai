@@ -1,9 +1,12 @@
 import "./globals.css";
+import '@mantine/core/styles.css';
 
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
 
+import { MantineProvider, ColorSchemeScript } from '@mantine/core';
+import { AppShell, Burger, Group, Skeleton } from '@mantine/core';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,24 +25,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
-  
+
 
   return (
-    
     <html lang="en" >
       <head>
         <link rel="icon" href="/yodeai.png" />
+        <ColorSchemeScript />
       </head>
       <body
-        
-      className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
+        // className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
       >
-        <header>
-          <HeadingBar />
-        </header>
-        <Toaster />
-        {children}
-        
+        <MantineProvider>
+          <header>
+            <HeadingBar />
+          </header>
+          <Toaster />
+          {children}
+        </MantineProvider>
       </body>
     </html>
   );
