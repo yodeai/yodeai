@@ -5,6 +5,8 @@ import clsx from "clsx";
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+import ReactMarkdown from 'react-markdown';
+
 interface QuestionProps {
   id: string;
   question: string;
@@ -89,7 +91,9 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
     </div>
     <div className="prose text-gray-600">
       <div>
-        {answer}
+        <ReactMarkdown>
+         {answer}
+        </ReactMarkdown>
       </div>
       {sources && sources.length > 0 && (
         <div className="mt-2">

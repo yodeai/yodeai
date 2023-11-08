@@ -11,7 +11,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 
-
 type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": string, "4": "", "5":""}}
 
 const QuestionAnswerForm: React.FC = () => {
