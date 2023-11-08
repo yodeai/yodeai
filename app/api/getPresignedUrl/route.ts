@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     };
     
 
-    return new Promise((resolve) => {
+    return new Promise<void | Response>((resolve) => {
         s3.getSignedUrl('getObject', params, (err, url) => {
             if (err) {
                 console.log(err);

@@ -42,7 +42,9 @@ export default function Navbar() {
   const router = useRouter();
   const { lensId, setLensId, reloadKey, reloadLenses, activeComponent, setActiveComponent } = useAppContext();
   const [lenses, setLenses] = useState<Lens[]>([]);
-
+  const [ownedLenses, setOwnedLenses] = useState<Lens[]>([]);
+  const [editorLenses, setEditorLenses] = useState<Lens[]>([]);
+  const [readerLenses, setReaderLenses] = useState<Lens[]>([]);
 
   useEffect(() => {
     // Fetch the lenses
@@ -56,7 +58,56 @@ export default function Navbar() {
         notFound();
       });
 
+      // fetch(`/api/lens/getOwnedLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setOwnedLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching owned lens:", error);
+      //   notFound();
+      // });
+
+
+      // fetch(`/api/lens/getEditorLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setEditorLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching editor lens:", error);
+      //   notFound();
+      // });
+
+            
+      // fetch(`/api/lens/getReaderLenses`)
+      // .then((response) => {
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   setReaderLenses(data.data);
+      // })
+      // .catch((error) => {
+      //   console.error("Error fetching reader lens:", error);
+      //   notFound();
+      // });
+
+
   }, [reloadKey]);
+  
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -131,11 +182,14 @@ export default function Navbar() {
 
         </button>
 
+
         <ul className="text-gray-600 flex flex-col">
           {lenses?.map((lens) => (
             <LensComponent key={lens.lens_id} lens={lens} compact={true} />
           ))}
         </ul>
+
+      
       </Container>
 
     </nav >
