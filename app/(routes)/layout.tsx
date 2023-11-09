@@ -15,16 +15,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <LensProvider>
-      <div className="flex flex-col sm:flex-row">
-        <div className="overflow-y-auto order-2 sm:order-1 sm:max-h-[90vh]">
+      <div className="flex flex-col sm:flex-row h-screen">
+
+        {/* Navbar with a right border and full height */}
+        <div className="flex flex-col overflow-y-auto order-2 sm:order-1 sm:border-r sm:h-full">
           <Navbar />
         </div>
-        <div className="w-full overflow-y-auto order-3 sm:order-2 sm:w-[50vw] sm:max-h-[90vh]">
+
+        {/* Main content area */}
+        <div className="flex-grow overflow-y-auto order-3 sm:order-2 sm:w-[50vw]">
           {children}
         </div>
-        <div className="w-full bg-white border-l overflow-y-auto order-1 sm:order-3 sm:w-[30vw] sm:max-h-[90vh]">
+
+        {/* QuestionAnswerForm with a left border */}
+        <div className="w-full bg-white overflow-y-auto order-1 sm:order-3 sm:w-[30vw] sm:border-l sm:h-full">
           <QuestionAnswerForm />
         </div>
+
       </div>
     </LensProvider>
   );

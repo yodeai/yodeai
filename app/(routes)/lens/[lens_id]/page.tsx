@@ -12,11 +12,12 @@ import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon, CheckIcon } from "@radix-
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
-import { Button, Tooltip } from 'flowbite-react';
 import ShareLensComponent from "@components/ShareLensComponent";
 import toast from "react-hot-toast";
-import { FaThLarge } from "react-icons/fa";
+import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt } from "react-icons/fa";
 import { isErrored } from "stream";
+import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+import InfoPopover from "@components/InfoPopover";
 
 
 
@@ -138,7 +139,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           return item;
         })
       );
-          
+
     };
 
     const addBlocks = (payload) => {
@@ -254,104 +255,145 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       </div>
     );
   }
-  
+
+  //   <Flex direction="column" p={8}>
+  //   <Divider mb={8} label="All blocks" labelPosition="center" />
+
+  //   {blocks.length > 0 ? (
+  //     blocks.map((block: Block) => (
+
+  //       <div key={block.block_id}>
+  //         <BlockComponent block={block} />
+  //       </div>
+  //     ))
+  //   ) : (
+  //     <p>No blocks found.</p>
+  //   )}
+
+  // </Flex>
+
   return (
-    <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
-      {!lens.shared || accessType == 'owner' || accessType == 'editor' ? 
-      <header className="flex items-center justify-between">
-        {!isEditingLensName ? (
-          <>
-          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
-              <FaThLarge className="iconStyle spaceIconStyle" />
-              <span className="text-xl font-semibold ">{lensName}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Tooltip content="Edit lens." style="light" >
-                <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
-                  <Pencil2Icon className="w-6 h-6" />
+    <Flex direction={"column"} p={8}>
+      <Divider mb={8} label={lensName} labelPosition="center" />
+
+      {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
+        <Flex justify={"center"} align={"center"}>
+          {!isEditingLensName ? (
+            <Flex justify={"center"} align={"center"}>
+              <Link href="/new">
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  leftSection={<FaPlus />}
+                // onClick={() => setIsEditingLensName(true)}
+                >
+                  Add Block
+                </Button>
+              </Link>
+              <Tooltip color="blue" label="Edit lens.">
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  leftSection={<Pencil2Icon />}
+                  onClick={() => setIsEditingLensName(true)}
+                >
+                  Edit
                 </Button>
               </Tooltip>
-              {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id}/> : ""}
+              {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
+              <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
+                <strong>Status:</strong> {lens.public ? 'Published' : 'Private'}
+              </Text>
+            </Flex>
+          ) : (
+            <div className="flex">
+              <TextInput
+                type="text"
+                size="xs"
+                value={editingLensName || ""}
+                onChange={handleNameChange}
+                onKeyUp={handleKeyPress}
+                className="text-xl font-semibold flex-grow"
+              />
+
+              <ActionIcon
+                onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }}
+                size="md"
+                style={{ top: 0.5 }}
+                color="green"
+                variant="gradient"
+                ml={5}
+                gradient={{ from: 'green', to: 'lime', deg: 116 }}
+              >
+                <FaCheck size={14} />
+              </ActionIcon>
+              {!lens.shared || accessType == 'owner' ?
+                <Tooltip color="red" label="This will delete the space. Please proceed with caution.">
+                  <ActionIcon
+                    onClick={handleDeleteLens}
+                    size="md"
+                    style={{ top: 0.5 }}
+                    color="red"
+                    variant="gradient"
+                    ml={5}
+                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                  >
+                    <FaTrashAlt size={14} />
+                  </ActionIcon>
+
+                </Tooltip> : ""}
+
             </div>
 
-          </>
-        ) : (
-          <div className="flex items-center w-full">
-            <input
-              type="text"
-              value={editingLensName || ""}
-              onChange={handleNameChange}
-              onKeyUp={handleKeyPress}
-              className="text-xl font-semibold flex-grow"
-            />
+          )}
+        </Flex>
+        : <span className="text-xl font-semibold">
+          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+            <FaThLarge className="iconStyle spaceIconStyle" />
+            <span className="text-xl font-semibold ">{lensName}</span>
+          </div>
+        </span>}
 
-            <button onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
-              <CheckIcon className="w-6 h-6" />
-            </button>
-            {!lens.shared || accessType == 'owner'?
-            <div className="flex gap-2">
-              <button onClick={handleDeleteLens} className="no-underline gap-2 font-semibold rounded px-2 py-1  text-red-500 hover:text-red-600 border-0">
-                <TrashIcon className="w-6 h-6" />
-              </button>
+      <Text size="xs" fw={500} c={"blue"}>
+        {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
+      </Text>
 
-            </div> : ""}
+      {
+        !lens.shared || accessType == 'editor' || accessType == 'owner' ?
+          <div className="flex items-stretch flex-col gap-4 mt-4">
+            {blocks && blocks.length > 0 ? (
+              blocks.map((block) => (
+                <BlockComponent key={block.block_id} block={block} />
+              ))
+            ) : (
+              <p>This space is empty, add blocks here. A space can be a good place to organize information related to a project, a goal, or a long-term interest.</p>
+            )}
 
+            {/* Display child lenses if they exist */}
+            {lens.children && lens.children.length > 0 ? (
+              lens.children.map((childLens) => (
+                <div key={childLens.lens_id}>
+                  {/* Child lens display logic */}
+                  Child Lens: {childLens.name}
+                </div>
+              ))
+            ) : (
+              <p></p>
+            )}
+          </div>
+          :
+          <div className="flex items-stretch flex-col gap-4 mt-4">
+
+            {blocks && blocks.length > 0 ? (
+              blocks.map((block) => (
+                <BlockComponent key={block.block_id} block={block} />
+              ))
+            ) : (
+              <p>This lens is empty.</p>
+            )}
           </div>
 
-        )}
-      </header>
-      : <span className="text-xl font-semibold">
-          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
-              <FaThLarge className="iconStyle spaceIconStyle" />
-              <span className="text-xl font-semibold ">{lensName}</span>
-            </div>
-    </span>}
-    <p className="text-blue-500 text-sm">
-            {lens.shared ? `Collaborative: ${lens.shared ?  `${accessType}` : ''}` : ''}
-          </p>
-          <p className="text-green-500 text-sm">
-              {lens.public ? 'Published' : 'Private'}
-          </p>
-      {!lens.shared || accessType == 'editor' || accessType == 'owner' ? 
-      <div className="flex items-stretch flex-col gap-4 mt-4">
-        <Link
-          href="/new"
-          className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
-          <PlusIcon /> New block
-        </Link>
-        {blocks && blocks.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
-          ))
-        ) : (
-          <p>This space is empty, add blocks here. A space can be a good place to organize information related to a project, a goal, or a long-term interest.</p>
-        )}
-
-        {/* Display child lenses if they exist */}
-        {lens.children && lens.children.length > 0 ? (
-          lens.children.map((childLens) => (
-            <div key={childLens.lens_id}>
-              {/* Child lens display logic */}
-              Child Lens: {childLens.name}
-            </div>
-          ))
-        ) : (
-          <p></p>
-        )}
-      </div>
-        :
-        <div className="flex items-stretch flex-col gap-4 mt-4">
-
-        {blocks && blocks.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
-          ))
-        ) : (
-          <p>This lens is empty.</p>
-        )}
-        </div>
-        
-        }
-    </Container>
+      }
+    </Flex >
   );
 }

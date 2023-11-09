@@ -4,16 +4,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import Container from "./Container";
-import { ShadowInnerIcon, HomeIcon } from "@radix-ui/react-icons";
+import { ShadowInnerIcon, HomeIcon, PlusCircledIcon, CardStackPlusIcon } from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaHome, FaCodepen, FaThLarge } from "react-icons/fa";
+import { FaInbox, FaHome, FaCodepen, FaThLarge, FaPlusSquare, FaPlus, FaFolder, FaFolderOpen, FaFolderPlus, FaArchive } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
-import { Button, Flex, NavLink } from "@mantine/core";
+import { Box, Button, Flex, NavLink } from "@mantine/core";
 
 import { IconHome2, IconGauge, IconChevronRight, IconActivity, IconCircleOff } from '@tabler/icons-react';
 
@@ -111,7 +111,6 @@ export default function Navbar() {
 
   }, [reloadKey]);
 
-
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
       method: "POST",
@@ -133,6 +132,12 @@ export default function Navbar() {
 
   }, [router]);
 
+  const handleNewBlock = (e: React.MouseEvent) => {
+    setLensId(null);
+    setActiveComponent("global");
+    router.push(`/new`);
+  };
+
   const handleOpenInbox = (e: React.MouseEvent) => {
     setLensId(null);
     setActiveComponent("inbox");
@@ -149,21 +154,35 @@ export default function Navbar() {
 
   return (
     <nav className="flex flex-col">
-      <NavLink
-        onClick={handleCreateLens}
-        style={{ minWidth: 220 }}
-        label="New Space"
-        leftSection={<ShadowInnerIcon />}
-        active
+
+      <Button 
+        onClick={handleNewBlock}
+        style={{ width: 170, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+        leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+        color="gray"
         variant="gradient"
-      />
+        opacity={0.9}
+      >
+        New
+      </Button>
+
+      {/* <NavLink
+        onClick={handleNewBlock}
+        label="New Block"
+        leftSection={<FaPlusSquare size={14} />}
+        active
+        color="gray"
+        variant="gradient"
+        opacity={0.9}
+      /> */}
 
       <NavLink
         onClick={handleHomeClick}
-        label="All Blocks"
-        leftSection={<FaHome />}
-        color={ (!lensId && activeComponent === "global") ? "blue" : "#888" }
-        variant={ (!lensId && activeComponent === "global") ? "light" : "subtle" }
+        label="My Blocks"
+        leftSection={<FaThLarge size={14} />}
+        style={{ minWidth: 200 }}
+        color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
+        variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
         active
       />
 
@@ -171,20 +190,27 @@ export default function Navbar() {
         onClick={handleOpenInbox}
         label="Inbox"
         leftSection={<FaInbox style={{ marginTop: 2 }} />}
-        color={ (!lensId && activeComponent === "inbox") ? "blue" : "#888" }
-        variant={ (!lensId && activeComponent === "inbox") ? "light" : "subtle" }
+        color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
+        variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
         active
       />
 
       <NavLink
         label="My Spaces"
-        leftSection={<FaThLarge size={14} style={{ marginLeft: 0.75 }} />}
+        leftSection={<FaArchive size={14.5} style={{ marginLeft: 0.55 }} />}
         childrenOffset={28}
         defaultOpened
         color="#888"
         variant="subtle"
         active
       >
+        <NavLink
+          onClick={handleCreateLens}
+          label="New Space"
+          leftSection={<FaFolderPlus size={14} />}
+          active
+          variant="subtle"
+        />
         {lenses?.map((lens) => (
           <LensComponent key={lens.lens_id} lens={lens} compact={true} />
         ))}

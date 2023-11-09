@@ -8,17 +8,17 @@ import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Button, Flex, Group, Text, Textarea } from '@mantine/core';
+import InfoPopover from './InfoPopover';
+import { useForm } from '@mantine/form';
 
-
-
-
-type Question = {pageContent: "", metadata: {"1": "", "2":"", "3": string, "4": "", "5":""}}
+type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
 const QuestionAnswerForm: React.FC = () => {
     const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, lensName, activeComponent } = useAppContext();
-    const mapKey=  activeComponent + lensId;
+    const mapKey = activeComponent + lensId;
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
@@ -42,12 +42,12 @@ const QuestionAnswerForm: React.FC = () => {
     //         } finally {
     //         }
     //     }, 2000)
-    
+
     //     return () => clearTimeout(delayDebounceFn)
     //   }, [inputValue])
 
 
-    const makePatchRequest = async (q: Question, id: string, diff:number) => {
+    const makePatchRequest = async (q: Question, id: string, diff: number) => {
         let url;
         if (diff > 0) {
             url = `/increasePopularity`
@@ -58,7 +58,7 @@ const QuestionAnswerForm: React.FC = () => {
             const dataToPatch = { row_id: id, lens_id: lensId };
             const response = await apiClient(url, 'PATCH', dataToPatch)
             console.log("error?")
-            if(response.error == null){
+            if (response.error == null) {
                 updateQuestion(q, diff);
             }
 
@@ -67,18 +67,18 @@ const QuestionAnswerForm: React.FC = () => {
         } finally {
         }
     }
-    const updateQuestion = (question: Question, diff:number) => {
+    const updateQuestion = (question: Question, diff: number) => {
         let newRelatedQuestions: Question[] = [...relatedQuestions]
-        let indexOfQuestion = newRelatedQuestions.findIndex((q:Question) => q.metadata["3"] === question.metadata["3"])
+        let indexOfQuestion = newRelatedQuestions.findIndex((q: Question) => q.metadata["3"] === question.metadata["3"])
         question = newRelatedQuestions[indexOfQuestion]
-        newRelatedQuestions[indexOfQuestion] = {...question, metadata: {...newRelatedQuestions[indexOfQuestion].metadata, "3": question.metadata["3"] + diff}}
+        newRelatedQuestions[indexOfQuestion] = { ...question, metadata: { ...newRelatedQuestions[indexOfQuestion].metadata, "3": question.metadata["3"] + diff } }
         setRelatedQuestions(newRelatedQuestions);
     }
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         const startTime = performance.now();
-         
+
         try {
 
             const supabase = createClientComponentClient()
@@ -87,9 +87,9 @@ const QuestionAnswerForm: React.FC = () => {
             if (error) {
                 throw error;
             }
-            
+
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId?lensId:"NONE", activeComponent: activeComponent, userID: data.user.id, published: false };            
+            const dataToPost = { question: inputValue, lensID: lensId ? lensId : "NONE", activeComponent: activeComponent, userID: data.user.id, published: false };
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
@@ -139,44 +139,81 @@ const QuestionAnswerForm: React.FC = () => {
                 const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
                 previousQAs.push(errorQA);
                 newQuestionHistory.set(mapKey, previousQAs);
+
                 return newQuestionHistory;
             });
         } finally {
             const endTime = performance.now(); // Capture end time
             const duration = endTime - startTime; // Calculate the duration
             console.log(`Time to get the answer: ${duration.toFixed(2)} ms`);
+
             setIsLoading(false);
         }
     }
 
-    
-    return (
-        <div className="container p-4 " >
-            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId && lensName ? 'Ask a question from: ' + lensName : ((activeComponent==="global")? "Ask a question from your data":"Ask a question from Inbox")}
-            </h1>
+    const form = useForm({
+        initialValues: {
+            email: '',
+            termsOfService: false,
+        },
 
-            
-            <div className="flex flex-col  lg:py-12 text-foreground">
-            { (
-                <form onSubmit={handleSubmit} className="flex">
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Enter your question"
-                        className="text-black mr-2 w-full h-12 px-4 "
+        validate: {
+            email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+        },
+    });
+
+    return (
+        <Flex direction={"column"}>
+            <Flex align={"center"} justify={"center"}>
+                <Text size='sm' mt={2} p={4} mr={2} ta={"center"} fw={500}>
+                    {lensId && lensName ?
+                        'Ask a question from: ' + lensName
+                        :
+                        ((activeComponent === "global") ?
+                            "Ask a question from your data"
+                            :
+                            "Ask a question from Inbox")
+                    }
+                </Text>
+                <InfoPopover infoText={"You can ask it questions"} />
+            </Flex>
+
+            <Flex p={10} pt={0} pb={0} direction={"column"}>
+                {(
+                    <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
+                        <Textarea
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            placeholder="Enter your question"
+                        />
+                        <Group justify="flex-end" mt="xs">
+                            <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='light' disabled={isLoading}>
+                                {isLoading ? 'Loading...' : 'Submit'}
+                            </Button>
+                        </Group>
+                    </form>
+                )}
+{/* 
+                <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                    <TextInput
+                        withAsterisk
+                        label="Email"
+                        placeholder="your@email.com"
+                        {...form.getInputProps('email')}
                     />
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="bg-btn-background  py-2 px-4 rounded"
-                    >
-                        {isLoading ? 'Loading...' : 'Submit'}
-                    </button>
-                </form>
-            )}
-                <div className="scrollable-div mt-4" ref={scrollableDivRef}>
+
+                    <Checkbox
+                        mt="md"
+                        label="I agree to sell my privacy"
+                        {...form.getInputProps('termsOfService', { type: 'checkbox' })}
+                    />
+
+                    <Group justify="flex-end" mt="md">
+                        <Button type="submit">Submit</Button>
+                    </Group>
+                </form> */}
+
+                <div className="scrollable-div mt-2.5" ref={scrollableDivRef}>
                     {
                         (questionHistory.get(mapKey) || []).map(({ question, answer, sources }, index) => (
                             <QuestionComponent
@@ -197,8 +234,8 @@ const QuestionAnswerForm: React.FC = () => {
                 <h1> Related Questions </h1>
                 {relatedQuestions?.map(q => <div key={q.metadata["5"]}> <br></br><div>{q.pageContent}</div><div>Popularity: {q.metadata["3"]}</div> <div> {q.metadata["1"]} </div> <button onClick={() => {makePatchRequest(q, q.metadata["5"], 1)}}> Thumbs up </button>  <button onClick={() => {makePatchRequest(q, q.metadata["5"], -1)}}> Thumbs Down </button> </div>)}
                 </div> */}
-            </div>
-        </div>
+            </Flex>
+        </Flex>
     );
 };
 

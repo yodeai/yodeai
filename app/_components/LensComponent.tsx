@@ -8,7 +8,7 @@ import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
-import { FaSquare, FaStar, FaThLarge } from "react-icons/fa";
+import { FaSquare, FaStar, FaThLarge, FaFolder, FaFolderOpen } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -52,7 +52,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
           </Text>
         </>
       }
-      leftSection={<FaSquare size={14} />}
+      leftSection={Number(lensId) !== lens.lens_id ? <FaFolder size={14} /> : <FaFolderOpen size={14} /> }
       active
       color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}
       variant={Number(lensId) !== lens.lens_id ? 'subtle' : 'light'}

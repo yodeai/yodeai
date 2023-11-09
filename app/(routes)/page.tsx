@@ -6,6 +6,8 @@ import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Button, Divider, Flex, NavLink, Text } from "@mantine/core";
+import { FaPlusSquare } from "react-icons/fa";
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +15,7 @@ export default function Index() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const supabase = createClientComponentClient()
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -21,7 +23,7 @@ export default function Index() {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
+            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
           }
           return item;
         })
@@ -36,18 +38,18 @@ export default function Index() {
         setBlocks([newBlock, ...blocks]);
       }
     }
-      
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .subscribe();
-  
+
     return () => {
       if (channel) channel.unsubscribe();
     };
   }, [blocks]);
-  
+
   useEffect(() => {
     // Fetch blocks from the API
     fetch('/api/block/getAllBlocks')
@@ -63,6 +65,13 @@ export default function Index() {
       });
   }, []);
 
+
+  // const handleNewBlock = (e: React.MouseEvent) => {
+  //   setLensId(null);
+  //   setActiveComponent("global");
+  //   router.push(`/new`);
+  // };
+
   if (loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -77,29 +86,20 @@ export default function Index() {
   }
 
   return (
-    
-    <div className=" flex flex-col p-4 " >
-      <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">All blocks.</h1>
-      <Link
-        href="/new"
-        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
-        <PlusIcon /> New block
-      </Link>
+    <Flex direction="column" p={8}>
+      <Divider mb={8} label="All blocks" labelPosition="center" />
 
-      <div className="flex flex-col  lg:py-12 text-foreground ">
+      {blocks.length > 0 ? (
+        blocks.map((block: Block) => (
 
-        {blocks.length > 0 ? (
-          blocks.map((block: Block) => (
+          <div key={block.block_id}>
+            <BlockComponent block={block} />
+          </div>
+        ))
+      ) : (
+        <p>No blocks found.</p>
+      )}
 
-            <div key={block.block_id}>
-              <BlockComponent block={block} />
-            </div>
-          ))
-        ) : (
-          <p>No blocks found.</p>
-        )}
-      </div>
-
-    </div>
+    </Flex>
   );
 }
