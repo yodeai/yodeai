@@ -37,7 +37,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
   //let controller;
 
-  const saveContent = async () => {
+  const saveContent = async (delay=180) => {
 
     /*
     if (controller) {
@@ -46,7 +46,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
     controller = new AbortController();
     const signal = controller.signal;*/
-
+    console.log("delay", delay)
     let method: 'POST' | 'PUT';
     let endpoint: string;
     // If block exists and there are changes, update it
@@ -55,6 +55,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         method = "POST";
         endpoint = `/api/block`;
       } else {
+        console.log("IN HERE")
         method = "PUT";
         endpoint = `/api/block/${block.block_id}`;
       }
@@ -75,12 +76,14 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       content: string;
       title: string;
       lens_id?: string;
+      delay: number;
     };
 
     const requestBody: RequestBodyType = {
       block_type: "note",
       content: content,
       title: (title ? title : "Untitled"),
+      delay: delay
     };
 
     if (lensId) {
@@ -178,7 +181,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
 
     // Save one last time
-    await saveContent();
+    await saveContent(0);
 
     // Navigate back using the router
     router.back();

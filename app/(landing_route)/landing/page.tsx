@@ -1,7 +1,7 @@
 "use client";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import React, { use, useState } from 'react';
-
+ 
 const featureData = [
   {
     imageUrl: '/image1.png',

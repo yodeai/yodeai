@@ -50,7 +50,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
   const retryProcessBlock = async () => {
     console.log("Retrying")
-    await apiClient('/processBlock', 'POST', { block_id: block.block_id })
+    await apiClient('/processBlock', 'POST', { block_id: block.block_id, delay: 0 })
       .then(result => {
         console.log('Block processed successfully', result);
       })
@@ -78,7 +78,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   return (
     <div
       className={clsx(
-        " items-start justify-between elevated-block p-4 rounded-md bg-white border border-gray-200 mb-4",
+        " items-start justify-between  p-4 rounded-md bg-white border border-gray-200 mb-4",
         compact ? "max-w-xs" : ""
       )}
     >
@@ -127,9 +127,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         </div>
       </div>
 
-
-
-        {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button></div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
+        {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> {block.readOnly ? "" : <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button>}</div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

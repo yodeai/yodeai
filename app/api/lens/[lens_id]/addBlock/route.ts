@@ -21,6 +21,7 @@ export async function POST(request: NextRequest, { params, }: { params: { lens_i
             .insert([{ lens_id, block_id }]);
 
         if (insertError) {
+            console.log("insert error", insertError)
             throw insertError;
         }
 
