@@ -1,4 +1,5 @@
 import Navbar from "@components/Navbar";
+import MobileNavbar from "@components/Space";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -16,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <LensProvider>
       <div className="flex flex-col sm:flex-row">
-        <div className="overflow-y-auto order-2 sm:order-1 sm:max-h-[90vh]">
+        <div className="hidden sm:flex overflow-y-auto sm:order-1 sm:max-h-[90vh]">
           <Navbar />
         </div>
         <div className="w-full overflow-y-auto order-3 sm:order-2 sm:w-[50vw] sm:max-h-[90vh]">
@@ -29,4 +30,3 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </LensProvider>
   );
 }
-
