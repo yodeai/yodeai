@@ -10,7 +10,7 @@ import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
-import { Divider, Spoiler, Text, Button, Tooltip } from "@mantine/core";
+import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor } from "@mantine/core";
 
 interface BlockProps {
   compact?: boolean;
@@ -75,22 +75,16 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
 
   return (
-    <div
-      className={clsx(
-        "items-start pl-2 pr-2 justify-between bg-white mb-0",
-        compact ? "max-w-xs" : ""
-      )}
-    >
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between flex-1">
-          <Button
+    <div>
+      <Flex pl={2} pr={2} direction={"column"}>
+        <Flex justify={"flex-start"}>
+          <Anchor
             size={"xs"}
-            p={0}
-            variant="transparent"
+            underline="never"
             onClick={() => window.location.href = `/block/${block.block_id}`}
           >
-              <Text size={"md"} fw={600} c="gray.7">{ block.title }</Text>
-          </Button>
+            <Text size={"md"} fw={600} c="gray.7">{block.title}</Text>
+          </Anchor>
           {hasArchiveButton && (
             <Tooltip label="Archive">
               <button onClick={handleArchive}>
@@ -98,10 +92,10 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               </button>
             </Tooltip>
           )}
-        </div>
+        </Flex>
 
-        <Spoiler styles={{ control: { fontSize: 14} }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
-          <Text size={"sm"} c="gray.7">{ block.preview }</Text>
+        <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
+          <Text size={"sm"} c="gray.7">{block.preview}</Text>
           {(block.block_type === "pdf") ? (
             <>
               <div className="flex text-gray-600 ">
@@ -113,11 +107,12 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         </Spoiler>
 
         {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> {block.readOnly ? "" : <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button>}</div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
+        
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}
 
-        {!compact && firstTwoLines && false ? (
+        {/* {!compact && firstTwoLines && false ? (
           <>
             <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
             <div className="prose text-gray-600 line-clamp-2">
@@ -125,9 +120,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
             </div>
 
           </>
-        ) : null}
-      </div>
-      <Divider my="sm" variant="dashed" />
+        ) : null} */}
+      </Flex>
+      <Divider mt={11} mb={6} variant="dashed" />
 
     </div >
   );

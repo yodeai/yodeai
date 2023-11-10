@@ -7,10 +7,10 @@ const InfoPopover = ({ infoText }) => {
     const [opened, { close, open }] = useDisclosure(false);
   
     return (
-      <Popover width={200} offset={0} position="bottom" withArrow shadow="md" opened={opened}>
+      <Popover width={200} offset={0} position="top" withArrow shadow="md" opened={opened}>
         <Popover.Target>
           <UnstyledButton variant="unstyled" onMouseEnter={open} onMouseLeave={close} style={{ cursor: 'pointer' }}>
-            <FaInfoCircle size={14.5} style={{ top: 2 }} color='#339AF0' />
+            <FaInfoCircle size={14.5} style={{ marginBottom: 0.5 }} color='#339AF0' />
           </UnstyledButton>
         </Popover.Target>
         <Popover.Dropdown style={{ pointerEvents: 'none' }}>

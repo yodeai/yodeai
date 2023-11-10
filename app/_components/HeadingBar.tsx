@@ -5,7 +5,7 @@ import { Divider, Flex, Image } from "@mantine/core";
 
 export default function HeadingBar() {
     return (
-        <nav className="border-b py-2 px-2">
+        <nav style={{ borderBottomWidth: 1, borderBottomColor: '#eee' }} className="py-2 px-2">
             <Flex align={"center"}>
                 <Link href="/">
                     <Image src="/yodeai.png" ml={4} alt="yodeai logo" h={36} />

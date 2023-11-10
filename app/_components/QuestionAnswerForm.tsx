@@ -164,8 +164,8 @@ const QuestionAnswerForm: React.FC = () => {
 
     return (
         <Flex direction={"column"}>
-            <Flex align={"center"} justify={"center"}>
-                <Text size='sm' mt={2} p={4} mr={2} ta={"center"} fw={500}>
+            <Flex mt={8} mb={2} justify={"center"}>
+                <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
                     {lensId && lensName ?
                         'Ask a question from: ' + lensName
                         :

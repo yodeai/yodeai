@@ -87,7 +87,7 @@ export default function Index() {
 
   return (
     <Flex direction="column" p={8}>
-      <Divider mb={8} label="All blocks" labelPosition="center" />
+      <Divider mb={0} label="All blocks" labelPosition="center" />
 
       {blocks.length > 0 ? (
         blocks.map((block: Block) => (

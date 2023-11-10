@@ -1,11 +1,11 @@
+// import "./globals.css";
 import '@mantine/core/styles.css';
-import "./globals.css";
 
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
 
-import { MantineProvider, ColorSchemeScript, MantineThemeProvider } from '@mantine/core';
+import { MantineProvider, ColorSchemeScript  } from '@mantine/core';
 import { AppShell, Burger, Group, Skeleton } from '@mantine/core';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,8 +23,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
-
-
   return (
     <html lang="en" >
       <head>
@@ -34,7 +32,7 @@ export default async function RootLayout({
       <body
       // className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
       >
-        <MantineProvider>
+        <MantineProvider defaultColorScheme="light">
           <header>
             <HeadingBar />
           </header>

@@ -144,7 +144,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   }
 
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex gap-2 mt-0.5 flex-wrap">
       {currentLenses.map(lens => (
         <div key={lens.lens_id} className="relative button-hover">
           <Button

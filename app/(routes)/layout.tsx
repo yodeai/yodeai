@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex flex-col sm:flex-row h-screen">
 
         {/* Navbar with a right border and full height */}
-        <div className="flex flex-col overflow-y-auto order-2 sm:order-1 sm:border-r sm:h-full">
+        <div style={{ borderRightWidth: 1, borderRightColor: '#eee' }} className="flex flex-col overflow-y-auto order-2 sm:order-1 sm:h-full">
           <Navbar />
         </div>
 
@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* QuestionAnswerForm with a left border */}
-        <div className="w-full bg-white overflow-y-auto order-1 sm:order-3 sm:w-[30vw] sm:border-l sm:h-full">
+        <div style={{ borderLeftWidth: 1, borderLeftColor: '#eee' }} className="w-full bg-white overflow-y-auto order-1 sm:order-3 sm:w-[22vw] sm:h-full">
           <QuestionAnswerForm />
         </div>
 

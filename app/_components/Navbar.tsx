@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import Container from "./Container";
-import { ShadowInnerIcon, HomeIcon, PlusCircledIcon, CardStackPlusIcon } from "@radix-ui/react-icons";
 import UserAccountHandler from './UserAccount';
 import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
@@ -14,8 +13,6 @@ import { FaInbox, FaHome, FaCodepen, FaThLarge, FaPlusSquare, FaPlus, FaFolder, 
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
 import { Box, Button, Divider, Flex, NavLink, Paper } from "@mantine/core";
-
-import { IconHome2, IconGauge, IconChevronRight, IconActivity, IconCircleOff } from '@tabler/icons-react';
 
 export function ActiveLink({
   href,
@@ -154,9 +151,9 @@ export default function Navbar() {
 
   return (
     <nav className="flex flex-col">
-      <Button 
+      <Button
         onClick={handleNewBlock}
-        style={{ width: 170, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+        style={{ width: 176, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
         leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
         color="gray"
         variant="gradient"
@@ -164,7 +161,6 @@ export default function Navbar() {
       >
         New
       </Button>
-
       {/* <NavLink
         onClick={handleNewBlock}
         label="New Block"
