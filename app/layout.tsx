@@ -35,7 +35,7 @@ export default async function RootLayout({
       // className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
       >
         <MantineProvider>
-          <header style={{ borderWidth: 20, borderBottomColor: 'pink' }}  >
+          <header>
             <HeadingBar />
           </header>
           <Toaster />
