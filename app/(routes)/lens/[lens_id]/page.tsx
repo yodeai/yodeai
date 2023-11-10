@@ -266,7 +266,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               <span className="text-xl font-semibold ">{lensName}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Tooltip content="Edit lens." style="light" >
+              <Tooltip content="Edit space." style="light" >
                 <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
                   <Pencil2Icon className="w-6 h-6" />
                 </Button>
