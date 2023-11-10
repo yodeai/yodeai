@@ -13,7 +13,7 @@ import { useCallback, useState, useEffect } from "react";
 import { FaInbox, FaHome, FaCodepen, FaThLarge, FaPlusSquare, FaPlus, FaFolder, FaFolderOpen, FaFolderPlus, FaArchive } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
-import { Box, Button, Flex, NavLink } from "@mantine/core";
+import { Box, Button, Divider, Flex, NavLink, Paper } from "@mantine/core";
 
 import { IconHome2, IconGauge, IconChevronRight, IconActivity, IconCircleOff } from '@tabler/icons-react';
 
@@ -154,7 +154,6 @@ export default function Navbar() {
 
   return (
     <nav className="flex flex-col">
-
       <Button 
         onClick={handleNewBlock}
         style={{ width: 170, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}

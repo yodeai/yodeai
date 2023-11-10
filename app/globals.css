@@ -1,21 +1,18 @@
-@import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-
-
-@layer base {
+/* This line ensures all anchor tags are underlined */
+/* @layer base {
   a {
-    @apply underline; /* This line ensures all anchor tags are underlined */
+    @apply underline; 
   }
-}
+} */
 
-@layer utilities {
+/* @layer utilities {
   .border-lightgrey {
     border: 1px solid #D1D5DB; 
   }
-}
-
+} */
 
 .animate-in {
   animation: animateIn 0.3s ease 0.15s both;
@@ -100,9 +97,10 @@
   transform: translate(-50%, -50%) rotate(-45deg); /* Rotating the other in the opposite direction */
 }
 
-.button-hover:hover .cross {
-  display: block;    /* Show on hover */
-}
+/* Show on hover */
+/* .button-hover:hover .cross {
+  display: block;    
+} */
 
 .cross:hover {
   transform: scale(1.1);   /* Enlarge the cross slightly on hover */
