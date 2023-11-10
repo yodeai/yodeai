@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@catppuccin/highlightjs": "^0.1.2",
+    "@google-cloud/aiplatform": "^3.5.0",
     "@heroicons/react": "^2.0.18",
     "@huggingface/agents": "^0.0.5",
     "@huggingface/hub": "^0.8.4",
