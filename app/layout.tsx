@@ -1,3 +1,4 @@
+import '@mantine/core/styles.css';
 import "./globals.css";
 
 import { Inter } from "next/font/google";
@@ -15,8 +16,6 @@ export const metadata = {
   title: "Yodeai",
   description: "Created at the UC, Berkeley School of Information",
 };
-
-import '@mantine/core/styles.css';
 
 export default async function RootLayout({
   children,
