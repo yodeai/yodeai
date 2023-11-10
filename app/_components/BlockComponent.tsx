@@ -9,9 +9,8 @@ import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
-import { Tooltip } from 'flowbite-react';
 import toast from "react-hot-toast";
-import { Divider, Spoiler, Text, Button } from "@mantine/core";
+import { Divider, Spoiler, Text, Button, Tooltip } from "@mantine/core";
 
 interface BlockProps {
   compact?: boolean;
@@ -93,7 +92,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               <Text size={"md"} fw={600} c="gray.7">{ block.title }</Text>
           </Button>
           {hasArchiveButton && (
-            <Tooltip content="Archive" style="light">
+            <Tooltip label="Archive">
               <button onClick={handleArchive}>
                 <FaArchive style={{ color: 'grey' }} />
               </button>

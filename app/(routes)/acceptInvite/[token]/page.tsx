@@ -1,8 +1,8 @@
 "use client";
 import { useRouter} from "next/navigation";
-import { Button } from 'flowbite-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useEffect,useState } from "react";
+import { Button } from "@mantine/core";
 
 export default function acceptInvite({ params }: { params: { token: string } }) {
     const router = useRouter();

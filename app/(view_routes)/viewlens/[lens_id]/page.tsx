@@ -10,9 +10,6 @@ import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-import ShareLensComponent from "@components/ShareLensComponent";
-
-
 //import { useRouter } from 'next/router';
 import { useRouter } from "next/navigation";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
