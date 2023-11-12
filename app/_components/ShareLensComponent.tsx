@@ -31,6 +31,17 @@ export default function DefaultModal({ lensId }) {
             .eq('lens_id', lensId).eq("user_id", user_id);
             const newLensCollaborator = lensCollaborators.filter((item)=> {item.user_id != user_id && item.lens_id != lensId})
             setLensCollaborators(newLensCollaborator);
+            if (newLensCollaborator.length == 0) {
+                // change shared to false
+                const { error } = await supabase
+                .from('lens')
+                .update({"shared": false})
+                .eq('lens_id', lensId)
+                if (error) {
+                    console.error("Error", error.message)
+                }
+                handleRefresh();
+            }
         }
     }
     useEffect(() => {
@@ -38,7 +49,7 @@ export default function DefaultModal({ lensId }) {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
             const {data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId)
-            setLensCollaborators(data);
+            setLensCollaborators(data.filter((item) => item.users.id != user.id))
         } 
         const checkPublishedLens = async() => {
             const { data: lens, error } = await supabase
@@ -66,6 +77,10 @@ export default function DefaultModal({ lensId }) {
       }
     const handleShare = async () => {
         const { data: { user }, error } = await supabase.auth.getUser();
+        if (shareEmail == user.email) {
+            alert("You cannot share with yourself!")
+            return;
+        }
         await apiClient('/shareLens', 'POST', 
             { "sender": user["email"], "lensId": lensId, "email": shareEmail, "role": selectedRole },
         )
