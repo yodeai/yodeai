@@ -74,7 +74,7 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="flex flex-col p-4 flex-grow">
+      <div className="flex flex-col p-2 flex-grow">
         <LoadingSkeleton />
       </div>
 

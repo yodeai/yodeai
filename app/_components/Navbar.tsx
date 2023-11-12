@@ -9,7 +9,8 @@ import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaHome, FaCodepen, FaThLarge, FaPlusSquare, FaPlus, FaFolder, FaFolderOpen, FaFolderPlus, FaArchive } from "react-icons/fa";
+import { FaInbox, FaThLarge, FaPlusSquare, FaFolderPlus, FaArchive } from "react-icons/fa";
+import { FaFolderTree } from "react-icons/fa6";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
 import { Box, Button, Divider, Flex, NavLink, Paper } from "@mantine/core";
@@ -153,7 +154,7 @@ export default function Navbar() {
     <nav className="flex flex-col">
       <Button
         onClick={handleNewBlock}
-        style={{ width: 176, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+        style={{ width: 188, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
         leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
         color="gray"
         variant="gradient"
@@ -175,7 +176,7 @@ export default function Navbar() {
         onClick={handleHomeClick}
         label="My Blocks"
         leftSection={<FaThLarge size={14} />}
-        style={{ minWidth: 200 }}
+        style={{ minWidth: 210 }}
         color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
         variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
         active
@@ -192,7 +193,7 @@ export default function Navbar() {
 
       <NavLink
         label="My Spaces"
-        leftSection={<FaArchive size={14.5} style={{ marginLeft: 0.55 }} />}
+        leftSection={<FaFolderTree size={14.5} style={{ marginLeft: 0.55 }} />}
         childrenOffset={28}
         defaultOpened
         color="#888"

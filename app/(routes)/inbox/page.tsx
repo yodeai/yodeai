@@ -10,6 +10,8 @@ import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
+import { Button, Divider, Flex, Text } from "@mantine/core";
+import { FaPlus } from "react-icons/fa";
 
 
 export default function Inbox() {
@@ -22,7 +24,7 @@ export default function Inbox() {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
+            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
           }
           return item;
         })
@@ -37,13 +39,13 @@ export default function Inbox() {
         setBlocks([newBlock, ...blocks]);
       }
     }
-      
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .subscribe();
-  
+
     return () => {
       if (channel) channel.unsubscribe();
     };
@@ -65,7 +67,7 @@ export default function Inbox() {
   };
 
   useEffect(() => {
-      fetchBlocks();
+    fetchBlocks();
   }, []);
 
 
@@ -74,46 +76,39 @@ export default function Inbox() {
 
   return (
 
-    <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
+    <Flex direction="column" p={8}>
+      <Divider mb={0} label="Inbox" labelPosition="center" />
 
-      <header className="flex items-center justify-between">
+      <Flex justify={"center"} align={"center"}>
+        <Flex justify={"center"} align={"center"}>
+          <Link href="/new">
+            <Button
+              size="xs"
+              variant="subtle"
+              leftSection={<FaPlus />}
+            // onClick={() => setIsEditingLensName(true)}
+            >
+              Add Block
+            </Button>
+          </Link>
+        </Flex>
+      </Flex>
 
-        {
-          <>
-            <span className="text-xl font-semibold">Inbox</span>
-            <div className="flex items-center space-x-2">
-
-            </div>
-
-          </>
-        }
-      </header>
-
-      <div className="flex items-stretch flex-col gap-4 mt-4">
-      <Link
-        href="/new"
-        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
-        <PlusIcon /> New block
-      </Link>
-
-        {
-          loading ? (
-            <div className="flex flex-col p-4 flex-grow">
-              <LoadingSkeleton />
-            </div>
-          ) : blocks?.length > 0 ? (
-            blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true}  onArchive={fetchBlocks} />
-            ))
-          ) : (
-            <div className="flex flex-col p-4 flex-grow">
-              Nothing to show here. As you add blocks they will initially show up in your Inbox.
-            </div>
-          )
-        }
-
-
-      </div>
-    </Container>
+      {
+        loading ? (
+          <div className="flex flex-col p-2 flex-grow">
+            <LoadingSkeleton />
+          </div>
+        ) : blocks?.length > 0 ? (
+          blocks.map((block) => (
+            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
+          ))
+        ) : (
+          <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+            Nothing to show here. As you add blocks they will initially show up in your Inbox.
+          </Text>
+        )
+      }
+    </Flex >
   );
 }

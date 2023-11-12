@@ -10,7 +10,7 @@ import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
-import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor } from "@mantine/core";
+import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon } from "@mantine/core";
 
 interface BlockProps {
   compact?: boolean;
@@ -77,7 +77,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   return (
     <div>
       <Flex pl={2} pr={2} direction={"column"}>
-        <Flex justify={"flex-start"}>
+        <Flex justify={"space-between"}>
           <Anchor
             size={"xs"}
             underline="never"
@@ -86,11 +86,13 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
             <Text size={"md"} fw={600} c="gray.7">{block.title}</Text>
           </Anchor>
           {hasArchiveButton && (
-            <Tooltip label="Archive">
-              <button onClick={handleArchive}>
-                <FaArchive style={{ color: 'grey' }} />
-              </button>
+            <Flex ml={2}>
+            <Tooltip label="Archive this block">
+              <ActionIcon aria-label="archive block" color="gray" variant="subtle" onClick={handleArchive}>
+                <FaArchive size={14} style={{ marginBottom: 2 }} />
+              </ActionIcon>
             </Tooltip>
+            </Flex>
           )}
         </Flex>
 
@@ -106,8 +108,37 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           ) : null}
         </Spoiler>
 
-        {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> {block.readOnly ? "" : <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button>}</div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
-        
+        {block.status === 'processing' ?
+          (<span className="processing-text">
+            <Text size="sm" fw={500}>
+              [Processing...]
+            </Text>
+          </span>)
+          :
+          block.status === 'failure' ?
+            (
+              <div>
+                <span className="failed-text">
+                  <Text size="sm" fw={500}>
+                    [Failed]
+                  </Text>
+                </span>
+                {block.readOnly ?
+                  ""
+                  :
+                  <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
+                    Retry upload
+                  </button>}
+              </div>)
+            :
+            block.status == 'waiting to process' ?
+              (<span className="waiting-text">
+                <Text size="sm" fw={500}>
+                  [Waiting to process]
+                </Text>
+              </span>
+              ) : ''}
+
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

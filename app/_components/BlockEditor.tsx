@@ -11,9 +11,10 @@ import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
-import { FaCheckCircle } from 'react-icons/fa';
+import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
 import toast from "react-hot-toast";
+import { ActionIcon, Button, Flex, Text, TextInput } from '@mantine/core';
 
 
 
@@ -37,7 +38,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
   //let controller;
 
-  const saveContent = async (delay=180) => {
+  const saveContent = async (delay = 180) => {
 
     /*
     if (controller) {
@@ -202,17 +203,31 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
-            <div className="flex gap-2">
-              <button onClick={() => { savePDFtitle(); }} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0 ml-4">
-                <CheckIcon className="w-6 h-6" />
-              </button>
+            <Flex direction={"column"}>
+              <ActionIcon
+                onClick={() => { savePDFtitle(); }}
+                size="md"
+                color="green"
+                variant="gradient"
+                ml={5}
+                gradient={{ from: 'green', to: 'lime', deg: 116 }}
+              >
+                <FaCheck size={14} />
+              </ActionIcon>
 
               {block && (
-                <button onClick={handleDelete} className="no-underline gap-2 font-semibold rounded px-2 py-1 text-red-500 border-0">
-                  <TrashIcon className="w-6 h-6" />
-                </button>
+                <ActionIcon
+                  onClick={handleDelete}
+                  size="md"
+                  color="red"
+                  variant="gradient"
+                  ml={5}
+                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                >
+                  <FaTrashAlt size={14} />
+                </ActionIcon>
               )}
-            </div>
+            </Flex>
 
 
           </div>
@@ -221,34 +236,42 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       ) : (
         <>
           <div className="flex justify-between items-center w-full">
-            <input
-              className="text-gray-600 line-clamp-1 text-xl"
-              value={title}
+            <TextInput
+              style={{ flex: 1 }}
+              size="xs"
+              value={title || ""}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
+
             <div className="flex gap-2">
               {isSaving && (
-                <div className="flex items-center">
-                  <FaCheckCircle className="w-4 h-4 mr-2" /> Saving...
-                </div>
+                <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                  <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
+                </Flex>
               )}
               {isSaved && (
-                <div className="flex items-center text-green-500">
-                  <FaCheckCircle className="w-4 h-4 mr-2" /> Saved
-                </div>
+                <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                  <FaCheckCircle style={{ marginRight: 4 }} /> Saved
+                </Flex>
               )}
               {block && (
-                <button onClick={handleDelete} className="no-underline gap-2 font-semibold rounded px-2 py-1 text-red-500 border-0">
-                  <TrashIcon className="w-6 h-6" />
-                </button>
+                <ActionIcon
+                  onClick={handleDelete}
+                  size="md"
+                  color="red"
+                  variant="gradient"
+                  ml={5}
+                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                >
+                  <FaTrashAlt size={14} />
+                </ActionIcon>
               )}
             </div>
           </div>
 
 
-
-          <div className="min-w-full">
+          <div className="min-w-full mt-1">
             <div className="prose text-gray-600">
               <DynamicSimpleMDE
                 value={content}
@@ -258,9 +281,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
 
             {
-              <button
+              <Button
+                style={{ flex: 1, width: "100%", height: 30 }}
                 onClick={handleSaveAndNavigate}
-                className={`flex items-center mt-4 text-sm font-semibold rounded px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-slate-50 border border-emerald-600 shadow transition-colors ${isSaving ? "cursor-not-allowed" : ""}`}
+                variant="gradient"
+                gradient={{ from: 'green', to: 'lime', deg: 150 }}
                 disabled={isSaving}
               >
                 {isSaving ? (
@@ -270,7 +295,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
                   // Display "Save" text when not saving
                   "Save"
                 )}
-              </button>
+              </Button>
             }
 
           </div>

@@ -6,7 +6,6 @@ import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
 
 import { MantineProvider, ColorSchemeScript  } from '@mantine/core';
-import { AppShell, Burger, Group, Skeleton } from '@mantine/core';
 
 const inter = Inter({ subsets: ["latin"] });
 

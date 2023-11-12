@@ -235,7 +235,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   if (!lens) {
     return (
-      <div className="flex flex-col p-4 flex-grow">
+      <div className="flex flex-col p-2 flex-grow">
         <LoadingSkeleton />
       </div>
     );
@@ -306,20 +306,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               </Text>
             </Flex>
           ) : (
-            <div className="flex">
+            <Flex align={"center"}>
               <TextInput
-                type="text"
                 size="xs"
                 value={editingLensName || ""}
                 onChange={handleNameChange}
                 onKeyUp={handleKeyPress}
-                className="text-xl font-semibold flex-grow"
               />
 
               <ActionIcon
                 onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }}
                 size="md"
-                style={{ top: 0.5 }}
                 color="green"
                 variant="gradient"
                 ml={5}
@@ -332,7 +329,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   <ActionIcon
                     onClick={handleDeleteLens}
                     size="md"
-                    style={{ top: 0.5 }}
                     color="red"
                     variant="gradient"
                     ml={5}
@@ -343,7 +339,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
                 </Tooltip> : ""}
 
-            </div>
+            </Flex>
 
           )}
         </Flex>
@@ -366,7 +362,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                 <BlockComponent key={block.block_id} block={block} />
               ))
             ) : (
-              <p>This space is empty, add blocks here. A space can be a good place to organize information related to a project, a goal, or a long-term interest.</p>
+              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+                This space is empty, add blocks to populate this space with content & context.
+              </Text>
             )}
 
             {/* Display child lenses if they exist */}
