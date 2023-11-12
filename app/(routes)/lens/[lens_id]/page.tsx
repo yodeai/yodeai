@@ -310,7 +310,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             {lens.shared ? `Collaborative: ${lens.shared ?  `${accessType}` : ''}` : ''}
           </p>
           <p className="text-green-500 text-sm">
-              {lens.public ? 'Published' : 'Private'}
+              {lens.public ? 'Published' : 'Not Published'}
           </p>
       {!lens.shared || accessType == 'editor' || accessType == 'owner' ? 
       <div className="flex items-stretch flex-col gap-4 mt-4">

@@ -35,11 +35,10 @@ export default function DefaultModal({ lensId }) {
     }
     useEffect(() => {
         const fetchCollaborators = async() => {
-            const { data: { user }, error } = await supabase.auth.getUser();
-
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const {data: collaborators} = await supabase.from('lens_users').select("*, users(email), lens(owner_id)").eq("lens_id", lensId).neq("user_id", user.id)
-            setLensCollaborators(collaborators);
+            const {data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId)
+            setLensCollaborators(data);
         } 
         const checkPublishedLens = async() => {
             const { data: lens, error } = await supabase
@@ -92,68 +91,80 @@ export default function DefaultModal({ lensId }) {
         });
     };
 
-    const handleRepublishClick = async() => {
-        const { data: lens, error } = await supabase
-        .from('lens')
-        .select()
-        .eq('lens_id', lensId);
-        if (error) {
-            console.log("error", error.message)
-        } else {
-            const { error: updateError } = await supabase
+    const handleRepublishClick = async () => {
+        try {
+            // Update 'lens' table to set 'public' to true
+            const { data: lens, error } = await supabase
+            .from('lens')
+            .update({ 'public': true })
+            .eq('lens_id', lensId)
+            .select();
+      
+          if (error) {
+            console.error("Error updating 'lens' table:", error.message);
+            return;
+          }
+          // Insert/update into 'lens_published'
+          const { error: insertError } = await supabase
             .from('lens_published')
-            .update(lens)
-            .eq('lens_id', lensId);
-        
-            if (updateError) {
-                console.error('Error updating row:', updateError.message);
-                return;
-            }
-
-            // insert all the mappings to lens_blocks_published
-            const { data: mappings, error } = await supabase
+            .upsert(lens);
+      
+          if (insertError) {
+            console.error("Error upserting into 'lens_published' table:", insertError.message);
+            return;
+          }
+      
+          // Fetch lens block mappings
+          const { data: mappings, error: mappingError } = await supabase
             .from('lens_blocks')
             .select()
-            .eq('lens_id', lensId)
-
-            const { error: insertMappingError } = await supabase
+            .eq('lens_id', lensId);
+      
+          if (mappingError) {
+            console.error("Error fetching lens block mappings:", mappingError.message);
+            return;
+          }
+      
+          // Insert/update into 'lens_blocks_published'
+          const { error: insertMappingError } = await supabase
             .from('lens_blocks_published')
-            .update(mappings); // Insert the first row from the selection
-        
-            if (insertMappingError) {
-                console.error('Error inserting row into the destination table:', insertMappingError.message);
-                return;
-            }
-
-            // insert all blocks to blocks_published
-            const block_ids = mappings.map(obj => obj.block_id);   
-            const { data: blocks, error:blocksError } = await supabase
+            .upsert(mappings);
+      
+          if (insertMappingError) {
+            console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
+            return;
+          }
+      
+          // Fetch blocks using block_ids from lens block mappings
+          const blockIds = mappings.map((obj) => obj.block_id);
+          const { data: blocks, error: blocksError } = await supabase
             .from('block')
             .select()
-            .in('block_id', block_ids)
-
-            if (blocksError) {
-                console.error("Error");
-                throw blocksError;
-            }
-
-            const { error: insertBlocksError } = await supabase
+            .in('block_id', blockIds);
+      
+          if (blocksError) {
+            console.error("Error fetching blocks:", blocksError.message);
+            throw blocksError;
+          }
+      
+          // Insert/update into 'block_published'
+          const { error: insertBlocksError } = await supabase
             .from('block_published')
-            .update(blocks); // Insert the first row from the selection
-        
-            if (insertBlocksError) {
-                console.error('Error inserting row into the destination table:', insertBlocksError.message);
-                return;
-            }
-
-            alert("Updated privacy successfully!");
-            props.setOpenModal(undefined);
-            handleRefresh();
-
-            
+            .upsert(blocks);
+      
+          if (insertBlocksError) {
+            console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
+            return;
+          }
+      
+          alert("Updated privacy successfully!");
+          props.setOpenModal(undefined);
+          handleRefresh();
+        } catch (error) {
+          console.error("An unexpected error occurred:", error.message);
         }
-
-    }
+      };
+      
 
     const handleClick = async() => {
         if (published) {
@@ -307,12 +318,12 @@ export default function DefaultModal({ lensId }) {
                     <LinkIcon className="h-4 w-4"/>
                     {clicked ? 'Link copied' : 'Get Link'}
                 </button> 
-                <h1>Last Published: <p className="text-gray-500 text-sm">{publishInformation}</p></h1>
+                <h1>Last Published: <p className="text-gray-500 text-sm">{publishInformation ? formatDate(publishInformation) : null}</p></h1>
                 
-                {/* <button onClick = {handleRepublishClick}
+                <button onClick = {handleRepublishClick}
                     className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
                     Republish
-                </button>  */}
+                </button> 
                 </div>
                 
                 
@@ -344,19 +355,29 @@ export default function DefaultModal({ lensId }) {
                 </select>
                 <div className="w-full flex flex-col">
                     <div>
-                        {lensCollaborators.length > 0 ? <h1>Collaborators</h1> : ""}
-                        <ul>
+                    {lensCollaborators?.length > 0 ? <h1>Collaborators</h1> : ""}
+                    <ul>
                         {lensCollaborators?.map((item, index) => (
-                            <li key={index}>
-                            <strong>User:</strong> {item.users.email}, <strong>Access Type:</strong> {item.access_type}
-                            {item.lens.owner_id != item.user_id ?
-                            <Button color="gray" onClick={() => handleRevocation(item.user_id, lensId)}>
-                                Revoke
-                            </Button> : ""}
-                            </li>
+                        <li key={index}>
+                            <>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <strong>User:</strong> {item.recipient} | <strong>Access Type:</strong> {item.access_type} | <strong>Status:</strong>{" "}
+                                {item.status === "sent" ? "Pending invite" : null}
+                                {item.status !== "sent" && (
+                                <>
+                                    <span>Accepted: </span>
+                                    <Button color="gray" onClick={() => handleRevocation(item.users.id, lensId)}>
+                                    Revoke Access
+                                    </Button>
+                                </>
+                                )}
+                            </div>
+                            </>
+                        </li>
                         ))}
-                        </ul>
+                    </ul>
                     </div>
+
                 </div>
             </div>
                 </Modal.Body>

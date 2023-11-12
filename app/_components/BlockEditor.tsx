@@ -52,16 +52,18 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // If block exists and there are changes, update it
     if (block && (content !== block.content || title !== block.title)) {
       if (!block.block_id) {
+        console.log("in old block")
         method = "POST";
         endpoint = `/api/block`;
       } else {
-        console.log("IN HERE")
+        console.log("in put")
         method = "PUT";
         endpoint = `/api/block/${block.block_id}`;
       }
     }
     // If block doesn't exist, create a new block
     else if (!block && (content !== "" || title !== "")) {
+      console.log("in new block")
       method = "POST";
       endpoint = `/api/block`;
     }
