@@ -296,7 +296,7 @@ export default function DefaultModal({ lensId }) {
     return (
         <>
 
-    <Tooltip content="Share lens." style="light" >
+    <Tooltip content="Share space." style="light" >
                 <Button onClick={() => props.setOpenModal('default')} data-tooltip-target="tooltip-animation" className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
                 <Share1Icon className="w-6 h-6" />
                 </Button>
