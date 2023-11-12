@@ -9,6 +9,17 @@ export type LensBlock = {
   block_id: number;
 }
 
+export type LensInvite = {
+  sender: string;
+  recipient: string;
+  token: string;
+  lens_id: number;
+  updated_at: string;
+  status: string;
+created_at: string;
+ access_type: string;
+}
+
 
 export type Block = {
     block_id: number;  
