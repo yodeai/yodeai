@@ -97,7 +97,7 @@ export default function Inbox() {
 
       {
         loading ? (
-          <div className="flex flex-col p-2 flex-grow">
+          <div className="flex flex-col p-2 pt-4 flex-grow">
             <LoadingSkeleton />
           </div>
         ) : blocks?.length > 0 ? (
@@ -111,9 +111,9 @@ export default function Inbox() {
         )
       }
 
-      <Flex direction={"column"} justify={"flex-end"}>
+      {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />
-      </Flex>
+      </Flex> */}
     </Flex >
   );
 }

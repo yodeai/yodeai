@@ -236,7 +236,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   if (!lens) {
     return (
-      <div className="flex flex-col p-2 flex-grow">
+      <div className="flex flex-col p-2 pt-4 flex-grow">
         <LoadingSkeleton />
       </div>
     );
@@ -393,9 +393,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           </div>
 
       }
-      <Flex direction={"column"} justify={"flex-end"}>
+      {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />
-      </Flex>
+      </Flex> */}
     </Flex >
   );
 }

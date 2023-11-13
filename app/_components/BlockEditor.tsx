@@ -185,7 +185,8 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     await saveContent(0);
 
     // Navigate back using the router
-    router.back();
+    router.push(`/`);
+    // router.back();
   };
 
 

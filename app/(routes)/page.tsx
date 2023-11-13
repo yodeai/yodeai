@@ -75,7 +75,7 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="flex flex-col p-2 flex-grow">
+      <div className="flex flex-col p-2 pt-4 flex-grow">
         <LoadingSkeleton />
       </div>
 
@@ -102,9 +102,9 @@ export default function Index() {
           <p>No blocks found.</p>
         )}
       </Flex>
-      <Flex direction={"column"} justify={"flex-end"}>
+      {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />
-      </Flex>
+      </Flex> */}
     </Flex>
   );
 }

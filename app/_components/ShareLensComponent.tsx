@@ -300,7 +300,7 @@ export default function DefaultModal({ lensId }) {
             </Tooltip >
 
             <Container className="max-w-3xl ">
-                <Modal closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
+                <Modal zIndex={1000000} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
                     <Modal.Body p={2} pt={0}>
                         <Group>
                             <Flex w={"100%"} direction={"column"}>

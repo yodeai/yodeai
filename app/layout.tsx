@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import HeadingBar from "@components/HeadingBar";
 
-import { MantineProvider, ColorSchemeScript  } from '@mantine/core';
+import { MantineProvider, ColorSchemeScript, Flex } from '@mantine/core';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,10 +33,14 @@ export default async function RootLayout({
       >
         <MantineProvider defaultColorScheme="light">
           <header>
-            <HeadingBar />
+            <Flex align={"flex-start"} justify={"flex-start"} direction={"column"} style={{ zIndex: 290, width: '100%', position: 'fixed', top: 0, height: '60px', padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' }}>
+              <HeadingBar />
+            </Flex>
           </header>
           <Toaster />
-          {children}
+          <Flex direction={'column'} w={'100%'} mt={50}>
+            {children}
+          </Flex>
         </MantineProvider>
       </body>
     </html>

@@ -1,7 +1,8 @@
 "use client";
-import { Avatar, Button, Container, Flex, Grid, Image, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Avatar, Button, Container, Flex, Grid, Image, Text, TextInput, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 import React, { use, useState } from 'react';
 
 const featureData = [
@@ -80,6 +81,9 @@ const teamMembers = [
 ];
 
 export default function Landing() {
+
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const supabase = createClientComponentClient();
@@ -143,29 +147,38 @@ export default function Landing() {
               Thanks for signing up! We'll notify you when we're able to give you access.
             </Text>
           ) : (
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-              <div style={{ flex: 1 }}>
-                <TextInput
-                  style={{ marginBottom: 10 }}
+            <Flex direction={"column"}>
+              <form onSubmit={form.onSubmit(handleSubmit)}>
+                <div style={{ flex: 1 }}>
+                  <TextInput
+                    style={{ marginBottom: 10 }}
+                    miw={{ base: 400, sm: 300, md: 400 }}
+                    withAsterisk={false}
+                    id="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    placeholder="your@email.com"
+                    required
+                    {...form.getInputProps('email')}
+                  />
+                </div>
+                <Button
                   miw={{ base: 400, sm: 300, md: 400 }}
-                  withAsterisk={false}
-                  id="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  placeholder="your@email.com"
-                  required
-                  {...form.getInputProps('email')}
-                />
-              </div>
-              <Button
-                miw={{ base: 400, sm: 300, md: 400 }}
-                type="submit"
-                variant="gradient"
-                gradient={{ from: 'pink', to: 'violet', deg: 34 }}
+                  type="submit"
+                  variant="gradient"
+                  gradient={{ from: 'pink', to: 'violet', deg: 34 }}
+                >
+                  Sign Up for Early Access
+                </Button>
+              </form>
+              <Anchor
+                size={"xs"}
+                underline="never"
+                onClick={() => router.push(`/signup`)}
               >
-                Sign Up for Early Access
-              </Button>
-            </form>
+                <Text ta={"center"} mt={4} size={"sm"} fw={600} c="gray.7">{"Already have a code? Sign up here."}</Text>
+              </Anchor>
+            </Flex>
           )}
         </Flex>
       </div>

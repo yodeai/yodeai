@@ -3,8 +3,8 @@ import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { useAppContext } from "@contexts/context";
 import load from "@lib/load";
-import { FaFolder, FaLink, FaPlus } from "react-icons/fa";
-import { Button, Select } from "@mantine/core";
+import { FaFolder, FaLink, FaPlus, FaTimes } from "react-icons/fa";
+import { ActionIcon, Button, Group, Select } from "@mantine/core";
 
 
 interface LensProps {
@@ -143,32 +143,43 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     inputRef.current.focus();
   }
 
+  const [hoveredLensId, setHoveredLensId] = useState(null);
+
   return (
     <div className="flex gap-2 mt-0.5 flex-wrap">
       {currentLenses.map(lens => (
-        <div key={lens.lens_id} className="relative button-hover">
+        <Group pos={"relative"} key={lens.lens_id} onMouseEnter={() => setHoveredLensId(lens.lens_id)} onMouseLeave={() => setHoveredLensId(null)}>
           <Button
             style={{ height: 24, alignSelf: "center", textAlign: "center" }}
             size="xs"
-            color="blue.5"
+            color="blue"
             leftSection={<FaLink size={9} />}
             variant="light"
-            onClick={() => {
-              if (processingLensId !== lens.lens_id) {
-                handleLensClick(lens.lens_id);
-              }
-            }}
+            onClick={() => handleLensClick(lens.lens_id)}
           >
             {lens.name}
           </Button>
-          <span
-            className="cross"
-            onClick={(e) => {
-              e.stopPropagation(); // This prevents the button's click handler from firing
-              handleDeleteRelation(lens.lens_id);
-            }}
-          ></span>
-        </div>
+          {hoveredLensId === lens.lens_id && (
+            <ActionIcon
+              size={14}
+              color="red"
+              style={{
+                position: 'absolute',
+                borderRadius: '100%',
+                top: 3,
+                right: 3,
+                transform: 'translate(50%, -50%)',
+                visibility: 'visible',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRelation(lens.lens_id);
+              }}
+            >
+              <FaTimes size={10} />
+            </ActionIcon>
+          )}
+        </Group>
       ))}
 
       {showInput ? (

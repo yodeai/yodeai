@@ -8,7 +8,7 @@ import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Flex, Group, Text, Textarea } from '@mantine/core';
+import { Button, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
 
@@ -162,38 +162,66 @@ const QuestionAnswerForm: React.FC = () => {
         },
     });
 
-    return (
-        <Flex p={4} direction={"column"}>
-            <Flex mt={4} mb={2} justify={"center"}>
-                <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
-                    {lensId && lensName ?
-                        'Context: ' + lensName
-                        :
-                        ((activeComponent === "global") ?
-                            "Ask a question from your blocks"
-                            :
-                            "Ask a question from Inbox")
-                    }
-                </Text>
-                <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
-            </Flex>
+    const viewport = useRef<HTMLDivElement>(null);
+    const scrollToBottom = () =>
+        viewport.current!.scrollTo({ top: viewport.current!.scrollHeight, behavior: 'smooth' });
 
-            <Flex p={10} pt={0} pb={0} direction={"column"}>
-                {(
-                    <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                        <Textarea
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder="Enter your question"
+    useEffect(() => {
+        scrollToBottom();
+    }, [questionHistory]);
+
+    return (
+        <Flex w={'20vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, padding: '10px', backgroundColor: '#fff' }}>
+            <ScrollArea w={'18vw'} mah={'69vh'} h={'69vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+                {
+                    (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
+                        <QuestionComponent
+                            lensID={lensId}
+                            id={null}
+                            key={index}
+                            question={question}
+                            answer={answer}
+                            sources={sources}
+                            published={false}
                         />
-                        <Group justify="flex-end" mt="xs">
-                            <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='light' disabled={isLoading}>
-                                {isLoading ? 'Loading...' : 'Submit'}
-                            </Button>
-                        </Group>
-                    </form>
-                )}
-{/* 
+                    ))
+
+                }
+            </ScrollArea>
+
+            <Flex direction={"column"} h={"20vh"}>
+                <Flex mt={4} mb={2} justify={"center"}>
+                    <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
+                        {lensId && lensName ?
+                            'Context: ' + lensName
+                            :
+                            ((activeComponent === "global") ?
+                                "Ask a question from your blocks"
+                                :
+                                "Ask a question from Inbox")
+                        }
+                    </Text>
+                    <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
+                </Flex>
+
+                <Flex justify={'center'} p={10} pt={0} pb={0} direction={"column"}>
+                    {(
+                        <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
+                            <Textarea
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder="Enter your question"
+                            />
+                            <Group justify="flex-end" mt="xs">
+                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='light' disabled={isLoading}>
+                                    {isLoading ? 'Loading...' : 'Submit'}
+                                </Button>
+                            </Group>
+                        </form>
+                    )}
+                </Flex>
+            </Flex>
+            {/* 
                 <form onSubmit={form.onSubmit((values) => console.log(values))}>
                     <TextInput
                         withAsterisk
@@ -213,28 +241,11 @@ const QuestionAnswerForm: React.FC = () => {
                     </Group>
                 </form> */}
 
-                <div className="scrollable-div mt-2.5" ref={scrollableDivRef}>
-                    {
-                        (questionHistory.get(mapKey) || []).map(({ question, answer, sources }, index) => (
-                            <QuestionComponent
-                                lensID={lensId}
-                                id={null}
-                                key={index}
-                                question={question}
-                                answer={answer}
-                                sources={sources}
-                                published={false}
-                            />
-                        ))
-
-                    }
-                </div>
-                {/* <div>
+            {/* <div>
                 <br></br>
                 <h1> Related Questions </h1>
                 {relatedQuestions?.map(q => <div key={q.metadata["5"]}> <br></br><div>{q.pageContent}</div><div>Popularity: {q.metadata["3"]}</div> <div> {q.metadata["1"]} </div> <button onClick={() => {makePatchRequest(q, q.metadata["5"], 1)}}> Thumbs up </button>  <button onClick={() => {makePatchRequest(q, q.metadata["5"], -1)}}> Thumbs Down </button> </div>)}
                 </div> */}
-            </Flex>
         </Flex>
     );
 };
