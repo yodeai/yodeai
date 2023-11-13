@@ -8,6 +8,7 @@ import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button, Divider, Flex, NavLink, Text } from "@mantine/core";
 import { FaPlusSquare } from "react-icons/fa";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 export const dynamic = 'force-dynamic';
 
@@ -86,20 +87,24 @@ export default function Index() {
   }
 
   return (
-    <Flex direction="column" p={8}>
-      <Divider mb={0} label="All blocks" labelPosition="center" />
+    <Flex mih={'100vh'} direction="column">
+      <Flex direction="column" p={16}>
+        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
 
-      {blocks.length > 0 ? (
-        blocks.map((block: Block) => (
+        {blocks.length > 0 ? (
+          blocks.map((block: Block) => (
 
-          <div key={block.block_id}>
-            <BlockComponent block={block} />
-          </div>
-        ))
-      ) : (
-        <p>No blocks found.</p>
-      )}
-
+            <div key={block.block_id}>
+              <BlockComponent block={block} />
+            </div>
+          ))
+        ) : (
+          <p>No blocks found.</p>
+        )}
+      </Flex>
+      <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
+      </Flex>
     </Flex>
   );
 }

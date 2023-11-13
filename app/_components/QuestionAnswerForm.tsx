@@ -163,19 +163,19 @@ const QuestionAnswerForm: React.FC = () => {
     });
 
     return (
-        <Flex direction={"column"}>
-            <Flex mt={8} mb={2} justify={"center"}>
+        <Flex p={4} direction={"column"}>
+            <Flex mt={4} mb={2} justify={"center"}>
                 <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
                     {lensId && lensName ?
-                        'Ask a question from: ' + lensName
+                        'Context: ' + lensName
                         :
                         ((activeComponent === "global") ?
-                            "Ask a question from your data"
+                            "Ask a question from your blocks"
                             :
                             "Ask a question from Inbox")
                     }
                 </Text>
-                <InfoPopover infoText={"You can ask it questions"} />
+                <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
             </Flex>
 
             <Flex p={10} pt={0} pb={0} direction={"column"}>

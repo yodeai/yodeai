@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
 import { Button, Divider, Flex, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 
 export default function Inbox() {
@@ -76,8 +77,8 @@ export default function Inbox() {
 
   return (
 
-    <Flex direction="column" p={8}>
-      <Divider mb={0} label="Inbox" labelPosition="center" />
+    <Flex direction="column" p={16}>
+      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Inbox</Text>} labelPosition="center" />
 
       <Flex justify={"center"} align={"center"}>
         <Flex justify={"center"} align={"center"}>
@@ -109,6 +110,10 @@ export default function Inbox() {
           </Text>
         )
       }
+
+      <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
+      </Flex>
     </Flex >
   );
 }

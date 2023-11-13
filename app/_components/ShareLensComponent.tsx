@@ -1,6 +1,5 @@
 'use client';
 
-import { Modal } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import { Lens } from "app/_types/lens";
 import { Share1Icon } from "@radix-ui/react-icons";
@@ -10,7 +9,8 @@ import formatDate from "@lib/format-date";
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Container from "@components/Container";
-import { Button, Tooltip } from '@mantine/core';
+import { Button, Flex, Group, List, ListItem, Modal, Select, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 export default function DefaultModal({ lensId }) {
     const [openModal, setOpenModal] = useState<string | undefined>();
@@ -22,6 +22,8 @@ export default function DefaultModal({ lensId }) {
     const [published, setPublished] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
+
+    const [opened, { open, close }] = useDisclosure(false);
 
     const handleRevocation = async (user_id, lensId) => {
         let confirmation = confirm("Are you sure?")
@@ -83,7 +85,7 @@ export default function DefaultModal({ lensId }) {
                     throw error;
                 }
                 alert("Shared successfully!");
-                props.setOpenModal(undefined);
+                close();
                 handleRefresh();
 
             })
@@ -148,7 +150,7 @@ export default function DefaultModal({ lensId }) {
             }
 
             alert("Updated privacy successfully!");
-            props.setOpenModal(undefined);
+            close();
             handleRefresh();
 
 
@@ -210,7 +212,7 @@ export default function DefaultModal({ lensId }) {
 
                 }
                 alert("Updated privacy successfully!");
-                props.setOpenModal(undefined);
+                close();
                 handleRefresh();
             }
         } else {
@@ -270,7 +272,7 @@ export default function DefaultModal({ lensId }) {
 
                 setPublished(true)
                 alert("Updated privacy successfully!");
-                props.setOpenModal(undefined);
+                close();
                 handleRefresh();
             }
         }
@@ -289,7 +291,7 @@ export default function DefaultModal({ lensId }) {
                 <Button
                     size="xs"
                     variant="subtle"
-                    onClick={() => props.setOpenModal('default')}
+                    onClick={open}
                     leftSection={<Share1Icon />}
                     data-tooltip-target="tooltip-animation"
                 >
@@ -298,86 +300,84 @@ export default function DefaultModal({ lensId }) {
             </Tooltip >
 
             <Container className="max-w-3xl ">
-                <Modal show={props.openModal === 'default'} onClose={() => props.setOpenModal(undefined)}>
-                    <Modal.Header>Share this Space</Modal.Header>
-                    <Modal.Body>
-                        <div className="w-full flex flex-col p-8">
-                            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">General Access</h1>
-                            <div>
-                                <button onClick={handleClick} className="bg-green-700 rounded px-4 py-2 text-white mb-2">
-                                    {published ? 'Unpublish' : 'Publish'}
-                                </button>
-                                {published ?
-                                    <div>
-                                        <button onClick={handleGetLink}
-                                            className="border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
-                                            <LinkIcon className="h-4 w-4" />
+                <Modal closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
+                    <Modal.Body p={2} pt={0}>
+                        <Group>
+                            <Flex w={"100%"} direction={"column"}>
+                                <Text size='sm' fw={500}>General Access</Text>
+                                <Button size='xs' w={"100%"} h={26} color={published ? 'red' : 'green'} onClick={handleClick}>
+                                    {published ? 'Unpublish' : 'Publish for general access'}
+                                </Button>
+                                {published && (
+                                    <Flex direction={"column"} mt={7}>
+                                        <Button
+                                            size='xs'
+                                            h={26}
+                                            variant="outline"
+                                            // leftIcon={<LinkIcon size={16} />} 
+                                            onClick={handleGetLink}
+                                        >
                                             {clicked ? 'Link copied' : 'Get Link'}
-                                        </button>
-                                        <h1>Last Published: <p className="text-gray-500 text-sm">{publishInformation}</p></h1>
+                                        </Button>
+                                        <Text mt={7} size='sm'>Last Published: <span style={{ color: '#718096' }}>{publishInformation}</span></Text>
+                                    </Flex>
+                                )}
+                            </Flex>
 
-                                        {/* <button onClick = {handleRepublishClick}
-                    className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
-                    Republish
-                </button>  */}
-                                    </div>
-
-
-
-                                    : ""}
-                            </div>
-                        </div>
-
-                        <div className="w-full flex flex-col p-8">
-                            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Share with a specific user</h1>
-                            <label>Recipient:</label>
-                            <input
-                                type="email"
-                                value={shareEmail}
-                                onChange={(e) => setShareEmail(e.target.value)}
-                                placeholder="Enter email to share"
-                                className="flex-grow px-2 py-1 border rounded"
-                            />
-                            <label>Role:</label>
-                            <select
-                                value={selectedRole}
-                                onChange={(e) => setSelectedRole(e.target.value)}
-                                className="flex-grow px-2 py-1 border rounded"
-                            >
-                                <option value="">Select Role</option>
-                                <option value="owner">owner</option>
-                                <option value="editor">editor</option>
-                                <option value="reader">reader</option>
-                            </select>
-                            <div className="w-full flex flex-col">
-                                <div>
-                                    {lensCollaborators.length > 0 ? <h1>Collaborators</h1> : ""}
-                                    <ul>
-                                        {lensCollaborators?.map((item, index) => (
-                                            <li key={index}>
-                                                <strong>User:</strong> {item.users.email}, <strong>Access Type:</strong> {item.access_type}
-                                                {item.lens.owner_id != item.user_id ?
-                                                    <Button color="gray" onClick={() => handleRevocation(item.user_id, lensId)}>
-                                                        Revoke
-                                                    </Button> : ""}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                            <Flex w={'100%'} direction={"column"}>
+                                <Text size='sm' fw={500}>Share with specific users</Text>
+                                <TextInput
+                                    style={{ width: '100%' }}
+                                    size='xs'
+                                    label="Recipient"
+                                    value={shareEmail}
+                                    onChange={(e) => setShareEmail(e.target.value)}
+                                    placeholder="Enter email to share"
+                                />
+                                <Select
+                                    label="Role"
+                                    size='xs'
+                                    value={selectedRole}
+                                    onChange={setSelectedRole}
+                                    data={[
+                                        { value: 'owner', label: 'Owner' },
+                                        { value: 'editor', label: 'Editor' },
+                                        { value: 'reader', label: 'Reader' },
+                                    ]}
+                                />
+                                {lensCollaborators.length > 0 && (
+                                    <Group>
+                                        <Title order={3}>Collaborators</Title>
+                                        <List>
+                                            {lensCollaborators.map((item, index) => (
+                                                <ListItem key={index}>
+                                                    User: {item.users.email}, Access Type: {item.access_type}
+                                                    {item.lens.owner_id !== item.user_id && (
+                                                        <Button
+                                                            color="gray"
+                                                            onClick={() => handleRevocation(item.user_id, lensId)}
+                                                        >
+                                                            Revoke
+                                                        </Button>
+                                                    )}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Group>
+                                )}
+                            </Flex>
+                        </Group>
+                        <Flex mt={20}>
+                            <Button h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleShare}>
+                                Send
+                            </Button>
+                            <Button h={26} style={{ flex: 1, marginLeft: 5 }} size='xs' color="gray" onClick={close}>
+                                Cancel
+                            </Button>
+                        </Flex>
                     </Modal.Body>
-                    <Modal.Footer>
-                        <Button color="gray" onClick={handleShare}>
-                            Send
-                        </Button>
-                        <Button color="gray" onClick={() => props.setOpenModal(undefined)}>
-                            Cancel
-                        </Button>
-                    </Modal.Footer>
                 </Modal>
             </Container>
-
         </>
     )
 }

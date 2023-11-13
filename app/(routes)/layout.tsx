@@ -1,6 +1,7 @@
 import Navbar from "@components/Navbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
+import { Flex } from "@mantine/core";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -23,14 +24,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Main content area */}
-        <div className="flex-grow overflow-y-auto order-3 sm:order-2 sm:w-[50vw]">
+        <Flex mih={'100vh'} direction={"column"} className="flex-grow overflow-y-auto order-3 sm:order-2 sm:w-[50vw]">
           {children}
-        </div>
+        </Flex>
 
         {/* QuestionAnswerForm with a left border */}
-        <div style={{ borderLeftWidth: 1, borderLeftColor: '#eee' }} className="w-full bg-white overflow-y-auto order-1 sm:order-3 sm:w-[22vw] sm:h-full">
+        {/* <div style={{ borderLeftWidth: 1, borderLeftColor: '#eee' }} className="w-full bg-white overflow-y-auto order-3 sm:order-3 sm:w-[22vw] sm:h-full">
           <QuestionAnswerForm />
-        </div>
+        </div> */}
 
       </div>
     </LensProvider>

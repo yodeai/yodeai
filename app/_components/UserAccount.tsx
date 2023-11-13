@@ -42,9 +42,10 @@ const UserAccountHandler = () => {
           <div className="flex gap-4 items-center">
             <Text
               size='sm'
-              variant='gradient'
+              c={"gray.8"}
+              // variant='gradient'
               fw={500}
-              gradient={{ from: 'red', to: 'yellow', deg: 90 }}
+              // gradient={{ from: 'red', to: 'yellow', deg: 90 }}
             >
               Hey, {user.email}!
             </Text>

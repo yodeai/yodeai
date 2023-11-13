@@ -14,7 +14,7 @@ const InfoPopover = ({ infoText }) => {
           </UnstyledButton>
         </Popover.Target>
         <Popover.Dropdown style={{ pointerEvents: 'none' }}>
-          <Text size="sm">{infoText}</Text>
+          <Text ta={"center"} size="sm">{infoText}</Text>
         </Popover.Dropdown>
       </Popover>
     );

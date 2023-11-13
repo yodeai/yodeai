@@ -12,6 +12,7 @@ import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
 import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -90,8 +91,8 @@ export default function Block({ params }: { params: { id: string } }) {
 
   return (
     <main className="container">
-      <Flex direction="column" p={8}>
-        <Divider mb={8} label="My blocks" labelPosition="center" />
+      <Flex direction="column" p={16}>
+        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
         {!isEditing ? (
           <>
             <div className="p-2 pt-0 flex flex-col w-full">
@@ -139,6 +140,9 @@ export default function Block({ params }: { params: { id: string } }) {
           <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
           // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
         )}
+      </Flex>
+      <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
       </Flex>
     </main>
 

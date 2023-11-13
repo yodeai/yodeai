@@ -9,11 +9,11 @@ import { Lens } from "app/_types/lens";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaThLarge, FaPlusSquare, FaFolderPlus, FaArchive } from "react-icons/fa";
+import { FaInbox, FaThLarge, FaPlusSquare, FaFolderPlus, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
 import { FaFolderTree } from "react-icons/fa6";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
-import { Box, Button, Divider, Flex, NavLink, Paper } from "@mantine/core";
+import { Box, Button, Divider, Flex, NavLink, Paper, Popover } from "@mantine/core";
 
 export function ActiveLink({
   href,
@@ -123,6 +123,7 @@ export default function Navbar() {
     const data = await response.json();
     const newLensId = data.data[0].lens_id;
     // Route to the new lens page and pass a 'edit' query parameter
+    setOpened(false);
     setLensId(newLensId);
     console.log(lensId);
     reloadLenses();
@@ -131,6 +132,7 @@ export default function Navbar() {
   }, [router]);
 
   const handleNewBlock = (e: React.MouseEvent) => {
+    setOpened(false);
     setLensId(null);
     setActiveComponent("global");
     router.push(`/new`);
@@ -149,28 +151,52 @@ export default function Navbar() {
   }
 
   // https://ui.mantine.dev/component/navbar-search/
+  const [opened, setOpened] = useState(false);
 
   return (
     <nav className="flex flex-col">
-      <Button
-        onClick={handleNewBlock}
-        style={{ width: 188, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
-        leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-        color="gray"
-        variant="gradient"
-        opacity={0.9}
-      >
-        New
-      </Button>
-      {/* <NavLink
-        onClick={handleNewBlock}
-        label="New Block"
-        leftSection={<FaPlusSquare size={14} />}
-        active
-        color="gray"
-        variant="gradient"
-        opacity={0.9}
-      /> */}
+      <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
+        <Popover.Target>
+          <Button
+            onClick={() => setOpened(!opened)}
+            style={{ width: 188, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+            leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+            color="gray"
+            variant="gradient"
+            opacity={0.9}
+          >
+            New
+          </Button>
+        </Popover.Target>
+        <Popover.Dropdown p={0}>
+          <NavLink
+            onClick={handleNewBlock}
+            ta={"center"}
+            label={
+              <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
+                <FaPlus style={{ marginRight: 1 }} size={8} />
+                <FaSquare size={12} />
+                <Box ml={10}>New Block</Box>
+              </Flex>
+            }
+            active
+            variant="subtle"
+          />
+          <NavLink
+            onClick={handleCreateLens}
+            ta={"center"}
+            label={
+              <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
+                <FaPlus style={{ marginRight: 1 }} size={8} />
+                <FaCube size={12} />
+                <Box ml={10}>New Space</Box>
+              </Flex>
+            }
+            active
+            variant="subtle"
+          />
+        </Popover.Dropdown>
+      </Popover>
 
       <NavLink
         onClick={handleHomeClick}
@@ -191,26 +217,20 @@ export default function Navbar() {
         active
       />
 
-      <NavLink
-        label="My Spaces"
-        leftSection={<FaFolderTree size={14.5} style={{ marginLeft: 0.55 }} />}
-        childrenOffset={28}
-        defaultOpened
-        color="#888"
-        variant="subtle"
-        active
-      >
-        <NavLink
-          onClick={handleCreateLens}
-          label="New Space"
-          leftSection={<FaFolderPlus size={14} />}
-          active
-          variant="subtle"
-        />
-        {lenses?.map((lens) => (
-          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-        ))}
-      </NavLink>
+      <Divider
+        mb={0}
+        label={
+          <>
+            <FaCubes size={12} />
+            <Box ml={5}>My Spaces</Box>
+          </>
+        }
+        labelPosition="center"
+      />
+
+      {lenses?.map((lens) => (
+        <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+      ))}
     </nav>
   );
 }

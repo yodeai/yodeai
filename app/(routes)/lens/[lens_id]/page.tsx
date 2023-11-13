@@ -18,6 +18,7 @@ import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt } from "r
 import { isErrored } from "stream";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
 import InfoPopover from "@components/InfoPopover";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 
 
@@ -273,8 +274,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   // </Flex>
 
   return (
-    <Flex direction={"column"} p={8}>
-      <Divider mb={8} label={lensName} labelPosition="center" />
+    <Flex direction={"column"} p={16}>
+      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
         <Flex justify={"center"} align={"center"}>
@@ -350,7 +351,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           </div>
         </span>}
 
-      <Text size="xs" fw={500} c={"blue"}>
+      <Text ta={"center"} size="xs" fw={600} c={"blue"}>
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
 
@@ -392,6 +393,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           </div>
 
       }
+      <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
+      </Flex>
     </Flex >
   );
 }
