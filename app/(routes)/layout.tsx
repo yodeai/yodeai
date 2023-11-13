@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Navbar />
         </div> */}
 
-        <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'none', sm: 'block' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, padding: '10px', backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
+        <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'none', sm: 'block' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
           <Navbar />
         </Flex>
 

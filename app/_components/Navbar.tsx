@@ -154,12 +154,12 @@ export default function Navbar() {
   const [opened, setOpened] = useState(false);
 
   return (
-    <nav className="flex flex-col">
+    <nav style={{ width: 230 }} className="flex flex-col">
       <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
         <Popover.Target>
           <Button
             onClick={() => setOpened(!opened)}
-            style={{ width: 188, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+            style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
             leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
             color="gray"
             variant="gradient"
@@ -202,7 +202,6 @@ export default function Navbar() {
         onClick={handleHomeClick}
         label="My Blocks"
         leftSection={<FaThLarge size={14} />}
-        style={{ minWidth: 210 }}
         color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
         variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
         active
@@ -218,7 +217,10 @@ export default function Navbar() {
       />
 
       <Divider
-        mb={0}
+        mb={3}
+        mt={3}
+        pl={8}
+        pr={8}
         label={
           <>
             <FaCubes size={12} />
