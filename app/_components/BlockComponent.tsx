@@ -19,7 +19,6 @@ interface BlockProps {
   onArchive?: () => void;
 }
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive }: BlockProps) {
-  const [blockStatus, setBlockStatus] = useState(block.status);
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -127,7 +126,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         </div>
       </div>
 
-        {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> {block.readOnly ? "" : <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button>}</div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
+        {block.status === 'processing' ? (<span className="processing-text">[Processing...]</span>) : block.status === 'failure' ? (<div><span className="failed-text">[Failed]</span> {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? "" : <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors"> Retry upload</button>}</div>) : block.status == 'waiting to process' ? (<span className="waiting-text">[Waiting to process]</span>) : ''}
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

@@ -86,10 +86,12 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
 }
 
 
-export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
+export async function GET(request: NextRequest, { params, }: { params: { block_id: string}; }) {
   const supabase = createServerComponentClient({ cookies });
 
   const block_id = Number(params.block_id);
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Validate the id  
   if (isNaN(block_id)) {
     return notOk("Invalid ID");
@@ -106,11 +108,12 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       throw blockError;
     }
 
-    const {data: accessLevel, error: accessLevelError} = await supabase.rpc('get_access_type_block', {"chosen_block_id": block_id})
+    const {data: accessLevel, error: accessLevelError} = await supabase.rpc('get_access_type_block', {"chosen_block_id": block_id, "chosen_user_id": user.id})
     if (accessLevelError) {
+      console.log("message", accessLevelError.message)
       throw accessLevelError;
     }
-    block.readOnly = accessLevel == 'reader';
+    block.accessLevel = accessLevel;
     return ok(block);
   } catch (err) {
     return notOk(`${err}`);

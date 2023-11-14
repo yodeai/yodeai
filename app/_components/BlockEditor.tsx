@@ -38,30 +38,24 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   //let controller;
 
   const saveContent = async (delay=180) => {
-
-    /*
-    if (controller) {
-      controller.abort()
-      console.log("ABORTED")
-    }
-    controller = new AbortController();
-    const signal = controller.signal;*/
     console.log("delay", delay)
     let method: 'POST' | 'PUT';
     let endpoint: string;
     // If block exists and there are changes, update it
     if (block && (content !== block.content || title !== block.title)) {
       if (!block.block_id) {
+        console.log("in old block")
         method = "POST";
         endpoint = `/api/block`;
       } else {
-        console.log("IN HERE")
+        console.log("in put")
         method = "PUT";
         endpoint = `/api/block/${block.block_id}`;
       }
     }
     // If block doesn't exist, create a new block
     else if (!block && (content !== "" || title !== "")) {
+      console.log("in new block")
       method = "POST";
       endpoint = `/api/block`;
     }
@@ -186,6 +180,13 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // Navigate back using the router
     router.back();
   };
+
+
+  useEffect(() => {
+    return () => {
+      saveContent(0); // save content one last time
+    };
+  }, []);
 
 
 
