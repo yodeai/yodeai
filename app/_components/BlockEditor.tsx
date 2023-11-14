@@ -183,18 +183,10 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      saveContent(0)
-    };
-
-    // Attach the event listener
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    // Cleanup: Remove the event listener when the component is unmounted
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      saveContent(0); // save content one last time
     };
-  }, []); // Empty dependency array means this effect runs once after the initial render
+  }, []);
 
 
 
