@@ -8,7 +8,7 @@ import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
+import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
 
@@ -215,8 +215,8 @@ const QuestionAnswerForm: React.FC = () => {
 
             <Divider color={"#eee"} />
 
-            <Flex mb={8} p={10} pt={0} direction={"column"}>
-                <Flex justify={'center'} p={10} pb={0} direction={"column"}>
+            <Flex p={10} pt={0} direction={"column"}>
+                <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
                     {(
                         <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                             <Textarea
@@ -225,8 +225,9 @@ const QuestionAnswerForm: React.FC = () => {
                                 placeholder="Enter your question"
                             />
                             <Group justify="flex-end" mt="xs">
-                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='light' disabled={isLoading}>
-                                    {isLoading ? 'Loading...' : 'Submit'}
+                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: 'red', deg: 110 }} disabled={isLoading}>
+                                    <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />
+                                    {isLoading ? 'Loading...' : 'Ask'}
                                 </Button>
                             </Group>
                         </form>
