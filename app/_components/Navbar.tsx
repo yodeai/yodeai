@@ -158,16 +158,18 @@ export default function Navbar() {
       <ScrollArea.Autosize mah={'90vh'} scrollbarSize={0} type='auto'>
         <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
           <Popover.Target>
-            <Button
-              onClick={() => setOpened(!opened)}
-              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
-              leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-              color="gray"
-              variant="gradient"
-              opacity={0.9}
-            >
-              New
-            </Button>
+            <Flex align={"center"} justify={"center"}>
+              <Button
+                onClick={() => setOpened(!opened)}
+                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+                leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+                color="gray"
+                variant="gradient"
+                opacity={0.9}
+              >
+                New
+              </Button>
+            </Flex>
           </Popover.Target>
           <Popover.Dropdown p={0}>
             <NavLink
@@ -234,7 +236,7 @@ export default function Navbar() {
         {lenses?.map((lens) => (
           <LensComponent key={lens.lens_id} lens={lens} compact={true} />
         ))}
-        </ScrollArea.Autosize>
+      </ScrollArea.Autosize>
     </nav>
   );
 }
