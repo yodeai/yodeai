@@ -11,11 +11,14 @@ import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
+import LensInviteComponent from "@components/LensInviteComponent";
 
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+
   const supabase = createClientComponentClient()
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -39,10 +42,17 @@ export default function Inbox() {
       }
     }
       
+    const deleteBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Deleting block", block_id);
+      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+
+    }      
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
       .subscribe();
   
     return () => {
@@ -61,12 +71,24 @@ export default function Inbox() {
       .catch((error) => {
         console.error("Error fetching block:", error);
         notFound();
-        setLoading(false);
       });
   };
 
+  const fetchInvites = async() => {
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+    .from('lens_invites')
+    .select()
+    .eq('recipient', user.email).eq("status", "sent")
+    if (error) {
+      console.error("error getting lens invites:", error.message)
+    }
+    setUnacceptedInvites(data);
+  }
+
   useEffect(() => {
       fetchBlocks();
+      fetchInvites();
   }, []);
 
 
@@ -89,8 +111,26 @@ export default function Inbox() {
           </>
         }
       </header>
-
       <div className="flex items-stretch flex-col gap-4 mt-4">
+        Invites
+        {
+          unacceptedInvites?.length > 0 ? (
+            unacceptedInvites.map((invite) => (
+              <div key={invite.lens_id} >
+              <LensInviteComponent invite={invite}></LensInviteComponent>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col p-4 flex-grow">
+              No unaccepted invites!
+            </div>
+          )
+        }
+
+
+      </div>
+      <div className="flex items-stretch flex-col gap-4 mt-4">
+        Blocks
       <Link
         href="/new"
         className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">

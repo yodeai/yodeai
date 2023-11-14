@@ -17,11 +17,6 @@ export async function POST(request: NextRequest) {
     if (!process.env.BASE_URL) {
         throw new Error('BASE_URL environment variable is not defined');
     }
-    //const headers = new Headers();
-    //headers.set('Access-Control-Allow-Origin', process.env.BASE_URL);
-    //headers.set('Access-Control-Allow-Methods', 'GET,POST');
-    //headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
     try {
         const { question } = await request.json();
         if (!question) {

@@ -11,7 +11,7 @@ async function apiClient(
   
     const options: RequestInit = {
       method,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin':'*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': baseUrl}
     };
   
     if (body) options.body = JSON.stringify(body);

@@ -150,10 +150,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       }
     }
 
+    const deleteBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Deleting block", block_id);
+      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+
+    }      
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -310,7 +317,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             {lens.shared ? `Collaborative: ${lens.shared ?  `${accessType}` : ''}` : ''}
           </p>
           <p className="text-green-500 text-sm">
-              {lens.public ? 'Published' : 'Private'}
+              {lens.public ? 'Published' : 'Not Published'}
           </p>
       {!lens.shared || accessType == 'editor' || accessType == 'owner' ? 
       <div className="flex items-stretch flex-col gap-4 mt-4">

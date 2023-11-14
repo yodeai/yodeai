@@ -56,7 +56,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
         <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
         <p className="text-blue-500 text-sm">{lens.shared ? `Collaborative: ${lens.shared ?  `${lens.user_to_access_type[user?.id]}` : ''} ` : ''}</p>
         <p className="text-green-500 text-sm">
-              {lens.public ? 'Published' : 'Private'}
+              {lens.public ? 'Published' : 'Not Published'}
               </p>
       </div>
 
