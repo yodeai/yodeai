@@ -172,7 +172,7 @@ const QuestionAnswerForm: React.FC = () => {
 
     return (
         <Flex w={'20vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, padding: '10px', backgroundColor: '#fff' }}>
-            <ScrollArea w={'18vw'} mah={'69vh'} h={'69vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+            <ScrollArea mah={'70vh'} h={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
                 {
                     (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
                         <QuestionComponent
@@ -189,7 +189,7 @@ const QuestionAnswerForm: React.FC = () => {
                 }
             </ScrollArea>
 
-            <Flex direction={"column"} h={"20vh"}>
+            <Flex mb={8} direction={"column"}>
                 <Flex mt={4} mb={2} justify={"center"}>
                     <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
                         {lensId && lensName ?

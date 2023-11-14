@@ -24,7 +24,7 @@ const DynamicSimpleMDE = dynamic(
 );
 
 
-export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
+export default function BlockEditor({ lensName, block: initialBlock }: { lensName?: string, block?: Block }) {
   const router = useRouter();
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
@@ -185,7 +185,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     await saveContent(0);
 
     // Navigate back using the router
-    router.push(`/`);
+    if (lensName) {
+      router.back();
+    } else {
+      router.push(`/`);
+    }
     // router.back();
   };
 
