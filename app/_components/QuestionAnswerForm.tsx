@@ -8,7 +8,7 @@ import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
+import { Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
 
@@ -171,8 +171,8 @@ const QuestionAnswerForm: React.FC = () => {
     }, [questionHistory]);
 
     return (
-        <Flex w={'20vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, padding: '10px', backgroundColor: '#fff' }}>
-            <ScrollArea mah={'70vh'} h={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+        <Flex w={'25vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, backgroundColor: '#fff' }}>
+            <ScrollArea.Autosize p={10} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
                 {
                     (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
                         <QuestionComponent
@@ -187,9 +187,11 @@ const QuestionAnswerForm: React.FC = () => {
                     ))
 
                 }
-            </ScrollArea>
+            </ScrollArea.Autosize>
 
-            <Flex mb={8} direction={"column"}>
+            <Divider color={"#eee"} />
+
+            <Flex mb={8} p={10} pt={4} direction={"column"}>
                 <Flex mt={4} mb={2} justify={"center"}>
                     <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
                         {lensId && lensName ?

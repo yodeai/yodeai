@@ -18,11 +18,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <LensProvider>
       <div className="flex flex-col sm:flex-row h-screen">
 
-        {/* Navbar with a right border and full height */}
-        {/* <div style={{ borderRightWidth: 1, borderRightColor: '#eee' }} className="flex flex-col overflow-y-auto order-2 sm:order-1 sm:h-full">
-          <Navbar />
-        </div> */}
-
         <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'none', sm: 'block' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
           <Navbar />
         </Flex>
@@ -34,8 +29,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Flex>
 
           {/* QuestionAnswerForm with a left border */}
-          <Flex align={"center"} justify={"center"} w={'20vw'} display={{ base: 'none', sm: 'block' }} style={{ borderLeftWidth: 1, borderLeftColor: '#eee' }}>
+          <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'relative', top: 50, right: 0, backgroundColor: '#fff'  }}>
+          <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'fixed', top: 50, right: 0, backgroundColor: '#fff', borderLeftWidth: 1, borderLeftColor: '#eee'  }}>
             <QuestionAnswerForm />
+          </Flex>
           </Flex>
         </Flex>
 
