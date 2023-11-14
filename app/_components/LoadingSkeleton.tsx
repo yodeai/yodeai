@@ -11,7 +11,6 @@ function LoadingSkeleton() {
       <div className="skeleton line"></div>
       <div className="skeleton line"></div>
       <div className="skeleton line"></div>
-      <div className="skeleton line"></div>
     </div>
   );
 }

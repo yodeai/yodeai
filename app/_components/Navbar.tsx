@@ -13,7 +13,7 @@ import { FaInbox, FaThLarge, FaPlusSquare, FaFolderPlus, FaCube, FaCubes, FaSqua
 import { FaFolderTree } from "react-icons/fa6";
 import ReactMarkdown from "react-markdown";
 import { set } from "date-fns";
-import { Box, Button, Divider, Flex, NavLink, Paper, Popover } from "@mantine/core";
+import { Box, Button, Divider, Flex, NavLink, Paper, Popover, ScrollArea } from "@mantine/core";
 
 export function ActiveLink({
   href,
@@ -155,84 +155,86 @@ export default function Navbar() {
 
   return (
     <nav style={{ width: 230 }} className="flex flex-col">
-      <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
-        <Popover.Target>
-          <Button
-            onClick={() => setOpened(!opened)}
-            style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
-            leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-            color="gray"
-            variant="gradient"
-            opacity={0.9}
-          >
-            New
-          </Button>
-        </Popover.Target>
-        <Popover.Dropdown p={0}>
-          <NavLink
-            onClick={handleNewBlock}
-            ta={"center"}
-            label={
-              <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
-                <FaPlus style={{ marginRight: 1 }} size={8} />
-                <FaSquare size={12} />
-                <Box ml={10}>New Block</Box>
-              </Flex>
-            }
-            active
-            variant="subtle"
-          />
-          <NavLink
-            onClick={handleCreateLens}
-            ta={"center"}
-            label={
-              <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
-                <FaPlus style={{ marginRight: 1 }} size={8} />
-                <FaCube size={12} />
-                <Box ml={10}>New Space</Box>
-              </Flex>
-            }
-            active
-            variant="subtle"
-          />
-        </Popover.Dropdown>
-      </Popover>
+      <ScrollArea.Autosize mah={'90vh'} scrollbarSize={0} type='auto'>
+        <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
+          <Popover.Target>
+            <Button
+              onClick={() => setOpened(!opened)}
+              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+              leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+              color="gray"
+              variant="gradient"
+              opacity={0.9}
+            >
+              New
+            </Button>
+          </Popover.Target>
+          <Popover.Dropdown p={0}>
+            <NavLink
+              onClick={handleNewBlock}
+              ta={"center"}
+              label={
+                <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
+                  <FaPlus style={{ marginRight: 1 }} size={8} />
+                  <FaSquare size={12} />
+                  <Box ml={10}>New Block</Box>
+                </Flex>
+              }
+              active
+              variant="subtle"
+            />
+            <NavLink
+              onClick={handleCreateLens}
+              ta={"center"}
+              label={
+                <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
+                  <FaPlus style={{ marginRight: 1 }} size={8} />
+                  <FaCube size={12} />
+                  <Box ml={10}>New Space</Box>
+                </Flex>
+              }
+              active
+              variant="subtle"
+            />
+          </Popover.Dropdown>
+        </Popover>
 
-      <NavLink
-        onClick={handleHomeClick}
-        label="My Blocks"
-        leftSection={<FaThLarge size={14} />}
-        color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
-        variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
-        active
-      />
+        <NavLink
+          onClick={handleHomeClick}
+          label="My Blocks"
+          leftSection={<FaThLarge size={14} />}
+          color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
+          variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
+          active
+        />
 
-      <NavLink
-        onClick={handleOpenInbox}
-        label="Inbox"
-        leftSection={<FaInbox style={{ marginTop: 2 }} />}
-        color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
-        variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
-        active
-      />
+        <NavLink
+          onClick={handleOpenInbox}
+          label="Inbox"
+          leftSection={<FaInbox style={{ marginTop: 2 }} />}
+          color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
+          variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
+          active
+        />
 
-      <Divider
-        mb={3}
-        mt={3}
-        pl={8}
-        pr={8}
-        label={
-          <>
-            <FaCubes size={12} />
-            <Box ml={5}>My Spaces</Box>
-          </>
-        }
-        labelPosition="center"
-      />
+        <Divider
+          mb={3}
+          mt={3}
+          pl={8}
+          pr={8}
+          label={
+            <>
+              <FaCubes size={12} />
+              <Box ml={5}>My Spaces</Box>
+            </>
+          }
+          labelPosition="center"
+        />
 
-      {lenses?.map((lens) => (
-        <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-      ))}
+        {lenses?.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))}
+        </ScrollArea.Autosize>
     </nav>
   );
 }

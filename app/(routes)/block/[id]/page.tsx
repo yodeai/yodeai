@@ -91,7 +91,7 @@ export default function Block({ params }: { params: { id: string } }) {
 
   return (
     <main className="container">
-      <Flex direction="column" p={16}>
+      <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
         {!isEditing ? (
           <>

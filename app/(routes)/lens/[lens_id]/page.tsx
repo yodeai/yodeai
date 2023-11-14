@@ -236,7 +236,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   if (!lens) {
     return (
-      <div className="flex flex-col p-2 pt-4 flex-grow">
+      <div className="flex flex-col p-2 pt-0 flex-grow">
         <LoadingSkeleton />
       </div>
     );
@@ -274,7 +274,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   // </Flex>
 
   return (
-    <Flex direction={"column"} p={16}>
+    <Flex direction={"column"} p={16} pt={0}>
       <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?

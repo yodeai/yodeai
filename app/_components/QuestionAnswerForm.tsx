@@ -8,7 +8,7 @@ import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
+import { Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
 
@@ -172,7 +172,31 @@ const QuestionAnswerForm: React.FC = () => {
 
     return (
         <Flex w={'25vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, backgroundColor: '#fff' }}>
-            <ScrollArea.Autosize p={10} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+            <Divider
+                style={{ position: 'fixed', top: 50, paddingTop: 10, width: '25vw' }}
+                mb={3}
+                mt={3}
+                pl={8}
+                pr={8}
+                label={
+                    <>
+                        <Flex maw={'25vw'} style={{ whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {lensId && lensName ?
+                                'Context: ' + lensName
+                                :
+                                ((activeComponent === "global") ?
+                                    "Ask a question from your blocks"
+                                    :
+                                    "Ask a question from Inbox")
+                            }
+                        </Flex>
+                        <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
+                    </>
+                }
+                labelPosition="center"
+            />
+
+            <ScrollArea.Autosize p={10} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
                 {
                     (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
                         <QuestionComponent
@@ -191,22 +215,8 @@ const QuestionAnswerForm: React.FC = () => {
 
             <Divider color={"#eee"} />
 
-            <Flex mb={8} p={10} pt={4} direction={"column"}>
-                <Flex mt={4} mb={2} justify={"center"}>
-                    <Text c={"gray.7"} size='sm' mr={4} ta={"center"} fw={500}>
-                        {lensId && lensName ?
-                            'Context: ' + lensName
-                            :
-                            ((activeComponent === "global") ?
-                                "Ask a question from your blocks"
-                                :
-                                "Ask a question from Inbox")
-                        }
-                    </Text>
-                    <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
-                </Flex>
-
-                <Flex justify={'center'} p={10} pt={0} pb={0} direction={"column"}>
+            <Flex mb={8} p={10} pt={0} direction={"column"}>
+                <Flex justify={'center'} p={10} pb={0} direction={"column"}>
                     {(
                         <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                             <Textarea

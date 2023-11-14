@@ -7,7 +7,6 @@ import { Pencil2Icon } from "@radix-ui/react-icons";
 import { useState } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
-import BlockEditor from '@components/BlockEditor';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";

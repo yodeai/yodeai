@@ -38,7 +38,7 @@ export default async function RootLayout({
             </Flex>
           </header>
           <Toaster />
-          <Flex direction={'column'} w={'100%'} mt={50}>
+          <Flex direction={'column'} h={'100vh'} w={'100%'}>
             {children}
           </Flex>
         </MantineProvider>

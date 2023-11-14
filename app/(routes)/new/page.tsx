@@ -35,7 +35,7 @@ export default function New() {
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="write">
-            <BlockEditor lensName={lensName} />
+            <BlockEditor />
           </Tabs.Content>
           <Tabs.Content value="upload">
             <UploadBlocks />

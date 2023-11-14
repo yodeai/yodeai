@@ -75,7 +75,7 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="flex flex-col p-2 pt-4 flex-grow">
+      <div className="flex flex-col p-2 pt-0 flex-grow">
         <LoadingSkeleton />
       </div>
 
@@ -88,7 +88,7 @@ export default function Index() {
 
   return (
     <Flex mih={'100vh'} direction="column">
-      <Flex direction="column" p={16}>
+      <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
 
         {blocks.length > 0 ? (
