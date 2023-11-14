@@ -38,14 +38,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   //let controller;
 
   const saveContent = async (delay=180) => {
-
-    /*
-    if (controller) {
-      controller.abort()
-      console.log("ABORTED")
-    }
-    controller = new AbortController();
-    const signal = controller.signal;*/
     console.log("delay", delay)
     let method: 'POST' | 'PUT';
     let endpoint: string;
@@ -188,6 +180,21 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // Navigate back using the router
     router.back();
   };
+
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      saveContent(0)
+    };
+
+    // Attach the event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup: Remove the event listener when the component is unmounted
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []); // Empty dependency array means this effect runs once after the initial render
 
 
 
