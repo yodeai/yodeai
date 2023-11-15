@@ -310,7 +310,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               </Tooltip>
               {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
               <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
-                <strong>Status:</strong> {lens.public ? 'Published' : 'Private'}
+                <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
               </Text>
             </Flex>
           ) : (
