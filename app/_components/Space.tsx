@@ -22,6 +22,9 @@ import { isErrored } from "stream";
 export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
@@ -37,55 +40,92 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   useEffect(() => {
     // Fetch lens data and related information
-    fetchLensData(params.lens_id);
+    fetchAllData(params.lens_id);
   }, [params.lens_id, searchParams]);
 
-  const fetchLensData = (lensId: string) => {
+  const fetchAllData = (lensId: string) => {
     setLoading(true);
-    // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-    if (searchParams.get("edit") === 'true') {
-      setEditingLensName(lensName);
-      setIsEditingLensName(true);
+    let apicalls = [fetchBlocks(lensId)];
+    if (lensId == "inbox") {
+      apicalls.push(fetchInvites());
+    } else {
+      apicalls.push(fetchSpace(lensId));
+      // Check if 'edit' query parameter is present and set isEditingLensName accordingly
+      if (searchParams.get("edit") === 'true') {
+        setEditingLensName(lensName);
+        setIsEditingLensName(true);
+      }
     }
-    // Fetch lens and related data
-    Promise.all([
-      fetch(`/api/lens/${lensId}/getBlocks`)
-        .then((response) => response.json())
-        .then((data) => {
-          setBlocks(data.data);
-        })
-        .catch((error) => {
-          console.error('Error fetching blocks:', error);
-        }),
-      fetch(`/api/lens/${lensId}`)
-        .then((response) => {
-          if (!response.ok) {
-            console.log('Error fetching lens');
-            router.push('/notFound');
-          } else {
-            return response.json();
-          }
-        })
-        .then((data) => {
-          setLens(data.data);
-          setLensName(data.data.name);
-          const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setAccessType(data.data.user_to_access_type[user.id]);
-          };
-          getUser();
-        })
-        .catch((error) => {
-          console.error('Error fetching lens:', error);
-        }),
-    ])
-      .then(() => {
-        setLoading(false);
+    // Fetch related data
+    Promise.all(apicalls)
+    .then(() => {
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error('(fetchAllData) Error fetching data:', error);
+      notFound();
+      // // TODO: figure out which error to send
+      // router.push('/notFound');
+      // notFound();
+    });
+  };
+
+  const fetchBlocks = async(lensId: string) => {
+    let apiurl;
+    if (lensId == "allBlocks") {
+      apiurl = '/api/block/getAllBlocks';
+    } else if (lensId == "inbox") {
+      apiurl = '/api/inbox/getBlocks';
+    } else {
+      apiurl = `/api/lens/${lensId}/getBlocks`;
+    }
+    fetch(apiurl)
+      .then(response => response.json())
+      .then(data => {
+        setBlocks(data.data || []);
       })
-      .catch((error) => {
-        console.error('Error fetching lens data:', error);
-        notFound();
+      .catch(error => {
+        console.error('(fetchBlocks) Error fetching blocks:', error);
+        throw error;
       });
+  };
+
+  const fetchInvites = async() => {
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+    .from('lens_invites')
+    .select()
+    .eq('recipient', user.email).eq("status", "sent")
+    if (error) {
+      console.error("(fetchInvites) Error fetching space invites:", error.message);
+      throw error;
+    }
+    setUnacceptedInvites(data);
+  };
+
+  const fetchSpace = async(lensId: string) => {
+    fetch(`/api/lens/${lensId}`)
+    .then((response) => {
+      if (!response.ok) {
+        console.log('(fetchSpace) Error fetching space. response not ok.');
+        router.push('/notFound'); // TODO: notFound(); ??
+      } else {
+        return response.json();
+      }
+    })
+    .then((data) => {
+      setLens(data.data);
+      setLensName(data.data.name);
+      const getUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setAccessType(data.data.user_to_access_type[user.id]);
+      };
+      getUser();
+    })
+    .catch((error) => {
+      console.log('(fetchSpace) Error setting space and getting user.');
+      throw error;
+    })
   };
 
   //done
@@ -129,8 +169,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     };
   }, [blocks]);
   // done
-
-
 
   const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
@@ -209,7 +247,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   if (!lens) {
     return (
       <div className="flex flex-col p-4 flex-grow">
-        <p>Error fetching lens data.</p>
+        <p>Error fetching data.</p>
       </div>
     );
   }
