@@ -11,7 +11,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
 
-import { Button, Divider, Flex, Text } from "@mantine/core";
+import { Button, Divider, Flex, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensInviteComponent from "@components/LensInviteComponent";
@@ -45,19 +45,19 @@ export default function Inbox() {
       }
     }
 
-      
+
     const deleteBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
       console.log("Deleting block", block_id);
       setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
 
-    }      
+    }
 
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -79,12 +79,12 @@ export default function Inbox() {
       });
   };
 
-  const fetchInvites = async() => {
+  const fetchInvites = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
-    .from('lens_invites')
-    .select()
-    .eq('recipient', user.email).eq("status", "sent")
+      .from('lens_invites')
+      .select()
+      .eq('recipient', user.email).eq("status", "sent")
     if (error) {
       console.error("error getting lens invites:", error.message)
     }
@@ -92,8 +92,8 @@ export default function Inbox() {
   }
 
   useEffect(() => {
-      fetchBlocks();
-      fetchInvites();
+    fetchBlocks();
+    fetchInvites();
   }, []);
 
 
@@ -118,23 +118,23 @@ export default function Inbox() {
           </Link>
         </Flex>
       </Flex>
-      
-       <div className="flex items-stretch flex-col gap-4 mt-4">
-        Invites
+
+      <Paper mb={10}>
+        <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
         {
           unacceptedInvites?.length > 0 ? (
             unacceptedInvites.map((invite) => (
               <div key={invite.lens_id} >
-              <LensInviteComponent invite={invite}></LensInviteComponent>
+                <LensInviteComponent invite={invite}></LensInviteComponent>
               </div>
             ))
           ) : (
-            <div className="flex flex-col p-4 flex-grow">
+            <Text ta={"center"} c={"gray.6"} size="sm">
               No unaccepted invites!
-            </div>
+            </Text>
           )
         }
-      </div>
+      </Paper>
 
       {
         loading ? (
