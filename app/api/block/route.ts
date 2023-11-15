@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 import apiClient from '@utils/apiClient';
 
 async function addBlockToInbox(supabase, block_id, user_id){
-  console.log("Adding block to inbox function")
   type InboxRequestBody = {
     block_id: number;
     user_id: string;
@@ -17,7 +16,6 @@ async function addBlockToInbox(supabase, block_id, user_id){
     user_id: user_id
   }
 
-  /* add to inbox here */
   const { error } =  await supabase
   .from('inbox')
   .insert(inboxRequestBody)
