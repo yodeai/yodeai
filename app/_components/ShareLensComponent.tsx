@@ -49,11 +49,10 @@ export default function DefaultModal({ lensId }) {
     }
     useEffect(() => {
         const fetchCollaborators = async () => {
-            const { data: { user }, error } = await supabase.auth.getUser();
-
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const { data: collaborators } = await supabase.from('lens_users').select("*, users(email), lens(owner_id)").eq("lens_id", lensId).neq("user_id", user.id)
-            setLensCollaborators(collaborators);
+            const {data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
+            setLensCollaborators(data.filter((item) => item.users.id != user.id));
         }
         const checkPublishedLens = async () => {
             const { data: lens, error } = await supabase
@@ -372,7 +371,7 @@ export default function DefaultModal({ lensId }) {
                                         { value: 'reader', label: 'Reader' },
                                     ]}
                                 />
-                                {lensCollaborators.length > 0 && (
+                                {lensCollaborators?.length > 0 && (
                                     <Group>
                                         <Title order={3}>Collaborators</Title>
                                         <List>

@@ -48,7 +48,7 @@ export default function LensComponent({ lens, compact }: LensProps) {
             </Text>
           )}
           <Text c={'green'} size="xs">
-            {lens.public ? 'Published' : 'Private'}
+          {lens.public ? 'Published' : 'Not Published'}
           </Text>
         </>
       }
