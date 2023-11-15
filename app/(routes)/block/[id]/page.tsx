@@ -112,7 +112,7 @@ export default function Block({ params }: { params: { id: string } }) {
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
                 {/* </Link> */}
                 <div className="flex gap-2">
-                  {block.readOnly ? null :
+                {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
                     <Tooltip color="blue" label="Edit this block's title/content">
                       <Button
                         size="xs"

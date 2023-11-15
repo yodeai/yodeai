@@ -122,7 +122,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                     [Failed]
                   </Text>
                 </span>
-                {block.readOnly ?
+                {(block.accessLevel != 'editor' && block.accessLevel != "owner") ?
                   ""
                   :
                   <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
