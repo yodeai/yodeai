@@ -5,6 +5,7 @@ import clsx from "clsx";
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Anchor, List, Paper, Text } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
 
 interface QuestionProps {
   id: string;
@@ -84,16 +85,20 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
 
   return (
     <Paper p="md" mb={10} withBorder>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col">
         <div>
           <Text size='sm' fw={500}>
             Q: {question}
           </Text>
         </div>
         <div className="prose text-gray-600">
-          <Text size='sm'>
-            {answer}
-          </Text>
+          {/* <Text size='sm'> */}
+          <div className="markdown-content">
+            <ReactMarkdown>
+             {answer}
+            </ReactMarkdown>
+            </div>
+          {/* </Text> */}
           {sources && sources.length > 0 && (
             <div className="mt-2">
               <Text size='sm' fw={500}>

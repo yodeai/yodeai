@@ -174,7 +174,7 @@ const QuestionAnswerForm: React.FC = () => {
         <Flex w={'25vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, backgroundColor: '#fff' }}>
             <Divider
                 style={{ position: 'fixed', top: 50, paddingTop: 10, width: '25vw' }}
-                mb={3}
+                mb={0}
                 mt={3}
                 pl={8}
                 pr={8}
@@ -196,7 +196,7 @@ const QuestionAnswerForm: React.FC = () => {
                 labelPosition="center"
             />
 
-            <ScrollArea.Autosize p={10} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+            <ScrollArea.Autosize p={10} pt={0} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
                 {
                     (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
                         <QuestionComponent
@@ -225,7 +225,7 @@ const QuestionAnswerForm: React.FC = () => {
                                 placeholder="Enter your question"
                             />
                             <Group justify="flex-end" mt="xs">
-                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: 'red', deg: 110 }} disabled={isLoading}>
+                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isLoading}>
                                     <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />
                                     {isLoading ? 'Loading...' : 'Ask'}
                                 </Button>
