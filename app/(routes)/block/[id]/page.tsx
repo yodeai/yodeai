@@ -11,6 +11,8 @@ import BlockEditor from '@components/BlockEditor';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
+import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -22,19 +24,19 @@ export default function Block({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
-    .then((response) => {
-      if (!response.ok) {
-        console.log("Error fetching url")
-        setLoading(false);
-        router.push("/notFound")
-      } else {
-        response.json().then((data) => {
-          setBlock(data.data);
+      .then((response) => {
+        if (!response.ok) {
+          console.log("Error fetching url")
           setLoading(false);
-        })
-      }
-    })
-      
+          router.push("/notFound")
+        } else {
+          response.json().then((data) => {
+            setBlock(data.data);
+            setLoading(false);
+          })
+        }
+      })
+
   }, [params.id]);
 
 
@@ -89,40 +91,59 @@ export default function Block({ params }: { params: { id: string } }) {
 
   return (
     <main className="container">
-      <div className="w-full flex flex-col p-8">
-        <div className="flex items-start justify-between p-8 rounded-md bg-white border border-gray-200 mb-4 mt-12">
-          {!isEditing ? (
-            <>
-              <div className="flex flex-col gap-1 w-full">
-                <div className="flex justify-between items-center w-full">
-                  <Link className="flex items-center flex-1" href={`/block/${block.block_id}`}>
-                    <ReactMarkdown className="prose text-gray-600 line-clamp-1 text-xl">
-                      {block.title}
-                    </ReactMarkdown>
-                  </Link>
-                  <div className="flex gap-2">
-                    {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? "" :
-                      <button onClick={() => setIsEditing(!isEditing)} className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
-                        <Pencil2Icon className="w-6 h-6" />
-                      </button>
-                    }
-                    
-                  </div>
-                </div>
-                <div className="min-w-full">
-                  <div className="min-w-full">
-                    <p className="text-gray-500 text-sm">{formatDate(block.updated_at)}</p>
-                    {renderContent()}
-                  </div>
+      <Flex direction="column" p={16} pt={0}>
+        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
+        {!isEditing ? (
+          <>
+            <div className="p-2 pt-0 flex flex-col w-full">
+              <div className="flex justify-between items-center w-full">
+
+                <Button
+                  size={"xs"}
+                  p={0}
+                  variant="transparent"
+                  onClick={() => window.location.href = `/block/${block.block_id}`}
+                >
+                  <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text>
+                </Button>
+
+
+                {/* <Link href={`/block/${block.block_id}`}> */}
+                {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
+                {/* </Link> */}
+                <div className="flex gap-2">
+                {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
+                    <Tooltip color="blue" label="Edit this block's title/content">
+                      <Button
+                        size="xs"
+                        variant="subtle"
+                        leftSection={<Pencil2Icon />}
+                        onClick={() => setIsEditing(!isEditing)}
+                      >
+                        Edit
+                      </Button>
+                    </Tooltip>
+                  }
                 </div>
               </div>
-            </>
-          ) : (
-            <BlockEditor block={block}  /> // this recreates the entire block view but allows for editing            
-            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-          )}
-        </div>
-      </div>
+              <div className="min-w-full">
+                <div className="min-w-full">
+                  <Text size="xs" c="gray">
+                    {formatDate(block.updated_at)}
+                  </Text>
+                  {renderContent()}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+          // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+        )}
+      </Flex>
+      {/* <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
+      </Flex> */}
     </main>
 
   );

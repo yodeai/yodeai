@@ -7,11 +7,7 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
-import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
-import ShareLensComponent from "@components/ShareLensComponent";
-
 
 //import { useRouter } from 'next/router';
 import { useRouter } from "next/navigation";

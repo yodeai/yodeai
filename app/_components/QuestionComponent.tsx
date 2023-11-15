@@ -1,10 +1,10 @@
 // components/QuestionComponent.tsx
 "use client";
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from "clsx";
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
+import { Anchor, List, Paper, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 
 interface QuestionProps {
@@ -17,7 +17,7 @@ interface QuestionProps {
 }
 
 
-const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sources, published, lensID}) => {
+const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sources, published, lensID }) => {
   const [votes, setVotes] = useState(0);
   const supabase = createClientComponentClient()
   const [user, setUser] = useState(null);
@@ -31,21 +31,21 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
 
     const getVotes = async (user) => {
       if (id && published) {
-        const {data: totalVotes, error: totalVotesError} = await supabase.from("questions").select().eq("id", id)
+        const { data: totalVotes, error: totalVotesError } = await supabase.from("questions").select().eq("id", id)
         if (totalVotesError) {
           throw totalVotesError
         }
         setVotes(totalVotes[0].popularity)
 
-        const {data: votes, error} = await supabase.from("question_votes").select().eq("user_id", user.id).eq("question_id", id)
+        const { data: votes, error } = await supabase.from("question_votes").select().eq("user_id", user.id).eq("question_id", id)
         if (error) {
           throw error;
         }
-        if (!votes || votes.length == 0){
+        if (!votes || votes.length == 0) {
           return;
         }
         setCurrentVote(votes[0].vote);
-    }
+      }
 
     }
     getUser();
@@ -55,7 +55,7 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
     if (currentVote == 1) {
       return;
     }
-    await apiClient('/increasePopularity', 'PATCH', { "row_id": id, "user_id": user.id, "lens_id": lensID})
+    await apiClient('/increasePopularity', 'PATCH', { "row_id": id, "user_id": user.id, "lens_id": lensID })
       .then(result => {
         setVotes(votes + 1)
         setCurrentVote(1);
@@ -63,65 +63,78 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
       .catch(error => {
         console.error('Error in updating popularity block: ' + error.message);
         return;
-      }); 
-    };
+      });
+  };
 
   const handleDownvote = async () => {
     if (currentVote == -1) {
       return;
     }
-    await apiClient('/decreasePopularity', 'PATCH', { "row_id": id, "user_id": user.id, "lens_id": lensID})
-    .then(result => {
-      setVotes(votes - 1);
-      setCurrentVote(-1);
+    await apiClient('/decreasePopularity', 'PATCH', { "row_id": id, "user_id": user.id, "lens_id": lensID })
+      .then(result => {
+        setVotes(votes - 1);
+        setCurrentVote(-1);
 
-    })
-    
-    .catch(error => {
-      console.error('Error in updating popularity block: ' + error.message);
-      return;
-    });  
+      })
+
+      .catch(error => {
+        console.error('Error in updating popularity block: ' + error.message);
+        return;
+      });
   };
 
   return (
-    <div className={clsx("elevated-block p-4 rounded-md bg-white border-orange-200 border mb-4 orange-shadow")}>
-  <div className="flex flex-col gap-3">
-    <div className="prose text-gray-600">
-      <strong>{question}</strong>
-    </div>
-    <div className="prose text-gray-600">
-      <div>
-        <ReactMarkdown>
-         {answer}
-        </ReactMarkdown>
-      </div>
-      {sources && sources.length > 0 && (
-        <div className="mt-2">
-          <strong>Sources:</strong>
-          <ul>
-            {sources.map(({ title, blockId }) => (
-              published ? <li key={blockId}><a href={`/publishedBlocks/${blockId}`}>{title}</a></li> : <li key={blockId}><a href={`/block/${blockId}`}>{title}</a></li>
-            ))}
-          </ul>
+    <Paper p="md" mb={10} withBorder>
+      <div className="flex flex-col">
+        <div>
+          <Text size='sm' fw={500}>
+            Q: {question}
+          </Text>
         </div>
-      )}
-    </div>
-    {published ?
-   <div className="flex items-center">
-   <div>
-     <button className={`my-div-class ${currentVote === 1 ? 'bg-green-700' : ''}`} onClick={handleUpvote}>Upvote</button>
-   </div>
-   <span className="mx-2">|</span> {/* Add a separator (you can adjust the spacing by changing mx-2) */}
-   <div>
-     <button className={`my-div-class ${currentVote === -1 ? 'bg-red-700' : ''}`} onClick={handleDownvote}>Downvote</button>
-   </div>
-   <span className="mx-2">|</span> {/* Add a separator (you can adjust the spacing by changing mx-2) */}
+        <div className="prose text-gray-600">
+          {/* <Text size='sm'> */}
+          <div className="markdown-content">
+            <ReactMarkdown>
+             {answer}
+            </ReactMarkdown>
+            </div>
+          {/* </Text> */}
+          {sources && sources.length > 0 && (
+            <div className="mt-2">
+              <Text size='sm' fw={500}>
+                Sources:
+              </Text>
+              <List>
+                {sources.map(({ title, blockId }) => (
+                  published ?
+                    <List.Item key={blockId}>
+                      <Anchor size='sm' href={`/publishedBlocks/${blockId}`}>{title}</Anchor>
+                    </List.Item>
+                    :
+                    <List.Item key={blockId}>
+                      <Anchor size='sm' href={`/block/${blockId}`}>{title}</Anchor>
+                    </List.Item>
+                ))}
+              </List>
+            </div>
+          )}
+        </div>
+        {published ?
+          <div className="flex items-center">
+            <div>
+              <button className={`my-div-class ${currentVote === 1 ? 'bg-green-700' : ''}`} onClick={handleUpvote}>Upvote</button>
+            </div>
+            <span className="mx-2">|</span> {/* Add a separator (you can adjust the spacing by changing mx-2) */}
+            <div>
+              <button className={`my-div-class ${currentVote === -1 ? 'bg-red-700' : ''}`} onClick={handleDownvote}>Downvote</button>
+            </div>
+            <span className="mx-2">|</span> {/* Add a separator (you can adjust the spacing by changing mx-2) */}
 
-   <div>Total Votes: {votes}</div>
- </div>
-: ""}
-  </div>
-</div>
+            <div>Total Votes: {votes}</div>
+          </div>
+          : ""}
+      </div>
+    </Paper>
 
   );
 };

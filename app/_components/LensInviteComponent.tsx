@@ -9,8 +9,8 @@ import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import load from "@lib/load";
-import { Button, Tooltip } from "flowbite-react";
 import toast from "react-hot-toast";
+import { Button, Paper, Text } from "@mantine/core";
 
 interface LensProps {
   compact?: boolean;
@@ -23,29 +23,26 @@ export default function LensInviteComponent({ compact, invite }: LensProps) {
   };
 
   return (
-    <div
-      className={clsx(
-        "items-start justify-between p-4 rounded-md bg-white border border-gray-200 mb-4",
-        compact ? "max-w-xs" : ""
-      )}
-    >
+    <Paper withBorder p={8}>
       <div className="flex flex-col gap-1">
         <div>
-          <p>Lens: {invite.lens_id}</p>
-          <p>
+          <Text size="sm" fw={500} c={"gray.7"}>Space ID: {invite.lens_id}</Text>
+          <Text size="sm" fw={400} c={"gray.7"}>
             {invite.sender} is inviting you to collaborate with the role of:{" "}
             {invite.access_type}
-          </p>
+          </Text>
         </div>
-        <div className="flex items-center justify-between flex-1 mt-2">
+        <div className="flex items-center justify-between flex-1">
           <Button
-            className="bg-green-700 rounded text-white"
+            style={{ width: '100%', height: 24 }}
+            size="xs"
+            variant="light"
             onClick={acceptInvite}
           >
             View invitation
           </Button>
         </div>
       </div>
-    </div>
+    </Paper>
   );
 }
