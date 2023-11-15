@@ -20,24 +20,26 @@ import { isErrored } from "stream";
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
+  const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
-  const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
   const router = useRouter();
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient()
 
+  const supabase = createClientComponentClient()
   useEffect(() => {
     setEditingLensName(lensName);
   }, [lensName]);
+
   useEffect(() => {
     // Fetch lens data and related information
     fetchLensData(params.lens_id);
   }, [params.lens_id, searchParams]);
+
   const fetchLensData = (lensId: string) => {
     setLoading(true);
     // Check if 'edit' query parameter is present and set isEditingLensName accordingly
@@ -86,46 +88,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       });
   };
 
-  // useEffect(() => {
-  //   // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-  //   if (searchParams.get("edit") === 'true') {
-  //     setEditingLensName(lensName);
-  //     setIsEditingLensName(true);
-  //   }
-
-  //   // Fetch the blocks associated with the lens
-  //   fetch(`/api/lens/${params.lens_id}/getBlocks`)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setBlocks(data.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching block:", error);
-  //       notFound();
-  //     });
-
-  //   // Fetch the lens details
-  //   fetch(`/api/lens/${params.lens_id}`)
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         console.log("Error fetching lens")
-  //         router.push("/notFound")
-  //       } else {
-  //         response.json().then((data) => {
-  //           setLens(data.data);
-  //           setLensName(data.data.name)
-  //           const getUser = async() => {
-  //             const { data: { user } } = await supabase.auth.getUser()
-  //             setUser(user);
-  //             setAccessType(data.data.user_to_access_type[user.id]);
-  //           }
-  //           getUser();
-  //         })
-  //       }
-  //     })
-
-  // }, [params.lens_id, searchParams]);
-
+  //done
   useEffect(() => {
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -137,7 +100,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           return item;
         })
       );
-
     };
 
     const addBlocks = (payload) => {
@@ -149,16 +111,26 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       }
     }
 
+    const deleteBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Deleting block", block_id);
+      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+    }
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
       .subscribe();
 
     return () => {
       if (channel) channel.unsubscribe();
     };
   }, [blocks]);
+  // done
+
+
 
   const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
@@ -169,12 +141,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     return updatePromise;
   };
 
-
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditingLensName(e.target.value);
   };
-
-
 
   const saveNewLensName = async () => {
     if (lens) {
@@ -229,19 +198,10 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }
   };
 
-
-
-  if (!lens) {
+  if (loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
         <LoadingSkeleton />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div>
       </div>
     );
   }
@@ -265,7 +225,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               <span className="text-xl font-semibold ">{lensName}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Tooltip content="Edit lens." style="light" >
+              <Tooltip content="Edit space." style="light" >
                 <Button onClick={() => setIsEditingLensName(true)} className="no-underline gap-2 font-semibold rounded px py-1 bg-white text-gray-400 border-0">
                   <Pencil2Icon className="w-6 h-6" />
                 </Button>
@@ -309,7 +269,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             {lens.shared ? `Collaborative: ${lens.shared ?  `${accessType}` : ''}` : ''}
           </p>
           <p className="text-green-500 text-sm">
-              {lens.public ? 'Published' : 'Private'}
+              {lens.public ? 'Published' : 'Not Published'}
           </p>
       {!lens.shared || accessType == 'editor' || accessType == 'owner' ?
       <div className="flex items-stretch flex-col gap-4 mt-4">
