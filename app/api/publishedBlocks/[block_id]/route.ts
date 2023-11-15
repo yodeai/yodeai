@@ -30,7 +30,7 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       }
   
 
-      block.readOnly = true;
+      block.accessLevel = 'reader';
       return ok(block);
     } catch (err) {
       return notOk(`${err}`);

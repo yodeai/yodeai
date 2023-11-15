@@ -34,6 +34,17 @@ export default function DefaultModal({ lensId }) {
                 .eq('lens_id', lensId).eq("user_id", user_id);
             const newLensCollaborator = lensCollaborators.filter((item) => { item.user_id != user_id && item.lens_id != lensId })
             setLensCollaborators(newLensCollaborator);
+            if (newLensCollaborator.length == 0) {
+                // change shared to false
+                const { error } = await supabase
+                .from('lens')
+                .update({"shared": false})
+                .eq('lens_id', lensId)
+                if (error) {
+                    console.error("Error", error.message)
+                }
+                handleRefresh();
+            }
         }
     }
     useEffect(() => {
@@ -70,7 +81,11 @@ export default function DefaultModal({ lensId }) {
     }
     const handleShare = async () => {
         const { data: { user }, error } = await supabase.auth.getUser();
-        await apiClient('/shareLens', 'POST',
+        if (shareEmail == user.email) {
+            alert("You cannot share with yourself!")
+            return;
+        }
+        await apiClient('/shareLens', 'POST', 
             { "sender": user["email"], "lensId": lensId, "email": shareEmail, "role": selectedRole },
         )
             .then(async (result) => {
@@ -96,67 +111,79 @@ export default function DefaultModal({ lensId }) {
     };
 
     const handleRepublishClick = async () => {
-        const { data: lens, error } = await supabase
+        try {
+            // Update 'lens' table to set 'public' to true
+            const { data: lens, error } = await supabase
             .from('lens')
+            .update({ 'public': true })
+            .eq('lens_id', lensId)
+            .select();
+      
+          if (error) {
+            console.error("Error updating 'lens' table:", error.message);
+            return;
+          }
+          // Insert/update into 'lens_published'
+          const { error: insertError } = await supabase
+            .from('lens_published')
+            .upsert(lens);
+      
+          if (insertError) {
+            console.error("Error upserting into 'lens_published' table:", insertError.message);
+            return;
+          }
+      
+          // Fetch lens block mappings
+          const { data: mappings, error: mappingError } = await supabase
+            .from('lens_blocks')
             .select()
             .eq('lens_id', lensId);
-        if (error) {
-            console.log("error", error.message)
-        } else {
-            const { error: updateError } = await supabase
-                .from('lens_published')
-                .update(lens)
-                .eq('lens_id', lensId);
-
-            if (updateError) {
-                console.error('Error updating row:', updateError.message);
-                return;
-            }
-
-            // insert all the mappings to lens_blocks_published
-            const { data: mappings, error } = await supabase
-                .from('lens_blocks')
-                .select()
-                .eq('lens_id', lensId)
-
-            const { error: insertMappingError } = await supabase
-                .from('lens_blocks_published')
-                .update(mappings); // Insert the first row from the selection
-
-            if (insertMappingError) {
-                console.error('Error inserting row into the destination table:', insertMappingError.message);
-                return;
-            }
-
-            // insert all blocks to blocks_published
-            const block_ids = mappings.map(obj => obj.block_id);
-            const { data: blocks, error: blocksError } = await supabase
-                .from('block')
-                .select()
-                .in('block_id', block_ids)
-
-            if (blocksError) {
-                console.error("Error");
-                throw blocksError;
-            }
-
-            const { error: insertBlocksError } = await supabase
-                .from('block_published')
-                .update(blocks); // Insert the first row from the selection
-
-            if (insertBlocksError) {
-                console.error('Error inserting row into the destination table:', insertBlocksError.message);
-                return;
-            }
-
-            alert("Updated privacy successfully!");
-            close();
-            handleRefresh();
-
-
+      
+          if (mappingError) {
+            console.error("Error fetching lens block mappings:", mappingError.message);
+            return;
+          }
+      
+          // Insert/update into 'lens_blocks_published'
+          const { error: insertMappingError } = await supabase
+            .from('lens_blocks_published')
+            .upsert(mappings);
+      
+          if (insertMappingError) {
+            console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
+            return;
+          }
+      
+          // Fetch blocks using block_ids from lens block mappings
+          const blockIds = mappings.map((obj) => obj.block_id);
+          const { data: blocks, error: blocksError } = await supabase
+            .from('block')
+            .select()
+            .in('block_id', blockIds);
+      
+          if (blocksError) {
+            console.error("Error fetching blocks:", blocksError.message);
+            throw blocksError;
+          }
+      
+          // Insert/update into 'block_published'
+          const { error: insertBlocksError } = await supabase
+            .from('block_published')
+            .upsert(blocks);
+      
+          if (insertBlocksError) {
+            console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
+            return;
+          }
+      
+          alert("Updated privacy successfully!");
+          props.setOpenModal(undefined);
+          handleRefresh();
+        } catch (error) {
+          console.error("An unexpected error occurred:", error.message);
         }
-
-    }
+      };
+      
 
     const handleClick = async () => {
         if (published) {

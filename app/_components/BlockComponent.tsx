@@ -19,7 +19,6 @@ interface BlockProps {
   onArchive?: () => void;
 }
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive }: BlockProps) {
-  const [blockStatus, setBlockStatus] = useState(block.status);
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -138,7 +137,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 </Text>
               </span>
               ) : ''}
-
         {block.inLenses && (
           <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
         )}

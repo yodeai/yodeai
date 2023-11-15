@@ -152,10 +152,17 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       }
     }
 
+    const deleteBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Deleting block", block_id);
+      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+
+    }      
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -391,7 +398,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               <p>This lens is empty.</p>
             )}
           </div>
-
       }
       {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />

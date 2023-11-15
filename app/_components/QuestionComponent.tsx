@@ -7,6 +7,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Anchor, List, Paper, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 
+import ReactMarkdown from 'react-markdown';
+
 interface QuestionProps {
   id: string;
   question: string;

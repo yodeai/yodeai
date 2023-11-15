@@ -8,7 +8,7 @@ import { ActionIcon, Button, Group, Select } from "@mantine/core";
 
 
 interface LensProps {
-  lenses: { lens_id: number, name: string }[];
+  lenses: { lens_id: number, name: string, access_type: string }[];
   block_id: number;
 }
 
@@ -17,7 +17,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const [showInput, setShowInput] = useState(false);
   const [newLensName, setNewLensName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const [suggestions, setSuggestions] = useState<{ lens_id: number, name: string }[]>([]);
+  const [suggestions, setSuggestions] = useState<{ lens_id: number, name: string, access_type: string }[]>([]);
   const [currentLenses, setCurrentLenses] = useState(lenses);
   const [processingLensId, setProcessingLensId] = useState<number | null>(null);
   const [addingNewLens, setAddingNewLens] = useState(false);
@@ -67,7 +67,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
 
     if (e) {
       const filtered = allLenses.filter(lens =>
-        lens.name.toLowerCase().includes(e.toLowerCase())
+        lens.name.toLowerCase().includes(e.target.value.toLowerCase()) && lens.access_type != 'reader'
       );
       setSuggestions(filtered);
     } else {
@@ -78,7 +78,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const handleSuggestionClick = (suggestionId: number) => {
     setAddingNewLens(true); // Indicate that a new lens is being added
 
-    const request = fetch(`/api/lens/${suggestionId}/addBlock`, {
+  const request = fetch(`/api/lens/${suggestionId}/addBlock`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
