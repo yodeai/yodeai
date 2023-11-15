@@ -2,11 +2,12 @@
 "use client";
 import React, { useState, FormEvent } from 'react';
 import apiClient from '@utils/apiClient';
-import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
-import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useDebounce } from "usehooks-ts";
+import { Text, Paper, Divider, NavLink } from '@mantine/core';
+import { IconChevronRight } from '@tabler/icons-react';
 
 interface LensViewOnlyFormProps {
     lensId: string;
@@ -21,8 +22,10 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     const lensId = props.lensId;
     const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ id: string, question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
     const[relevantQuestionsFinal, setRelevantQuestions] = useState<Map<string, RelevantQuestion>>(new Map());
-
-    const [inputValue, setInputValue] = useState<string>('');    
+    const [suggestedQuestions, setSuggestedQuestions] = useState<Array<{ id: string, question: string, answer: string, sources: { title: string, blockId: string }[] }>>([])
+    const [suggestedQuestionsLoading, setSuggestedQuestionsLoading] = useState<boolean>(false);
+    const [inputValue, setInputValue] = useState<string>(''); 
+    const debouncedInputValue = useDebounce(inputValue, 500);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -118,32 +121,83 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
         }
     }
 
+    const getSuggestedQuestions = async () => {
+        const relevantQuestionData = {question: inputValue, lensID: lensId}
+        setSuggestedQuestionsLoading(true)
+        const relevantQuestions = await apiClient('/searchableFeed', 'POST', relevantQuestionData)
+        setSuggestedQuestionsLoading(false)
+        let questionList = relevantQuestions.answer.questions;
+        questionList = questionList.filter(q => q.answer != null)
+        console.log("suggested Qs" ,questionList)
+        setSuggestedQuestions(questionList);
+        // after each space or punctuation: make sure to optimize API calls
+        // the dropdown list has links: clickable 
+        // click link to see the question and answer
+        // hovering over link: summary/preview of answer: trimmed down Spoiler comments
+        // click on link and move to page corresponding to that Question and Answer 
+        // upvote and downvote 
+        // comment the Q & A in the page
+        // remove entries that have a null answer
+        // how to rank questions? - relevance metrics: based on similarity, pick the top 3-4 questions (threshold: 0.65-0.7)
+    }
 
+    useEffect(() => {
+        if(inputValue.trim().length > 0){
+            getSuggestedQuestions();
+        }
+    }, [debouncedInputValue])
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value)
+    }
     return (        
         <div className="container p-4 " >
-            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
+            <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full pt-16">
+            {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
             </h1>
-            
+             
             <div className="flex flex-col  lg:py-12 text-foreground">
             {(
                 <form onSubmit={handleSubmit} className="flex">
                     <input
                         type="text"
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        onChange={handleInputChange}
                         placeholder="Enter your question"
                         className="text-black mr-2 w-full h-12 px-4 "
                     />
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-btn-background  py-2 px-4 rounded"
+                        className="bg-btn-background py-2 px-4 rounded"
                     >
                         {isLoading ? 'Loading...' : 'Submit'}
                     </button>
                 </form>
             )}
+            {
+                inputValue.length > 0 && !suggestedQuestionsLoading && <Paper shadow="xs" className='mt-1'>
+                    {
+                        (
+                            suggestedQuestions.map((item, key) => {
+                                return (
+                                    <React.Fragment key={key}>
+                                        <NavLink 
+                                            active
+                                            variant="subtle"
+                                            label={<Text size="md" fw={500} tt="capitalize">{item.question}</Text>} 
+                                            description={<Text size={"sm"} c="gray.7" truncate="end">{item.answer}</Text>}
+                                            rightSection={<IconChevronRight size="0.8rem" stroke={1.5} />}
+                                        />
+                                        <Divider />
+                                    </React.Fragment>
+                                )
+                            })
+    )
+                    }
+                </Paper>
+            }
+
                 <div className="scrollable-div mt-4" ref={scrollableDivRef}>
                     {
                         (questionHistory.get(lensId || '') || []).map(({ id, question, answer, sources }, index) => (
