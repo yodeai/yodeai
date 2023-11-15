@@ -8,8 +8,11 @@ import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
 import { ShadowInnerIcon } from "@radix-ui/react-icons";
-import { FaThLarge } from "react-icons/fa";
+import { FaSquare, FaStar, FaThLarge, FaFolder, FaFolderOpen, FaCube } from "react-icons/fa";
+import { useState, useEffect } from "react";
 
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { NavLink, Text } from "@mantine/core";
 
 interface LensProps {
   compact?: boolean;
@@ -18,36 +21,41 @@ interface LensProps {
 export default function LensComponent({ lens, compact }: LensProps) {
   const router = useRouter();
   const { lensId, setLensId } = useAppContext(); // the selected lens retrieved from the context
-
+  const [user, setUser] = useState(null);
+  const supabase = createClientComponentClient();
   const handleLensClick = (e: React.MouseEvent) => {
     setLensId(lens.lens_id.toString());
     router.push(`/lens/${lens.lens_id}`);
   };
-
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user);
+    }
+    getUser()
+  }, [])
 
   return (
-    <div
-      className={clsx(
-        "flex items-start justify-between py-2 p-4 transition-colors",
-        compact && "max-w-xs",
-        Number(lensId) === lens.lens_id && "bg-customLightBlue-light"
-      )}
-    >
-      <div className="flex flex-col gap-1 justify-start">
-        <button className="flex items-center mt-4 text-gray-600 gap-4" onClick={handleLensClick}>
-        
-          { /*<img src="/lens-icon.png" alt="Lens Icon" className="mr-2 w-5" />*/ }
-          <FaThLarge className="iconStyle spaceIconStyle"  /> 
-          <div className="text-gray-600  line-clamp-1  ">
-          <div className="truncate">
-            {lens.name}
-            </div>
-          </div>
-        </button>
-        <p className="text-gray-500 text-sm">{formatDate(lens.updated_at)}</p>
-      </div>
-
-
-    </div>
+    <NavLink
+      label={lens.name}
+      onClick={handleLensClick}
+      description={
+        <>
+          <Text mt={-2.5} c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+          {lens.shared && (
+            <Text c="blue" size="xs">
+              Collaborative: {lens.user_to_access_type[user?.id] ?? ''}
+            </Text>
+          )}
+          <Text c={'green'} size="xs">
+          {lens.public ? 'Published' : 'Not Published'}
+          </Text>
+        </>
+      }
+      leftSection={<FaCube size={14} />}
+      active
+      color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}
+      variant={Number(lensId) !== lens.lens_id ? 'subtle' : 'light'}
+    />
   );
 }

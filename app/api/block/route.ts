@@ -40,10 +40,13 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-
-    requestData.owner_id = user.id;
+    let delay = requestData.delay;
     console.log("saving: ", requestData);
+
+    delete requestData["delay"]
+    requestData.owner_id = user.id;
     requestData.status = "waiting to process";
+    
     // Extract lens_id and delete it from requestData
     const lensId = requestData.lens_id;
     delete requestData.lens_id;
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
       const newBlock: Block = data[0];
       addBlockToInbox(supabase, newBlock.block_id, user.id);
       console.log("processing block now");
-      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id })
+      apiClient('/processBlock', 'POST', { block_id: newBlock.block_id, delay: delay })
         .then(result => {
           console.log('Block processed successfully', result);
         })
@@ -78,18 +81,12 @@ export async function POST(request: NextRequest) {
             .eq('block_id', newBlock.block_id);
         })
         .then(() => {
-          console.log('Block status updated to failure');
+          console.log('Block status updated to failure', newBlock.block_id);
         })
         .catch(updateError => {
           console.error('Error updating block status', updateError);
         });
     }
-    
-    
-    
-    
-    
-    
     
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {

@@ -11,7 +11,7 @@ type contextType = {
   setLensName: React.Dispatch<React.SetStateAction<string | null>>;
   reloadKey: number;
   reloadLenses: () => void;
-  allLenses: { lens_id: number, name: string }[];
+  allLenses: { lens_id: number, name: string, access_type: string }[];
   // activeComponent can be "global", "lens", or "inbox"
   activeComponent: string;
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
@@ -49,7 +49,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [reloadKey, setReloadKey] = useState(0);
   const [lensName, setLensName] = useState<string | null>(null);
   // allLenses is a list of the lenses that this user has, is used to suggest lenses
-  const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string }[]>([]);
+  const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string }[]>([]);
   const [activeComponent, setActiveComponent] = useState<string>("global");
 
 

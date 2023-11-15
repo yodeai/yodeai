@@ -31,10 +31,12 @@ export default forwardRef(function Button(
         variant !== "unstyled" && "text-sm rounded py-1 px-3 font-semibold",
         variant === "secondary" && "border",
         variant === "primary" && "bg-blue-600 text-white shadow-sm",
+        disabled && "opacity-50 cursor-not-allowed",  // add this line
         className
       )}
     >
       {children}
     </button>
+
   );
 });

@@ -6,16 +6,22 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
-import ShareLensComponent from "@components/ShareLensComponent";
 import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
 
+import { Button, Divider, Flex, Paper, Text } from "@mantine/core";
+import { FaPlus } from "react-icons/fa";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import LensInviteComponent from "@components/LensInviteComponent";
+
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+
   const supabase = createClientComponentClient()
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -23,8 +29,7 @@ export default function Inbox() {
       setBlocks(prevBlocks =>
         prevBlocks.map(item => {
           if (item.block_id === block_id) {
-            console.log('Updating block status:', item, " to ", payload['new'] );
-            return {...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks};
+            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
           }
           return item;
         })
@@ -39,13 +44,22 @@ export default function Inbox() {
         setBlocks([newBlock, ...blocks]);
       }
     }
-      
+
+
+    const deleteBlocks = (payload) => {
+      let block_id = payload["new"]["block_id"]
+      console.log("Deleting block", block_id);
+      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+
+    }
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .subscribe();
-  
+
     return () => {
       if (channel) channel.unsubscribe();
     };
@@ -62,12 +76,24 @@ export default function Inbox() {
       .catch((error) => {
         console.error("Error fetching block:", error);
         notFound();
-        setLoading(false);
       });
   };
 
+  const fetchInvites = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+      .from('lens_invites')
+      .select()
+      .eq('recipient', user.email).eq("status", "sent")
+    if (error) {
+      console.error("error getting lens invites:", error.message)
+    }
+    setUnacceptedInvites(data);
+  }
+
   useEffect(() => {
-      fetchBlocks();
+    fetchBlocks();
+    fetchInvites();
   }, []);
 
 
@@ -75,47 +101,60 @@ export default function Inbox() {
 
 
   return (
+    <Flex direction="column" p={16} pt={0}>
+      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Inbox</Text>} labelPosition="center" />
 
-    <Container as="main" className="py-8 max-w-screen-sm gap-8 ">
+      <Flex justify={"center"} align={"center"}>
+        <Flex justify={"center"} align={"center"}>
+          <Link href="/new">
+            <Button
+              size="xs"
+              variant="subtle"
+              leftSection={<FaPlus />}
+            // onClick={() => setIsEditingLensName(true)}
+            >
+              Add Block
+            </Button>
+          </Link>
+        </Flex>
+      </Flex>
 
-      <header className="flex items-center justify-between">
-
+      <Paper mb={10}>
+        <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
         {
-          <>
-            <span className="text-xl font-semibold">Inbox</span>
-            <div className="flex items-center space-x-2">
-
-            </div>
-
-          </>
-        }
-      </header>
-
-      <div className="flex items-stretch flex-col gap-4 mt-4">
-      <Link
-        href="/new"
-        className="no-underline flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 w-32 bg-royalBlue hover:bg-royalBlue-hover text-white border border-royalBlue shadow transition-colors">
-        <PlusIcon /> New block
-      </Link>
-
-        {
-          loading ? (
-            <div className="flex flex-col p-4 flex-grow">
-              <LoadingSkeleton />
-            </div>
-          ) : blocks.length > 0 ? (
-            blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true}  onArchive={fetchBlocks} />
+          unacceptedInvites?.length > 0 ? (
+            unacceptedInvites.map((invite) => (
+              <div key={invite.lens_id} >
+                <LensInviteComponent invite={invite}></LensInviteComponent>
+              </div>
             ))
           ) : (
-            <div className="flex flex-col p-4 flex-grow">
-              Nothing to show here. As you add blocks they will initially show up in your Inbox.
-            </div>
+            <Text ta={"center"} c={"gray.6"} size="sm">
+              No unaccepted invites!
+            </Text>
           )
         }
+      </Paper>
 
+      {
+        loading ? (
+          <div className="flex flex-col p-2 pt-0 flex-grow">
+            <LoadingSkeleton />
+          </div>
+        ) : blocks?.length > 0 ? (
+          blocks.map((block) => (
+            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
+          ))
+        ) : (
+          <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+            Nothing to show here. As you add blocks they will initially show up in your Inbox.
+          </Text>
+        )
+      }
 
-      </div>
-    </Container>
+      {/* <Flex direction={"column"} justify={"flex-end"}>
+        <QuestionAnswerForm />
+      </Flex> */}
+    </Flex >
   );
 }

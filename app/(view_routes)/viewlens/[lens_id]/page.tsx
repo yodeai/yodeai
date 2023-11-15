@@ -7,10 +7,7 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
-import LoadingSkeleton from '@components/LoadingSkeleton';
-
-import ShareLensComponent from "@components/ShareLensComponent";
-
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 //import { useRouter } from 'next/router';
 import { useRouter } from "next/navigation";
@@ -18,13 +15,28 @@ import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensViewOnlyForm from "@components/LensViewOnlyForm";
 
 export default function ViewLens({ params }: { params: { lens_id: string } }) {
+  const supabase = createClientComponentClient()
+  const [published, setPublished] = useState(false);
   const router = useRouter();
-
-  console.log(params.lens_id);
+  useEffect(()=> {
+    const checkPublishedLens = async() => {
+      const { data: lens, error } = await supabase
+      .from('lens_published')
+      .select()
+      .eq('lens_id', params.lens_id);
+      if (error) {
+          console.log("error", error.message)
+      } else {
+          if (!lens[0]) router.push("/notFound");
+          setPublished(true)
+      }
+  } 
+    checkPublishedLens();
+  }, [])
 
   return (
     <> 
-      <LensViewOnlyForm lensId={params.lens_id}/>
+      {published ? <LensViewOnlyForm lensId={params.lens_id}/> : ""}
     </>
   );
 }
