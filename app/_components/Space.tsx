@@ -34,14 +34,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const searchParams = useSearchParams();
 
   const supabase = createClientComponentClient()
-  useEffect(() => {
-    setEditingLensName(lensName);
-  }, [lensName]);
-
-  useEffect(() => {
-    // Fetch lens data and related information
-    fetchAllData(params.lens_id);
-  }, [params.lens_id, searchParams]);
 
   const fetchAllData = (lensId: string) => {
     setLoading(true);
@@ -58,16 +50,13 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }
     // Fetch related data
     Promise.all(apicalls)
-    .then(() => {
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error('(fetchAllData) Error fetching data:', error);
-      notFound();
-      // // TODO: figure out which error to send
-      // router.push('/notFound');
-      // notFound();
-    });
+      .then(() => {
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('(fetchAllData) Error fetching data:', error);
+        router.push('/notFound');
+      });
   };
 
   const fetchBlocks = async(lensId: string) => {
@@ -79,15 +68,15 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     } else {
       apiurl = `/api/lens/${lensId}/getBlocks`;
     }
-    fetch(apiurl)
-      .then(response => response.json())
-      .then(data => {
-        setBlocks(data.data || []);
-      })
-      .catch(error => {
-        console.error('(fetchBlocks) Error fetching blocks:', error);
-        throw error;
-      });
+    return fetch(apiurl)
+        .then(response => response.json())
+        .then(data => {
+          setBlocks(data.data || []);
+        })
+        .catch(error => {
+          console.error('(fetchBlocks) Error fetching blocks:', error);
+          throw error;
+        });
   };
 
   const fetchInvites = async() => {
@@ -104,31 +93,39 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   };
 
   const fetchSpace = async(lensId: string) => {
-    fetch(`/api/lens/${lensId}`)
-    .then((response) => {
-      if (!response.ok) {
-        console.log('(fetchSpace) Error fetching space. response not ok.');
-        router.push('/notFound'); // TODO: notFound(); ??
-      } else {
-        return response.json();
-      }
-    })
-    .then((data) => {
-      setLens(data.data);
-      setLensName(data.data.name);
-      const getUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setAccessType(data.data.user_to_access_type[user.id]);
-      };
-      getUser();
-    })
-    .catch((error) => {
-      console.log('(fetchSpace) Error setting space and getting user.');
-      throw error;
-    })
+    return fetch(`/api/lens/${lensId}`)
+      .then((response) => {
+        if (!response.ok) {
+          console.log('(fetchSpace) Error fetching space. response not ok.');
+          throw new Error('(fetchSpace) Error fetching space: ' + response.status);
+        } else {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        setLens(data.data);
+        setLensName(data.data.name);
+        const getUser = async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          setAccessType(data.data.user_to_access_type[user.id]);
+        };
+        getUser();
+      })
+      .catch((error) => {
+        console.log('(fetchSpace) Error setting space and getting user.', error);
+        throw error;
+      })
   };
 
-  //done
+  useEffect(() => {
+    setEditingLensName(lensName);
+  }, [lensName]);
+
+  useEffect(() => {
+    // Fetch lens data and related information
+    fetchAllData(params.lens_id);
+  }, [params.lens_id, searchParams]);
+
   useEffect(() => {
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -168,7 +165,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       if (channel) channel.unsubscribe();
     };
   }, [blocks]);
-  // done
 
   const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
