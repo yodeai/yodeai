@@ -37,9 +37,9 @@ export default function DefaultModal({ lensId }) {
             if (newLensCollaborator.length == 0) {
                 // change shared to false
                 const { error } = await supabase
-                .from('lens')
-                .update({"shared": false})
-                .eq('lens_id', lensId)
+                    .from('lens')
+                    .update({ "shared": false })
+                    .eq('lens_id', lensId)
                 if (error) {
                     console.error("Error", error.message)
                 }
@@ -51,7 +51,7 @@ export default function DefaultModal({ lensId }) {
         const fetchCollaborators = async () => {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const {data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
+            const { data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
             setLensCollaborators(data.filter((item) => item.users.id != user.id));
         }
         const checkPublishedLens = async () => {
@@ -84,7 +84,7 @@ export default function DefaultModal({ lensId }) {
             alert("You cannot share with yourself!")
             return;
         }
-        await apiClient('/shareLens', 'POST', 
+        await apiClient('/shareLens', 'POST',
             { "sender": user["email"], "lensId": lensId, "email": shareEmail, "role": selectedRole },
         )
             .then(async (result) => {
@@ -113,76 +113,76 @@ export default function DefaultModal({ lensId }) {
         try {
             // Update 'lens' table to set 'public' to true
             const { data: lens, error } = await supabase
-            .from('lens')
-            .update({ 'public': true })
-            .eq('lens_id', lensId)
-            .select();
-      
-          if (error) {
-            console.error("Error updating 'lens' table:", error.message);
-            return;
-          }
-          // Insert/update into 'lens_published'
-          const { error: insertError } = await supabase
-            .from('lens_published')
-            .upsert(lens);
-      
-          if (insertError) {
-            console.error("Error upserting into 'lens_published' table:", insertError.message);
-            return;
-          }
-      
-          // Fetch lens block mappings
-          const { data: mappings, error: mappingError } = await supabase
-            .from('lens_blocks')
-            .select()
-            .eq('lens_id', lensId);
-      
-          if (mappingError) {
-            console.error("Error fetching lens block mappings:", mappingError.message);
-            return;
-          }
-      
-          // Insert/update into 'lens_blocks_published'
-          const { error: insertMappingError } = await supabase
-            .from('lens_blocks_published')
-            .upsert(mappings);
-      
-          if (insertMappingError) {
-            console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
-            return;
-          }
-      
-          // Fetch blocks using block_ids from lens block mappings
-          const blockIds = mappings.map((obj) => obj.block_id);
-          const { data: blocks, error: blocksError } = await supabase
-            .from('block')
-            .select()
-            .in('block_id', blockIds);
-      
-          if (blocksError) {
-            console.error("Error fetching blocks:", blocksError.message);
-            throw blocksError;
-          }
-      
-          // Insert/update into 'block_published'
-          const { error: insertBlocksError } = await supabase
-            .from('block_published')
-            .upsert(blocks);
-      
-          if (insertBlocksError) {
-            console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
-            return;
-          }
-      
-          alert("Updated privacy successfully!");
-          props.setOpenModal(undefined);
-          handleRefresh();
+                .from('lens')
+                .update({ 'public': true })
+                .eq('lens_id', lensId)
+                .select();
+
+            if (error) {
+                console.error("Error updating 'lens' table:", error.message);
+                return;
+            }
+            // Insert/update into 'lens_published'
+            const { error: insertError } = await supabase
+                .from('lens_published')
+                .upsert(lens);
+
+            if (insertError) {
+                console.error("Error upserting into 'lens_published' table:", insertError.message);
+                return;
+            }
+
+            // Fetch lens block mappings
+            const { data: mappings, error: mappingError } = await supabase
+                .from('lens_blocks')
+                .select()
+                .eq('lens_id', lensId);
+
+            if (mappingError) {
+                console.error("Error fetching lens block mappings:", mappingError.message);
+                return;
+            }
+
+            // Insert/update into 'lens_blocks_published'
+            const { error: insertMappingError } = await supabase
+                .from('lens_blocks_published')
+                .upsert(mappings);
+
+            if (insertMappingError) {
+                console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
+                return;
+            }
+
+            // Fetch blocks using block_ids from lens block mappings
+            const blockIds = mappings.map((obj) => obj.block_id);
+            const { data: blocks, error: blocksError } = await supabase
+                .from('block')
+                .select()
+                .in('block_id', blockIds);
+
+            if (blocksError) {
+                console.error("Error fetching blocks:", blocksError.message);
+                throw blocksError;
+            }
+
+            // Insert/update into 'block_published'
+            const { error: insertBlocksError } = await supabase
+                .from('block_published')
+                .upsert(blocks);
+
+            if (insertBlocksError) {
+                console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
+                return;
+            }
+
+            alert("Updated privacy successfully!");
+            props.setOpenModal(undefined);
+            handleRefresh();
         } catch (error) {
-          console.error("An unexpected error occurred:", error.message);
+            console.error("An unexpected error occurred:", error.message);
         }
-      };
-      
+    };
+
 
     const handleClick = async () => {
         if (published) {
@@ -326,7 +326,7 @@ export default function DefaultModal({ lensId }) {
             </Tooltip >
 
             <Container className="max-w-3xl ">
-                <Modal zIndex={1000000} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
+                <Modal zIndex={299} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
                     <Modal.Body p={2} pt={0}>
                         <Group>
                             <Flex w={"100%"} direction={"column"}>
@@ -361,6 +361,7 @@ export default function DefaultModal({ lensId }) {
                                     placeholder="Enter email to share"
                                 />
                                 <Select
+style={{ zIndex: 100000000000 }} 
                                     label="Role"
                                     size='xs'
                                     value={selectedRole}
