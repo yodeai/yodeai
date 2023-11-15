@@ -161,7 +161,7 @@ export default function Navbar() {
             <Flex align={"center"} justify={"center"}>
               <Button
                 onClick={() => setOpened(!opened)}
-                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, borderRadius: 10, textAlign: "center" }}
+                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
                 leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
                 color="gray"
                 variant="gradient"
@@ -202,6 +202,7 @@ export default function Navbar() {
         </Popover>
 
         <NavLink
+          mt={10}
           onClick={handleHomeClick}
           label="My Blocks"
           leftSection={<FaThLarge size={14} />}

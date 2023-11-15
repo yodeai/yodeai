@@ -2,7 +2,7 @@
 export default function AppLayout({ children }: { children: React.ReactNode; }) {
 
   return (
-      <div className="flex flex-col sm:flex-row">
+      <div style={{ marginTop: 50 }} className="flex flex-col sm:flex-row">
    
         <div className="w-full overflow-y-auto">
           {children}
