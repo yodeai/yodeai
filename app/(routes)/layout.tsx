@@ -2,6 +2,7 @@ import Navbar from "@components/Navbar";
 import MobileNavbar from "@components/Space";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
+import { Flex, ScrollArea } from "@mantine/core";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -16,16 +17,27 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <LensProvider>
-      <div className="flex flex-col sm:flex-row">
-        <div className="hidden sm:flex overflow-y-auto sm:order-1 sm:max-h-[90vh]">
+      <div style={{ paddingTop: 50, flex: 1 }} className="flex flex-col sm:flex-row">
+        <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'none', sm: 'block' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
           <Navbar />
-        </div>
-        <div className="w-full overflow-y-auto order-3 sm:order-2 sm:w-[50vw] sm:max-h-[90vh]">
-          {children}
-        </div>
-        <div className="w-full bg-white border-l overflow-y-auto order-1 sm:order-3 sm:w-[30vw] sm:max-h-[90vh]">
-          <QuestionAnswerForm />
-        </div>
+        </Flex>
+
+        {/* Main content area */}
+        <Flex mah={'100%'} w={'100%'} direction={{ base: 'column', sm: 'row' }}>
+          <Flex h={'100%'} style={{ flex: 1 }} ml={{ base: 0, sm: 230 }} direction={"column"}>
+            <ScrollArea type={"scroll"} mt={15.5} w={'100%'} h={'100vh'} scrollbarSize={8}>
+              {children}
+            </ScrollArea>
+          </Flex>
+
+          {/* QuestionAnswerForm with a left border */}
+          <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'relative', top: 50, right: 0 }}>
+            <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'fixed', top: 50, right: 0, borderLeftWidth: 1, borderLeftColor: '#eee' }}>
+              <QuestionAnswerForm />
+            </Flex>
+          </Flex>
+        </Flex>
+
       </div>
     </LensProvider>
   );

@@ -1,9 +1,11 @@
+import { Button } from "@mantine/core";
+
 export default function LogoutButton() {
   return (
     <form action="/api/auth/sign-out" method="post">
-      <button className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
+      <Button type="submit" color="gray" size="xs" variant="light">
         Logout
-      </button>
+      </Button>
     </form>
   )
 }

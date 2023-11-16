@@ -1,15 +1,16 @@
 'use client';
 
-import { Button, Modal, Tooltip } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import { Lens } from "app/_types/lens";
 import { Share1Icon } from "@radix-ui/react-icons";
-import {LinkIcon} from '@heroicons/react/20/solid'
+import { LinkIcon } from '@heroicons/react/20/solid'
 import formatDate from "@lib/format-date";
 
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Container from "@components/Container";
+import { Button, Flex, Group, List, ListItem, Modal, Select, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 export default function DefaultModal({ lensId }) {
     const [openModal, setOpenModal] = useState<string | undefined>();
@@ -22,21 +23,23 @@ export default function DefaultModal({ lensId }) {
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
 
-    const handleRevocation= async(user_id, lensId) => {
+    const [opened, { open, close }] = useDisclosure(false);
+
+    const handleRevocation = async (user_id, lensId) => {
         let confirmation = confirm("Are you sure?")
         if (confirmation) {
             const { error } = await supabase
-            .from('lens_users')
-            .delete()
-            .eq('lens_id', lensId).eq("user_id", user_id);
-            const newLensCollaborator = lensCollaborators.filter((item)=> {item.user_id != user_id && item.lens_id != lensId})
+                .from('lens_users')
+                .delete()
+                .eq('lens_id', lensId).eq("user_id", user_id);
+            const newLensCollaborator = lensCollaborators.filter((item) => { item.user_id != user_id && item.lens_id != lensId })
             setLensCollaborators(newLensCollaborator);
             if (newLensCollaborator.length == 0) {
                 // change shared to false
                 const { error } = await supabase
-                .from('lens')
-                .update({"shared": false})
-                .eq('lens_id', lensId)
+                    .from('lens')
+                    .update({ "shared": false })
+                    .eq('lens_id', lensId)
                 if (error) {
                     console.error("Error", error.message)
                 }
@@ -45,258 +48,258 @@ export default function DefaultModal({ lensId }) {
         }
     }
     useEffect(() => {
-        const fetchCollaborators = async() => {
+        const fetchCollaborators = async () => {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const {data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId)
-            setLensCollaborators(data.filter((item) => item.users.id != user.id))
-        } 
-        const checkPublishedLens = async() => {
+            const { data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
+            setLensCollaborators(data.filter((item) => item.users.id != user.id));
+        }
+        const checkPublishedLens = async () => {
             const { data: lens, error } = await supabase
-            .from('lens')
-            .select()
-            .eq('lens_id', lensId);
+                .from('lens')
+                .select()
+                .eq('lens_id', lensId);
             if (error) {
                 console.log("error", error.message)
             } else {
                 setPublished(lens[0].public)
                 if (lens[0].public) {
                     const { data: lens, error } = await supabase
-                    .from('lens_published')
-                    .select()
-                    .eq('lens_id', lensId);
+                        .from('lens_published')
+                        .select()
+                        .eq('lens_id', lensId);
                     setPublishInformation(lens[0].updated_at);
                 }
             }
-        } 
+        }
         checkPublishedLens();
         fetchCollaborators();
     }, [])
     const handleRefresh = () => {
         window.location.reload();
-      }
+    }
     const handleShare = async () => {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (shareEmail == user.email) {
             alert("You cannot share with yourself!")
             return;
         }
-        await apiClient('/shareLens', 'POST', 
+        await apiClient('/shareLens', 'POST',
             { "sender": user["email"], "lensId": lensId, "email": shareEmail, "role": selectedRole },
         )
-        .then(async (result) => {
-            // Handle success
-            setShareEmail(""); // Reset email input
-            let { error } = await supabase
-            .from('lens')
-            .update({ "shared": true })
-            .eq('lens_id', lensId);// set lens to shared status
-            if (error) {
-                console.log(error);
-                throw error;
-            }
-            alert("Shared successfully!");
-            props.setOpenModal(undefined);
-            handleRefresh();
+            .then(async (result) => {
+                // Handle success
+                setShareEmail(""); // Reset email input
+                let { error } = await supabase
+                    .from('lens')
+                    .update({ "shared": true })
+                    .eq('lens_id', lensId);// set lens to shared status
+                if (error) {
+                    console.log(error);
+                    throw error;
+                }
+                alert("Shared successfully!");
+                close();
+                handleRefresh();
 
-        })
-        .catch(error => {
-            console.error(error);
-            alert("Failed to share the lens!");
-        });
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Failed to share the lens!");
+            });
     };
 
     const handleRepublishClick = async () => {
         try {
             // Update 'lens' table to set 'public' to true
             const { data: lens, error } = await supabase
-            .from('lens')
-            .update({ 'public': true })
-            .eq('lens_id', lensId)
-            .select();
-      
-          if (error) {
-            console.error("Error updating 'lens' table:", error.message);
-            return;
-          }
-          // Insert/update into 'lens_published'
-          const { error: insertError } = await supabase
-            .from('lens_published')
-            .upsert(lens);
-      
-          if (insertError) {
-            console.error("Error upserting into 'lens_published' table:", insertError.message);
-            return;
-          }
-      
-          // Fetch lens block mappings
-          const { data: mappings, error: mappingError } = await supabase
-            .from('lens_blocks')
-            .select()
-            .eq('lens_id', lensId);
-      
-          if (mappingError) {
-            console.error("Error fetching lens block mappings:", mappingError.message);
-            return;
-          }
-      
-          // Insert/update into 'lens_blocks_published'
-          const { error: insertMappingError } = await supabase
-            .from('lens_blocks_published')
-            .upsert(mappings);
-      
-          if (insertMappingError) {
-            console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
-            return;
-          }
-      
-          // Fetch blocks using block_ids from lens block mappings
-          const blockIds = mappings.map((obj) => obj.block_id);
-          const { data: blocks, error: blocksError } = await supabase
-            .from('block')
-            .select()
-            .in('block_id', blockIds);
-      
-          if (blocksError) {
-            console.error("Error fetching blocks:", blocksError.message);
-            throw blocksError;
-          }
-      
-          // Insert/update into 'block_published'
-          const { error: insertBlocksError } = await supabase
-            .from('block_published')
-            .upsert(blocks);
-      
-          if (insertBlocksError) {
-            console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
-            return;
-          }
-      
-          alert("Updated privacy successfully!");
-          props.setOpenModal(undefined);
-          handleRefresh();
-        } catch (error) {
-          console.error("An unexpected error occurred:", error.message);
-        }
-      };
-      
+                .from('lens')
+                .update({ 'public': true })
+                .eq('lens_id', lensId)
+                .select();
 
-    const handleClick = async() => {
+            if (error) {
+                console.error("Error updating 'lens' table:", error.message);
+                return;
+            }
+            // Insert/update into 'lens_published'
+            const { error: insertError } = await supabase
+                .from('lens_published')
+                .upsert(lens);
+
+            if (insertError) {
+                console.error("Error upserting into 'lens_published' table:", insertError.message);
+                return;
+            }
+
+            // Fetch lens block mappings
+            const { data: mappings, error: mappingError } = await supabase
+                .from('lens_blocks')
+                .select()
+                .eq('lens_id', lensId);
+
+            if (mappingError) {
+                console.error("Error fetching lens block mappings:", mappingError.message);
+                return;
+            }
+
+            // Insert/update into 'lens_blocks_published'
+            const { error: insertMappingError } = await supabase
+                .from('lens_blocks_published')
+                .upsert(mappings);
+
+            if (insertMappingError) {
+                console.error("Error upserting into 'lens_blocks_published' table:", insertMappingError.message);
+                return;
+            }
+
+            // Fetch blocks using block_ids from lens block mappings
+            const blockIds = mappings.map((obj) => obj.block_id);
+            const { data: blocks, error: blocksError } = await supabase
+                .from('block')
+                .select()
+                .in('block_id', blockIds);
+
+            if (blocksError) {
+                console.error("Error fetching blocks:", blocksError.message);
+                throw blocksError;
+            }
+
+            // Insert/update into 'block_published'
+            const { error: insertBlocksError } = await supabase
+                .from('block_published')
+                .upsert(blocks);
+
+            if (insertBlocksError) {
+                console.error("Error upserting into 'block_published' table:", insertBlocksError.message);
+                return;
+            }
+
+            alert("Updated privacy successfully!");
+            props.setOpenModal(undefined);
+            handleRefresh();
+        } catch (error) {
+            console.error("An unexpected error occurred:", error.message);
+        }
+    };
+
+
+    const handleClick = async () => {
         if (published) {
             if (window.confirm("Are you sure you want to unpublish this lens?")) {
                 const { data: lens, error } = await supabase
-                .from('lens')
-                .update({'public': false})
-                .eq('lens_id', lensId);
+                    .from('lens')
+                    .update({ 'public': false })
+                    .eq('lens_id', lensId);
                 if (error) {
                     console.log("error", error.message)
                 } else {
                     // delete lens_published
                     const { error: deleteError } = await supabase
-                    .from('lens_published')
-                    .delete()
-                    .eq('lens_id', lensId);
-                
+                        .from('lens_published')
+                        .delete()
+                        .eq('lens_id', lensId);
+
                     if (deleteError) {
                         console.error('Error deleting row from the source table:', deleteError.message);
                         return;
                     }
                     // delete lens_blocks_published
                     const { error: deleteMappingError } = await supabase
-                    .from('lens_blocks_published')
-                    .delete()
-                    .eq('lens_id', lensId);
-                
+                        .from('lens_blocks_published')
+                        .delete()
+                        .eq('lens_id', lensId);
+
                     if (deleteMappingError) {
                         console.error('Error deleting row from the source table:', deleteMappingError.message);
                         return;
                     }
-    
+
                     const { data: mappings, error } = await supabase
-                    .from('lens_blocks')
-                    .select()
-                    .eq('lens_id', lensId)
-    
-        
-                    const block_ids = mappings.map(obj => obj.block_id);   
+                        .from('lens_blocks')
+                        .select()
+                        .eq('lens_id', lensId)
+
+
+                    const block_ids = mappings.map(obj => obj.block_id);
 
                     // delete blocks_published
                     const { error: deleteBlockError } = await supabase
-                    .from('block_published')
-                    .delete()
-                    .in('block_id', block_ids);
-                
+                        .from('block_published')
+                        .delete()
+                        .in('block_id', block_ids);
+
                     if (deleteBlockError) {
                         console.error('Error deleting row from the source table:', deleteBlockError.message);
                         return;
                     }
 
                     setPublished(false)
-                    
+
                 }
                 alert("Updated privacy successfully!");
-                props.setOpenModal(undefined);
+                close();
                 handleRefresh();
             }
         } else {
             const { data: lens, error } = await supabase
-            .from('lens')
-            .update({'public': true})
-            .eq('lens_id', lensId).select();
+                .from('lens')
+                .update({ 'public': true })
+                .eq('lens_id', lensId).select();
 
             // insert to lens_published
             if (error) {
                 console.log("error", error.message)
             } else {
-            const { error: insertError } = await supabase
-            .from('lens_published')
-            .upsert(lens);
-        
-            if (insertError) {
-                console.error('Error inserting row into the destination table:', insertError.message);
-                return;
-            }
+                const { error: insertError } = await supabase
+                    .from('lens_published')
+                    .upsert(lens);
 
-            // insert all the mappings to lens_blocks_published
-            const { data: mappings, error } = await supabase
-            .from('lens_blocks')
-            .select()
-            .eq('lens_id', lensId)
+                if (insertError) {
+                    console.error('Error inserting row into the destination table:', insertError.message);
+                    return;
+                }
 
-           const { error: insertMappingError } = await supabase
-            .from('lens_blocks_published')
-            .upsert(mappings); // Insert the first row from the selection
-        
-            if (insertMappingError) {
-                console.error('Error inserting row into the destination table:', insertMappingError.message);
-                return;
-            }
+                // insert all the mappings to lens_blocks_published
+                const { data: mappings, error } = await supabase
+                    .from('lens_blocks')
+                    .select()
+                    .eq('lens_id', lensId)
 
-            // insert all blocks to blocks_published
-            const block_ids = mappings.map(obj => obj.block_id);   
-            const { data: blocks, error:blocksError } = await supabase
-            .from('block')
-            .select()
-            .in('block_id', block_ids)
+                const { error: insertMappingError } = await supabase
+                    .from('lens_blocks_published')
+                    .upsert(mappings); // Insert the first row from the selection
 
-            if (blocksError) {
-                console.error("Error");
-                throw blocksError;
-            }
+                if (insertMappingError) {
+                    console.error('Error inserting row into the destination table:', insertMappingError.message);
+                    return;
+                }
 
-            const { error: insertBlocksError } = await supabase
-            .from('block_published')
-            .upsert(blocks); // Insert the first row from the selection
-        
-            if (insertBlocksError) {
-                console.error('Error inserting row into the destination table:', insertBlocksError.message);
-                return;
-            }
-            
-            setPublished(true)
-            alert("Updated privacy successfully!");
-            props.setOpenModal(undefined);
-            handleRefresh();
+                // insert all blocks to blocks_published
+                const block_ids = mappings.map(obj => obj.block_id);
+                const { data: blocks, error: blocksError } = await supabase
+                    .from('block')
+                    .select()
+                    .in('block_id', block_ids)
+
+                if (blocksError) {
+                    console.error("Error");
+                    throw blocksError;
+                }
+
+                const { error: insertBlocksError } = await supabase
+                    .from('block_published')
+                    .upsert(blocks); // Insert the first row from the selection
+
+                if (insertBlocksError) {
+                    console.error('Error inserting row into the destination table:', insertBlocksError.message);
+                    return;
+                }
+
+                setPublished(true)
+                alert("Updated privacy successfully!");
+                close();
+                handleRefresh();
             }
         }
     };
@@ -310,103 +313,98 @@ export default function DefaultModal({ lensId }) {
     }
     return (
         <>
-
-    <Tooltip content="Share space." style="light" >
-                <Button onClick={() => props.setOpenModal('default')} data-tooltip-target="tooltip-animation" className="no-underline gap-2 font-semibold rounded px-2 py-1 bg-white text-gray-400 border-0">
-                <Share1Icon className="w-6 h-6" />
+            <Tooltip color='blue' label="Share lens">
+                <Button
+                    size="xs"
+                    variant="subtle"
+                    onClick={open}
+                    leftSection={<Share1Icon />}
+                    data-tooltip-target="tooltip-animation"
+                >
+                    Share
                 </Button>
             </Tooltip >
+
             <Container className="max-w-3xl ">
-            <Modal show={props.openModal === 'default'} onClose={() => props.setOpenModal(undefined)}>
-                <Modal.Header>Share this Space</Modal.Header>
-                <Modal.Body>
-                <div className="w-full flex flex-col p-8">
-                <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">General Access</h1>
-                <div>
-                    <button onClick = {handleClick} className="bg-green-700 rounded px-4 py-2 text-white mb-2">
-                        {published ? 'Unpublish' : 'Publish'}
-                    </button>
-                    {published ?
-                    <div>
-                    <button onClick = {handleGetLink}
-                    className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
-                    <LinkIcon className="h-4 w-4"/>
-                    {clicked ? 'Link copied' : 'Get Link'}
-                </button> 
-                <h1>Last Published: <p className="text-gray-500 text-sm">{publishInformation ? formatDate(publishInformation) : null}</p></h1>
-                
-                <button onClick = {handleRepublishClick}
-                    className = "border flex gap-1 items-center px-2 py-1 rounded test-sm text-slate-500 hover:bg-sky-200 hover:text-slate-700">
-                    Republish
-                </button> 
-                </div>
-                
-                
-                
-                : ""}
-                </div>
-                </div>
-
-                <div className="w-full flex flex-col p-8">
-                <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">Share with a specific user</h1>
-                <label>Recipient:</label>
-                <input
-                    type="email"
-                    value={shareEmail}
-                    onChange={(e) => setShareEmail(e.target.value)}
-                    placeholder="Enter email to share"
-                    className="flex-grow px-2 py-1 border rounded"
-                />
-                <label>Role:</label>
-                <select
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="flex-grow px-2 py-1 border rounded"
-                >
-                    <option value="">Select Role</option>
-                    <option value="owner">owner</option>
-                    <option value="editor">editor</option>
-                    <option value="reader">reader</option>
-                </select>
-                <div className="w-full flex flex-col">
-                    <div>
-                    {lensCollaborators?.length > 0 ? <h1>Collaborators</h1> : ""}
-                    <ul>
-                        {lensCollaborators?.map((item, index) => (
-                        <li key={index}>
-                            <>
-                            <div style={{ display: "flex", alignItems: "center" }}>
-                                <strong>User:</strong> {item.recipient} | <strong>Access Type:</strong> {item.access_type} | <strong>Status:</strong>{" "}
-                                {item.status === "sent" ? "Pending invite" : null}
-                                {item.status !== "sent" && (
-                                <>
-                                    <span>Accepted: </span>
-                                    <Button color="gray" onClick={() => handleRevocation(item.users.id, lensId)}>
-                                    Revoke Access
-                                    </Button>
-                                </>
+                <Modal zIndex={299} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
+                    <Modal.Body p={2} pt={0}>
+                        <Group>
+                            <Flex w={"100%"} direction={"column"}>
+                                <Text size='sm' fw={500}>General Access</Text>
+                                <Button size='xs' w={"100%"} h={26} color={published ? 'red' : 'green'} onClick={handleClick}>
+                                    {published ? 'Unpublish' : 'Publish for general access'}
+                                </Button>
+                                {published && (
+                                    <Flex direction={"column"} mt={7}>
+                                        <Button
+                                            size='xs'
+                                            h={26}
+                                            variant="outline"
+                                            // leftIcon={<LinkIcon size={16} />} 
+                                            onClick={handleGetLink}
+                                        >
+                                            {clicked ? 'Link copied' : 'Get Link'}
+                                        </Button>
+                                        <Text mt={7} size='sm'>Last Published: <span style={{ color: '#718096' }}>{publishInformation}</span></Text>
+                                    </Flex>
                                 )}
-                            </div>
-                            </>
-                        </li>
-                        ))}
-                    </ul>
-                    </div>
+                            </Flex>
 
-                </div>
-            </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button color="gray" onClick={handleShare}>
-                        Send
-                        </Button>
-                    <Button color="gray" onClick={() => props.setOpenModal(undefined)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                            <Flex w={'100%'} direction={"column"}>
+                                <Text size='sm' fw={500}>Share with specific users</Text>
+                                <TextInput
+                                    style={{ width: '100%' }}
+                                    size='xs'
+                                    label="Recipient"
+                                    value={shareEmail}
+                                    onChange={(e) => setShareEmail(e.target.value)}
+                                    placeholder="Enter email to share"
+                                />
+                                <Select
+style={{ zIndex: 100000000000 }} 
+                                    label="Role"
+                                    size='xs'
+                                    value={selectedRole}
+                                    onChange={setSelectedRole}
+                                    data={[
+                                        { value: 'owner', label: 'Owner' },
+                                        { value: 'editor', label: 'Editor' },
+                                        { value: 'reader', label: 'Reader' },
+                                    ]}
+                                />
+                                {lensCollaborators?.length > 0 && (
+                                    <Group>
+                                        <Title order={3}>Collaborators</Title>
+                                        <List>
+                                            {lensCollaborators.map((item, index) => (
+                                                <ListItem key={index}>
+                                                    User: {item.users.email}, Access Type: {item.access_type}
+                                                    {item.lens.owner_id !== item.user_id && (
+                                                        <Button
+                                                            color="gray"
+                                                            onClick={() => handleRevocation(item.user_id, lensId)}
+                                                        >
+                                                            Revoke
+                                                        </Button>
+                                                    )}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Group>
+                                )}
+                            </Flex>
+                        </Group>
+                        <Flex mt={20}>
+                            <Button h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleShare}>
+                                Send
+                            </Button>
+                            <Button h={26} style={{ flex: 1, marginLeft: 5 }} size='xs' color="gray" onClick={close}>
+                                Cancel
+                            </Button>
+                        </Flex>
+                    </Modal.Body>
+                </Modal>
             </Container>
-            
         </>
     )
 }

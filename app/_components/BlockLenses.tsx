@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { useAppContext } from "@contexts/context";
 import load from "@lib/load";
+import { FaFolder, FaLink, FaPlus, FaTimes } from "react-icons/fa";
+import { ActionIcon, Button, Group, Select } from "@mantine/core";
 
 
 interface LensProps {
@@ -60,13 +62,12 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     setShowInput(true);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewLensName(e.target.value);
+  const handleInputChange = (e: any) => { // this is risky
+    setNewLensName(e);
 
     if (e.target.value) {
-      const filtered = allLenses.filter(lens =>
-        lens.name.toLowerCase().includes(e.target.value.toLowerCase()) && lens.access_type != 'reader'
-      );
+        const filtered = allLenses.filter(lens =>
+        lens.name.toLowerCase().includes(e.target.value.toLowerCase()) && lens.access_type != 'reader'      );
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
@@ -124,16 +125,16 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
       success: "Lens removed!",
       error: "Failed to remove lens."
     })
-    .then((response: Response) => response.json())
-    .then(data => {
-      fetchBlockLenses();
-      resetComponentState();
-      setProcessingLensId(null);
-    })
-    .catch(error => {
-      console.error("Error deleting lens relation:", error);
-      setProcessingLensId(null);
-    });
+      .then((response: Response) => response.json())
+      .then(data => {
+        fetchBlockLenses();
+        resetComponentState();
+        setProcessingLensId(null);
+      })
+      .catch(error => {
+        console.error("Error deleting lens relation:", error);
+        setProcessingLensId(null);
+      });
   };
 
 
@@ -141,68 +142,76 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     inputRef.current.focus();
   }
 
+  const [hoveredLensId, setHoveredLensId] = useState(null);
+
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex gap-2 mt-0.5 flex-wrap">
       {currentLenses.map(lens => (
-        <div key={lens.lens_id} className="relative button-hover">
-          <button
-            className={`flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors 
-                  ${processingLensId === lens.lens_id
-                ? "bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed"
-                : "bg-customLightBlue hover:bg-customLightBlue-hover text-white border border-customLightBlue"
-              }`}
-            onClick={() => {
-              if (processingLensId !== lens.lens_id) {
-                handleLensClick(lens.lens_id);
-              }
-            }}
+        <Group pos={"relative"} key={lens.lens_id} onMouseEnter={() => setHoveredLensId(lens.lens_id)} onMouseLeave={() => setHoveredLensId(null)}>
+          <Button
+            style={{ height: 24, alignSelf: "center", textAlign: "center" }}
+            size="xs"
+            color="blue"
+            leftSection={<FaLink size={9} />}
+            variant="light"
+            onClick={() => handleLensClick(lens.lens_id)}
           >
-            <ShadowInnerIcon />
             {lens.name}
-          </button>
-          <span
-            className="cross"
-            onClick={(e) => {
-              e.stopPropagation(); // This prevents the button's click handler from firing
-              handleDeleteRelation(lens.lens_id);
-            }}
-          ></span>
-        </div>
+          </Button>
+          {hoveredLensId === lens.lens_id && (
+            <ActionIcon
+              size={14}
+              color="red"
+              style={{
+                position: 'absolute',
+                borderRadius: '100%',
+                top: 3,
+                right: 3,
+                transform: 'translate(50%, -50%)',
+                visibility: 'visible',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRelation(lens.lens_id);
+              }}
+            >
+              <FaTimes size={10} />
+            </ActionIcon>
+          )}
+        </Group>
       ))}
-
-
 
       {showInput ? (
         <div className="relative">
-          <input
-            ref={inputRef}
-            type="text"
+          <Select
+            size="xs"
             value={newLensName}
-            onChange={handleInputChange}
+            onSearchChange={handleInputChange}
             placeholder="Enter lens name..."
-            className="p-1 border rounded"
+            // data={[
+            //   { value: 'react', label: 'React' },
+            //   { value: 'ng', label: 'Angular' },
+            // ]}
+            data={suggestions.map((suggestion) => ({
+              value: suggestion.lens_id.toString(),
+              label: suggestion.name,
+            }))}
+            onOptionSubmit={(value) => handleSuggestionClick(Number(value))}
+            searchable
+            nothingFoundMessage="None found"
           />
-          {suggestions.length > 0 && (
-            <div className="absolute top-full mt-2 w-full border rounded shadow-lg bg-white">
-              {suggestions.map(suggestion => (
-                <div
-                  key={suggestion.lens_id}
-                  className="p-2 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => handleSuggestionClick(suggestion.lens_id)}
-                >
-                  {suggestion.name}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       ) : (
-        <button
-          className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-200 shadow transition-colors"
+        <Button
           onClick={handleAddNewLens}
+          style={{ height: 24, top: 1, alignSelf: "center", textAlign: "center" }}
+          leftSection={<FaPlus size={9} />}
+          color="gray.6"
+          size="xs"
+          variant="light"
         >
-          + Add to space
-        </button>
+          Space
+        </Button>
       )}
     </div>
   );

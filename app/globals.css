@@ -2,30 +2,44 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-
-
-@layer base {
-  a {
-    @apply underline; /* This line ensures all anchor tags are underlined */
+/* This line ensures all anchor tags are underlined */
+/* @layer base {
+  btn {
+    @apply underline; 
   }
-}
+} */
 
-@layer utilities {
+/* @layer utilities {
   .border-lightgrey {
     border: 1px solid #D1D5DB; 
   }
+} */
+
+*, ::before, ::after {
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor /* or gray-DEFAULT / gray-400 */;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
 
 .animate-in {
   animation: animateIn 0.3s ease 0.15s both;
 }
+
+/* .ant-btn:not([disabled]):hover {
+  background: #faad14 !important;
+} */
 
 @keyframes animateIn {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -38,7 +52,7 @@
 }
 
 .fixed-width-nav {
-  width: 256px; 
+  width: 256px;
 }
 
 .skeleton-container {
@@ -62,28 +76,39 @@
 
 .skeleton.line {
   width: 100%;
-  height: 150px;
+  height: 110px;
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .cross {
   width: 16px;
   height: 16px;
   position: absolute;
-  top: -4px;        /* Positioning adjustments to be at the top-right */
+  top: -4px;
+  /* Positioning adjustments to be at the top-right */
   right: -4px;
   background-color: red;
-  border-radius: 50%;   /* Makes it circular */
-  display: none;        /* Initially hidden */
-  cursor: pointer;      /* Change cursor on hover to indicate it's clickable */
+  border-radius: 50%;
+  /* Makes it circular */
+  display: none;
+  /* Initially hidden */
+  cursor: pointer;
+  /* Change cursor on hover to indicate it's clickable */
 }
 
-.cross:before, .cross:after {
-  content: '';            /* The cross is formed using two pseudo-elements */
+.cross:before,
+.cross:after {
+  content: '';
+  /* The cross is formed using two pseudo-elements */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -93,27 +118,35 @@
 }
 
 .cross:before {
-  transform: translate(-50%, -50%) rotate(45deg);  /* Rotating one of them to form a cross */
+  transform: translate(-50%, -50%) rotate(45deg);
+  /* Rotating one of them to form a cross */
 }
 
 .cross:after {
-  transform: translate(-50%, -50%) rotate(-45deg); /* Rotating the other in the opposite direction */
+  transform: translate(-50%, -50%) rotate(-45deg);
+  /* Rotating the other in the opposite direction */
 }
 
-.button-hover:hover .cross {
-  display: block;    /* Show on hover */
-}
+/* Show on hover */
+/* .button-hover:hover .cross {
+  display: block;    
+} */
 
 .cross:hover {
-  transform: scale(1.1);   /* Enlarge the cross slightly on hover */
+  transform: scale(1.1);
+  /* Enlarge the cross slightly on hover */
 }
 
-.cross:before, .cross:after {
-  transition: background-color 0.3s;   /* Smooth transition for color change */
+.cross:before,
+.cross:after {
+  transition: background-color 0.3s;
+  /* Smooth transition for color change */
 }
 
-.cross:hover:before, .cross:hover:after {
-  background-color: #f2f2f2;  /* Lighten the cross color on hover */
+.cross:hover:before,
+.cross:hover:after {
+  background-color: #f2f2f2;
+  /* Lighten the cross color on hover */
 }
 
 .orange-shadow {
@@ -125,6 +158,7 @@
   font-weight: bold;
   animation: fadeInOut 2s infinite;
 }
+
 .waiting-text {
   color: rgb(100, 101, 102);
   font-weight: bold;
@@ -136,9 +170,12 @@
 }
 
 @keyframes fadeInOut {
-  0%,80% {
+
+  0%,
+  80% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -152,4 +189,8 @@
 .spaceIconStyle {
   transform: scale(0.95);
   margin-left: 4px;
+}
+
+.markdown-content {
+  font-size: 90%;
 }
