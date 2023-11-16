@@ -113,7 +113,7 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       console.log("message", accessLevelError.message)
       throw accessLevelError;
     }
-    block.accessLevel = accessLevel;
+    block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
     return ok(block);
   } catch (err) {
     return notOk(`${err}`);
