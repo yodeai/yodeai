@@ -62,12 +62,12 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     setShowInput(true);
   };
 
-  const handleInputChange = (e: any) => { // this is risky
+  const handleInputChange = (e: string) => { // this is risky, REDACTED
     setNewLensName(e);
 
-    if (e.target.value) {
+    if (e) {
         const filtered = allLenses.filter(lens =>
-        lens.name.toLowerCase().includes(e.target.value.toLowerCase()) && lens.access_type != 'reader'      );
+        lens.name.toLowerCase().includes(e.toLowerCase()) && lens.access_type != 'reader');
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
