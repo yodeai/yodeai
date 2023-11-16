@@ -37,11 +37,11 @@ export default function LensComponent({ lens, compact }: LensProps) {
 
   return (
     <NavLink
-      label={lens.name}
+      label={<Text lh={1.2} size={"sm"}>{lens.name}</Text>}
       onClick={handleLensClick}
       description={
         <>
-          <Text mt={-2.5} c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+          <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
           {lens.shared && (
             <Text c="blue" size="xs">
               Collaborative: {lens.user_to_access_type[user?.id] ?? ''}

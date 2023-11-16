@@ -74,6 +74,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             const { data: { user } } = await supabase.auth.getUser();
             setAccessType(data.data.user_to_access_type[user.id]);
           };
+          
           getUser();
         })
         .catch((error) => {
@@ -352,10 +353,10 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           )}
         </Flex>
         : <span className="text-xl font-semibold">
-          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+          {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
             <FaThLarge className="iconStyle spaceIconStyle" />
             <span className="text-xl font-semibold ">{lensName}</span>
-          </div>
+          </div> */}
         </span>}
 
       <Text ta={"center"} size="xs" fw={600} c={"blue"}>
@@ -395,7 +396,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                 <BlockComponent key={block.block_id} block={block} />
               ))
             ) : (
-              <p>This lens is empty.</p>
+              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+                This space is empty.
+              </Text>
             )}
           </div>
       }
