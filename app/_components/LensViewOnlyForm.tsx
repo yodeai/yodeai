@@ -8,6 +8,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebounce } from "usehooks-ts";
 import { Text, Paper, Divider, NavLink } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
+import { useRouter } from "next/navigation";
 
 interface LensViewOnlyFormProps {
     lensId: string;
@@ -28,6 +29,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     const debouncedInputValue = useDebounce(inputValue, 500);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
+    const router = useRouter();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -150,6 +152,11 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     const handleInputChange = (e) => {
         setInputValue(e.target.value)
     }
+
+    const handleQuestionClick = (question_id: string) => {
+        router.push(`/question/${question_id}`);
+    };
+
     return (        
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full pt-16">
@@ -185,6 +192,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
                                         <NavLink 
                                             active
                                             variant="subtle"
+                                            onClick={() => handleQuestionClick(item.id)}
                                             label={<Text size="md" fw={500} tt="capitalize">{item.question}</Text>} 
                                             description={<Text size={"sm"} c="gray.7" truncate="end">{item.answer}</Text>}
                                             rightSection={<IconChevronRight size="0.8rem" stroke={1.5} />}
