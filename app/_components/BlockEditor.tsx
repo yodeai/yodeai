@@ -187,11 +187,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   };
 
 
-  useEffect(() => {
-    return () => {
-      saveContent(0); // save content one last time
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     saveContent(0); // save content one last time
+  //   };
+  // }, []);
 
 
 
