@@ -194,3 +194,7 @@
 .markdown-content {
   font-size: 90%;
 }
+
+.grid-layout-container{
+  width: calc(100% - 230px - 25vw)
+}

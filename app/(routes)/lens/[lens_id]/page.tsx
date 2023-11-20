@@ -1,10 +1,11 @@
 "use client";
+
 import { notFound } from "next/navigation";
 import Container from "@components/Container";
 import Link from "next/link";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext } from "react";
+import { useState, useEffect, ChangeEvent, useContext, useMemo } from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
@@ -13,14 +14,38 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
+import SpaceLayoutComponent from "@components/SpaceLayout";
 import toast from "react-hot-toast";
-import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt } from "react-icons/fa";
+import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { isErrored } from "stream";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
+function getLayoutViewFromLocalStorage(lens_id: string): "block" | "canvas" {
+  let layout = null;
+  if (global.localStorage) {
+    try {
+      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
+    } catch (e) {
+      /*Ignore*/
+    }
+  }
+  return layout ? layout[lens_id] : null;
+}
 
+function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "canvas") {
+  if (global.localStorage) {
+    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
+    global.localStorage.setItem(
+      "layoutView",
+      JSON.stringify({
+        ...layout,
+        [lens_id]: value
+      })
+    );
+  }
+}
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
   const [loading, setLoading] = useState(true);
@@ -29,6 +54,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
+  const [layoutType, setLayoutType] = useState<"block" | "canvas">(getLayoutViewFromLocalStorage(params.lens_id));
+
   const router = useRouter();
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
@@ -74,7 +101,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             const { data: { user } } = await supabase.auth.getUser();
             setAccessType(data.data.user_to_access_type[user.id]);
           };
-          
+
           getUser();
         })
         .catch((error) => {
@@ -158,12 +185,12 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       console.log("Deleting block", block_id);
       setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
 
-    }      
+    }
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -184,8 +211,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditingLensName(e.target.value);
   };
-
-
 
   const saveNewLensName = async () => {
     if (lens) {
@@ -218,6 +243,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       saveNewLensName();
     }
   };
+
   const handleDeleteLens = async () => {
     if (lens && window.confirm("Are you sure you want to delete this lens?")) {
       try {
@@ -240,19 +266,15 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }
   };
 
+  const handleChangeLayoutView = (newLayoutView: "block" | "canvas") => {
+    setLayoutType(newLayoutView)
+    setLayoutViewToLocalStorage(params.lens_id, newLayoutView)
+  }
 
-
-  if (!lens) {
+  if (!lens || loading) {
     return (
       <div className="flex flex-col p-2 pt-0 flex-grow">
         <LoadingSkeleton />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div>
       </div>
     );
   }
@@ -286,7 +308,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
-        <Flex justify={"center"} align={"center"}>
+        <Flex justify={"center"} align={"center"} gap="sm">
           {!isEditingLensName ? (
             <Flex justify={"center"} align={"center"}>
               <Link href="/new">
@@ -347,10 +369,21 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   </ActionIcon>
 
                 </Tooltip> : ""}
-
             </Flex>
-
           )}
+          <Tooltip color="blue" label={layoutType === "block"
+            ? "Switch to canvas layout."
+            : "Switch to block layout."
+          }>
+            <Button
+              size="xs"
+              variant="subtle"
+              leftSection={layoutType === "canvas" ? <FaFolder /> : <FaList />}
+              onClick={() => handleChangeLayoutView(layoutType === "block" ? "canvas" : "block")}
+            >
+              {layoutType === "block" ? "Block View" : "Canvas View"}
+            </Button>
+          </Tooltip>
         </Flex>
         : <span className="text-xl font-semibold">
           {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
@@ -364,18 +397,15 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       </Text>
 
       {
-        !lens.shared || accessType == 'editor' || accessType == 'owner' ?
-          <div className="flex items-stretch flex-col gap-4 mt-4">
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
-              ))
-            ) : (
-              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+        !lens.shared || accessType == 'editor' || accessType == 'owner'
+          ? <div className="flex items-stretch flex-col gap-4 mt-4">
+            {blocks && blocks.length > 0
+              ? <SpaceLayoutComponent lens_id={params.lens_id}
+                blocks={blocks} layoutView={layoutType} />
+              : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
                 This space is empty, add blocks to populate this space with content & context.
               </Text>
-            )}
-
+            }
             {/* Display child lenses if they exist */}
             {lens.children && lens.children.length > 0 ? (
               lens.children.map((childLens) => (
@@ -388,18 +418,14 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               <p></p>
             )}
           </div>
-          :
-          <div className="flex items-stretch flex-col gap-4 mt-4">
-
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
-              ))
-            ) : (
-              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+          : <div className="flex items-stretch flex-col gap-4 mt-4">
+            {blocks && blocks.length > 0
+              ? <SpaceLayoutComponent lens_id={params.lens_id}
+                blocks={blocks} layoutView={layoutType} />
+              : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
                 This space is empty.
               </Text>
-            )}
+            }
           </div>
       }
       {/* <Flex direction={"column"} justify={"flex-end"}>
