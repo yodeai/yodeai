@@ -198,3 +198,8 @@
 .grid-layout-container{
   width: calc(100% - 230px - 25vw)
 }
+
+.react-grid-item.react-grid-placeholder {
+  background-color: #999 !important;
+  border-radius: 20px;
+}

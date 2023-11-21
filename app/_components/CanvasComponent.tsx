@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useEffect, useState, createRef, forwardRef, ForwardedRef, useMemo, useRef, MouseEventHandler, MouseEvent, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
-import { FaArchive, FaFolder } from "react-icons/fa";
+import { FaFolder, FaFileLines, FaFilePdf } from "react-icons/fa6";
 import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -14,6 +14,7 @@ import { Text, Flex, Box, Center } from '@mantine/core';
 import GridLayout, { ItemCallback, Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
+import { IconType } from "react-icons/lib";
 
 
 /* TODO
@@ -23,6 +24,8 @@ import 'react-grid-layout/css/styles.css';
 + Allow users to enter folders with double click
 
 - Prevent initially moving blocks
+- use proper icons for each block type
+- the PDF viewer should be working on the canvas view
 */
 
 interface CanvasComponentProps {
@@ -57,6 +60,12 @@ export default function CanvasComponent({ blocks, lens_id }: CanvasComponentProp
     }
   }, [])
 
+  const fileTypeIcons = useMemo(() => ({
+    pdf: <FaFilePdf size={32} color="#ff3333" />,
+    note: <FaFileLines size={32} color="#888888" />,
+    space: <FaFolder size={32} color="#228be6" />,
+  }), []);
+
   return (
     <ResponsiveReactGridLayout
       layouts={layouts}
@@ -65,26 +74,30 @@ export default function CanvasComponent({ blocks, lens_id }: CanvasComponentProp
       onLayoutChange={onChangeLayout}
       useCSSTransforms={true}
       autoSize={false}
+      isResizable={false}
       onDragStart={calculateDoubleClick}
       verticalCompact={false}>
       {blocks.map((block, index) => {
         return <div key={block.block_id}>
-          <CanvasItem block={block} />
+          <CanvasItem icon={fileTypeIcons[block.block_type]} block={block} />
         </div>
       })}
     </ResponsiveReactGridLayout>
   );
 }
 
-type CanvasItemProps = { block: Block }
-const CanvasItem = ({ block }: CanvasItemProps) => {
+type CanvasItemProps = {
+  block: Block;
+  icon: JSX.Element
+}
+const CanvasItem = ({ block, icon }: CanvasItemProps) => {
   return <Flex
     mih={70} gap="lg"
     justify="center" align="center"
     direction="column" wrap="nowrap">
-    <FaFolder size={32} color="#007AFF" />
+    {icon}
     <Box w={70} h={30} style={{ textAlign: "center" }}>
-      <Text size="sm" c="dimmed" truncate="end">{block.title}</Text>
+      <Text size="xs" c="dimmed" truncate="end">{block.title}</Text>
     </Box>
   </Flex>
 }

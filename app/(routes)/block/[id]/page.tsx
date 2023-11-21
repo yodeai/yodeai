@@ -21,7 +21,6 @@ export default function Block({ params }: { params: { id: string } }) {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
   const router = useRouter();
 
-
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
       .then((response) => {
