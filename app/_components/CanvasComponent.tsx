@@ -8,6 +8,7 @@ import { ItemCallback, Layout, Layouts, Responsive, WidthProvider } from "react-
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout } from "../_types/lens";
+import { set } from 'date-fns';
 
 interface CanvasComponentProps {
   blocks: Block[];
@@ -18,8 +19,7 @@ interface CanvasComponentProps {
 
 export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayout }: CanvasComponentProps) {
   const router = useRouter();
-
-  // const [layouts, setLayouts] = useState<Layouts>(layout || generateLayoutFromBlocks(blocks));
+  const [breakpoint, setBreakpoint] = useState<string>("md");
   const $lastClick = useRef<number>(0);
 
   const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
@@ -28,10 +28,9 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
     router.push(`/block/${block.block_id}`)
   }
 
-  // const onChangeLayout = useCallback((layout: Layout[], layouts: Layouts) => {
-    // setLayouts(layouts)
-    // onSaveLayoutToSupabase(layouts)
-  // }, [layouts])
+  const onBreakpointChange = useCallback((newBreakpoint: string, newCols: number) => {
+    setBreakpoint(newBreakpoint)
+  }, [breakpoint])
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const block = blocks.find(block => block.block_id.toString() === newItem.i)
@@ -55,6 +54,7 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
       layouts={layouts}
       cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
       rowHeight={80}
+      onBreakpointChange={onBreakpointChange}
       onLayoutChange={(layout, layouts) => onChangeLayout("canvas_layout", layouts)}
       useCSSTransforms={false}
       autoSize={false}
@@ -62,7 +62,8 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
       onDragStart={calculateDoubleClick}
       verticalCompact={false}>
       {blocks.map((block, index) => {
-        return <div key={block.block_id}>
+        const dataGrid = layouts?.[breakpoint]?.[index] || { index, x: 0, y: 0, w: 1, h: 1, isResizable: false }
+        return <div key={block.block_id} data-grid={dataGrid}>
           <CanvasItem icon={fileTypeIcons[block.block_type]} block={block} />
         </div>
       })}
