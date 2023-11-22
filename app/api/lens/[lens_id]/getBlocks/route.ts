@@ -47,8 +47,6 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                 .filter(block => block !== null)
             : [];
 
-        
-
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;
             if (a.updated_at < b.updated_at) return 1;

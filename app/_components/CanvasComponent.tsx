@@ -1,41 +1,25 @@
-import formatDate from "@lib/format-date";
-import clsx from "clsx";
-import { useEffect, useState, createRef, forwardRef, ForwardedRef, useMemo, useRef, MouseEventHandler, MouseEvent, useCallback } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Block } from "app/_types/block";
 import { FaFolder, FaFileLines, FaFilePdf } from "react-icons/fa6";
-import BlockLenses from "@components/BlockLenses";
-import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import load from "@lib/load";
-import toast from "react-hot-toast";
 import { Text, Flex, Box, Center } from '@mantine/core';
 
-import GridLayout, { ItemCallback, Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
+import { ItemCallback, Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { IconType } from "react-icons/lib";
-
-
-/* TODO
-+ Storing layout in localStorage
-+ Fix the overlapping issue with the sidebar Context block
-+ Storing layout preference in localStorage
-+ Allow users to enter folders with double click
-
-- Prevent initially moving blocks
-- use proper icons for each block type
-- the PDF viewer should be working on the canvas view
-*/
+import { LensLayout } from "../_types/lens";
 
 interface CanvasComponentProps {
   blocks: Block[];
+  layouts: LensLayout["canvas_layout"]
   lens_id: string;
+  onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
 }
 
-export default function CanvasComponent({ blocks, lens_id }: CanvasComponentProps) {
+export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayout }: CanvasComponentProps) {
   const router = useRouter();
-  const [layouts, setLayouts] = useState<Layouts>(getLayoutFromStorage(lens_id) || generateLayoutFromBlocks(blocks));
+
+  // const [layouts, setLayouts] = useState<Layouts>(layout || generateLayoutFromBlocks(blocks));
   const $lastClick = useRef<number>(0);
 
   const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
@@ -44,10 +28,10 @@ export default function CanvasComponent({ blocks, lens_id }: CanvasComponentProp
     router.push(`/block/${block.block_id}`)
   }
 
-  const onChangeLayout = (layout: Layout[], layouts: Layouts) => {
-    setLayouts(layouts)
-    setLayoutToStorage(lens_id, layouts)
-  }
+  // const onChangeLayout = useCallback((layout: Layout[], layouts: Layouts) => {
+    // setLayouts(layouts)
+    // onSaveLayoutToSupabase(layouts)
+  // }, [layouts])
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const block = blocks.find(block => block.block_id.toString() === newItem.i)
@@ -71,8 +55,8 @@ export default function CanvasComponent({ blocks, lens_id }: CanvasComponentProp
       layouts={layouts}
       cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
       rowHeight={80}
-      onLayoutChange={onChangeLayout}
-      useCSSTransforms={true}
+      onLayoutChange={(layout, layouts) => onChangeLayout("canvas_layout", layouts)}
+      useCSSTransforms={false}
       autoSize={false}
       isResizable={false}
       onDragStart={calculateDoubleClick}
@@ -102,30 +86,30 @@ const CanvasItem = ({ block, icon }: CanvasItemProps) => {
   </Flex>
 }
 
-function getLayoutFromStorage(lens_id: string): null | Layouts {
-  let layout = null;
-  if (global.localStorage) {
-    try {
-      layout = JSON.parse(global.localStorage.getItem("gridlayout")) || null;
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return layout ? layout[lens_id] : null;
-}
+// function getLayoutFromStorage(lens_id: string): null | Layouts {
+//   let layout = null;
+//   if (global.localStorage) {
+//     try {
+//       layout = JSON.parse(global.localStorage.getItem("gridlayout")) || null;
+//     } catch (e) {
+//       /*Ignore*/
+//     }
+//   }
+//   return layout ? layout[lens_id] : null;
+// }
 
-function setLayoutToStorage(lens_id: string, value: Layouts) {
-  if (global.localStorage) {
-    const layout = JSON.parse(global.localStorage.getItem("gridlayout"))
-    global.localStorage.setItem(
-      "gridlayout",
-      JSON.stringify({
-        ...layout,
-        [lens_id]: value
-      })
-    );
-  }
-}
+// function setLayoutToStorage(lens_id: string, value: Layouts) {
+//   if (global.localStorage) {
+//     const layout = JSON.parse(global.localStorage.getItem("gridlayout"))
+//     global.localStorage.setItem(
+//       "gridlayout",
+//       JSON.stringify({
+//         ...layout,
+//         [lens_id]: value
+//       })
+//     );
+//   }
+// }
 
 const generateLayoutFromBlocks = (blocks: Block[]): Layouts => {
   const layout: Layout[] = blocks.map(block => ({
