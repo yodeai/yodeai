@@ -44,9 +44,9 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
   }, [])
 
   const fileTypeIcons = useMemo(() => ({
-    pdf: <FaFilePdf size={32} color="#ff3333" />,
+    pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
-    space: <FaFolder size={32} color="#228be6" />,
+    space: <FaFolder size={32} color="#fd7e14" />,
   }), []);
 
   return (
