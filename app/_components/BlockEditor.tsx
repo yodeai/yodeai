@@ -83,7 +83,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     if (lensId) {
       requestBody.lens_id = lensId;
     }
-
     const savePromise = fetch(endpoint, {
       method: method,
       body: JSON.stringify(requestBody)
@@ -197,8 +196,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
   return (
     <div className="flex flex-col gap-1 w-full">
-
-
       {block && block.block_type === 'pdf' ? (
         <>
           <div className="flex justify-between items-center w-full">

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                     )
                 ) 
             `)
-            .eq('lens_id', params.lens_id)
+            .eq('lens_id', params.lens_id).eq("direct_child", true)
         if (error) {
             throw error;
         }

@@ -61,43 +61,55 @@ export async function POST(request: NextRequest) {
       console.log(error)
       throw error;
     }
-
-    console.log("Request data: ", requestData)
+    let newBlock: Block;
+    console.log("Request data: ", requestData);
+    
     if (data && data[0]) {
-      const newBlock: Block = data[0];
+      newBlock = data[0];
       addBlockToInbox(supabase, newBlock.block_id, user.id);
-      console.log("processing block now");
+      console.log("processing block now", newBlock.block_id);
+    
       apiClient('/processBlock', 'POST', { block_id: newBlock.block_id, delay: delay })
         .then(result => {
-          console.log('Block processed successfully', result);
+          console.log('Block processed successfully');
         })
-        .catch(error => {
+        .catch(async (error) => {
           console.error('Error processing block', error);
     
           // Return a promise to handle the update in the outer then block
-          return supabase
-            .from('block')
-            .update({ 'status': 'failure' })
-            .eq('block_id', newBlock.block_id);
-        })
-        .then(() => {
-          console.log('Block status updated to failure', newBlock.block_id);
-        })
-        .catch(updateError => {
-          console.error('Error updating block status', updateError);
+          try {
+            let updateData = await supabase
+              .from('block')
+              .update({ 'status': 'failure' })
+              .eq('block_id', newBlock.block_id);
+            console.log('Block status updated to failure', newBlock.block_id);
+          } catch (updateError) {
+            console.error('Error updating block status', updateError);
+          }
         });
     }
+    
     
     // If lens_id exists and is not null, assign the block to the lens
     if (data && data[0] && lensId) {
       const newBlock: Block = data[0];
       const { error: lensBlockError } = await supabase
         .from('lens_blocks')
-        .insert([{ block_id: newBlock.block_id, lens_id: lensId}]);
+        .insert([{ block_id: newBlock.block_id, lens_id: lensId, direct_child: true}]);
 
       if (lensBlockError) {
         throw lensBlockError;
       }
+
+    // Traverse up the hierarchy to add the block to the ancestors (an async call as to not block)
+    await apiClient('/processAncestors', 'POST', { "block_id": newBlock.block_id, "lens_id": lensId, "remove": false })
+    .then(result => {
+      console.log('Submitted task to process ancestors', result);
+    })
+    .catch(error => {
+      console.error('Error adding block to ancestors: ' + error.message);
+    });
+
       // Update the lens's updated_at to the current timestamp
       const { error: lensUpdateError } = await supabase
         .from('lens')

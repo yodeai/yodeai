@@ -63,8 +63,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       setActiveComponent("inbox");
     }
     else if (parts[1] === 'lens') {
-      const newID = parts[2];
-      setLensId(newID);  // Set the lensId based on the URL
+      console.log("setting app context to be ", parts[parts.length -1])
+      setLensId(parts[parts.length -1]);  // Set the lensId based on the URL
     }
 
     // Get all the lenses that this user has
