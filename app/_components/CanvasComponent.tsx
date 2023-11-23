@@ -22,7 +22,7 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
   const [breakpoint, setBreakpoint] = useState<string>("md");
   const $lastClick = useRef<number>(0);
 
-  const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
+  const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), [breakpoint]);
 
   const onDoubleClick = (block: Block) => {
     router.push(`/block/${block.block_id}`)
@@ -49,10 +49,27 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
     space: <FaFolder size={32} color="#fd7e14" />,
   }), []);
 
+  const cols = useMemo(() => ({ lg: 12, md: 12, sm: 8, xs: 4, xxs: 2 }), [])
+
+  const blockItems = useMemo(() => {
+    return blocks.map((block, index) => {
+      const defaultDataGrid = {
+        index,
+        x: index % cols[breakpoint],
+        y: Math.floor((index + 1) / cols[breakpoint]),
+        w: 1, h: 1, isResizable: false
+      };
+      const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
+      return <div key={block.block_id} data-grid={dataGrid}>
+        <CanvasItem icon={fileTypeIcons[block.block_type]} block={block} />
+      </div>
+    })
+  }, [breakpoint, blocks, layouts])
+
   return (
     <ResponsiveReactGridLayout
       layouts={layouts}
-      cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+      cols={cols}
       rowHeight={80}
       onBreakpointChange={onBreakpointChange}
       onLayoutChange={(layout, layouts) => onChangeLayout("canvas_layout", layouts)}
@@ -61,12 +78,7 @@ export default function CanvasComponent({ blocks, layouts, lens_id, onChangeLayo
       isResizable={false}
       onDragStart={calculateDoubleClick}
       verticalCompact={false}>
-      {blocks.map((block, index) => {
-        const dataGrid = layouts?.[breakpoint]?.[index] || { index, x: 0, y: 0, w: 1, h: 1, isResizable: false }
-        return <div key={block.block_id} data-grid={dataGrid}>
-          <CanvasItem icon={fileTypeIcons[block.block_type]} block={block} />
-        </div>
-      })}
+      {blockItems}
     </ResponsiveReactGridLayout>
   );
 }
