@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Block } from "app/_types/block";
 import { FaFolder, FaFileLines, FaFilePdf } from "react-icons/fa6";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Text, Flex, Box, Center } from '@mantine/core';
+import { Text, Flex, Box, Center, TextProps } from '@mantine/core';
 
 import { ItemCallback, Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
@@ -88,13 +88,25 @@ type CanvasItemProps = {
   icon: JSX.Element
 }
 const CanvasItem = ({ block, icon }: CanvasItemProps) => {
+  const [textTruncate, setTextTruncate] = useState<TextProps["truncate"]>(false);
+
+  const onMouseEnter = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    setTextTruncate(false);
+  }
+
+  const onMouseLeave = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    setTextTruncate("end");
+  }
+
   return <Flex
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
     mih={70} gap="lg"
     justify="center" align="center"
     direction="column" wrap="nowrap">
     {icon}
     <Box w={70} h={30} style={{ textAlign: "center" }}>
-      <Text size="xs" c="dimmed" truncate="end">{block.title}</Text>
+      <Text size="xs" c="dimmed" truncate={textTruncate}>{block.title}</Text>
     </Box>
   </Flex>
 }
