@@ -60,6 +60,7 @@
     "install": "^0.13.0",
     "langchain": "^0.0.128",
     "lowlight": "^2.9.0",
+    "mantine-contextmenu": "^7.1.12",
     "next": "^13.4.17",
     "npm": "^10.1.0",
     "openai": "^4.0.0",

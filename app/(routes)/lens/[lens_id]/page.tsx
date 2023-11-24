@@ -22,7 +22,7 @@ import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@ma
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
-function getLayoutViewFromLocalStorage(lens_id: string): "block" | "canvas" {
+function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
   let layout = null;
   if (global.localStorage) {
     try {
@@ -34,7 +34,7 @@ function getLayoutViewFromLocalStorage(lens_id: string): "block" | "canvas" {
   return layout ? layout[lens_id] : null;
 }
 
-function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "canvas") {
+function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
   if (global.localStorage) {
     const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
     global.localStorage.setItem(
@@ -54,7 +54,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
-  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "canvas">(getLayoutViewFromLocalStorage(params.lens_id));
+  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const router = useRouter();
@@ -137,7 +137,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       }).then(res => {
         setLayoutData({
           block_layout: res?.data?.block_layout,
-          canvas_layout: res?.data?.canvas_layout,
+          icon_layout: res?.data?.icon_layout,
           list_layout: res?.data?.list_layout
         })
       })
@@ -148,7 +148,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       method: "POST",
       body: JSON.stringify({
         layoutValue: layouts,
-        layoutName: "canvas_layout"
+        layoutName: "icon_layout"
       })
     }).then(res => res.json()).then(res => {
       if (res.data) {
@@ -231,9 +231,9 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }
 
     const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
+      let block_id = payload["old"]["block_id"]
       console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+      setBlocks((blocks) => blocks.filter((block) => block.block_id !== block_id))
 
     }
     const channel = supabase
@@ -316,9 +316,36 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }
   };
 
-  const handleChangeLayoutView = (newLayoutView: "block" | "canvas") => {
+  const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
     setSelectedLayoutType(newLayoutView)
     setLayoutViewToLocalStorage(params.lens_id, newLayoutView)
+  }
+
+  // the following two functions are used under layout components
+  // the functions return the load promise so that the layout components
+  // can use the loading, success, error messages accordingly
+  const handleBlockChangeName = async (block_id: number, newBlockName: string) => {
+    const updatePromise = fetch(`/api/block/${block_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ title: newBlockName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating block name...",
+      success: "Block name updated!",
+      error: "Failed to update block name.",
+    });
+  }
+
+  const handleBlockDelete = (block_id: number) => {
+    const deletePromise = fetch(`/api/block/${block_id}`, {
+      method: "DELETE"
+    });
+    return load(deletePromise, {
+      loading: "Deleting block...",
+      success: "Block deleted!",
+      error: "Failed to delete block.",
+    });
   }
 
   if (!lens || loading) {
@@ -422,16 +449,16 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             </Flex>
           )}
           <Tooltip color="blue" label={selectedLayoutType === "block"
-            ? "Switch to canvas layout."
+            ? "Switch to icon layout."
             : "Switch to block layout."
           }>
             <Button
               size="xs"
               variant="subtle"
-              leftSection={selectedLayoutType === "canvas" ? <FaFolder /> : <FaList />}
-              onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "canvas" : "block")}
+              leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
+              onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
             >
-              {selectedLayoutType === "block" ? "Block View" : "Canvas View"}
+              {selectedLayoutType === "block" ? "Block View" : "Icon View"}
             </Button>
           </Tooltip>
         </Flex>
@@ -451,6 +478,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           ? <div className="flex items-stretch flex-col gap-4 mt-4">
             {blocks && blocks.length > 0
               ? <SpaceLayoutComponent
+                handleBlockChangeName={handleBlockChangeName}
+                handleBlockDelete={handleBlockDelete}
                 onChangeLayout={onChangeLensLayout}
                 layout={layoutData} lens_id={params.lens_id}
                 blocks={blocks} layoutView={selectedLayoutType} />
@@ -473,6 +502,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           : <div className="flex items-stretch flex-col gap-4 mt-4">
             {blocks && blocks.length > 0
               ? <SpaceLayoutComponent
+                handleBlockChangeName={handleBlockChangeName}
+                handleBlockDelete={handleBlockDelete}
                 onChangeLayout={onChangeLensLayout}
                 layout={layoutData} lens_id={params.lens_id}
                 blocks={blocks} layoutView={selectedLayoutType} />

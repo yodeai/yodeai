@@ -23,5 +23,5 @@ export type Lens = {
 export type LensLayout = {
   block_layout?: JSON | undefined;
   list_layout?: JSON | undefined;
-  canvas_layout?: Layouts | undefined;
+  icon_layout?: Layouts | undefined;
 }

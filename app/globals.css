@@ -2,6 +2,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@layer mantine, mantine-contextmenu;
+
 /* This line ensures all anchor tags are underlined */
 /* @layer base {
   btn {
