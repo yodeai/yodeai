@@ -110,6 +110,10 @@ const IconLayoutItem = ({ block, icon, handleBlockChangeName, handleBlockDelete 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
+  useEffect(() => {
+    setTitleText(block.title);
+  }, [block.title])
+
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm block deletion',
     centered: true,
