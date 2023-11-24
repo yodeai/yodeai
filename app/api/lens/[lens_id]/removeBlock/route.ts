@@ -1,6 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
+import apiClient from '@utils/apiClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +24,20 @@ export async function POST(request: NextRequest, { params,}: {params: { lens_id:
             .eq('lens_id', lens_id)
             .eq('block_id', block_id);
 
+        
+
         if (error) {
             throw error;
         }
+
+    // Traverse up the hierarchy to add the block to the ancestors (an async call as to not block)
+      await apiClient('/processAncestors', 'POST', { "block_id": block_id, "lens_id": lens_id, "remove": true })
+      .then(result => {
+        console.log('Submitted task to process ancestors', result);
+      })
+      .catch(error => {
+        console.error('Error adding block to ancestors: ' + error.message);
+      });
 
         return new NextResponse(
             JSON.stringify({ message: 'Successfully removed block from lens.' }),

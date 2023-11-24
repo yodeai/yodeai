@@ -19,28 +19,80 @@ import { isErrored } from "stream";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import AddSubspace from "@components/AddSubspace";
+import SubspaceComponent from "@components/SubspaceComponent"
 
+export default function Lens({ params }) {
+  const {lens_ids} = params;
 
-
-export default function Lens({ params }: { params: { lens_id: string } }) {
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [subspaces, setSubspaces] = useState([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
   const router = useRouter();
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
+  async function isValidHierarchy(lensIds) {
+    for (let index = 0; index < lensIds.length; index++) {
+      const id = lensIds[index];
+      const parentId = index === 0 ? -1 : lensIds[index - 1];
+  
+      const isChild = await isChildOf(id, parentId);
+  
+      if (!isChild) {
+        console.log(`Invalid hierarchy at index ${index}`);
+        return false;
+      }
+    }
+  
+    return true;
+  }
+  async function isChildOf(childId, parentId) {
+    try {
+      const { data: lensData, error } = await supabase
+        .from('lens')
+        .select('parent_id')
+        .eq('lens_id', childId);
+  
+      if (error) {
+        throw new Error(`Error fetching lens data: ${error.message}`);
+      }
+  
+      const fetchedParentId = lensData[0]?.parent_id;
+      console.log(fetchedParentId, parentId);
+      return fetchedParentId == parentId;
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      return false;
+    }
+  }
+  useEffect(() => {
+    // Define an asynchronous function
+    const validateAndRedirect = async () => {
+      // Validate the nested lens IDs (client-side)
+      if (!(await isValidHierarchy(lens_ids))) {
+        // Redirect to an error page or handle the invalid case
+        console.log("invalid hierarchy");
+        // router.push('/notFound');
+      }
+    };
+  
+    // Call the asynchronous function
+    validateAndRedirect();
+  }, [lens_ids]);
+  
 
   useEffect(() => {
     setEditingLensName(lensName);
   }, [lensName]);
   useEffect(() => {
     // Fetch lens data and related information
-    fetchLensData(params.lens_id);
-  }, [params.lens_id, searchParams]);
+    fetchLensData(lens_ids[lens_ids.length - 1]);
+  }, [lens_ids, searchParams]);
   const fetchLensData = (lensId: string) => {
     setLoading(true);
     // Check if 'edit' query parameter is present and set isEditingLensName accordingly
@@ -53,10 +105,18 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       fetch(`/api/lens/${lensId}/getBlocks`)
         .then((response) => response.json())
         .then((data) => {
-          setBlocks(data.data);
+          setBlocks(data?.data);
         })
         .catch((error) => {
           console.error('Error fetching blocks:', error);
+        }),
+      fetch(`/api/lens/${lensId}/getSubspaces`)
+        .then((response) => response.json())
+        .then((data) => {
+          setSubspaces(data?.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching subspaces:', error);
         }),
       fetch(`/api/lens/${lensId}`)
         .then((response) => {
@@ -68,11 +128,11 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           }
         })
         .then((data) => {
-          setLens(data.data);
-          setLensName(data.data.name);
+          setLens(data?.data);
+          setLensName(data?.data.name);
           const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            setAccessType(data.data.user_to_access_type[user.id]);
+            setAccessType(data?.data.user_to_access_type[user.id]);
           };
           
           getUser();
@@ -98,10 +158,10 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   //   }
 
   //   // Fetch the blocks associated with the lens
-  //   fetch(`/api/lens/${params.lens_id}/getBlocks`)
+  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/getBlocks`)
   //     .then((response) => response.json())
   //     .then((data) => {
-  //       setBlocks(data.data);
+  //       setBlocks(data?.data);
   //     })
   //     .catch((error) => {
   //       console.error("Error fetching block:", error);
@@ -109,26 +169,26 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   //     });
 
   //   // Fetch the lens details
-  //   fetch(`/api/lens/${params.lens_id}`)
+  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}`)
   //     .then((response) => {
   //       if (!response.ok) {
   //         console.log("Error fetching lens")
   //         router.push("/notFound")
   //       } else {
   //         response.json().then((data) => {
-  //           setLens(data.data);
-  //           setLensName(data.data.name)
+  //           setLens(data?.data);
+  //           setLensName(data?.data.name)
   //           const getUser = async() => {
   //             const { data: { user } } = await supabase.auth.getUser()
   //             setUser(user);
-  //             setAccessType(data.data.user_to_access_type[user.id]);
+  //             setAccessType(data?.data.user_to_access_type[user.id]);
   //           }
   //           getUser();
   //         })
   //       }
   //     })
 
-  // }, [params.lens_id, searchParams]);
+  // }, [lens_ids[lens_ids.length - 1], searchParams]);
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -299,6 +359,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   Add Block
                 </Button>
               </Link>
+                <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
               <Tooltip color="blue" label="Edit lens.">
                 <Button
                   size="xs"
@@ -309,7 +370,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   Edit
                 </Button>
               </Tooltip>
-              {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
+              {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
               <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
                 <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
               </Text>
@@ -362,10 +423,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       <Text ta={"center"} size="xs" fw={600} c={"blue"}>
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
-
-      {
-        !lens.shared || accessType == 'editor' || accessType == 'owner' ?
           <div className="flex items-stretch flex-col gap-4 mt-4">
+            <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" />
             {blocks && blocks.length > 0 ? (
               blocks.map((block) => (
                 <BlockComponent key={block.block_id} block={block} />
@@ -376,35 +435,19 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               </Text>
             )}
 
-            {/* Display child lenses if they exist */}
-            {lens.children && lens.children.length > 0 ? (
-              lens.children.map((childLens) => (
-                <div key={childLens.lens_id}>
-                  {/* Child lens display logic */}
-                  Child Lens: {childLens.name}
-                </div>
-              ))
-            ) : (
-              <p></p>
-            )}
-          </div>
-          :
-          <div className="flex items-stretch flex-col gap-4 mt-4">
+        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" />
 
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
+            {/* Display child lenses if they exist */}
+            {subspaces && subspaces.length > 0 ? (
+              subspaces.map((childLens) => (
+                  <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
               ))
             ) : (
               <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                This space is empty.
-              </Text>
+              There are no subspaces, add subspaces to organize your blocks.</Text>
             )}
           </div>
-      }
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
+     
     </Flex >
   );
 }

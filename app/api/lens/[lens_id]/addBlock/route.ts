@@ -1,6 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
+import apiClient from '@utils/apiClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +19,23 @@ export async function POST(request: NextRequest, { params, }: { params: { lens_i
         // Insert the lens_id and block_id into the lens_blocks table
         const { error: insertError } = await supabase
             .from('lens_blocks')
-            .insert([{ lens_id, block_id }]);
+            .insert([{ lens_id, block_id, direct_child: true}]);
 
         if (insertError) {
             console.log("insert error", insertError)
             throw insertError;
         }
+        
+        // Traverse up the hierarchy to add the block to the ancestors (an async call as to not block)
+        await apiClient('/processAncestors', 'POST', { block_id, lens_id, "remove": false })
+        .then(result => {
+          console.log('Submitted task to process ancestors', result);
+        })
+        .catch(error => {
+          console.error('Error adding block to ancestors: ' + error.message);
+        });
+
+
 
         // Update the updated_at column of the lens to the current time
         const { error: updateLensError } = await supabase

@@ -9,13 +9,17 @@ export async function GET(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
   
     try {
-      const { data: lenses, error:lensesError } = await supabase
+        const { data: lenses, error: lensesError } = await supabase
         .from('lens')
         .select('*, lens_users(user_id, access_type)')
+        .eq('parent_id', -1)
         .order('updated_at', { ascending: false });
-        if (lensesError) {
-          throw lensesError;
-        }
+      
+      if (lensesError) {
+        console.error('Error fetching lenses:', lensesError);
+        throw lensesError;
+      }
+    
 
         for (const lens of lenses) {
           lens.user_to_access_type = {};
