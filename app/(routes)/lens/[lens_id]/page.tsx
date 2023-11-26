@@ -1,26 +1,22 @@
 "use client";
 
-import { notFound } from "next/navigation";
-import Container from "@components/Container";
 import Link from "next/link";
-import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext, useMemo } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import { Lens, LensLayout } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon, CheckIcon } from "@radix-ui/react-icons";
+import { Pencil2Icon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
 import SpaceLayoutComponent from "@components/SpaceLayout";
 import toast from "react-hot-toast";
-import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
-import { isErrored } from "stream";
+import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
-import InfoPopover from "@components/InfoPopover";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import { useDebounceCallback } from "@mantine/hooks";
+import useDebouncedCallback from "@utils/hooks";
 
 function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
   let layout = null;
@@ -143,7 +139,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       })
   }
 
-  const saveLayoutToSupabase = async (layoutName: keyof LensLayout, layouts: LensLayout[keyof LensLayout]) => {
+  const saveLayoutToSupabase = useDebouncedCallback(async (layoutName: keyof LensLayout, layouts: LensLayout[keyof LensLayout]) => {
     return fetch(`/api/lens/${params.lens_id}/layout`, {
       method: "POST",
       body: JSON.stringify({
@@ -157,7 +153,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     }).catch(err => {
       console.log("Error saving layout to supabase:", err.message)
     })
-  }
+  }, 2000);
 
   const onChangeLensLayout = async (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => {
     saveLayoutToSupabase(layoutName, layoutData)
@@ -218,7 +214,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           return item;
         })
       );
-
     };
 
     const addBlocks = (payload) => {
@@ -234,8 +229,8 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
       let block_id = payload["old"]["block_id"]
       console.log("Deleting block", block_id);
       setBlocks((blocks) => blocks.filter((block) => block.block_id !== block_id))
-
     }
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
@@ -256,7 +251,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
     setLensName(newName); // Update the global context here
     return updatePromise;
   };
-
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditingLensName(e.target.value);
