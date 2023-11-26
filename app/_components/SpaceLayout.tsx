@@ -4,6 +4,7 @@ import { Block } from "app/_types/block";
 import IconLayoutComponent from "./IconLayoutComponent";
 import React from "react";
 import { LensLayout } from '../_types/lens';
+import { ScrollArea } from "@mantine/core";
 
 type SpaceLayoutComponentProps = {
     blocks: Block[]
@@ -22,9 +23,11 @@ export default function SpaceLayoutComponent(props: SpaceLayoutComponentProps) {
     const { blocks, layout, layoutView, lens_id, onChangeLayout, handleBlockChangeName, handleBlockDelete } = props;
 
     return layoutView === "block"
-        ? <React.Fragment>{blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} />
-        ))}</React.Fragment>
+        ? <ScrollArea type={"scroll"} mt={15.5} w={'100%'} scrollbarSize={8} >
+            <React.Fragment>{blocks.map((block) => (
+                <BlockComponent key={block.block_id} block={block} />
+            ))}</React.Fragment>
+        </ScrollArea >
         : <IconLayoutComponent
             handleBlockChangeName={handleBlockChangeName}
             handleBlockDelete={handleBlockDelete}

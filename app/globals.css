@@ -212,10 +212,6 @@
   border-radius: 10px;
 }
 
-.react-grid-item:hover{
-  background-color: #f9f9f9;
-}
-
 .react-grid-item:active, .react-grid-item:focus{
   background-color: transparent;
 }

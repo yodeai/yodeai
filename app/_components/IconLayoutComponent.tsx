@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
 import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
@@ -13,6 +13,8 @@ import { LensLayout } from "../_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
+import { Breadcrumbs, Anchor } from '@mantine/core';
+import { useAppContext } from "@contexts/context";
 
 interface IconLayoutComponentProps {
   blocks: Block[];
@@ -32,6 +34,7 @@ export default function IconLayoutComponent({
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
+  const { lensName, lensId } = useAppContext();
 
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
@@ -41,6 +44,25 @@ export default function IconLayoutComponent({
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 2 }), []);
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
+  const [selectedBlocks, setSelectedBlocks] = useState<Block["block_id"][]>([]);
+
+  const breadcrumbs = useMemo(() => {
+    let elements = [
+      { title: 'Lens' },
+      { title: lensName, href: `/lens/${lensId}` }
+    ];
+
+    if (selectedBlocks.length === 0) {
+      return elements;
+    } else if (selectedBlocks.length === 1) {
+      const selectedBlock = blocks.find(block => block.block_id === selectedBlocks[0]);
+      elements.push({ title: selectedBlock.title, href: `/block/${selectedBlock.block_id}` })
+    } else if (selectedBlocks.length > 1) {
+      elements.push({ title: `${selectedBlocks.length} blocks selected` })
+    }
+
+    return elements;
+  }, [lensName, lensId, selectedBlocks]);
 
   const onDoubleClick = (block: Block) => {
     router.push(`/block/${block.block_id}`)
@@ -48,17 +70,27 @@ export default function IconLayoutComponent({
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const block = blocks.find(block => block.block_id.toString() === newItem.i)
-    if (block) {
-      const now = Date.now();
-      if ($lastClick.current && (now - $lastClick.current) < 300) {
-        onDoubleClick(block)
-      }
-      $lastClick.current = now;
+    if (!block) return;
+
+    const now = Date.now();
+    if ($lastClick.current && (now - $lastClick.current) < 300) {
+      onDoubleClick(block)
+      return;
     }
+    $lastClick.current = now;
+
+    setSelectedBlocks((selectedBlocks) => (
+      event.ctrlKey
+        ? selectedBlocks.includes(block.block_id)
+          ? selectedBlocks.filter(block_id => block_id !== block.block_id)
+          : [...selectedBlocks, block.block_id]
+        : [block.block_id]
+    ))
   }, [])
 
   const onWidthChange = (width: number, margin: [number, number], cols: number) => {
     const breakpoint = Object.entries(breakpoints).find(([key, value]) => value <= width + margin.reduce((a, b) => a + b, 0) + cols);
+    if (breakpoint === undefined) return;
     setBreakpoint(breakpoint[0])
   }
 
@@ -71,21 +103,23 @@ export default function IconLayoutComponent({
         w: 1, h: 1, isResizable: false
       };
       const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
-      return <div key={block.block_id} data-grid={dataGrid}>
+      return <div key={block.block_id} data-grid={dataGrid} className={`block-item ${selectedBlocks.includes(block.block_id) ? "bg-gray-100" : ""}`}>
         <IconLayoutItem
+          selected={selectedBlocks.includes(block.block_id)}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          unselectBlocks={() => setSelectedBlocks([])}
           icon={fileTypeIcons[block.block_type]} block={block} />
       </div>
-    }), [breakpoint, blocks, layouts, cols])
+    }), [breakpoint, blocks, layouts, cols, selectedBlocks])
 
-  return (
+  return <div className="h-full flex flex-col justify-between">
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
       breakpoint={breakpoint}
       breakpoints={breakpoints}
-      rowHeight={80}
+      rowHeight={95}
       onLayoutChange={(layout, layouts) => onChangeLayout("icon_layout", layouts)}
       isResizable={false}
       onWidthChange={onWidthChange}
@@ -93,16 +127,28 @@ export default function IconLayoutComponent({
       verticalCompact={false}>
       {blockItems}
     </ResponsiveReactGridLayout>
-  );
+    <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
+      breadcrumbs.map(({ title, href }, index) => (
+        <Fragment key={index}>
+          {href
+            ? <Anchor href={href} size="sm" c="dimmed">{title}</Anchor>
+            : <Text size="sm" c="dimmed">{title}</Text>
+          }
+        </Fragment>
+      ))
+    }</Breadcrumbs>
+  </div>
 }
 
 type IconLayoutItemProps = {
   block: Block;
   icon: JSX.Element,
+  selected?: boolean;
   handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete?: (block_id: number) => Promise<any>
+  unselectBlocks?: () => void
 }
-const IconLayoutItem = ({ block, icon, handleBlockChangeName, handleBlockDelete }: IconLayoutItemProps) => {
+const IconLayoutItem = ({ block, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: IconLayoutItemProps) => {
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
 
@@ -129,23 +175,22 @@ const IconLayoutItem = ({ block, icon, handleBlockChangeName, handleBlockDelete 
     onConfirm: onConfirmDelete,
   });
 
-  const onMouseEnter = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setTextTruncate(false);
-  }
-
-  const onMouseLeave = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setTextTruncate(true);
-  }
-
   const onChangeTitle = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if ((event.nativeEvent as InputEvent).inputType === "insertLineBreak") {
+    setTitleText(event.target.value);
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      setEditMode(false);
+      return;
+    }
+    if (event.key === "Enter") {
       setEditMode(false)
       setLoading(true)
-      handleBlockChangeName(block.block_id, event.target.value.trim())
+      handleBlockChangeName(block.block_id, (event.target as HTMLTextAreaElement).value.trim())
         .then(res => setLoading(false))
       return;
     }
-    setTitleText(event.target.value);
   }
 
   const onConfirmDelete = () => {
@@ -162,6 +207,7 @@ const IconLayoutItem = ({ block, icon, handleBlockChangeName, handleBlockDelete 
     const onClick = (event: MouseEvent) => {
       if ((event.target as HTMLElement).classList.contains("mantine-ScrollArea-viewport")) {
         setEditMode(false);
+        unselectBlocks();
       }
     }
 
@@ -192,20 +238,20 @@ const IconLayoutItem = ({ block, icon, handleBlockChangeName, handleBlockDelete 
   const onContextMenu = showContextMenu(actions);
 
   return <Flex
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
     onContextMenu={onContextMenu}
-    mih={70} gap="lg"
-    justify="center" align="center"
+    mih={95} gap="lg"
+    justify="normal" align="center"
     direction="column" wrap="nowrap">
     {loading ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" /> : icon}
-    <Box w={70} h={30} variant="unstyled" style={{ textAlign: "center" }}>
+    <Box w={70} h={30} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea
-          minRows={1} maxRows={4} ref={$textarea}
+          className="z-50"
+          minRows={1} maxRows={2} ref={$textarea}
           variant="unstyled" size="xs" ta="center" c="dimmed"
+          onKeyDown={onKeyDown}
           onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text size="xs" ta="center" c="dimmed">{
+        : <Text size="xs" ta="center" c="dimmed" className="break-words">{
           textTruncate ? truncateText(titleText, { from: "center" }) : titleText
         }</Text>
       }

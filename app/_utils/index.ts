@@ -11,7 +11,7 @@ export const truncateText = (text: string, {
             case "start":
                 return text.slice(0, 16) + "...";
             case "center":
-                return text.slice(0, 8) + "..." + text.slice(text.length - 4);
+                return text.slice(0, 8) + " ..." + text.slice(text.length - 4);
             case "end":
                 return "..." + text.slice(text.length - maxLength);
         }

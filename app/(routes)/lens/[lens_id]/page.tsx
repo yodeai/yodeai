@@ -375,7 +375,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   // </Flex>
 
   return (
-    <Flex direction={"column"} p={16} pt={0}>
+    <Flex direction={"column"} p={16} pt={0} className="h-full">
       <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
@@ -469,7 +469,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
       {
         !lens.shared || accessType == 'editor' || accessType == 'owner'
-          ? <div className="flex items-stretch flex-col gap-4 mt-4">
+          ? <div className="flex h-full items-stretch flex-col gap-4 mt-4">
             {blocks && blocks.length > 0
               ? <SpaceLayoutComponent
                 handleBlockChangeName={handleBlockChangeName}
@@ -493,7 +493,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
               <p></p>
             )}
           </div>
-          : <div className="flex items-stretch flex-col gap-4 mt-4">
+          : <div className="flex h-full items-stretch flex-col gap-4 mt-4">
             {blocks && blocks.length > 0
               ? <SpaceLayoutComponent
                 handleBlockChangeName={handleBlockChangeName}
