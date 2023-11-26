@@ -23,23 +23,28 @@ interface IconLayoutComponentProps {
   handleBlockDelete: (block_id: number) => Promise<any>
 }
 
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
 export default function IconLayoutComponent({
   blocks, layouts, lens_id, onChangeLayout,
   handleBlockChangeName, handleBlockDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
-  const [breakpoint, setBreakpoint] = useState<string>("md");
+  const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
 
-  const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), [breakpoint]);
+  const fileTypeIcons = useMemo(() => ({
+    pdf: <FaFilePdf size={32} color="#228be6" />,
+    note: <FaFileLines size={32} color="#888888" />,
+    space: <FaFolder size={32} color="#fd7e14" />,
+  }), []);
+
+  const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 2 }), []);
+  const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
 
   const onDoubleClick = (block: Block) => {
     router.push(`/block/${block.block_id}`)
   }
-
-  const onBreakpointChange = useCallback((newBreakpoint: string, newCols: number) => {
-    setBreakpoint(newBreakpoint)
-  }, [breakpoint])
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const block = blocks.find(block => block.block_id.toString() === newItem.i)
@@ -52,20 +57,17 @@ export default function IconLayoutComponent({
     }
   }, [])
 
-  const fileTypeIcons = useMemo(() => ({
-    pdf: <FaFilePdf size={32} color="#228be6" />,
-    note: <FaFileLines size={32} color="#888888" />,
-    space: <FaFolder size={32} color="#fd7e14" />,
-  }), []);
+  const onWidthChange = (width: number, margin: [number, number], cols: number) => {
+    const breakpoint = Object.entries(breakpoints).find(([key, value]) => value <= width + margin.reduce((a, b) => a + b, 0) + cols);
+    setBreakpoint(breakpoint[0])
+  }
 
-  const cols = useMemo(() => ({ lg: 12, md: 12, sm: 8, xs: 4, xxs: 2 }), [])
-
-  const blockItems = useMemo(() => {
-    return blocks.map((block, index) => {
+  const blockItems = useMemo(() =>
+    blocks.map((block, index) => {
       const defaultDataGrid = {
         index,
         x: index % cols[breakpoint],
-        y: Math.floor((index + 1) / cols[breakpoint]),
+        y: Math.floor(index / cols[breakpoint]),
         w: 1, h: 1, isResizable: false
       };
       const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
@@ -75,19 +77,18 @@ export default function IconLayoutComponent({
           handleBlockDelete={handleBlockDelete}
           icon={fileTypeIcons[block.block_type]} block={block} />
       </div>
-    })
-  }, [breakpoint, blocks, layouts])
+    }), [breakpoint, blocks, layouts, cols])
 
   return (
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
+      breakpoint={breakpoint}
+      breakpoints={breakpoints}
       rowHeight={80}
-      onBreakpointChange={onBreakpointChange}
       onLayoutChange={(layout, layouts) => onChangeLayout("icon_layout", layouts)}
-      useCSSTransforms={false}
-      autoSize={false}
       isResizable={false}
+      onWidthChange={onWidthChange}
       onDragStart={calculateDoubleClick}
       verticalCompact={false}>
       {blockItems}
