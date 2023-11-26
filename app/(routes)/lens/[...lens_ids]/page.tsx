@@ -15,6 +15,12 @@ import SpaceLayoutComponent from "@components/SpaceLayout";
 import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+
+
+import InfoPopover from "@components/InfoPopover";
+import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import AddSubspace from "@components/AddSubspace";
+import SubspaceComponent from "@components/SubspaceComponent"
 import { useDebounceCallback } from "@mantine/hooks";
 import useDebouncedCallback from "@utils/hooks";
 
@@ -43,11 +49,14 @@ function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
   }
 }
 
-export default function Lens({ params }: { params: { lens_id: string } }) {
+export default function Lens({ params }) {
+  const { lens_ids } = params;
+
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [subspaces, setSubspaces] = useState([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
@@ -57,6 +66,55 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
+  async function isValidHierarchy(lensIds) {
+    for (let index = 0; index < lensIds.length; index++) {
+      const id = lensIds[index];
+      const parentId = index === 0 ? -1 : lensIds[index - 1];
+
+      const isChild = await isChildOf(id, parentId);
+
+      if (!isChild) {
+        console.log(`Invalid hierarchy at index ${index}`);
+        return false;
+      }
+    }
+
+    return true;
+  }
+  async function isChildOf(childId, parentId) {
+    try {
+      const { data: lensData, error } = await supabase
+        .from('lens')
+        .select('parent_id')
+        .eq('lens_id', childId);
+
+      if (error) {
+        throw new Error(`Error fetching lens data: ${error.message}`);
+      }
+
+      const fetchedParentId = lensData[0]?.parent_id;
+      console.log(fetchedParentId, parentId);
+      return fetchedParentId == parentId;
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      return false;
+    }
+  }
+  useEffect(() => {
+    // Define an asynchronous function
+    const validateAndRedirect = async () => {
+      // Validate the nested lens IDs (client-side)
+      if (!(await isValidHierarchy(lens_ids))) {
+        // Redirect to an error page or handle the invalid case
+        console.log("invalid hierarchy");
+        // router.push('/notFound');
+      }
+    };
+
+    // Call the asynchronous function
+    validateAndRedirect();
+  }, [lens_ids]);
+
 
   useEffect(() => {
     setEditingLensName(lensName);
@@ -171,10 +229,10 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   //   }
 
   //   // Fetch the blocks associated with the lens
-  //   fetch(`/api/lens/${params.lens_id}/getBlocks`)
+  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/getBlocks`)
   //     .then((response) => response.json())
   //     .then((data) => {
-  //       setBlocks(data.data);
+  //       setBlocks(data?.data);
   //     })
   //     .catch((error) => {
   //       console.error("Error fetching block:", error);
@@ -182,26 +240,26 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   //     });
 
   //   // Fetch the lens details
-  //   fetch(`/api/lens/${params.lens_id}`)
+  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}`)
   //     .then((response) => {
   //       if (!response.ok) {
   //         console.log("Error fetching lens")
   //         router.push("/notFound")
   //       } else {
   //         response.json().then((data) => {
-  //           setLens(data.data);
-  //           setLensName(data.data.name)
+  //           setLens(data?.data);
+  //           setLensName(data?.data.name)
   //           const getUser = async() => {
   //             const { data: { user } } = await supabase.auth.getUser()
   //             setUser(user);
-  //             setAccessType(data.data.user_to_access_type[user.id]);
+  //             setAccessType(data?.data.user_to_access_type[user.id]);
   //           }
   //           getUser();
   //         })
   //       }
   //     })
 
-  // }, [params.lens_id, searchParams]);
+  // }, [lens_ids[lens_ids.length - 1], searchParams]);
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -392,6 +450,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   Add Block
                 </Button>
               </Link>
+              <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
               <Tooltip color="blue" label="Edit lens.">
                 <Button
                   size="xs"
@@ -402,7 +461,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
                   Edit
                 </Button>
               </Tooltip>
-              {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
+              {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
               <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
                 <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
               </Text>
@@ -507,9 +566,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
             }
           </div>
       }
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
     </Flex >
   );
 }

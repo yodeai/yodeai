@@ -24,6 +24,30 @@ export default function DefaultModal({ lensId }) {
     const [publishInformation, setPublishInformation] = useState("");
 
     const [opened, { open, close }] = useDisclosure(false);
+    const deleteLensUsers = async (lensId, user_id) => {
+        try {
+          // Fetch all lens_ids with the specified parent_id
+          const { data: subspaces } = await supabase.from('lens').select('lens_id').eq('parent_id', lensId);
+      
+          // Extract lens_ids from the result
+          const lensIdsToDelete = subspaces.map(subspace => subspace.lens_id);
+      
+          // Delete entries in lens_users with lens_id in lensIdsToDelete and user_id
+          const { error: lensUsersError } = await supabase
+            .from('lens_users')
+            .delete()
+            .in('lens_id', lensIdsToDelete)
+            .eq('user_id', user_id);
+      
+          if (lensUsersError) {
+            console.error('Error deleting lens_users entries:', lensUsersError.message);
+            // Handle the error accordingly
+          }
+        } catch (error) {
+          console.error('Error:', error.message);
+          // Handle the error accordingly
+        }
+      };
 
     const handleRevocation = async (user_id, lensId, recipient, sender) => {
         let confirmation = confirm("Are you sure?")
@@ -32,12 +56,12 @@ export default function DefaultModal({ lensId }) {
                 .from('lens_users')
                 .delete()
                 .eq('lens_id', lensId).eq("user_id", user_id);
-            console.log("hi", recipient, sender)
+            
+            deleteLensUsers(lensId, user_id)
             const { error: inviteError } = await supabase
                 .from('lens_invites')
                 .delete()
                 .eq('lens_id', lensId).eq("recipient", recipient).eq("sender", sender);
-            console.log("error", inviteError)
             const newLensCollaborator = lensCollaborators.filter((item) => { item.users.id !== user_id && item.lens_id !== lensId })
             setLensCollaborators(newLensCollaborator);
 
@@ -47,6 +71,15 @@ export default function DefaultModal({ lensId }) {
                     .from('lens')
                     .update({ "shared": false })
                     .eq('lens_id', lensId)
+                if (error) {
+                    console.error("Error", error.message)
+                }
+
+                // change shared to false
+                const { error: subspacesError } = await supabase
+                    .from('lens')
+                    .update({ "shared": false })
+                    .eq('root', lensId)
                 if (error) {
                     console.error("Error", error.message)
                 }
@@ -102,6 +135,15 @@ export default function DefaultModal({ lensId }) {
                     .update({ "shared": true })
                     .eq('lens_id', lensId);// set lens to shared status
                 if (error) {
+                    console.log(error);
+                    throw error;
+                }
+                // share all subspaces
+                let { error: subspaceError } = await supabase
+                .from('lens')
+                .update({ "shared": true })
+                .eq('root', lensId);// set lens to shared status
+                if (subspaceError) {
                     console.log(error);
                     throw error;
                 }

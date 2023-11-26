@@ -17,6 +17,7 @@ export type Lens = {
   lens_users: LensUsers[]
   public: boolean;
   user_to_access_type: UserToAccessType
+  parent_id: number;
 }
 
 
