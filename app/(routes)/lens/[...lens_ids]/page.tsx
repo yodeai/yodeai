@@ -63,7 +63,6 @@ export default function Lens({ params }) {
       }
   
       const fetchedParentId = lensData[0]?.parent_id;
-      console.log(fetchedParentId, parentId);
       return fetchedParentId == parentId;
     } catch (error) {
       console.error(`Error: ${error.message}`);

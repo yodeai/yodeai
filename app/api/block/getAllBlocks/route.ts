@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
             lens_blocks!fk_block (
                 lens: lens!fk_lens (lens_id, name)
             )
-        `)
-            .order('updated_at', { ascending: false });
+        `).eq('lens_blocks.direct_child', true)
+        .order('updated_at', { ascending: false });
 
         const blocksWithLenses = (blocks || []).map(block => ({
             ...block,

@@ -15,20 +15,21 @@ export async function GET(request: NextRequest) {
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: inboxBlocks, error } = await supabase
-            .from('inbox')
-            .select(`
+        .from('inbox')
+        .select(`
+            *,
+            block!inbox_block_id_fkey (
                 *,
-                block!inbox_block_id_fkey (
-                    *,
-                    lens_blocks!fk_block (
-                        lens: lens!fk_lens (lens_id, name)
-                    )
+                lens_blocks!fk_block (
+                    lens: lens!fk_lens (lens_id, name)
                 ) 
-            `)
-
-        if (error) {
-            throw error;
-        }
+            )
+        `).eq("block.lens_blocks.direct_child", true)
+    if (error) {
+        throw error;
+    }
+    
+    
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = inboxBlocks
