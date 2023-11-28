@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan } from "react-icons/fa6";
+import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
 
 import { Text, Flex, Box, TextProps, Textarea, Popover, Button } from '@mantine/core';
@@ -9,27 +9,32 @@ import { truncateText } from "@utils/index";
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout } from "../_types/lens";
+import { LensLayout, Subspace } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
 
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
 interface IconLayoutComponentProps {
   blocks: Block[];
+  subspaces: Subspace[];
   layouts: LensLayout["icon_layout"]
   lens_id: string;
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
 }
-
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
-
 export default function IconLayoutComponent({
-  blocks, layouts, lens_id, onChangeLayout,
-  handleBlockChangeName, handleBlockDelete
+  blocks,
+  layouts,
+  lens_id,
+  subspaces,
+  onChangeLayout,
+  handleBlockChangeName,
+  handleBlockDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -39,12 +44,14 @@ export default function IconLayoutComponent({
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
-    space: <FaFolder size={32} color="#fd7e14" />,
+    subspace: <FaFolder size={32} color="#fd7e14" />,
   }), []);
 
-  const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 2 }), []);
+  const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
-  const [selectedBlocks, setSelectedBlocks] = useState<Block["block_id"][]>([]);
+  const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
+
+  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [])
 
   const breadcrumbs = useMemo(() => {
     let elements = [
@@ -52,39 +59,47 @@ export default function IconLayoutComponent({
       { title: lensName, href: `/lens/${lensId}` }
     ];
 
-    if (selectedBlocks.length === 0) {
+    if (selectedItems.length === 0) {
       return elements;
-    } else if (selectedBlocks.length === 1) {
-      const selectedBlock = blocks.find(block => block.block_id === selectedBlocks[0]);
-      elements.push({ title: selectedBlock.title, href: `/block/${selectedBlock.block_id}` })
-    } else if (selectedBlocks.length > 1) {
-      elements.push({ title: `${selectedBlocks.length} blocks selected` })
+    } else if (selectedItems.length === 1) {
+      const selectedItem = items.find(item => {
+        return "lens_id" in item
+          ? item.lens_id === selectedItems[0]
+          : item.block_id === selectedItems[0]
+      });
+      if (!selectedItem) return elements;
+      elements.push({
+        title: "lens_id" in selectedItem ? selectedItem.name : selectedItem.title,
+        href: "lens_id" in selectedItem ? `/lens/${selectedItem.lens_id}` : `/block/${selectedItem.block_id}`
+      })
+    } else if (selectedItems.length > 1) {
+      elements.push({ title: `${selectedItems.length} items selected` })
     }
 
     return elements;
-  }, [lensName, lensId, selectedBlocks]);
+  }, [items, lensName, lensId, selectedItems]);
 
-  const onDoubleClick = (block: Block) => {
-    router.push(`/block/${block.block_id}`)
+  const onDoubleClick = (itemType: string, itemId: number) => {
+    const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
+    router.push(path)
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
-    const block = blocks.find(block => block.block_id.toString() === newItem.i)
-    if (!block) return;
+    const [itemType, itemId] = newItem.i.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
 
     const now = Date.now();
     if ($lastClick.current && (now - $lastClick.current) < 300) {
-      onDoubleClick(block)
+      onDoubleClick(itemType, itemId)
       return;
     }
     $lastClick.current = now;
 
-    setSelectedBlocks((selectedBlocks) => (
+    setSelectedItems((selectedItems) => (
       event.ctrlKey
-        ? selectedBlocks.includes(block.block_id)
-          ? selectedBlocks.filter(block_id => block_id !== block.block_id)
-          : [...selectedBlocks, block.block_id]
-        : [block.block_id]
+        ? selectedItems.includes(Number(itemId))
+          ? selectedItems.filter(item_id => item_id !== Number(itemId))
+          : [...selectedItems, Number(itemId)]
+        : [Number(itemId)]
     ))
   }, [])
 
@@ -94,26 +109,36 @@ export default function IconLayoutComponent({
     setBreakpoint(breakpoint[0])
   }
 
-  const blockItems = useMemo(() =>
-    blocks.map((block, index) => {
-      const defaultDataGrid = {
-        index,
-        x: index % cols[breakpoint],
-        y: Math.floor(index / cols[breakpoint]),
-        w: 1, h: 1, isResizable: false
-      };
-      const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
-      return <div key={block.block_id} data-grid={dataGrid} className={`block-item ${selectedBlocks.includes(block.block_id) ? "bg-gray-100" : ""}`}>
-        <IconLayoutItem
-          selected={selectedBlocks.includes(block.block_id)}
+  const layoutItems = useMemo(() => items.map((item, index) => {
+    const isSubspace = "lens_id" in item;
+
+    const key = isSubspace ? `ss_${item.lens_id}` : `bl_${item.block_id}`;
+    const item_id = isSubspace ? item.lens_id : item.block_id;
+
+    const defaultDataGrid = {
+      x: index % cols[breakpoint],
+      y: Math.floor(index / cols[breakpoint]),
+      w: 1, h: 1, isResizable: false
+    };
+
+    const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
+    return <div key={key} data-grid={dataGrid} className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
+      {isSubspace
+        ? <SubspaceIconItem
+          selected={selectedItems.includes(item_id)}
+          unselectBlocks={() => setSelectedItems([])}
+          icon={fileTypeIcons.subspace} subspace={item} />
+        : <BlockIconItem
+          selected={selectedItems.includes(item_id)}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
-          unselectBlocks={() => setSelectedBlocks([])}
-          icon={fileTypeIcons[block.block_type]} block={block} />
-      </div>
-    }), [breakpoint, blocks, layouts, cols, selectedBlocks])
+          unselectBlocks={() => setSelectedItems([])}
+          icon={fileTypeIcons[item.block_type]} block={item} />
+      }
+    </div>
+  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems])
 
-  return <div className="h-full flex flex-col justify-between">
+  return <div className="flex flex-col justify-between h-[calc(100%-50px)]">
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
@@ -125,7 +150,7 @@ export default function IconLayoutComponent({
       onWidthChange={onWidthChange}
       onDragStart={calculateDoubleClick}
       verticalCompact={false}>
-      {blockItems}
+      {layoutItems}
     </ResponsiveReactGridLayout>
     <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
       breadcrumbs.map(({ title, href }, index) => (
@@ -140,15 +165,15 @@ export default function IconLayoutComponent({
   </div>
 }
 
-type IconLayoutItemProps = {
-  block: Block;
+type BlockIconItemProps = {
   icon: JSX.Element,
+  block: Block
   selected?: boolean;
   handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete?: (block_id: number) => Promise<any>
   unselectBlocks?: () => void
 }
-const IconLayoutItem = ({ block, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: IconLayoutItemProps) => {
+const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, unselectBlocks }: BlockIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
 
@@ -159,7 +184,7 @@ const IconLayoutItem = ({ block, icon, selected, handleBlockChangeName, handleBl
 
   useEffect(() => {
     setTitleText(block.title);
-  }, [block.title])
+  }, [block])
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm block deletion',
@@ -255,6 +280,42 @@ const IconLayoutItem = ({ block, icon, selected, handleBlockChangeName, handleBl
           textTruncate ? truncateText(titleText, { from: "center" }) : titleText
         }</Text>
       }
+    </Box>
+  </Flex>
+}
+
+type SubspaceIconItemProps = {
+  icon: JSX.Element,
+  subspace: Subspace
+  selected?: boolean;
+  unselectBlocks?: () => void
+}
+const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
+  const { showContextMenu } = useContextMenu();
+  const router = useRouter();
+
+  const actions: ContextMenuContent = useMemo(() => [{
+    key: 'open',
+    color: "#228be6",
+    icon: <FaLink size={16} />,
+    title: "Open",
+    onClick: () => {
+      router.push(`${window.location.pathname}/${subspace.lens_id}`)
+    }
+  }], []);
+
+  const onContextMenu = showContextMenu(actions);
+
+  return <Flex
+    onContextMenu={onContextMenu}
+    mih={95} gap="lg"
+    justify="normal" align="center"
+    direction="column" wrap="nowrap">
+    {icon}
+    <Box w={70} h={30} variant="unstyled" className="text-center">
+      <Text size="xs" ta="center" c="dimmed" className="break-words">
+        {truncateText(subspace.name, { from: "center" })}
+      </Text>
     </Box>
   </Flex>
 }

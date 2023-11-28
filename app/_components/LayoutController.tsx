@@ -8,7 +8,7 @@ import { ScrollArea } from "@mantine/core";
 import { Divider, Text } from "@mantine/core";
 import SubspaceComponent from "@components/SubspaceComponent"
 
-type SpaceLayoutComponentProps = {
+type LayoutControllerProps = {
     blocks: Block[]
     subspaces: Subspace[]
     layout: LensLayout,
@@ -22,7 +22,7 @@ type SpaceLayoutComponentProps = {
     ) => void
 }
 
-export default function SpaceLayoutComponent(props: SpaceLayoutComponentProps) {
+export default function LayoutController(props: LayoutControllerProps) {
     const {
         blocks, layout, layoutView, lens_id, subspaces,
         onChangeLayout, handleBlockChangeName, handleBlockDelete
@@ -46,14 +46,15 @@ export default function SpaceLayoutComponent(props: SpaceLayoutComponentProps) {
                     ? subspaces.map((childLens) => (
                         <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
                     )) : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                        There are no subspaces, add subspaces to organize your blocks.</Text>
-                }
+                        There are no subspaces, add subspaces to organize your blocks.</Text>}
             </ScrollArea>
         case "icon":
             return <IconLayoutComponent
                 handleBlockChangeName={handleBlockChangeName}
                 handleBlockDelete={handleBlockDelete}
                 layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
-                lens_id={lens_id} blocks={blocks} />
+                lens_id={lens_id}
+                subspaces={subspaces}
+                blocks={blocks} />
     }
 }

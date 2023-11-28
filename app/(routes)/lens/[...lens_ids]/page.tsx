@@ -11,7 +11,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
-import SpaceLayoutComponent from "@components/SpaceLayout";
+import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
@@ -219,7 +219,7 @@ export default function Lens({ params }) {
     }).catch(err => {
       console.log("Error saving layout to supabase:", err.message)
     })
-  }, 2000);
+  }, 1000);
 
   const onChangeLensLayout = async (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => {
     saveLayoutToSupabase(layoutName, layoutData)
@@ -520,8 +520,8 @@ export default function Lens({ params }) {
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
 
-      <div className="flex items-stretch flex-col gap-4">
-        <SpaceLayoutComponent
+      <div className="flex items-stretch flex-col gap-4 h-full">
+        <LayoutController
           subspaces={subspaces}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
