@@ -374,7 +374,7 @@ export default function DefaultModal({ lensId }) {
                 </Button>
             </Tooltip >
 
-            <Container className="max-w-3xl ">
+            <Container className="max-w-3xl absolute">
                 <Modal zIndex={299} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
                     <Modal.Body p={2} pt={0}>
                         <Group>

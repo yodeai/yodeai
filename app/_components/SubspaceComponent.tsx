@@ -2,9 +2,12 @@ import React from "react";
 import { Anchor } from "@mantine/core";
 import { Divider } from "@mantine/core";
 import { Text } from "@mantine/core";
+import { Subspace } from "app/_types/lens";
 
-export default function SubspaceComponent({ subspace }) {
-
+type SubspaceComponentProps = {
+  subspace: Subspace
+}
+export default function SubspaceComponent({ subspace }: SubspaceComponentProps) {
   const handleSubspaceClick = () => {
     window.location.href = `${window.location.pathname}/${subspace.lens_id}`;
   };

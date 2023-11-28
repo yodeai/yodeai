@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback } from "react";
-import { Lens, LensLayout } from "app/_types/lens";
+import { Lens, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Pencil2Icon } from "@radix-ui/react-icons";
@@ -16,12 +16,9 @@ import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
 
-
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import AddSubspace from "@components/AddSubspace";
-import SubspaceComponent from "@components/SubspaceComponent"
-import { useDebounceCallback } from "@mantine/hooks";
 import useDebouncedCallback from "@utils/hooks";
 
 function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
@@ -56,7 +53,7 @@ export default function Lens({ params }) {
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [subspaces, setSubspaces] = useState([]);
+  const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
@@ -93,7 +90,6 @@ export default function Lens({ params }) {
       }
 
       const fetchedParentId = lensData[0]?.parent_id;
-      console.log(fetchedParentId, parentId);
       return fetchedParentId == parentId;
     } catch (error) {
       console.error(`Error: ${error.message}`);
@@ -130,9 +126,10 @@ export default function Lens({ params }) {
       }
 
       await Promise.all([
-        getLensBlocks(params.lens_id),
-        getLensData(params.lens_id),
-        getLensLayout(params.lens_id)
+        getLensBlocks(lens_ids[lens_ids.length - 1]),
+        getLensData(lens_ids[lens_ids.length - 1]),
+        getLensSubspaces(lens_ids[lens_ids.length - 1]),
+        getLensLayout(lens_ids[lens_ids.length - 1])
       ])
         .then(() => {
           setLoading(false);
@@ -168,6 +165,17 @@ export default function Lens({ params }) {
       })
   }
 
+  const getLensSubspaces = async (lensId: string) => {
+    return fetch(`/api/lens/${lensId}/getSubspaces`)
+      .then((response) => response.json())
+      .then((data) => {
+        setSubspaces(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching subspaces:', error);
+      })
+  }
+
   const getLensBlocks = async (lensId: string) => {
     return fetch(`/api/lens/${lensId}/getBlocks`)
       .then((response) => response.json())
@@ -198,7 +206,7 @@ export default function Lens({ params }) {
   }
 
   const saveLayoutToSupabase = useDebouncedCallback(async (layoutName: keyof LensLayout, layouts: LensLayout[keyof LensLayout]) => {
-    return fetch(`/api/lens/${params.lens_id}/layout`, {
+    return fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/layout`, {
       method: "POST",
       body: JSON.stringify({
         layoutValue: layouts,
@@ -416,30 +424,14 @@ export default function Lens({ params }) {
     );
   }
 
-  //   <Flex direction="column" p={8}>
-  //   <Divider mb={8} label="All blocks" labelPosition="center" />
-
-  //   {blocks.length > 0 ? (
-  //     blocks.map((block: Block) => (
-
-  //       <div key={block.block_id}>
-  //         <BlockComponent block={block} />
-  //       </div>
-  //     ))
-  //   ) : (
-  //     <p>No blocks found.</p>
-  //   )}
-
-  // </Flex>
-
   return (
     <Flex direction={"column"} p={16} pt={0} className="h-full">
       <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
-        <Flex justify={"center"} align={"center"} gap="sm">
+        <Flex justify={"center"} align={"center"}>
           {!isEditingLensName ? (
-            <Flex justify={"center"} align={"center"}>
+            <Flex justify={"center"} align={"center"} gap={"sm"}>
               <Link href="/new">
                 <Button
                   size="xs"
@@ -451,7 +443,7 @@ export default function Lens({ params }) {
                 </Button>
               </Link>
               <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
-              <Tooltip color="blue" label="Edit lens.">
+              <Tooltip color="blue" label="Edit lens." m={0}>
                 <Button
                   size="xs"
                   variant="subtle"
@@ -462,10 +454,24 @@ export default function Lens({ params }) {
                 </Button>
               </Tooltip>
               {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
-              <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
+              <Text className="block whitespace-nowrap" size="xs" fw={500} c={"green"}>
                 <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
               </Text>
+              <Tooltip color="blue" label={selectedLayoutType === "block"
+                ? "Switch to icon layout."
+                : "Switch to block layout."
+              }>
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
+                  onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
+                >
+                  {selectedLayoutType === "block" ? "Block View" : "Icon View"}
+                </Button>
+              </Tooltip>
             </Flex>
+
           ) : (
             <Flex align={"center"}>
               <TextInput
@@ -499,21 +505,9 @@ export default function Lens({ params }) {
                   </ActionIcon>
 
                 </Tooltip> : ""}
+
             </Flex>
           )}
-          <Tooltip color="blue" label={selectedLayoutType === "block"
-            ? "Switch to icon layout."
-            : "Switch to block layout."
-          }>
-            <Button
-              size="xs"
-              variant="subtle"
-              leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
-              onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-            >
-              {selectedLayoutType === "block" ? "Block View" : "Icon View"}
-            </Button>
-          </Tooltip>
         </Flex>
         : <span className="text-xl font-semibold">
           {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
@@ -526,46 +520,15 @@ export default function Lens({ params }) {
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
 
-      {
-        !lens.shared || accessType == 'editor' || accessType == 'owner'
-          ? <div className="flex h-full items-stretch flex-col gap-4 mt-4">
-            {blocks && blocks.length > 0
-              ? <SpaceLayoutComponent
-                handleBlockChangeName={handleBlockChangeName}
-                handleBlockDelete={handleBlockDelete}
-                onChangeLayout={onChangeLensLayout}
-                layout={layoutData} lens_id={params.lens_id}
-                blocks={blocks} layoutView={selectedLayoutType} />
-              : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                This space is empty, add blocks to populate this space with content & context.
-              </Text>
-            }
-            {/* Display child lenses if they exist */}
-            {lens.children && lens.children.length > 0 ? (
-              lens.children.map((childLens) => (
-                <div key={childLens.lens_id}>
-                  {/* Child lens display logic */}
-                  Child Lens: {childLens.name}
-                </div>
-              ))
-            ) : (
-              <p></p>
-            )}
-          </div>
-          : <div className="flex h-full items-stretch flex-col gap-4 mt-4">
-            {blocks && blocks.length > 0
-              ? <SpaceLayoutComponent
-                handleBlockChangeName={handleBlockChangeName}
-                handleBlockDelete={handleBlockDelete}
-                onChangeLayout={onChangeLensLayout}
-                layout={layoutData} lens_id={params.lens_id}
-                blocks={blocks} layoutView={selectedLayoutType} />
-              : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                This space is empty.
-              </Text>
-            }
-          </div>
-      }
+      <div className="flex items-stretch flex-col gap-4">
+        <SpaceLayoutComponent
+          subspaces={subspaces}
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          onChangeLayout={onChangeLensLayout}
+          layout={layoutData} lens_id={params.lens_id}
+          blocks={blocks} layoutView={selectedLayoutType} />
+      </div>
     </Flex >
   );
 }
