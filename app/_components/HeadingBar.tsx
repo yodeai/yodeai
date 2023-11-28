@@ -1,5 +1,4 @@
 import Link from "next/link";
-import 'app/globals.css';
 import UserAccountHandler from './UserAccount';
 import { Divider, Flex, Image } from "@mantine/core";
 

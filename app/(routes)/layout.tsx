@@ -1,7 +1,7 @@
 import Navbar from "@components/Navbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
-import { Flex, ScrollArea } from "@mantine/core";
+import { Flex } from "@mantine/core";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -24,10 +24,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         {/* Main content area */}
         <Flex mah={'100%'} w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Flex h={'100%'} style={{ flex: 1 }} ml={{ base: 0, sm: 230 }} direction={"column"}>
-            <ScrollArea type={"scroll"} mt={15.5} w={'100%'} h={'100vh'} scrollbarSize={8}>
-              {children}
-            </ScrollArea>
+          <Flex h={'100%'} style={{ flex: 1 }} ml={{ base: 0, sm: 230 }} className="mt-5" direction={"column"}>
+            {children}
           </Flex>
 
           {/* QuestionAnswerForm with a left border */}

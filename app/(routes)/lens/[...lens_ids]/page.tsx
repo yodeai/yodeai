@@ -1,37 +1,64 @@
 "use client";
-import { notFound } from "next/navigation";
-import Container from "@components/Container";
+
 import Link from "next/link";
-import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext } from "react";
-import { Lens } from "app/_types/lens";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
+import { Lens, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon, CheckIcon } from "@radix-ui/react-icons";
+import { Pencil2Icon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
+import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
-import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt } from "react-icons/fa";
-import { isErrored } from "stream";
+import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import AddSubspace from "@components/AddSubspace";
-import SubspaceComponent from "@components/SubspaceComponent"
+import useDebouncedCallback from "@utils/hooks";
+
+function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
+  let layout = null;
+  if (global.localStorage) {
+    try {
+      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
+    } catch (e) {
+      /*Ignore*/
+    }
+  }
+  return layout ? layout[lens_id] : null;
+}
+
+function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
+  if (global.localStorage) {
+    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
+    global.localStorage.setItem(
+      "layoutView",
+      JSON.stringify({
+        ...layout,
+        [lens_id]: value
+      })
+    );
+  }
+}
 
 export default function Lens({ params }) {
-  const {lens_ids} = params;
+  const { lens_ids } = params;
 
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [subspaces, setSubspaces] = useState([]);
+  const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
+  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
+  const [layoutData, setLayoutData] = useState<LensLayout>({})
+
   const router = useRouter();
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
   const searchParams = useSearchParams();
@@ -40,15 +67,15 @@ export default function Lens({ params }) {
     for (let index = 0; index < lensIds.length; index++) {
       const id = lensIds[index];
       const parentId = index === 0 ? -1 : lensIds[index - 1];
-  
+
       const isChild = await isChildOf(id, parentId);
-  
+
       if (!isChild) {
         console.log(`Invalid hierarchy at index ${index}`);
         return false;
       }
     }
-  
+
     return true;
   }
   async function isChildOf(childId, parentId) {
@@ -57,11 +84,11 @@ export default function Lens({ params }) {
         .from('lens')
         .select('parent_id')
         .eq('lens_id', childId);
-  
+
       if (error) {
         throw new Error(`Error fetching lens data: ${error.message}`);
       }
-  
+
       const fetchedParentId = lensData[0]?.parent_id;
       return fetchedParentId == parentId;
     } catch (error) {
@@ -79,75 +106,128 @@ export default function Lens({ params }) {
         // router.push('/notFound');
       }
     };
-  
+
     // Call the asynchronous function
     validateAndRedirect();
   }, [lens_ids]);
-  
+
 
   useEffect(() => {
     setEditingLensName(lensName);
   }, [lensName]);
+
   useEffect(() => {
-    // Fetch lens data and related information
-    fetchLensData(lens_ids[lens_ids.length - 1]);
-  }, [lens_ids, searchParams]);
-  const fetchLensData = (lensId: string) => {
-    setLoading(true);
-    // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-    if (searchParams.get("edit") === 'true') {
-      setEditingLensName(lensName);
-      setIsEditingLensName(true);
-    }
-    // Fetch lens and related data
-    Promise.all([
-      fetch(`/api/lens/${lensId}/getBlocks`)
-        .then((response) => response.json())
-        .then((data) => {
-          setBlocks(data?.data);
+    (async () => {
+      setLoading(true);
+
+      if (searchParams.get("edit") === 'true') {
+        setEditingLensName(lensName);
+        setIsEditingLensName(true);
+      }
+
+      await Promise.all([
+        getLensBlocks(lens_ids[lens_ids.length - 1]),
+        getLensData(lens_ids[lens_ids.length - 1]),
+        getLensSubspaces(lens_ids[lens_ids.length - 1]),
+        getLensLayout(lens_ids[lens_ids.length - 1])
+      ])
+        .then(() => {
+          setLoading(false);
         })
         .catch((error) => {
-          console.error('Error fetching blocks:', error);
-        }),
-      fetch(`/api/lens/${lensId}/getSubspaces`)
-        .then((response) => response.json())
-        .then((data) => {
-          setSubspaces(data?.data);
+          console.error('Error fetching lens data:', error);
         })
-        .catch((error) => {
-          console.error('Error fetching subspaces:', error);
-        }),
-      fetch(`/api/lens/${lensId}`)
-        .then((response) => {
-          if (!response.ok) {
-            console.log('Error fetching lens');
-            router.push('/notFound');
-          } else {
-            return response.json();
-          }
-        })
-        .then((data) => {
-          setLens(data?.data);
-          setLensName(data?.data.name);
-          const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setAccessType(data?.data.user_to_access_type[user.id]);
-          };
-          
-          getUser();
-        })
-        .catch((error) => {
-          console.error('Error fetching lens:', error);
-        }),
-    ])
-      .then(() => {
-        setLoading(false);
+    })();
+  }, [params.lens_id, searchParams]);
+
+  const getLensData = async (lensId: string) => {
+    return fetch(`/api/lens/${lensId}`)
+      .then((response) => {
+        if (!response.ok) {
+          console.log('Error fetching lens');
+          router.push('/notFound');
+        } else {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        setLens(data.data);
+        setLensName(data.data.name);
+        const getUser = async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          setAccessType(data.data.user_to_access_type[user.id]);
+        };
+
+        getUser();
       })
       .catch((error) => {
-        console.error('Error fetching lens data:', error);
-        notFound();
-      });
-  };
+        console.error('Error fetching lens:', error);
+      })
+  }
+
+  const getLensSubspaces = async (lensId: string) => {
+    return fetch(`/api/lens/${lensId}/getSubspaces`)
+      .then((response) => response.json())
+      .then((data) => {
+        setSubspaces(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching subspaces:', error);
+      })
+  }
+
+  const getLensBlocks = async (lensId: string) => {
+    return fetch(`/api/lens/${lensId}/getBlocks`)
+      .then((response) => response.json())
+      .then((data) => {
+        setBlocks(data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching blocks:', error);
+      })
+  }
+
+  const getLensLayout = async (lensId: string) => {
+    return fetch(`/api/lens/${lensId}/layout`, { method: "GET" })
+      .then(response => {
+        if (!response.ok) {
+          console.log('Error fetching lens layout');
+          return;
+        } else {
+          return response.json();
+        }
+      }).then(res => {
+        setLayoutData({
+          block_layout: res?.data?.block_layout,
+          icon_layout: res?.data?.icon_layout,
+          list_layout: res?.data?.list_layout
+        })
+      })
+  }
+
+  const saveLayoutToSupabase = useDebouncedCallback(async (layoutName: keyof LensLayout, layouts: LensLayout[keyof LensLayout]) => {
+    return fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/layout`, {
+      method: "POST",
+      body: JSON.stringify({
+        layoutValue: layouts,
+        layoutName: "icon_layout"
+      })
+    }).then(res => res.json()).then(res => {
+      if (res.data) {
+        console.log("Saved layout to supabase.")
+      }
+    }).catch(err => {
+      console.log("Error saving layout to supabase:", err.message)
+    })
+  }, 1000);
+
+  const onChangeLensLayout = async (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => {
+    saveLayoutToSupabase(layoutName, layoutData)
+    setLayoutData(prevLayout => ({
+      ...prevLayout,
+      [layoutName]: layoutData
+    }))
+  }
 
   // useEffect(() => {
   //   // Check if 'edit' query parameter is present and set isEditingLensName accordingly
@@ -200,7 +280,6 @@ export default function Lens({ params }) {
           return item;
         })
       );
-
     };
 
     const addBlocks = (payload) => {
@@ -213,16 +292,16 @@ export default function Lens({ params }) {
     }
 
     const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
+      let block_id = payload["old"]["block_id"]
       console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
+      setBlocks((blocks) => blocks.filter((block) => block.block_id !== block_id))
+    }
 
-    }      
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -239,12 +318,9 @@ export default function Lens({ params }) {
     return updatePromise;
   };
 
-
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditingLensName(e.target.value);
   };
-
-
 
   const saveNewLensName = async () => {
     if (lens) {
@@ -277,6 +353,7 @@ export default function Lens({ params }) {
       saveNewLensName();
     }
   };
+
   const handleDeleteLens = async () => {
     if (lens && window.confirm("Are you sure you want to delete this lens?")) {
       try {
@@ -299,19 +376,42 @@ export default function Lens({ params }) {
     }
   };
 
+  const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
+    setSelectedLayoutType(newLayoutView)
+    setLayoutViewToLocalStorage(params.lens_id, newLayoutView)
+  }
 
+  // the following two functions are used under layout components
+  // the functions return the load promise so that the layout components
+  // can use the loading, success, error messages accordingly
+  const handleBlockChangeName = async (block_id: number, newBlockName: string) => {
+    const updatePromise = fetch(`/api/block/${block_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ title: newBlockName }),
+    });
 
-  if (!lens) {
+    return load<Response>(updatePromise, {
+      loading: "Updating block name...",
+      success: "Block name updated!",
+      error: "Failed to update block name.",
+    });
+  }
+
+  const handleBlockDelete = (block_id: number) => {
+    const deletePromise = fetch(`/api/block/${block_id}`, {
+      method: "DELETE"
+    });
+    return load(deletePromise, {
+      loading: "Deleting block...",
+      success: "Block deleted!",
+      error: "Failed to delete block.",
+    });
+  }
+
+  if (!lens || loading) {
     return (
       <div className="flex flex-col p-2 pt-0 flex-grow">
         <LoadingSkeleton />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div>
       </div>
     );
   }
@@ -324,30 +424,14 @@ export default function Lens({ params }) {
     );
   }
 
-  //   <Flex direction="column" p={8}>
-  //   <Divider mb={8} label="All blocks" labelPosition="center" />
-
-  //   {blocks.length > 0 ? (
-  //     blocks.map((block: Block) => (
-
-  //       <div key={block.block_id}>
-  //         <BlockComponent block={block} />
-  //       </div>
-  //     ))
-  //   ) : (
-  //     <p>No blocks found.</p>
-  //   )}
-
-  // </Flex>
-
   return (
-    <Flex direction={"column"} p={16} pt={0}>
+    <Flex direction={"column"} p={16} pt={0} className="h-full">
       <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
       {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
         <Flex justify={"center"} align={"center"}>
           {!isEditingLensName ? (
-            <Flex justify={"center"} align={"center"}>
+            <Flex justify={"center"} align={"center"} gap={"sm"}>
               <Link href="/new">
                 <Button
                   size="xs"
@@ -358,8 +442,8 @@ export default function Lens({ params }) {
                   Add Block
                 </Button>
               </Link>
-                <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
-              <Tooltip color="blue" label="Edit lens.">
+              <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
+              <Tooltip color="blue" label="Edit lens." m={0}>
                 <Button
                   size="xs"
                   variant="subtle"
@@ -370,10 +454,24 @@ export default function Lens({ params }) {
                 </Button>
               </Tooltip>
               {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
-              <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
+              <Text className="block whitespace-nowrap" size="xs" fw={500} c={"green"}>
                 <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
               </Text>
+              <Tooltip color="blue" label={selectedLayoutType === "block"
+                ? "Switch to icon layout."
+                : "Switch to block layout."
+              }>
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
+                  onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
+                >
+                  {selectedLayoutType === "block" ? "Block View" : "Icon View"}
+                </Button>
+              </Tooltip>
             </Flex>
+
           ) : (
             <Flex align={"center"}>
               <TextInput
@@ -409,7 +507,6 @@ export default function Lens({ params }) {
                 </Tooltip> : ""}
 
             </Flex>
-
           )}
         </Flex>
         : <span className="text-xl font-semibold">
@@ -422,31 +519,16 @@ export default function Lens({ params }) {
       <Text ta={"center"} size="xs" fw={600} c={"blue"}>
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
-          <div className="flex items-stretch flex-col gap-4 mt-4">
-            <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" />
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
-              ))
-            ) : (
-              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                This space is empty, add blocks to populate this space with content & context.
-              </Text>
-            )}
 
-        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" />
-
-            {/* Display child lenses if they exist */}
-            {subspaces && subspaces.length > 0 ? (
-              subspaces.map((childLens) => (
-                  <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
-              ))
-            ) : (
-              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-              There are no subspaces, add subspaces to organize your blocks.</Text>
-            )}
-          </div>
-     
+      <div className="flex items-stretch flex-col gap-4 h-full">
+        <LayoutController
+          subspaces={subspaces}
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          onChangeLayout={onChangeLensLayout}
+          layout={layoutData} lens_id={params.lens_id}
+          blocks={blocks} layoutView={selectedLayoutType} />
+      </div>
     </Flex >
   );
 }

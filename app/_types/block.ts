@@ -21,7 +21,6 @@ export type LensInvite = {
   access_type: string;
 }
 
-
 export type Block = {
   block_id: number;
   created_at: Date;

@@ -21,7 +21,6 @@ export default function Block({ params }: { params: { id: string } }) {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
   const router = useRouter();
 
-
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
       .then((response) => {
@@ -98,14 +97,9 @@ export default function Block({ params }: { params: { id: string } }) {
             <div className="p-2 pt-0 flex flex-col w-full">
               <div className="flex justify-between items-center w-full">
 
-                <Button
-                  size={"xs"}
-                  p={0}
-                  variant="transparent"
-                  onClick={() => window.location.href = `/block/${block.block_id}`}
-                >
+                <Link href={`/block/${block.block_id}`}>
                   <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text>
-                </Button>
+                </Link>
 
 
                 {/* <Link href={`/block/${block.block_id}`}> */}
