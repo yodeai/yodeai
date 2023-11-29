@@ -2,6 +2,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@layer mantine, mantine-contextmenu;
+
 /* This line ensures all anchor tags are underlined */
 /* @layer base {
   btn {
@@ -193,4 +195,23 @@
 
 .markdown-content {
   font-size: 90%;
+}
+
+.grid-layout-container{
+  width: calc(100% - 230px - 25vw)
+}
+
+.react-grid-item.react-grid-placeholder {
+  background-color: #999 !important;
+  border-radius: 10px;
+}
+
+.react-grid-item{
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.react-grid-item:active, .react-grid-item:focus{
+  background-color: transparent;
 }

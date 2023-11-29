@@ -16,7 +16,7 @@ export async function DELETE(request: NextRequest, { params, }: { params: { bloc
   }
 
   try {
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('block')
       .delete()
       .eq('block_id', block_id);
@@ -53,9 +53,9 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
   }
   const data = await request.json();
 
-   // Extract lens_id and delete it from requestData
-   const lensId = data.lens_id;
-   delete data.lens_id;
+  // Extract lens_id and delete it from requestData
+  const lensId = data.lens_id;
+  delete data.lens_id;
 
   console.log("data: ", data, "block_id: ", block_id);
   let delay = data["delay"]
@@ -72,12 +72,12 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
     }
 
     await apiClient('/processBlock', 'POST', { block_id: block_id, delay: delay })
-    .then(result => {
-      console.log('Block processed successfully', result);
-    })
-    .catch(error => {
-      console.error('Error processing block: ' + error.message);
-    });
+      .then(result => {
+        console.log('Block processed successfully', result);
+      })
+      .catch(error => {
+        console.error('Error processing block: ' + error.message);
+      });
 
     return ok(block);
   } catch (err) {
@@ -86,7 +86,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
 }
 
 
-export async function GET(request: NextRequest, { params, }: { params: { block_id: string}; }) {
+export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
 
   const block_id = Number(params.block_id);
@@ -108,12 +108,12 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       throw blockError;
     }
 
-    const {data: accessLevel, error: accessLevelError} = await supabase.rpc('get_access_type_block', {"chosen_block_id": block_id, "chosen_user_id": user.id})
+    const { data: accessLevel, error: accessLevelError } = await supabase.rpc('get_access_type_block', { "chosen_block_id": block_id, "chosen_user_id": user.id })
     if (accessLevelError) {
       console.log("message", accessLevelError.message)
       throw accessLevelError;
     }
-    block.accessLevel = accessLevel;
+    block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
     return ok(block);
   } catch (err) {
     return notOk(`${err}`);

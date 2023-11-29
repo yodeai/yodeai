@@ -25,9 +25,13 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                 ) 
             `)
             .eq('lens_id', params.lens_id)
+            .eq("direct_child", true)
+            .eq('block.lens_blocks.direct_child', true); // Use direct_child condition directly here
+
         if (error) {
             throw error;
         }
+
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = lensBlocks
@@ -46,8 +50,6 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                 })
                 .filter(block => block !== null)
             : [];
-
-        
 
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;

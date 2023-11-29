@@ -24,22 +24,62 @@ export default function DefaultModal({ lensId }) {
     const [publishInformation, setPublishInformation] = useState("");
 
     const [opened, { open, close }] = useDisclosure(false);
+    const deleteLensUsers = async (lensId, user_id) => {
+        try {
+          // Fetch all lens_ids with the specified parent_id
+          const { data: subspaces } = await supabase.from('lens').select('lens_id').eq('parent_id', lensId);
+      
+          // Extract lens_ids from the result
+          const lensIdsToDelete = subspaces.map(subspace => subspace.lens_id);
+      
+          // Delete entries in lens_users with lens_id in lensIdsToDelete and user_id
+          const { error: lensUsersError } = await supabase
+            .from('lens_users')
+            .delete()
+            .in('lens_id', lensIdsToDelete)
+            .eq('user_id', user_id);
+      
+          if (lensUsersError) {
+            console.error('Error deleting lens_users entries:', lensUsersError.message);
+            // Handle the error accordingly
+          }
+        } catch (error) {
+          console.error('Error:', error.message);
+          // Handle the error accordingly
+        }
+      };
 
-    const handleRevocation = async (user_id, lensId) => {
+    const handleRevocation = async (user_id, lensId, recipient, sender) => {
         let confirmation = confirm("Are you sure?")
         if (confirmation) {
-            const { error } = await supabase
+            const { error: usersError } = await supabase
                 .from('lens_users')
                 .delete()
                 .eq('lens_id', lensId).eq("user_id", user_id);
-            const newLensCollaborator = lensCollaborators.filter((item) => { item.user_id != user_id && item.lens_id != lensId })
+            
+            deleteLensUsers(lensId, user_id)
+            const { error: inviteError } = await supabase
+                .from('lens_invites')
+                .delete()
+                .eq('lens_id', lensId).eq("recipient", recipient).eq("sender", sender);
+            const newLensCollaborator = lensCollaborators.filter((item) => { item.users.id !== user_id && item.lens_id !== lensId })
             setLensCollaborators(newLensCollaborator);
+
             if (newLensCollaborator.length == 0) {
                 // change shared to false
                 const { error } = await supabase
                     .from('lens')
                     .update({ "shared": false })
                     .eq('lens_id', lensId)
+                if (error) {
+                    console.error("Error", error.message)
+                }
+
+                // change shared to false
+                const { error: subspacesError } = await supabase
+                    .from('lens')
+                    .update({ "shared": false })
+                    .eq('root', lensId)
                 if (error) {
                     console.error("Error", error.message)
                 }
@@ -95,6 +135,15 @@ export default function DefaultModal({ lensId }) {
                     .update({ "shared": true })
                     .eq('lens_id', lensId);// set lens to shared status
                 if (error) {
+                    console.log(error);
+                    throw error;
+                }
+                // share all subspaces
+                let { error: subspaceError } = await supabase
+                .from('lens')
+                .update({ "shared": true })
+                .eq('root', lensId);// set lens to shared status
+                if (subspaceError) {
                     console.log(error);
                     throw error;
                 }
@@ -175,7 +224,7 @@ export default function DefaultModal({ lensId }) {
                 return;
             }
 
-            alert("Updated privacy successfully!");
+            alert("Republished successfully!");
             props.setOpenModal(undefined);
             handleRefresh();
         } catch (error) {
@@ -325,7 +374,7 @@ export default function DefaultModal({ lensId }) {
                 </Button>
             </Tooltip >
 
-            <Container className="max-w-3xl ">
+            <Container className="max-w-3xl absolute">
                 <Modal zIndex={299} closeOnClickOutside={false} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
                     <Modal.Body p={2} pt={0}>
                         <Group>
@@ -345,7 +394,17 @@ export default function DefaultModal({ lensId }) {
                                         >
                                             {clicked ? 'Link copied' : 'Get Link'}
                                         </Button>
-                                        <Text mt={7} size='sm'>Last Published: <span style={{ color: '#718096' }}>{publishInformation}</span></Text>
+                                        <Button
+                                            size='xs'
+                                            h={26}
+                                            mt={7}
+                                            c={"blue"}
+                                            variant="outline"
+                                            onClick={handleRepublishClick}
+                                        >
+                                            Push New Changes
+                                        </Button>
+                                        <Text mt={7} size='sm'>Last Published: <span style={{ color: '#718096' }}>{publishInformation ? formatDate(publishInformation) : null}</span></Text>
                                     </Flex>
                                 )}
                             </Flex>
@@ -361,7 +420,7 @@ export default function DefaultModal({ lensId }) {
                                     placeholder="Enter email to share"
                                 />
                                 <Select
-style={{ zIndex: 100000000000 }} 
+                                    style={{ zIndex: 100000000000 }}
                                     label="Role"
                                     size='xs'
                                     value={selectedRole}
@@ -373,24 +432,55 @@ style={{ zIndex: 100000000000 }}
                                     ]}
                                 />
                                 {lensCollaborators?.length > 0 && (
-                                    <Group>
-                                        <Title order={3}>Collaborators</Title>
+                                    <Flex mt={10} direction={"column"}>
+                                        <Text fw={500} size='xs'>Collaborators</Text>
                                         <List>
                                             {lensCollaborators.map((item, index) => (
-                                                <ListItem key={index}>
-                                                    User: {item.users.email}, Access Type: {item.access_type}
-                                                    {item.lens.owner_id !== item.user_id && (
+                                                <Flex key={index} direction={"row"} justify={"space-between"}>
+                                                    <Flex direction={"column"}>
+                                                        <Text fw={400} size='xs'>
+                                                            User: {item.recipient}
+                                                        </Text>
+                                                        <Text fw={400} size='xs'>
+                                                            Access Type: {item.access_type}
+                                                        </Text>
+                                                        {item.status === "sent" ?
+                                                            <Text c={"green.9"} fw={500} size='xs'>
+                                                                Pending Invite
+                                                            </Text>
+                                                            : null}
+                                                    </Flex>
+                                                    {item.status !== "sent" && (
                                                         <Button
-                                                            color="gray"
-                                                            onClick={() => handleRevocation(item.user_id, lensId)}
+                                                            style={{ height: 20 }}
+                                                            mt={5}
+                                                            ml={-5}
+                                                            c={"red"}
+                                                            variant='light'
+                                                            size='xs'
+                                                            onClick={() => handleRevocation(item.users.id, lensId, item.recipient, item.sender)}
                                                         >
                                                             Revoke
                                                         </Button>
+
+                                                        // <div style={{ display: "flex", alignItems: "center" }}>
+                                                        // <strong>User:</strong> {item.recipient} | <strong>Access Type:</strong> {item.access_type} | <strong>Status:</strong>{" "}
+                                                        // {item.status === "sent" ? "Pending invite" : null}
+                                                        // {item.status !== "sent" && (
+                                                        // <>
+                                                        //     <span>Accepted: </span>
+                                                        //     <Button color="gray" onClick={() => handleRevocation(item.users.id, lensId)}>
+                                                        //     Revoke Access
+                                                        //     </Button>
+                                                        // </>
+                                                        // )}
+                                                        // </div>
+
                                                     )}
-                                                </ListItem>
+                                                </Flex>
                                             ))}
                                         </List>
-                                    </Group>
+                                    </Flex>
                                 )}
                             </Flex>
                         </Group>

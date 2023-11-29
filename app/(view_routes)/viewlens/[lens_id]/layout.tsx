@@ -7,8 +7,6 @@ interface ViewLayoutProps {
 }
 
 const ViewLayout: React.FC<ViewLayoutProps> = ({ children }) => {
-    //console.log("children:");
-    //console.log(children);
     return (
         <>        
             <div>       
