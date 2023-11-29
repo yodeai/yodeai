@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { block_id
                     lens: lens!fk_lens (lens_id, name)
                 )
             `)
-            .eq('block_id', params.block_id)
+            .eq('block_id', params.block_id).eq('lens_blocks.direct_child', true)
             .single();
         
         if (error) {

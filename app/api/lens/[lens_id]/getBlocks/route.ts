@@ -24,10 +24,14 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                     )
                 ) 
             `)
-            .eq('lens_id', params.lens_id).eq("direct_child", true)
+            .eq('lens_id', params.lens_id)
+            .eq("direct_child", true)
+            .eq('block.lens_blocks.direct_child', true); // Use direct_child condition directly here
+
         if (error) {
             throw error;
         }
+
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = lensBlocks
