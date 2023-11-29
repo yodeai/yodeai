@@ -51,7 +51,7 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
-  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [])
+  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
     let elements = [
@@ -177,7 +177,6 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
 
-  const [textTruncate, setTextTruncate] = useState<TextProps["truncate"]>(true);
   const [titleText, setTitleText] = useState<string>(block.title);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -276,9 +275,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
           variant="unstyled" size="xs" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
           onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text size="xs" ta="center" c="dimmed" className="break-words">{
-          textTruncate ? truncateText(titleText, { from: "center" }) : titleText
-        }</Text>
+        : <Text size="xs" ta="center" c="dimmed" className="break-words">{truncateText(titleText, { from: "start" })}</Text>
       }
     </Box>
   </Flex>
@@ -294,6 +291,30 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
 
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm block deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this block? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete block', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: onConfirmDelete,
+  });
+
+  const onConfirmDelete = async () => {
+    try {
+      const deleteResponse = await fetch(`/api/lens/${subspace.lens_id}`, { method: "DELETE" });
+      if (deleteResponse.ok) console.log("Lens deleted");
+      if (!deleteResponse.ok) console.error("Failed to delete lens");
+    } catch (error) {
+      console.error("Error deleting lens:", error);
+    }
+  }
+
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
     color: "#228be6",
@@ -302,6 +323,12 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     onClick: () => {
       router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
+  }, {
+    key: 'remove',
+    color: "#ff6b6b",
+    icon: <FaRegTrashCan size={16} />,
+    title: "Delete",
+    onClick: openDeleteModal
   }], []);
 
   const onContextMenu = showContextMenu(actions);
@@ -314,7 +341,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     {icon}
     <Box w={70} h={30} variant="unstyled" className="text-center">
       <Text size="xs" ta="center" c="dimmed" className="break-words">
-        {truncateText(subspace.name, { from: "center" })}
+        {truncateText(subspace.name, { from: "start" })}
       </Text>
     </Box>
   </Flex>

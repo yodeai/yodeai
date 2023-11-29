@@ -191,7 +191,7 @@ export default function Lens({ params }) {
     return fetch(`/api/lens/${lensId}/layout`, { method: "GET" })
       .then(response => {
         if (!response.ok) {
-          console.log('Error fetching lens layout');
+          console.log('No default layout found, using default.');
           return;
         } else {
           return response.json();
@@ -297,17 +297,34 @@ export default function Lens({ params }) {
       setBlocks((blocks) => blocks.filter((block) => block.block_id !== block_id))
     }
 
+    const addSubspaces = (payload) => {
+      let lens_id = payload["new"]["lens_id"]
+      console.log("Added a subspace", lens_id)
+      let newSubspace = payload["new"]
+      if (!subspaces.some(item => item.lens_id === lens_id)) {
+        setSubspaces([newSubspace, ...subspaces]);
+      }
+    }
+
+    const deleteSubspace = (payload) => {
+      let lens_id = payload["old"]["lens_id"]
+      console.log("Deleting lens", lens_id);
+      setSubspaces((subspaces) => subspaces.filter((subspace) => subspace.lens_id !== lens_id))
+    }
+
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, addSubspaces)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, deleteSubspace)
       .subscribe();
 
     return () => {
       if (channel) channel.unsubscribe();
     };
-  }, [blocks]);
+  }, [blocks, subspaces, lens]);
 
   const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
