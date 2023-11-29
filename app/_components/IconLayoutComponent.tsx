@@ -291,6 +291,30 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
 
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm block deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this block? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete block', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: onConfirmDelete,
+  });
+
+  const onConfirmDelete = async () => {
+    try {
+      const deleteResponse = await fetch(`/api/lens/${subspace.lens_id}`, { method: "DELETE" });
+      if (deleteResponse.ok) console.log("Lens deleted");
+      if (!deleteResponse.ok) console.error("Failed to delete lens");
+    } catch (error) {
+      console.error("Error deleting lens:", error);
+    }
+  }
+
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
     color: "#228be6",
@@ -299,6 +323,12 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     onClick: () => {
       router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
+  }, {
+    key: 'remove',
+    color: "#ff6b6b",
+    icon: <FaRegTrashCan size={16} />,
+    title: "Delete",
+    onClick: openDeleteModal
   }], []);
 
   const onContextMenu = showContextMenu(actions);
