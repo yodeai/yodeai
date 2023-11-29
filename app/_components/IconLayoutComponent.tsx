@@ -51,7 +51,7 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
-  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [])
+  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
     let elements = [
