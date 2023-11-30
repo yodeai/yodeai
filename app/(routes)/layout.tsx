@@ -1,5 +1,5 @@
 import Navbar from "@components/Navbar";
-import MobileNavbar from "@components/Space";
+import { MobileNavbar } from "@components/MobileNavbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { LensProvider } from "@contexts/context";
 import { Flex } from "@mantine/core";
@@ -21,10 +21,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'none', sm: 'block' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
           <Navbar />
         </Flex>
+        <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
+          <MobileNavbar />
+        </Flex>
 
         {/* Main content area */}
-        <Flex mah={'100%'} w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Flex h={'100%'} style={{ flex: 1 }} ml={{ base: 0, sm: 230 }} className="mt-5" direction={"column"}>
+        <Flex mah={'100%'} w={'100%'} direction={{ base: 'column', sm: 'row' }} >
+          <Flex h={'100%'} style={{ flex: 1 }} ml={{ base: 20, sm: 230 }} className="mt-5" direction={"column"}>
             {children}
           </Flex>
 
