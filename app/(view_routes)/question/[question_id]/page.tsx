@@ -28,17 +28,17 @@ const QuestionAnswer = ({ params }: { params: {question_id: string } }) => {
     <Container>
         {
             isLoading ? 
-            <React.Fragment>
+            <div className="container p-4 ">
                 <Skeleton height={16} width="70%" />
                 <Skeleton height={16} mt={6}/>
                 <Skeleton height={16} mt={6}/>
-            </React.Fragment>
+            </div>
                 : (
                 question && (
-                    <React.Fragment>
+                    <div className="container p-24">
                         <Text size="md" fw={500} tt="capitalize">{question.question_text}</Text>
-                        <Text size="md">{question.answer_full}</Text>
-                    </React.Fragment>
+                        <Text size="md" mt={24}>{question.answer_full}</Text>
+                    </div>
                 )
             )
         }
