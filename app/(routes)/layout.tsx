@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
           {/* QuestionAnswerForm with a left border */}
           <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'relative', top: 50, right: 0 }}>
-            <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'fixed', top: 50, right: 0, borderLeftWidth: 1, borderLeftColor: '#eee' }}>
+            <Flex mih={'100%'} align={"center"} justify={"center"} w={'25vw'} display={{ base: 'none', sm: 'block' }} style={{ position: 'fixed', top: 50, right: 0, borderLeftWidth: 1, borderLeftColor: '#eee', backgroundColor: '#fff' }}>
               <QuestionAnswerForm />
             </Flex>
           </Flex>

@@ -30,8 +30,8 @@ export default function LayoutController(props: LayoutControllerProps) {
 
     switch (layoutView) {
         case "block":
-            return <ScrollArea type={"scroll"} mt={15.5} w={'100%'} scrollbarSize={8} >
-                <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" />
+            return <ScrollArea type={"scroll"} mt={2} w={'100%'} scrollbarSize={8} >
+                {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
                 {blocks && blocks.length > 0
                     ? <React.Fragment>{blocks.map((block) => (
                         <BlockComponent key={block.block_id} block={block} />
@@ -40,8 +40,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                         This space is empty, add blocks to populate this space with content & context.
                     </Text>}
 
-                <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" />
-
+                {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" /> */}
                 {subspaces && subspaces.length > 0
                     ? subspaces.map((childLens) => (
                         <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
