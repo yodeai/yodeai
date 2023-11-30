@@ -144,7 +144,7 @@ export default function IconLayoutComponent({
       cols={cols}
       breakpoint={breakpoint}
       breakpoints={breakpoints}
-      rowHeight={95}
+      rowHeight={75}
       onLayoutChange={(layout, layouts) => onChangeLayout("icon_layout", layouts)}
       isResizable={false}
       onWidthChange={onWidthChange}
@@ -263,7 +263,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
 
   return <Flex
     onContextMenu={onContextMenu}
-    mih={95} gap="lg"
+    mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
     {loading ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" /> : icon}
@@ -275,7 +275,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
           variant="unstyled" size="xs" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
           onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text size="xs" ta="center" c="dimmed" className="break-words">{truncateText(titleText, { from: "start" })}</Text>
+        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">{titleText}</Text>
       }
     </Box>
   </Flex>
@@ -335,13 +335,13 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
 
   return <Flex
     onContextMenu={onContextMenu}
-    mih={95} gap="lg"
+    mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
     {icon}
-    <Box w={70} h={30} variant="unstyled" className="text-center">
-      <Text size="xs" ta="center" c="dimmed" className="break-words">
-        {truncateText(subspace.name, { from: "start" })}
+    <Box w={75} h={30} variant="unstyled" className="text-center">
+      <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
+        {subspace.name}
       </Text>
     </Box>
   </Flex>
