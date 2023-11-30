@@ -4,21 +4,23 @@ import clsx from "clsx";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
-import { FaArchive, FaFolder } from "react-icons/fa";
+import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
 import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
-import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon } from "@mantine/core";
+import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
+import { formatDistanceToNow } from "date-fns";
 
 interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
   onArchive?: () => void;
+  hierarchy?: number;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive }: BlockProps) {
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -68,7 +70,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
     setExpanded(!expanded);
   };
 
-
+  // let updateTime = block.updated_at.toDate();
+  let timeAgo = formatDistanceToNow(new Date(block.updated_at), { addSuffix: true });
+  timeAgo = timeAgo.replace("about ", "");
 
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
 
@@ -76,70 +80,87 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   return (
     <div>
       <Flex pl={2} pr={2} direction={"column"}>
-        <Flex justify={"space-between"}>
-          <Anchor
-            size={"xs"}
-            underline="never"
-            onClick={() => window.location.href = `/block/${block.block_id}`}
-          >
-            <Text size={"md"} fw={600} c="gray.7">{block.title}</Text>
-          </Anchor>
-          {hasArchiveButton && (
-            <Flex ml={2}>
-            <Tooltip label="Archive this block">
-              <ActionIcon aria-label="archive block" color="gray" variant="subtle" onClick={handleArchive}>
-                <FaArchive size={14} style={{ marginBottom: 2 }} />
-              </ActionIcon>
-            </Tooltip>
+        <Grid>
+          <Grid.Col span={7}>
+            <Flex direction={"row"}>
+              <Anchor
+                size={"xs"}
+                underline="never"
+                onClick={() => window.location.href = `/block/${block.block_id}`}
+              >
+                <Text ml={26 * hierarchy} size={"md"} fw={500} c="gray.7">{block.title}</Text>
+              </Anchor>
+              {hasArchiveButton && (
+                <Flex ml={2}>
+                  <Tooltip label="Archive this block">
+                    <ActionIcon aria-label="archive block" color="gray" variant="subtle" onClick={handleArchive}>
+                      <FaArchive size={14} style={{ marginBottom: 2 }} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Flex>
+              )}
             </Flex>
-          )}
-        </Flex>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Flex mt={5} align={"center"} direction={"row"}>
+              <FaFile color="gray" />
+              <Text ml={10} size={"sm"} fw={400} c="gray">{"Document"}</Text>
+            </Flex>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Flex mt={5} align={"center"} direction={"row"}>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+            </Flex>
+          </Grid.Col>
+        </Grid>
 
-        <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
-          <Text size={"sm"} c="gray.7">{block.preview}</Text>
-          {(block.block_type === "pdf") ? (
-            <>
-              <div className="flex text-gray-600 ">
-                <img src="/pdf-icon.png" alt="Lens Icon" className="mr-1 w-5" />
-                <Text size={"sm"} mt={2} c="gray.7">{block.file_url.split('/').pop()}</Text>
-              </div>
-            </>
-          ) : null}
-        </Spoiler>
+        <Flex direction="column" ml={26 * hierarchy}>
+          <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
+            <Text size={"sm"} c="gray.7">{block.preview}</Text>
+            {(block.block_type === "pdf") ? (
+              <>
+                <div className="flex text-gray-600 ">
+                  <img src="/pdf-icon.png" alt="Lens Icon" className="mr-1 w-5" />
+                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url.split('/').pop()}</Text>
+                </div>
+              </>
+            ) : null}
+          </Spoiler>
 
-        {block.status === 'processing' ?
-          (<span className="processing-text">
-            <Text size="sm" fw={500}>
-              [Processing...]
-            </Text>
-          </span>)
-          :
-          block.status === 'failure' ?
-            (
-              <div>
-                <span className="failed-text">
+          {block.status === 'processing' ?
+            (<span className="processing-text">
+              <Text size="sm" fw={500}>
+                [Processing...]
+              </Text>
+            </span>)
+            :
+            block.status === 'failure' ?
+              (
+                <div>
+                  <span className="failed-text">
+                    <Text size="sm" fw={500}>
+                      [Failed]
+                    </Text>
+                  </span>
+                  {(block.accessLevel != 'editor' && block.accessLevel != "owner") ?
+                    ""
+                    :
+                    <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
+                      Retry upload
+                    </button>}
+                </div>)
+              :
+              block.status == 'waiting to process' ?
+                (<span className="waiting-text">
                   <Text size="sm" fw={500}>
-                    [Failed]
+                    [Waiting to process]
                   </Text>
                 </span>
-                {(block.accessLevel != 'editor' && block.accessLevel != "owner") ?
-                  ""
-                  :
-                  <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
-                    Retry upload
-                  </button>}
-              </div>)
-            :
-            block.status == 'waiting to process' ?
-              (<span className="waiting-text">
-                <Text size="sm" fw={500}>
-                  [Waiting to process]
-                </Text>
-              </span>
-              ) : ''}
-        {block.inLenses && (
-          <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
-        )}
+                ) : ''}
+          {block.inLenses && (
+            <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
+          )}
+        </Flex>
 
         {/* {!compact && firstTwoLines && false ? (
           <>
@@ -151,7 +172,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null} */}
       </Flex>
-      <Divider mt={11} mb={6} variant="dashed" />
+      <Divider style={{ marginLeft: 26 * hierarchy }} mt={11} mb={6} variant="dashed" />
 
     </div >
   );

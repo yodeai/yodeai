@@ -14,7 +14,7 @@ import ShareLensComponent from "@components/ShareLensComponent";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
-import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip, Grid } from "@mantine/core";
 
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
@@ -536,6 +536,18 @@ export default function Lens({ params }) {
       <Text ta={"center"} size="xs" fw={600} c={"blue"}>
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
+
+      <Grid mb={5}>
+        <Grid.Col span={7}>
+          <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text>
+        </Grid.Col>
+        <Grid.Col span={3}>
+        <Text size={"sm"} fw={500} c="gray.6">{"File type"}</Text>
+        </Grid.Col>
+        <Grid.Col span={2}>
+        <Text ml={-1} size={"sm"} fw={500} c="gray.6">{"Last modified"}</Text>
+        </Grid.Col>
+      </Grid>
 
       <div className="flex items-stretch flex-col gap-4 h-full">
         <LayoutController

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Divider, Flex, NavLink, Text } from "@mantine/core";
+import { Button, Divider, Flex, Grid, NavLink, Text } from "@mantine/core";
 import { FaPlusSquare } from "react-icons/fa";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
@@ -45,13 +45,13 @@ export default function Index() {
       console.log("Deleting block", block_id);
       setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
 
-    }      
+    }
 
-      const channel = supabase
+    const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .subscribe();
 
     return () => {
@@ -98,6 +98,18 @@ export default function Index() {
     <Flex mih={'100vh'} direction="column">
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
+
+        <Grid mb={5}>
+          <Grid.Col span={7}>
+            <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Text size={"sm"} fw={500} c="gray.6">{"File type"}</Text>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Text ml={-1} size={"sm"} fw={500} c="gray.6">{"Last modified"}</Text>
+          </Grid.Col>
+        </Grid>
 
         {blocks.length > 0 ? (
           blocks.map((block: Block) => (

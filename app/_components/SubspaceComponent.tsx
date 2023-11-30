@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Anchor, Text, Button, Flex } from '@mantine/core';
 import BlockComponent from './BlockComponent';
-import { FaCaretDown, FaCaretUp, FaCube } from 'react-icons/fa';
+import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
 
-export default function SubspaceComponent({ subspace, leftSpace = 0 }) {
+export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [blocks, setBlocks] = useState([]);
   const [childSubspaces, setChildSubspaces] = useState([]);
 
@@ -13,46 +14,63 @@ export default function SubspaceComponent({ subspace, leftSpace = 0 }) {
   };
 
   useEffect(() => {
-    if (isExpanded) {
-      fetch(`/api/lens/${subspace.lens_id}/getBlocks`)
-        .then((response) => response.json())
-        .then((data) => setBlocks(data?.data));
+    const fetchData = async () => {
+      setFetching(true);
 
-      fetch(`/api/lens/${subspace.lens_id}/getSubspaces`)
-        .then((response) => response.json())
-        .then((data) => setChildSubspaces(data?.data));
-    }
+      if (isExpanded) {
+        try {
+          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks`);
+          const blocksData = await blocksResponse.json();
+          setBlocks(blocksData?.data);
+
+          const subspacesResponse = await fetch(`/api/lens/${subspace.lens_id}/getSubspaces`);
+          const subspacesData = await subspacesResponse.json();
+          setChildSubspaces(subspacesData?.data);
+        } catch (error) {
+          console.error("An error occurred:", error);
+        } finally {
+          setFetching(false);
+        }
+      }
+    };
+
+    fetchData();
   }, [isExpanded, subspace.lens_id]);
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex justify-between items-center">
+    <div style={{ marginTop: 10 }} className="flex flex-col gap-1">
+      <div style={{ marginLeft: 28 * hierarchy }} className="flex items-center">
+        <Button p={0} h={24} mr={4} color='gray' variant='subtle' size="xs" onClick={() => setIsExpanded(!isExpanded)}>
+          {isExpanded ?
+            <PiCaretDownBold size={18} />
+            :
+            <PiCaretUpBold size={18} />
+          }
+        </Button>
         <Anchor size="xs" underline="never" onClick={handleSubspaceClick}>
           <Flex ml={3} align={"center"}>
-            <FaCube size={12} color='gray' style={{ marginRight: 6.5 }} />
             <Text size="md" fw={600} c="gray.7">{subspace.name}</Text>
           </Flex>
         </Anchor>
-        <Button variant='subtle' size="xs" onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ?
-            <FaCaretUp size={20} />
-            :
-            <FaCaretDown size={20} />
-          }
-        </Button>
       </div>
-      <div style={{ marginLeft: 20 * (leftSpace) }}>
+      <div>
         {isExpanded && (
-          <div>
-            {/* Render Blocks */}
-            {blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} />
-            ))}
-            {/* Render Child Subspaces */}
-            {childSubspaces.map((childSubspace) => (
-              <SubspaceComponent key={childSubspace.lens_id} subspace={childSubspace} leftSpace={1} />
-            ))}
-          </div>
+          <>
+            {(blocks.length > 0) ?
+              <div>
+                {blocks.map((block) => (
+                  <BlockComponent key={block.block_id} block={block} hierarchy={hierarchy + 1} />
+                ))}
+              </div>
+              :
+              <Text ml={28 * (hierarchy + 1)} size="sm" fw={400} c="gray.6">{fetching ? "" : "No blocks found within this subspace"}</Text>
+            }
+            <div>
+              {childSubspaces.map((childSubspace) => (
+                <SubspaceComponent key={childSubspace.lens_id} subspace={childSubspace} hierarchy={hierarchy + 1} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
