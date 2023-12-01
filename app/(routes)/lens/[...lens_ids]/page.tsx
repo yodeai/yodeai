@@ -14,7 +14,7 @@ import ShareLensComponent from "@components/ShareLensComponent";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
-import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip, Grid } from "@mantine/core";
 
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
@@ -537,7 +537,7 @@ export default function Lens({ params }) {
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
 
-      <div className="flex items-stretch flex-col gap-4 h-full">
+      <div className="flex items-stretch flex-col h-full">
         <LayoutController
           subspaces={subspaces}
           handleBlockChangeName={handleBlockChangeName}

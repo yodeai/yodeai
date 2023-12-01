@@ -11,10 +11,11 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { PlusIcon } from "@radix-ui/react-icons";
 
-import { Button, Divider, Flex, Paper, Text } from "@mantine/core";
+import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensInviteComponent from "@components/LensInviteComponent";
+import BlockHeader from "@components/BlockHeader";
 
 
 export default function Inbox() {
@@ -135,6 +136,8 @@ export default function Inbox() {
           )
         }
       </Paper>
+
+      <BlockHeader />
 
       {
         loading ? (
