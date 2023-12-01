@@ -33,7 +33,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         case "block":
             return (
                 <>
-                    <ScrollArea type={"scroll"} w={'100%'} scrollbarSize={8} >
+                    <ScrollArea type={"scroll"} w={'100%'} p={20} scrollbarSize={8} >
                         {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
                         {blocks && blocks.length > 0
                             ? <React.Fragment>

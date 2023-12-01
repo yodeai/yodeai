@@ -138,7 +138,7 @@ export default function IconLayoutComponent({
     </div>
   }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems])
 
-  return <div className="flex flex-col justify-between h-[calc(100%-50px)]">
+  return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
