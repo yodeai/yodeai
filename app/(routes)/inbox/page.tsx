@@ -15,6 +15,7 @@ import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensInviteComponent from "@components/LensInviteComponent";
+import BlockHeader from "@components/BlockHeader";
 
 
 export default function Inbox() {
@@ -136,17 +137,7 @@ export default function Inbox() {
         }
       </Paper>
 
-      <Grid mb={5}>
-        <Grid.Col span={7}>
-          <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text>
-        </Grid.Col>
-        <Grid.Col span={3}>
-        <Text size={"sm"} fw={500} c="gray.6">{"File type"}</Text>
-        </Grid.Col>
-        <Grid.Col span={2}>
-        <Text ml={-1} size={"sm"} fw={500} c="gray.6">{"Last modified"}</Text>
-        </Grid.Col>
-      </Grid>
+      <BlockHeader />
 
       {
         loading ? (

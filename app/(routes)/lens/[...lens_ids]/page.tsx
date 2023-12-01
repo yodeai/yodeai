@@ -537,19 +537,7 @@ export default function Lens({ params }) {
         {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
       </Text>
 
-      <Grid mb={5}>
-        <Grid.Col span={7}>
-          <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text>
-        </Grid.Col>
-        <Grid.Col span={3}>
-        <Text size={"sm"} fw={500} c="gray.6">{"File type"}</Text>
-        </Grid.Col>
-        <Grid.Col span={2}>
-        <Text ml={-1} size={"sm"} fw={500} c="gray.6">{"Last modified"}</Text>
-        </Grid.Col>
-      </Grid>
-
-      <div className="flex items-stretch flex-col gap-4 h-full">
+      <div className="flex items-stretch flex-col h-full">
         <LayoutController
           subspaces={subspaces}
           handleBlockChangeName={handleBlockChangeName}

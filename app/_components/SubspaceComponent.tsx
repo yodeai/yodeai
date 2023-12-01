@@ -39,12 +39,12 @@ export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
 
   return (
     <div style={{ marginTop: 10 }} className="flex flex-col gap-1">
-      <div style={{ marginLeft: 28 * hierarchy }} className="flex items-center">
+      <div style={{ marginLeft: Math.min(24 * hierarchy, 300) }} className="flex items-center">
         <Button p={0} h={24} mr={4} color='gray' variant='subtle' size="xs" onClick={() => setIsExpanded(!isExpanded)}>
           {isExpanded ?
-            <PiCaretDownBold size={18} />
-            :
             <PiCaretUpBold size={18} />
+            :
+            <PiCaretDownBold size={18} />
           }
         </Button>
         <Anchor size="xs" underline="never" onClick={handleSubspaceClick}>
@@ -63,7 +63,7 @@ export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
                 ))}
               </div>
               :
-              <Text ml={28 * (hierarchy + 1)} size="sm" fw={400} c="gray.6">{fetching ? "" : "No blocks found within this subspace"}</Text>
+              <Text ml={Math.min(27.65 * (hierarchy + 1), 300)} size="sm" fw={400} c="gray.6">{fetching ? "" : "No blocks found within this subspace"}</Text>
             }
             <div>
               {childSubspaces.map((childSubspace) => (

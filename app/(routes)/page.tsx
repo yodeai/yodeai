@@ -9,6 +9,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button, Divider, Flex, Grid, NavLink, Text } from "@mantine/core";
 import { FaPlusSquare } from "react-icons/fa";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import BlockHeader from "@components/BlockHeader";
 
 export const dynamic = 'force-dynamic';
 
@@ -99,17 +100,7 @@ export default function Index() {
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
 
-        <Grid mb={5}>
-          <Grid.Col span={7}>
-            <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text>
-          </Grid.Col>
-          <Grid.Col span={3}>
-            <Text size={"sm"} fw={500} c="gray.6">{"File type"}</Text>
-          </Grid.Col>
-          <Grid.Col span={2}>
-            <Text ml={-1} size={"sm"} fw={500} c="gray.6">{"Last modified"}</Text>
-          </Grid.Col>
-        </Grid>
+        <BlockHeader />
 
         {blocks.length > 0 ? (
           blocks.map((block: Block) => (

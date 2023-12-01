@@ -81,14 +81,15 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
     <div>
       <Flex pl={2} pr={2} direction={"column"}>
         <Grid>
-          <Grid.Col span={7}>
-            <Flex direction={"row"}>
+          <Grid.Col span={9}>
+            <Flex align={"center"} direction={"row"}>
+              <FaFile size={12} style={{ marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
                 onClick={() => window.location.href = `/block/${block.block_id}`}
               >
-                <Text ml={26 * hierarchy} size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
               </Anchor>
               {hasArchiveButton && (
                 <Flex ml={2}>
@@ -102,19 +103,13 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
             </Flex>
           </Grid.Col>
           <Grid.Col span={3}>
-            <Flex mt={5} align={"center"} direction={"row"}>
-              <FaFile color="gray" />
-              <Text ml={10} size={"sm"} fw={400} c="gray">{"Document"}</Text>
-            </Flex>
-          </Grid.Col>
-          <Grid.Col span={2}>
-            <Flex mt={5} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+            <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 90 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
             </Flex>
           </Grid.Col>
         </Grid>
 
-        <Flex direction="column" ml={26 * hierarchy}>
+        <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
           <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
@@ -172,7 +167,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null} */}
       </Flex>
-      <Divider style={{ marginLeft: 26 * hierarchy }} mt={11} mb={6} variant="dashed" />
+      <Divider style={{ marginLeft: Math.min(26 * hierarchy, 300) }} mt={11} mb={6} variant="dashed" />
 
     </div >
   );
