@@ -45,7 +45,7 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
       
           const rootLensId = invites[0].lens_id;
           const { data: existingUserData } = await supabase.from('lens_users').select().eq('user_id', user.id).eq('lens_id', rootLensId);
-          const { data: rootLens } = await supabase.from("lens").select("lens_id").eq("lens_id", rootLensId);
+          const { data: rootLens } = await supabase.from("lens").select("*").eq("lens_id", rootLensId);
 
           const lensUserData = {
             "user_id": user.id,
