@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 
 
 export async function POST(request: NextRequest) {
+  const supabase = createServerComponentClient({ cookies });
   
   try {
     const body = await request.json();
@@ -19,9 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    
-    const supabase = createServerComponentClient({ cookies });
-    const { data, error } = await supabase
+      const { data, error } = await supabase
         .from('lens')
         .insert([
           {
@@ -47,6 +46,12 @@ export async function POST(request: NextRequest) {
     if (lensUsersObj.error) {
       throw lensUsersObj.error;
     } 
+
+    if (parentId != -1) {
+      // check if it is shared first, and if so then copy over to lens_users table
+      const { data: lenses, error: lensesError } = await supabase
+      .rpc('add_lens_with_shared_users', { "parent_lens_id": parentId, "new_lens_id": data.lens_id})
+    }
 
     return new NextResponse(
       JSON.stringify({ data: data }),

@@ -45,11 +45,13 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
       
           const rootLensId = invites[0].lens_id;
           const { data: existingUserData } = await supabase.from('lens_users').select().eq('user_id', user.id).eq('lens_id', rootLensId);
-      
+          const { data: rootLens } = await supabase.from("lens").select("lens_id").eq("lens_id", rootLensId);
+
           const lensUserData = {
             "user_id": user.id,
             "lens_id": invites[0].lens_id,
             "access_type": invites[0].access_type,
+            "subspace_only": rootLens.parent_id != -1 ? true : false
           };
     
           if (existingUserData.length > 0) {
@@ -70,6 +72,7 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
               "user_id": user.id,
               "lens_id": lens_id,
               "access_type": invites[0].access_type,
+              "subspace_only": false,
             };
       
             if (existingUserData.length > 0) {

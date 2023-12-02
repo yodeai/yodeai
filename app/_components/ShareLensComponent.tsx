@@ -62,7 +62,7 @@ export default function DefaultModal({ lensId }) {
                 .from('lens_invites')
                 .delete()
                 .eq('lens_id', lensId).eq("recipient", recipient).eq("sender", sender);
-            const newLensCollaborator = lensCollaborators.filter((item) => { item.users.id !== user_id && item.lens_id !== lensId })
+            const newLensCollaborator = lensCollaborators.filter((item) => { item.recipient_id !== user_id && item.lens_id !== lensId })
             setLensCollaborators(newLensCollaborator);
 
             if (newLensCollaborator.length == 0) {
@@ -91,8 +91,31 @@ export default function DefaultModal({ lensId }) {
         const fetchCollaborators = async () => {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const { data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
-            setLensCollaborators(data.filter((item) => item.users.id != user.id));
+            const { data:unacceptedInvites, unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
+            const { data: acceptedInvites, error: acceptedInvitesError } =  await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
+            const allInvites = []
+
+            // construct a universal collaborators list
+            for (const unacceptedInvite of unacceptedInvites) {
+                allInvites.push({
+                    "access_type": unacceptedInvite.access_type,
+                    "sender": user.email,
+                    "recipient_id":unacceptedInvite.users.id,
+                    "recipient": unacceptedInvite.recipient
+                });
+            }
+            
+            for (const acceptedInvite of acceptedInvites) {
+                allInvites.push({
+                    "access_type": acceptedInvite.access_type,
+                    "sender": user.email,
+                    "recipient_id": acceptedInvite.user_id,
+                    "recipient": acceptedInvite.users.email
+                });
+            }
+            
+
+            setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
         }
         const checkPublishedLens = async () => {
             const { data: lens, error } = await supabase
@@ -458,7 +481,7 @@ export default function DefaultModal({ lensId }) {
                                                             c={"red"}
                                                             variant='light'
                                                             size='xs'
-                                                            onClick={() => handleRevocation(item.users.id, lensId, item.recipient, item.sender)}
+                                                            onClick={() => handleRevocation(item.recipient_id, lensId, item.recipient, item.sender)}
                                                         >
                                                             Revoke
                                                         </Button>

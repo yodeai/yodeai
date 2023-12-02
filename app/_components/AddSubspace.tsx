@@ -49,7 +49,6 @@ export default function DefaultModal({ lensId }) {
       }
     const handleCreateLens = async () => {
         let rootId = await findRoot(lensId)
-        console.log("creating subpsace", { text: lensName, parentId: lensId, root: rootId })
         const response = await fetch("/api/lens", {
           method: "POST",
           headers: {

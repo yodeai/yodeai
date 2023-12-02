@@ -48,7 +48,7 @@ function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
 
 export default function Lens({ params }) {
   const { lens_ids } = params;
-
+  const [shouldRender, setShouldRender] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
@@ -64,11 +64,13 @@ export default function Lens({ params }) {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
   async function isValidHierarchy(lensIds) {
+    const { data: { user } } = await supabase.auth.getUser()
+
     for (let index = 0; index < lensIds.length; index++) {
       const id = lensIds[index];
       const parentId = index === 0 ? -1 : lensIds[index - 1];
 
-      const isChild = await isChildOf(id, parentId);
+      const isChild = await isChildOf(id, parentId, user);
 
       if (!isChild) {
         console.log(`Invalid hierarchy at index ${index}`);
@@ -78,8 +80,16 @@ export default function Lens({ params }) {
 
     return true;
   }
-  async function isChildOf(childId, parentId) {
+  async function isChildOf(childId, parentId, user) {
     try {
+      const { data: subspace_only, error:subspaceOnlyError } = await supabase
+      .from('lens_users')
+      .select('subspace_only')
+      .eq('lens_id', childId).eq('user_id', user.id)
+  
+      if (subspace_only) {
+        return true;
+      }
       const { data: lensData, error } = await supabase
         .from('lens')
         .select('parent_id')
@@ -96,14 +106,17 @@ export default function Lens({ params }) {
       return false;
     }
   }
+
   useEffect(() => {
     // Define an asynchronous function
     const validateAndRedirect = async () => {
       // Validate the nested lens IDs (client-side)
-      if (!(await isValidHierarchy(lens_ids))) {
+      if (!(await isValidHierarchy(lens_ids)) || lens_ids[lens_ids.length - 1] == -1) {
         // Redirect to an error page or handle the invalid case
-        console.log("invalid hierarchy");
-        // router.push('/notFound');
+        router.push('/notFound');
+      } else {
+        // Set shouldRender to true once validation is successful
+        setShouldRender(true);
       }
     };
 
@@ -228,46 +241,6 @@ export default function Lens({ params }) {
       [layoutName]: layoutData
     }))
   }
-
-  // useEffect(() => {
-  //   // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-  //   if (searchParams.get("edit") === 'true') {
-  //     setEditingLensName(lensName);
-  //     setIsEditingLensName(true);
-  //   }
-
-  //   // Fetch the blocks associated with the lens
-  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/getBlocks`)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setBlocks(data?.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching block:", error);
-  //       notFound();
-  //     });
-
-  //   // Fetch the lens details
-  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}`)
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         console.log("Error fetching lens")
-  //         router.push("/notFound")
-  //       } else {
-  //         response.json().then((data) => {
-  //           setLens(data?.data);
-  //           setLensName(data?.data.name)
-  //           const getUser = async() => {
-  //             const { data: { user } } = await supabase.auth.getUser()
-  //             setUser(user);
-  //             setAccessType(data?.data.user_to_access_type[user.id]);
-  //           }
-  //           getUser();
-  //         })
-  //       }
-  //     })
-
-  // }, [lens_ids[lens_ids.length - 1], searchParams]);
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -440,112 +413,113 @@ export default function Lens({ params }) {
       </div>
     );
   }
+  if (shouldRender) {
+    return (
+      <Flex direction={"column"} p={16} pt={0} className="h-full">
+        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
 
-  return (
-    <Flex direction={"column"} p={16} pt={0} className="h-full">
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
-
-      {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
-        <Flex justify={"center"} align={"center"}>
-          {!isEditingLensName ? (
-            <Flex justify={"center"} align={"center"} gap={"sm"}>
-              <Link href="/new">
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  leftSection={<FaPlus />}
-                // onClick={() => setIsEditingLensName(true)}
-                >
-                  Add Block
-                </Button>
-              </Link>
-              <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
-              <Tooltip color="blue" label="Edit lens." m={0}>
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  leftSection={<Pencil2Icon />}
-                  onClick={() => setIsEditingLensName(true)}
-                >
-                  Edit
-                </Button>
-              </Tooltip>
-              {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
-              <Text className="block whitespace-nowrap" size="xs" fw={500} c={"green"}>
-                <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
-              </Text>
-              <Tooltip color="blue" label={selectedLayoutType === "block"
-                ? "Switch to icon layout."
-                : "Switch to block layout."
-              }>
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
-                  onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                >
-                  {selectedLayoutType === "block" ? "Block View" : "Icon View"}
-                </Button>
-              </Tooltip>
-            </Flex>
-
-          ) : (
-            <Flex align={"center"}>
-              <TextInput
-                size="xs"
-                value={editingLensName || ""}
-                onChange={handleNameChange}
-                onKeyUp={handleKeyPress}
-              />
-
-              <ActionIcon
-                onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }}
-                size="md"
-                color="green"
-                variant="gradient"
-                ml={5}
-                gradient={{ from: 'green', to: 'lime', deg: 116 }}
-              >
-                <FaCheck size={14} />
-              </ActionIcon>
-              {!lens.shared || accessType == 'owner' ?
-                <Tooltip color="red" label="This will delete the space. Please proceed with caution.">
-                  <ActionIcon
-                    onClick={handleDeleteLens}
-                    size="md"
-                    color="red"
-                    variant="gradient"
-                    ml={5}
-                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
+        {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
+          <Flex justify={"center"} align={"center"}>
+            {!isEditingLensName ? (
+              <Flex justify={"center"} align={"center"} gap={"sm"}>
+                <Link href="/new">
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    leftSection={<FaPlus />}
+                  // onClick={() => setIsEditingLensName(true)}
                   >
-                    <FaTrashAlt size={14} />
-                  </ActionIcon>
+                    Add Block
+                  </Button>
+                </Link>
+                <AddSubspace lensId={lens_ids[lens_ids.length - 1]}></AddSubspace>
+                <Tooltip color="blue" label="Edit lens." m={0}>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    leftSection={<Pencil2Icon />}
+                    onClick={() => setIsEditingLensName(true)}
+                  >
+                    Edit
+                  </Button>
+                </Tooltip>
+                {(!lens.shared || accessType == 'owner') ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
+                <Text className="block whitespace-nowrap" size="xs" fw={500} c={"green"}>
+                  <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
+                </Text>
+                <Tooltip color="blue" label={selectedLayoutType === "block"
+                  ? "Switch to icon layout."
+                  : "Switch to block layout."
+                }>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    leftSection={selectedLayoutType === "icon" ? <FaFolder /> : <FaList />}
+                    onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
+                  >
+                    {selectedLayoutType === "block" ? "Block View" : "Icon View"}
+                  </Button>
+                </Tooltip>
+              </Flex>
 
-                </Tooltip> : ""}
+            ) : (
+              <Flex align={"center"}>
+                <TextInput
+                  size="xs"
+                  value={editingLensName || ""}
+                  onChange={handleNameChange}
+                  onKeyUp={handleKeyPress}
+                />
 
-            </Flex>
-          )}
-        </Flex>
-        : <span className="text-xl font-semibold">
-          {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
-            <FaThLarge className="iconStyle spaceIconStyle" />
-            <span className="text-xl font-semibold ">{lensName}</span>
-          </div> */}
-        </span>}
+                <ActionIcon
+                  onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }}
+                  size="md"
+                  color="green"
+                  variant="gradient"
+                  ml={5}
+                  gradient={{ from: 'green', to: 'lime', deg: 116 }}
+                >
+                  <FaCheck size={14} />
+                </ActionIcon>
+                {!lens.shared || accessType == 'owner' ?
+                  <Tooltip color="red" label="This will delete the space. Please proceed with caution.">
+                    <ActionIcon
+                      onClick={handleDeleteLens}
+                      size="md"
+                      color="red"
+                      variant="gradient"
+                      ml={5}
+                      gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                    >
+                      <FaTrashAlt size={14} />
+                    </ActionIcon>
 
-      <Text ta={"center"} size="xs" fw={600} c={"blue"}>
-        {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
-      </Text>
+                  </Tooltip> : ""}
 
-      <div className="flex items-stretch flex-col h-full">
-        <LayoutController
-          subspaces={subspaces}
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          onChangeLayout={onChangeLensLayout}
-          layout={layoutData} lens_id={params.lens_id}
-          blocks={blocks} layoutView={selectedLayoutType} />
-      </div>
-    </Flex >
-  );
+              </Flex>
+            )}
+          </Flex>
+          : <span className="text-xl font-semibold">
+            {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+              <FaThLarge className="iconStyle spaceIconStyle" />
+              <span className="text-xl font-semibold ">{lensName}</span>
+            </div> */}
+          </span>}
+
+        <Text ta={"center"} size="xs" fw={600} c={"blue"}>
+          {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
+        </Text>
+
+        <div className="flex items-stretch flex-col h-full">
+          <LayoutController
+            subspaces={subspaces}
+            handleBlockChangeName={handleBlockChangeName}
+            handleBlockDelete={handleBlockDelete}
+            onChangeLayout={onChangeLensLayout}
+            layout={layoutData} lens_id={params.lens_id}
+            blocks={blocks} layoutView={selectedLayoutType} />
+        </div>
+      </Flex >
+    );
+  }
 }
