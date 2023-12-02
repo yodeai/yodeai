@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     if (parentId != -1) {
       // check if it is shared first, and if so then copy over to lens_users table
       const { data: lenses, error: lensesError } = await supabase
-      .rpc('add_lens_with_shared_users', { "parent_lens_id": parentId, "new_lens_id": data.lens_id})
+      .rpc('add_lens_with_shared_users', { "parent_lens_id": parentId, "new_lens_id": data[0]["lens_id"]})
     }
 
     return new NextResponse(
