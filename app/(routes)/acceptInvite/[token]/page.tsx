@@ -62,8 +62,10 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
             await supabase.from('lens_users').insert(lensUserData);
           }
       
-          const { data: subspaces } = await supabase.from("lens").select("lens_id").eq("root", rootLensId);
-      
+          const { data: subspaces } = await supabase
+          .from("lens")
+          .select("lens_id")
+          .contains('parents', [rootLensId]);      
       
           for (const { lens_id } of subspaces) {
             const { data: existingUserData } = await supabase.from('lens_users').select().eq('user_id', user.id).eq('lens_id', lens_id);

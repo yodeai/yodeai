@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const name = body.text;
     const parentId = body.parentId ? body.parentId : -1
     const rootId = body.root? body.root : -1
+    const parents = body.parents ? body.parents: [-1]
     if (!name) {
       return new NextResponse(
         JSON.stringify({ error: 'Name is required' }),
@@ -26,7 +27,8 @@ export async function POST(request: NextRequest) {
           {
             name: name,
             parent_id: parentId,
-            root: rootId
+            root: rootId,
+            parents: parents
           },
         ]).select();
     

@@ -23,38 +23,42 @@ export default function DefaultModal({ lensId }) {
     const supabase = createClientComponentClient();
 
     async function findRoot(lensId) {
-        let currentLensId = lensId;
-      
-        while (currentLensId) {
+      let parents = [lensId];
+      let currentLensId = lensId;
+  
+      while (currentLensId) {
           const { data, error } = await supabase
-            .from('lens')
-            .select('parent_id')
-            .eq('lens_id', currentLensId);
-      
+              .from('lens')
+              .select('parent_id')
+              .eq('lens_id', currentLensId);
+  
           if (error) {
-            console.error(`Error fetching lens data: ${error.message}`);
-            return null; // or handle the error accordingly
+              console.error(`Error fetching lens data: ${error.message}`);
+              return { rootId: null, parents }; // or handle the error accordingly
           }
-      
+  
           const parent_id = data[0]?.parent_id;
-      
+          parents.push(parent_id);
+  
           if (parent_id === -1) {
-            return currentLensId; // Found the root lens
+              return { rootId: currentLensId, parents }; // Found the root lens
           }
-      
+  
           currentLensId = parent_id;
-        }
-      
-        return null; // No root lens found, handle accordingly
       }
+  
+      return { rootId: null, parents }; // No root lens found, handle accordingly
+  }
+  
     const handleCreateLens = async () => {
-        let rootId = await findRoot(lensId)
+        let {rootId, parents} = await findRoot(lensId)
+        if (!parents.includes(-1)) parents.push(-1)
         const response = await fetch("/api/lens", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId }),
+          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents }),
         });
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);

@@ -79,8 +79,8 @@ export default function DefaultModal({ lensId }) {
                 const { error: subspacesError } = await supabase
                     .from('lens')
                     .update({ "shared": false })
-                    .eq('root', lensId)
-                if (error) {
+                    .contains("parents", [lensId])
+                if (subspacesError) {
                     console.error("Error", error.message)
                 }
                 handleRefresh();
@@ -165,7 +165,7 @@ export default function DefaultModal({ lensId }) {
                 let { error: subspaceError } = await supabase
                 .from('lens')
                 .update({ "shared": true })
-                .eq('root', lensId);// set lens to shared status
+                .contains("parents", [lensId])// set lens to shared status
                 if (subspaceError) {
                     console.log(error);
                     throw error;

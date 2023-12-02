@@ -1,7 +1,7 @@
 "use client";
 import formatDate from "@lib/format-date";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
@@ -75,7 +75,22 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   timeAgo = timeAgo.replace("about ", "");
 
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
+  // useEffect(()=>{
+  //   const supabase = createClientComponentClient()
+    
+  //   let getAccessType = async() => {
+  //     const { data: { user } } = await supabase.auth.getUser();
 
+  //     const { data: accessLevel, error: accessLevelError } = await supabase.rpc('get_access_type_block', { "chosen_block_id": block.block_id, "chosen_user_id": user.id })
+  //     if (accessLevelError) {
+  //       console.log("message", accessLevelError.message)
+  //       throw accessLevelError;
+  //     }
+  //     block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
+  //   }
+  //   getAccessType();
+  
+  // }, [])
 
   return (
     <div>
@@ -137,8 +152,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                       [Failed]
                     </Text>
                   </span>
+
                   {(block.accessLevel != 'editor' && block.accessLevel != "owner") ?
-                    ""
+                    null
                     :
                     <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
                       Retry upload

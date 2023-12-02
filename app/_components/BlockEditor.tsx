@@ -42,7 +42,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     let method: 'POST' | 'PUT';
     let endpoint: string;
     // If block exists and there are changes, update it
-    if (block && (content !== block.content || title !== block.title)) {
+    if (block && (content !== block.content || title !== block.title || delay == 0)) {
       if (!block.block_id) {
         console.log("in old block")
         method = "POST";
@@ -54,7 +54,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       }
     }
     // If block doesn't exist, create a new block
-    else if (!block && (content !== "" || title !== "")) {
+    else if (!block && (content !== "" || title !== "" || delay === 0)) {
       console.log("in new block")
       method = "POST";
       endpoint = `/api/block`;
@@ -80,6 +80,8 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       delay: delay
     };
 
+    console.log("saved", requestBody)
+
     if (lensId) {
       requestBody.lens_id = lensId;
     }
@@ -97,7 +99,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         setIsSaving(false);
       }
 
-      if (method === "POST" && response.ok) {
+      if (response.ok) {
         const responseData = await response.json();
         const newBlock = responseData.data[0];
         setBlock(newBlock);
