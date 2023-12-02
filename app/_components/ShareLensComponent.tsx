@@ -91,7 +91,7 @@ export default function DefaultModal({ lensId }) {
         const fetchCollaborators = async () => {
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
-            const { data:unacceptedInvites, unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
+            const { data:unacceptedInvites, error:unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
             const { data: acceptedInvites, error: acceptedInvitesError } =  await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
             const allInvites = []
 
