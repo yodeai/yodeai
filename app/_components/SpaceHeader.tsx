@@ -13,6 +13,7 @@ import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
+import Link from "next/link";
 
 type SpaceHeaderProps = {
     lens: Lens,
@@ -145,7 +146,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             </Flex>
 
             <Menu.Dropdown>
-                <Menu.Item component="a" href="/new">Add Block</Menu.Item>
+                <Menu.Item><Link className="decoration-transparent text-inherit" href="/new">Add Block</Link></Menu.Item>
                 <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                 <Menu.Item onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                 {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) &&
