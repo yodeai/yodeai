@@ -12,6 +12,7 @@ import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import { formatDistanceToNow } from "date-fns";
+import InlineSpoiler from "./InlineSpoiler";
 
 interface BlockProps {
   compact?: boolean;
@@ -96,9 +97,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
     <div>
       <Flex pl={2} pr={2} direction={"column"}>
         <Grid>
-          <Grid.Col span={9}>
+          <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
-              <FaFile size={12} style={{ marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
+              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
@@ -117,15 +118,15 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               )}
             </Flex>
           </Grid.Col>
-          <Grid.Col span={3}>
+          <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 90 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
             </Flex>
           </Grid.Col>
         </Grid>
 
         <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
-          <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
+          <InlineSpoiler>
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
               <>
@@ -135,7 +136,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 </div>
               </>
             ) : null}
-          </Spoiler>
+          </InlineSpoiler>
 
           {block.status === 'processing' ?
             (<span className="processing-text">

@@ -33,7 +33,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         case "block":
             return (
                 <>
-                    <ScrollArea type={"scroll"} w={'100%'} scrollbarSize={8} >
+                    <ScrollArea type={"scroll"} w={'100%'} p={20} scrollbarSize={8} >
                         {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
                         {blocks && blocks.length > 0
                             ? <React.Fragment>
@@ -41,7 +41,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                                 {blocks.map((block) => (
                                     <BlockComponent key={block.block_id} block={block} />
                                 ))}</React.Fragment>
-                            : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30} mb={15}>
+                            : <Text display={(subspaces && subspaces.length > 0) ? "none" : "block"} size={"sm"} c={"gray.7"} ta={"center"} mt={30} mb={15}>
                                 This space is empty, add blocks to populate this space with content & context.
                             </Text>}
 
@@ -49,8 +49,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                         {subspaces && subspaces.length > 0
                             ? subspaces.map((childLens) => (
                                 <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
-                            )) : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                                There are no subspaces, add subspaces to organize your blocks.</Text>}
+                            )) : null}
                     </ScrollArea>
                 </>)
         case "icon":
