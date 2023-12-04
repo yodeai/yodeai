@@ -112,7 +112,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                                     <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
                                 </UnstyledButton>
                             </Menu.Target>
-                            <Divider orientation="vertical" className="mx-3" />
+                            {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
                             {lens.public && <>
                                 <Tooltip position="bottom" offset={0} label="Public Lens">
                                     <UnstyledButton onClick={shareModalController.open}>
