@@ -146,7 +146,11 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             </Flex>
 
             <Menu.Dropdown>
-                <Menu.Item><Link className="decoration-transparent text-inherit" href="/new">Add Block</Link></Menu.Item>
+                <Link className="decoration-transparent text-inherit" href="/new" prefetch>
+                    <Menu.Item>
+                        Add Block
+                    </Menu.Item>
+                </Link>
                 <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                 <Menu.Item onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                 {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) &&
