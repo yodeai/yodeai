@@ -317,6 +317,7 @@ export default function Lens({ params }) {
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, addSubspaces)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, deleteSubspace)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lens?.lens_id}` }, () => getLensData(lens_ids[lens_ids.length - 1]))
       .subscribe();
 
     return () => {
