@@ -45,13 +45,11 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
       
           const rootLensId = invites[0].lens_id;
           const { data: existingUserData } = await supabase.from('lens_users').select().eq('user_id', user.id).eq('lens_id', rootLensId);
-          const { data: parentData } = await supabase.from("lens").select("parent_id").eq("lens_id", rootLensId);
 
           const lensUserData = {
             "user_id": user.id,
             "lens_id": invites[0].lens_id,
             "access_type": invites[0].access_type,
-            "subspace_only": parentData[0].parent_id != -1 ? true : false
           };
     
           if (existingUserData.length > 0) {
@@ -61,11 +59,14 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
             // User doesn't exist, insert a new record
             await supabase.from('lens_users').insert(lensUserData);
           }
+          const { data: parentData } = await supabase.from("lens").select("parent_id").eq("lens_id", rootLensId);
+          await supabase.from('lens_users').update({"subspace_only": parentData[0].parent_id != -1 ? true : false}).eq("lens_id", rootLensId);
+
       
           const { data: subspaces } = await supabase
           .from("lens")
           .select("lens_id")
-          .contains('parents', [rootLensId]);      
+          .contains('parents', [rootLensId]);     
       
           for (const { lens_id } of subspaces) {
             const { data: existingUserData } = await supabase.from('lens_users').select().eq('user_id', user.id).eq('lens_id', lens_id);
@@ -76,6 +77,7 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
               "access_type": invites[0].access_type,
               "subspace_only": false,
             };
+            console.log("Share", lensUserData)
       
             if (existingUserData.length > 0) {
               // User already exists, update their access type
