@@ -151,6 +151,7 @@ export default function Lens({ params }) {
       .then((data) => {
         setLens(data.data);
         setLensName(data.data.name);
+        setLensId(data.data.lens_id);
         const getUser = async () => {
           const { data: { user } } = await supabase.auth.getUser();
           setAccessType(data.data.user_to_access_type[user.id]);
