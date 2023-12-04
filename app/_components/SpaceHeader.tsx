@@ -5,7 +5,7 @@ import { FaCheck, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { CiGlobe } from "react-icons/ci";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
-    Menu, rem, UnstyledButton
+    Menu, rem, UnstyledButton, Divider
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
 import AddSubspace from "@components/AddSubspace";
@@ -107,24 +107,26 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         </>
                         : <div className="flex items-center align-middle">
                             <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
-                            {lens.public ? <>
-                                <Tooltip position="bottom" offset={0} label="Public Lens">
-                                    <UnstyledButton onClick={shareModalController.open}>
-                                        <CiGlobe size={18} className="mt-2 ml-[5px]" />
-                                    </UnstyledButton>
-                                </Tooltip>
-                            </> : (lens.shared && <>
-                                <Tooltip position="bottom" offset={0} label={`Shared lens, collaborative: ${accessType}`}>
-                                    <UnstyledButton>
-                                        <FaUserGroup size={22} className="ml-1" />
-                                    </UnstyledButton>
-                                </Tooltip>
-                            </>) || ""}
                             <Menu.Target>
                                 <UnstyledButton>
                                     <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
                                 </UnstyledButton>
                             </Menu.Target>
+                            <Divider orientation="vertical" className="mx-3" />
+                            {lens.public && <>
+                                <Tooltip position="bottom" offset={0} label="Public Lens">
+                                    <UnstyledButton onClick={shareModalController.open}>
+                                        <CiGlobe size={18} className="mt-2 ml-[5px]" />
+                                    </UnstyledButton>
+                                </Tooltip>
+                            </> || ""}
+                            {!lens.public && lens.shared && <>
+                                <Tooltip position="bottom" offset={0} label={`Shared lens, collaborative: ${accessType}`}>
+                                    <UnstyledButton>
+                                        <FaUserGroup size={18} className="mt-2 ml-[5px] text-gray-600" />
+                                    </UnstyledButton>
+                                </Tooltip>
+                            </> || ""}
                         </div>
                     }
                 </Box>
