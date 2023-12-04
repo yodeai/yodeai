@@ -155,7 +155,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 </Link>
                 <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                 <Menu.Item onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
-                {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) &&
+                {(!lens.shared || accessType == 'owner') &&
                     <Menu.Item onClick={shareModalController.open}>Share</Menu.Item> || ""}
                 <Menu.Divider />
                 <Menu.Item disabled>Pin this lens</Menu.Item>
