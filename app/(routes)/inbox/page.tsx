@@ -37,6 +37,8 @@ export default function Inbox() {
       );
     };
 
+    
+
     const addBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
       console.log("Added a block", block_id)

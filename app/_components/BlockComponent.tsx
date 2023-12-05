@@ -1,7 +1,7 @@
 "use client";
 import formatDate from "@lib/format-date";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
@@ -12,6 +12,7 @@ import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import { formatDistanceToNow } from "date-fns";
+import InlineSpoiler from "./InlineSpoiler";
 
 interface BlockProps {
   compact?: boolean;
@@ -75,15 +76,30 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   timeAgo = timeAgo.replace("about ", "");
 
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
+  // useEffect(()=>{
+  //   const supabase = createClientComponentClient()
+    
+  //   let getAccessType = async() => {
+  //     const { data: { user } } = await supabase.auth.getUser();
 
+  //     const { data: accessLevel, error: accessLevelError } = await supabase.rpc('get_access_type_block', { "chosen_block_id": block.block_id, "chosen_user_id": user.id })
+  //     if (accessLevelError) {
+  //       console.log("message", accessLevelError.message)
+  //       throw accessLevelError;
+  //     }
+  //     block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
+  //   }
+  //   getAccessType();
+  
+  // }, [])
 
   return (
     <div>
       <Flex pl={2} pr={2} direction={"column"}>
         <Grid>
-          <Grid.Col span={9}>
+          <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
-              <FaFile size={12} style={{ marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
+              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
@@ -102,15 +118,15 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               )}
             </Flex>
           </Grid.Col>
-          <Grid.Col span={3}>
+          <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 90 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
             </Flex>
           </Grid.Col>
         </Grid>
 
         <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
-          <Spoiler styles={{ control: { fontSize: 14 } }} maxHeight={21} showLabel="Show more" hideLabel="Hide">
+          <InlineSpoiler>
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
               <>
@@ -120,7 +136,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 </div>
               </>
             ) : null}
-          </Spoiler>
+          </InlineSpoiler>
 
           {block.status === 'processing' ?
             (<span className="processing-text">
@@ -137,8 +153,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                       [Failed]
                     </Text>
                   </span>
+
                   {(block.accessLevel != 'editor' && block.accessLevel != "owner") ?
-                    ""
+                    null
                     :
                     <button onClick={() => retryProcessBlock()} className="flex items-center gap-2 text-sm font-semibold rounded px-2 py-1 border shadow transition-colors">
                       Retry upload

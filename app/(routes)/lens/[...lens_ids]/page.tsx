@@ -46,7 +46,7 @@ function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
 
 export default function Lens({ params }) {
   const { lens_ids } = params;
-
+  const [shouldRender, setShouldRender] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
@@ -64,11 +64,13 @@ export default function Lens({ params }) {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
   async function isValidHierarchy(lensIds) {
+    const { data: { user } } = await supabase.auth.getUser()
+
     for (let index = 0; index < lensIds.length; index++) {
       const id = lensIds[index];
       const parentId = index === 0 ? -1 : lensIds[index - 1];
 
-      const isChild = await isChildOf(id, parentId);
+      const isChild = await isChildOf(id, parentId, user);
 
       if (!isChild) {
         console.log(`Invalid hierarchy at index ${index}`);
@@ -78,8 +80,16 @@ export default function Lens({ params }) {
 
     return true;
   }
-  async function isChildOf(childId, parentId) {
+  async function isChildOf(childId, parentId, user) {
     try {
+      const { data: subspace_only, error:subspaceOnlyError } = await supabase
+      .from('lens_users')
+      .select('subspace_only')
+      .eq('lens_id', childId).eq('user_id', user.id)
+  
+      if (subspace_only) {
+        return true;
+      }
       const { data: lensData, error } = await supabase
         .from('lens')
         .select('parent_id')
@@ -96,14 +106,17 @@ export default function Lens({ params }) {
       return false;
     }
   }
+
   useEffect(() => {
     // Define an asynchronous function
     const validateAndRedirect = async () => {
       // Validate the nested lens IDs (client-side)
-      if (!(await isValidHierarchy(lens_ids))) {
+      if (!(await isValidHierarchy(lens_ids)) || lens_ids[lens_ids.length - 1] == -1) {
         // Redirect to an error page or handle the invalid case
-        console.log("invalid hierarchy");
-        // router.push('/notFound');
+        router.push('/notFound');
+      } else {
+        // Set shouldRender to true once validation is successful
+        setShouldRender(true);
       }
     };
 
@@ -155,6 +168,7 @@ export default function Lens({ params }) {
         setLens(data.data);
         setLensName(data.data.name);
         setAccessType(data.data.user_to_access_type[user.id]);
+        setLensId(data.data.lens_id);
       })
       .catch((error) => {
         console.error('Error fetching lens:', error);
@@ -224,46 +238,6 @@ export default function Lens({ params }) {
       [layoutName]: layoutData
     }))
   }
-
-  // useEffect(() => {
-  //   // Check if 'edit' query parameter is present and set isEditingLensName accordingly
-  //   if (searchParams.get("edit") === 'true') {
-  //     setEditingLensName(lensName);
-  //     setIsEditingLensName(true);
-  //   }
-
-  //   // Fetch the blocks associated with the lens
-  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}/getBlocks`)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setBlocks(data?.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching block:", error);
-  //       notFound();
-  //     });
-
-  //   // Fetch the lens details
-  //   fetch(`/api/lens/${lens_ids[lens_ids.length - 1]}`)
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         console.log("Error fetching lens")
-  //         router.push("/notFound")
-  //       } else {
-  //         response.json().then((data) => {
-  //           setLens(data?.data);
-  //           setLensName(data?.data.name)
-  //           const getUser = async() => {
-  //             const { data: { user } } = await supabase.auth.getUser()
-  //             setUser(user);
-  //             setAccessType(data?.data.user_to_access_type[user.id]);
-  //           }
-  //           getUser();
-  //         })
-  //       }
-  //     })
-
-  // }, [lens_ids[lens_ids.length - 1], searchParams]);
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -435,7 +409,7 @@ export default function Lens({ params }) {
       </div>
     );
   }
-
+  if (shouldRender) {
   return (
     <Flex direction={"column"} pt={0} className="h-full">
       <SpaceHeader
@@ -464,4 +438,4 @@ export default function Lens({ params }) {
       </Box>
     </Flex >
   );
-}
+}}
