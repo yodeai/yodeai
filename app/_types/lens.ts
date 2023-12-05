@@ -37,4 +37,5 @@ export type Subspace = {
   shared: boolean
   public: boolean
   root: number
+  parents: number[]
 }

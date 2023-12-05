@@ -9,24 +9,24 @@ export async function GET(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
   
     try {
-        const { data: lenses, error: lensesError } = await supabase
-        .from('lens')
-        .select('*, lens_users(user_id, access_type)')
-        .eq('parent_id', -1)
-        .order('updated_at', { ascending: false });
-      
-      if (lensesError) {
-        console.error('Error fetching lenses:', lensesError);
-        throw lensesError;
-      }
+      const { data: { user } } = await supabase.auth.getUser()
+ 
+      const user_id = user.id;
+      const { data: lenses, error: lensesError } = await supabase
+      .rpc('get_navbar_lenses', { "user_id_param": user_id })
+      .select('*')
+      .order('updated_at', { ascending: false });
+    
+    if (lensesError) {
+      console.error('Error fetching lenses:', lensesError);
+      throw lensesError;
+    }
     
 
-        for (const lens of lenses) {
-          lens.user_to_access_type = {};
-          lens.lens_users.forEach(obj => {
-            lens.user_to_access_type[obj.user_id] = obj.access_type;
-          });
-        }
+    for (const lens of lenses) {
+      lens.user_to_access_type = {};
+      lens.user_to_access_type[user_id] = lens.access_type;
+    }
 
       return ok(lenses);
     } catch (err) {
