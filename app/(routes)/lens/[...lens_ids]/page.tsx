@@ -53,12 +53,14 @@ export default function Lens({ params }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
-  const [accessType, setAccessType] = useState(null);
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const router = useRouter();
-  const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
+  const {
+    setLensId, lensName, setLensName, reloadLenses, setActiveComponent,
+    accessType, setAccessType
+  } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
   async function isValidHierarchy(lensIds) {
@@ -148,15 +150,11 @@ export default function Lens({ params }) {
           return response.json();
         }
       })
-      .then((data) => {
+      .then(async (data) => {
+        const { data: { user } } = await supabase.auth.getUser();
         setLens(data.data);
         setLensName(data.data.name);
-        const getUser = async () => {
-          const { data: { user } } = await supabase.auth.getUser();
-          setAccessType(data.data.user_to_access_type[user.id]);
-        };
-
-        getUser();
+        setAccessType(data.data.user_to_access_type[user.id]);
       })
       .catch((error) => {
         console.error('Error fetching lens:', error);

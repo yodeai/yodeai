@@ -15,6 +15,8 @@ type contextType = {
   // activeComponent can be "global", "lens", or "inbox"
   activeComponent: string;
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
+  accessType: "owner" | "editor" | "reader",
+  setAccessType: React.Dispatch<React.SetStateAction<string>>;
 };
 
 
@@ -29,7 +31,8 @@ const defaultValue: contextType = {
   allLenses: [],
   activeComponent: "global",
   setActiveComponent: () => { },
-  
+  accessType: "owner",
+  setAccessType: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -51,7 +54,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   // allLenses is a list of the lenses that this user has, is used to suggest lenses
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string }[]>([]);
   const [activeComponent, setActiveComponent] = useState<string>("global");
-
+  const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
 
   useEffect(() => {
     // Get the lensId from the URL
@@ -63,8 +66,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       setActiveComponent("inbox");
     }
     else if (parts[1] === 'lens') {
-      console.log("setting app context to be ", parts[parts.length -1])
-      setLensId(parts[parts.length -1]);  // Set the lensId based on the URL
+      console.log("setting app context to be ", parts[parts.length - 1])
+      setLensId(parts[parts.length - 1]);  // Set the lensId based on the URL
     }
 
     // Get all the lenses that this user has
@@ -109,7 +112,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   };
 
   return (
-    <context.Provider value={{ lensId, setLensId, lensName, setLensName, reloadKey, reloadLenses, allLenses, activeComponent, setActiveComponent }}>
+    <context.Provider value={{
+      lensId, setLensId,
+      lensName, setLensName,
+      reloadKey, reloadLenses, allLenses,
+      activeComponent, setActiveComponent,
+      accessType, setAccessType
+    }}>
       {children}
     </context.Provider>
   );

@@ -107,11 +107,11 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         </>
                         : <div className="flex items-center align-middle">
                             <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
-                            <Menu.Target>
+                            {accessType !== "reader" && <Menu.Target>
                                 <UnstyledButton>
                                     <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
                                 </UnstyledButton>
-                            </Menu.Target>
+                            </Menu.Target> || ""}
                             {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
                             {lens.public && <>
                                 <Tooltip position="bottom" offset={0} label="Public Lens">
@@ -150,12 +150,11 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             <Menu.Dropdown>
                 <Menu.Item><Link className="decoration-transparent text-inherit" href="/new">Add Block</Link></Menu.Item>
                 <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
-                <Menu.Item onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
-                {(!lens.shared || accessType == 'owner') && (lens.parent_id == -1) &&
-                    <Menu.Item onClick={shareModalController.open}>Share</Menu.Item> || ""}
+                <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
+                <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                 <Menu.Divider />
                 <Menu.Item disabled>Pin this lens</Menu.Item>
-                <Menu.Item color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
             </Menu.Dropdown>
         </Menu>
 
