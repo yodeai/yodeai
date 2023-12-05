@@ -2,18 +2,16 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { notFound } from "next/navigation";
-import Container from "./Container";
-import UserAccountHandler from './UserAccount';
-import { Lens } from "app/_types/lens";
+import { IoMdClose } from "react-icons/io";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
-import { useCallback, useState, useEffect } from "react";
-import { FaInbox, FaThLarge, FaPlusSquare, FaFolderPlus, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
-import { FaFolderTree } from "react-icons/fa6";
-import ReactMarkdown from "react-markdown";
-import { set } from "date-fns";
-import { Box, Button, Divider, Flex, NavLink, Paper, Popover, ScrollArea } from "@mantine/core";
+import React, { useCallback, useState } from "react";
+import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
+import { FaHouse } from "react-icons/fa6";
+import { Box, Button, Divider, Flex, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { ActionIcon } from "@mantine/core";
+import LoadingSkeleton from "./LoadingSkeleton";
 
 export function ActiveLink({
   href,
@@ -36,26 +34,13 @@ export function ActiveLink({
   );
 }
 
-
 export default function Navbar() {
-
-
   const router = useRouter();
-  const { lensId, setLensId, reloadKey, reloadLenses, activeComponent, setActiveComponent } = useAppContext();
-  const [lenses, setLenses] = useState<Lens[]>([]);
-  useEffect(() => {
-    // Fetch the lenses
-    fetch(`/api/lens/getAll`)
-      .then((response) => response.json())
-      .then((data) => {
-        setLenses(data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching lens:", error);
-        notFound();
-      });
-
-  }, [reloadKey]);
+  const {
+    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
+    pinnedLenses, pinnedLensesLoading
+  } = useAppContext();
+  const supabase = createClientComponentClient();
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -98,7 +83,23 @@ export default function Navbar() {
     router.push(`/`);
   }
 
-  // https://ui.mantine.dev/component/navbar-search/
+  const handleMyBlocksClick = () => {
+    setLensId(null);
+    setActiveComponent("myblocks");
+    router.push(`/myblocks`);
+  }
+
+  const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
+    event.preventDefault();
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "DELETE" });
+      if (pinResponse.ok) console.log("Lens unpinned");
+      if (!pinResponse.ok) console.error("Failed to unpin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
   const [opened, setOpened] = useState(false);
 
   return (
@@ -149,24 +150,32 @@ export default function Navbar() {
           </Popover.Dropdown>
         </Popover>
 
-        <NavLink
-          mt={10}
-          onClick={handleHomeClick}
-          label="My Blocks"
-          leftSection={<FaThLarge size={14} />}
-          color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
-          variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
-          active
-        />
-
-        <NavLink
-          onClick={handleOpenInbox}
-          label="Inbox"
-          leftSection={<FaInbox style={{ marginTop: 2 }} />}
-          color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
-          variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
-          active
-        />
+        <Flex direction="column" gap={5} mt={10}>
+          <NavLink
+            onClick={handleHomeClick}
+            label="Home"
+            leftSection={<FaHouse size={18} />}
+            color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
+            variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
+            active
+          />
+          <NavLink
+            onClick={handleMyBlocksClick}
+            label="My Blocks"
+            leftSection={<FaThLarge size={18} />}
+            color={(!lensId && activeComponent === "myblocks") ? "blue" : "#888"}
+            variant={(!lensId && activeComponent === "myblocks") ? "light" : "subtle"}
+            active
+          />
+          <NavLink
+            onClick={handleOpenInbox}
+            label="Inbox"
+            leftSection={<FaInbox size={18} />}
+            color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
+            variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
+            active
+          />
+        </Flex>
 
         <Divider
           mb={3}
@@ -176,15 +185,29 @@ export default function Navbar() {
           label={
             <>
               <FaCubes size={12} />
-              <Box ml={5}>My Spaces</Box>
+              <Box ml={5}>Pinned Spaces</Box>
             </>
           }
           labelPosition="center"
         />
 
-        {lenses?.map((lens) => (
-          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
-        ))}
+        <Flex direction="column">
+          {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
+          {!pinnedLensesLoading && (pinnedLenses.length > 0
+            ? pinnedLenses.map((lens) => (
+              <LensComponent key={lens.lens_id}
+                lens={lens} compact={true}
+                rightSection={
+                  <ActionIcon variant="subtle" color="gray" onClick={handleUnpinLens.bind(this, lens.lens_id)}>
+                    <IoMdClose size={16} />
+                  </ActionIcon>
+                }
+              />
+            ))
+            : pinnedLenses.length === 0 && (
+              <Text mt={5} size="sm" c="gray.5" className="text-center">No pinned spaces</Text>
+            ))}
+        </Flex>
       </ScrollArea.Autosize>
     </nav>
   );

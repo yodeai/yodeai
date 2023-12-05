@@ -136,7 +136,7 @@ export default function Lens({ params }) {
           console.error('Error fetching lens data:', error);
         })
     })();
-  }, [params.lens_id, searchParams]);
+  }, [params.lens_ids, searchParams]);
 
   const getLensData = async (lensId: string) => {
     return fetch(`/api/lens/${lensId}`)
@@ -421,15 +421,16 @@ export default function Lens({ params }) {
     });
   }
 
-  if (!lens || loading) {
-    return (
-      <div className="flex flex-col p-2 pt-0 flex-grow">
-        <LoadingSkeleton />
-      </div>
-    );
-  }
+  // TODO: remove this loading condition and pass it to Space
+  // if (!lens || loading) {
+  //   return (
+  //     <div className="flex flex-col p-2 pt-0 flex-grow">
+  //       <LoadingSkeleton boxCount={10} lineHeight={80} />
+  //     </div>
+  //   );
+  // }
 
-  if (!lens) {
+  if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
         <p>Error fetching lens data.</p>
@@ -440,6 +441,7 @@ export default function Lens({ params }) {
   return (
     <Flex direction={"column"} pt={0} className="h-full">
       <SpaceHeader
+        loading={loading}
         lens={lens}
         lens_ids={lens_ids}
         lensName={lensName}
@@ -455,6 +457,7 @@ export default function Lens({ params }) {
         handleChangeLayoutView={handleChangeLayoutView}
       />
       <Box className="flex items-stretch flex-col h-full">
+        {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={10} />}
         <LayoutController
           subspaces={subspaces}
           handleBlockChangeName={handleBlockChangeName}

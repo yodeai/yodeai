@@ -97,7 +97,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
             const { data: { user }, error: userError } = await supabase.auth.getUser();
             // fetch current lens sharing information
             const { data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
-            setLensCollaborators(data.filter((item) => item.users.id != user.id));
+            setLensCollaborators(data?.filter((item) => item.users.id != user.id));
         }
         const checkPublishedLens = async () => {
             const { data: lens, error } = await supabase

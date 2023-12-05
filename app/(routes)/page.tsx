@@ -1,121 +1,52 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { Block } from 'app/_types/block';
-import BlockComponent from '@components/BlockComponent';
-import Link from "next/link";
-import { PlusIcon } from "@radix-ui/react-icons";
-import LoadingSkeleton from '@components/LoadingSkeleton';
+import { notFound } from "next/navigation";
+import { Block } from "app/_types/block";
+import { Lens } from "app/_types/lens";
+import { useState, useEffect } from "react";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Divider, Flex, Grid, NavLink, Text } from "@mantine/core";
-import { FaPlusSquare } from "react-icons/fa";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
-import BlockHeader from "@components/BlockHeader";
+import LensComponent from "@components/LensComponent";
+import { Flex, Text, Divider } from "@mantine/core";
+import LoadingSkeleton from "@components/LoadingSkeleton";
 
-export const dynamic = 'force-dynamic';
-
-export default function Index() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
+export default function Inbox() {
+  const [lenses, setLenses] = useState<Lens[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClientComponentClient()
-  useEffect(() => {
-    const updateBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      setBlocks(prevBlocks =>
-        prevBlocks.map(item => {
-          if (item.block_id === block_id) {
-            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
-          }
-          return item;
-        })
-      );
-    };
+  const getLenses = async () => {
 
-    const addBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Added a block", block_id)
-      let newBlock = payload["new"]
-      if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([newBlock, ...blocks]);
-      }
-    }
-
-    const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-
-    }
-
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
-      .subscribe();
-
-    return () => {
-      if (channel) channel.unsubscribe();
-    };
-  }, [blocks]);
-
-  useEffect(() => {
-    // Fetch blocks from the API
-    fetch('/api/block/getAllBlocks')
-      .then(response => response.json())
-      .then(data => {
-        setBlocks(data.data || []);
+    return fetch(`/api/lens/getAll`)
+      .then((response) => response.json())
+      .then((data) => {
+        setLenses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching lens:", error);
+        notFound();
+      }).finally(() => {
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching blocks:', error);
-        setError('Failed to load blocks');
-        setLoading(false);
-      });
+  }
+
+  useEffect(() => {
+    getLenses();
   }, []);
 
-
-  // const handleNewBlock = (e: React.MouseEvent) => {
-  //   setLensId(null);
-  //   setActiveComponent("global");
-  //   router.push(`/new`);
-  // };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col p-2 pt-0 flex-grow">
-        <LoadingSkeleton />
-      </div>
-
-    );
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
-
   return (
-    <Flex mih={'100vh'} direction="column">
-      <Flex direction="column" p={16} pt={0}>
-        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
+    <Flex direction="column" p={16} pt={0}>
+      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Home</Text>} labelPosition="center" />
+      {loading &&
+        <div className="mt-2">
+          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+        </div>}
 
-        <BlockHeader />
-
-        {blocks.length > 0 ? (
-          blocks.map((block: Block) => (
-
-            <div key={block.block_id}>
-              <BlockComponent block={block} />
-            </div>
-          ))
-        ) : (
-          <p>No blocks found.</p>
-        )}
-      </Flex>
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
-    </Flex>
+      {!loading && (lenses.length > 0
+        ? lenses.map((lens) => (
+          <LensComponent key={lens.lens_id} lens={lens} compact={true} />
+        ))
+        : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+          Nothing to show here. You have no spaces yet.
+        </Text>
+      ) || ""}
+    </Flex >
   );
 }

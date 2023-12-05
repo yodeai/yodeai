@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "rea
 import { Block } from "app/_types/block";
 import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
+import { AiOutlinePushpin } from 'react-icons/ai';
 
 import { Text, Flex, Box, TextProps, Textarea, Popover, Button } from '@mantine/core';
 
@@ -290,6 +291,8 @@ type SubspaceIconItemProps = {
 const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
+  const { pinnedLenses } = useAppContext();
+  const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm block deletion',
@@ -315,6 +318,26 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     }
   }
 
+  const onPinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "PUT" });
+      if (pinResponse.ok) console.log("Lens pinned");
+      if (!pinResponse.ok) console.error("Failed to pin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
+  const onUnpinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "DELETE" });
+      if (pinResponse.ok) console.log("Lens unpinned");
+      if (!pinResponse.ok) console.error("Failed to unpin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
     color: "#228be6",
@@ -329,7 +352,13 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal
-  }], []);
+  }, {
+    key: 'pin',
+    color: "#228be6",
+    icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
+    title: isPinned ? "Unpin" : "Pin",
+    onClick: isPinned ? onUnpinLens : onPinLens
+  }], [isPinned]);
 
   const onContextMenu = showContextMenu(actions);
 

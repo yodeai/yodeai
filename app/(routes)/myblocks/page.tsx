@@ -18,12 +18,11 @@ import LensInviteComponent from "@components/LensInviteComponent";
 import BlockHeader from "@components/BlockHeader";
 
 
-export default function Inbox() {
+export default function MyBlocks() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
-  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
-
   const supabase = createClientComponentClient()
+
   useEffect(() => {
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -68,7 +67,7 @@ export default function Inbox() {
 
 
   const fetchBlocks = () => {
-    fetch(`/api/inbox/getBlocks`)
+    fetch(`/api/block/getAllBlocks`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -80,68 +79,23 @@ export default function Inbox() {
       });
   };
 
-  const fetchInvites = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data, error } = await supabase
-      .from('lens_invites')
-      .select()
-      .eq('recipient', user.email).eq("status", "sent")
-    if (error) {
-      console.error("error getting lens invites:", error.message)
-    }
-    setUnacceptedInvites(data);
-  }
-
   useEffect(() => {
     fetchBlocks();
-    fetchInvites();
   }, []);
 
   return (
     <Flex direction="column" p={16} pt={0}>
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Inbox</Text>} labelPosition="center" />
-      <Flex justify={"center"} align={"center"}>
-        <Flex justify={"center"} align={"center"}>
-          <Link href="/new">
-            <Button
-              size="xs"
-              variant="subtle"
-              leftSection={<FaPlus />}
-            // onClick={() => setIsEditingLensName(true)}
-            >
-              Add Block
-            </Button>
-          </Link>
-        </Flex>
-      </Flex>
-
-      <Paper mb={10}>
-        <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
-        {
-          unacceptedInvites?.length > 0 ? (
-            unacceptedInvites.map((invite) => (
-              <div key={invite.lens_id} >
-                <LensInviteComponent invite={invite}></LensInviteComponent>
-              </div>
-            ))
-          ) : (
-            <Text ta={"center"} c={"gray.6"} size="sm">
-              No unaccepted invites!
-            </Text>
-          )
-        }
-      </Paper>
-
+      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My Blocks</Text>} labelPosition="center" />
       <BlockHeader />
 
       {
         loading ? (
           <div className="mt-2">
-            <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+            <LoadingSkeleton />
           </div>
         ) : blocks?.length > 0 ? (
           blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
+            <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
           ))
         ) : (
           <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
