@@ -415,7 +415,6 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 setLoading(false);
                 setPublished(true)
                 toast.success("Updated privacy successfully!");
-                close();
             }
         }
     };

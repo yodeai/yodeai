@@ -15,6 +15,7 @@ import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
+import Link from 'next/link';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -176,6 +177,8 @@ type BlockIconItemProps = {
 const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, unselectBlocks }: BlockIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
+  const { accessType } = useAppContext();
+  const router = useRouter();
 
   const [titleText, setTitleText] = useState<string>(block.title);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -243,10 +246,19 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
   }, [$textarea, editMode])
 
   const actions: ContextMenuContent = useMemo(() => [{
+    key: 'open',
+    color: "#228be6",
+    icon: <FaLink size={16} />,
+    title: "Open",
+    onClick: () => {
+      router.push(`/block/${block.block_id}`)
+    }
+  },{
     key: 'rename',
     color: "#228be6",
     icon: <FaICursor size={16} />,
     title: 'Rename',
+    disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => {
       setEditMode(true);
     }
@@ -256,6 +268,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
+    disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => openDeleteModal()
   }], []);
 
@@ -290,6 +303,7 @@ type SubspaceIconItemProps = {
 const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
+  const { accessType } = useAppContext();
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm block deletion',
@@ -328,7 +342,8 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
-    onClick: openDeleteModal
+    onClick: openDeleteModal,
+    disabled: ["owner", "editor"].includes(accessType) === false
   }], []);
 
   const onContextMenu = showContextMenu(actions);
