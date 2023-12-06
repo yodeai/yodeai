@@ -154,23 +154,43 @@ export default function IconLayoutComponent({
     }
   }
 
-  const onDrag = useDebouncedCallback((layout: Layout[], oldItem: Layout, newItem: Layout, placeholder: Layout, event: MouseEvent, element: HTMLElement) => {
-    const target = event.target as HTMLElement;
-    if (!newItem.i.startsWith("ss")) return;
+  const checkOverlap = (target: HTMLElement, target2: HTMLElement) => {
+    const rect1 = target.getBoundingClientRect();
+    const rect2 = target2.getBoundingClientRect();
+    return (rect1.left < rect2.right &&
+      rect1.right > rect2.left &&
+      rect1.top < rect2.bottom &&
+      rect1.bottom > rect2.top)
+  }
 
-    const [_, lens_id] = newItem.i.split("_");
-    if (pinnedLensIds.includes(Number(lens_id))) return;
+  const onDrag = useDebouncedCallback(
+    (
+      layout: Layout[],
+      oldItem: Layout,
+      newItem: Layout,
+      placeholder: Layout,
+      event: MouseEvent,
+      element: HTMLElement
+    ) => {
+      const target = event.target as HTMLElement;
+      if (!newItem.i.startsWith("ss")) return;
 
-    if (layoutRefs.sidebar.current?.contains(target)) {
-      setDraggingNewBlock(true);
-    } else {
-      setDraggingNewBlock(false);
-    }
-  }, 10, [pinnedLensIds]);
+      const [_, lens_id] = newItem.i.split("_");
+      if (pinnedLensIds.includes(Number(lens_id))) return;
+
+      if (checkOverlap(target, layoutRefs.sidebar.current)) {
+        setDraggingNewBlock(true);
+      } else {
+        setDraggingNewBlock(false);
+      }
+    },
+    10,
+    [pinnedLensIds]
+  );
 
   const onDragStop = (layout: Layout[], oldItem: any, newItem: any, placeholder: any, event: MouseEvent, element: HTMLElement) => {
     const target = event.target as HTMLElement;
-    if (layoutRefs.sidebar.current?.contains(target)) {
+    if (checkOverlap(target, layoutRefs.sidebar.current)) {
       if (!newItem.i.startsWith("ss")) return;
       const [_, lens_id] = newItem.i.split("_");
       onPinLens(String(lens_id))
@@ -194,7 +214,7 @@ export default function IconLayoutComponent({
       verticalCompact={false}>
       {layoutItems}
     </ResponsiveReactGridLayout>
-    <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
+    {/* <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
       breadcrumbs.map(({ title, href }, index) => (
         <Fragment key={index}>
           {href
@@ -203,7 +223,7 @@ export default function IconLayoutComponent({
           }
         </Fragment>
       ))
-    }</Breadcrumbs>
+    }</Breadcrumbs> */}
   </div>
 }
 

@@ -106,7 +106,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     return <>
         <Menu shadow="md" position="bottom-start" width={150}>
             <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
-                <Box>
+                <Box className="flex items-center">
                     {
                         !loading && isEditingLensName && <>
                             <Input
@@ -134,7 +134,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         </> || ""
                     }
                     {
-                        !loading && !isEditingLensName && <div className="flex items-center align-middle">
+                        !loading && !isEditingLensName && <div className="flex justify-center align-middle">
                             <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
 
                             {!loading && <Menu.Target>

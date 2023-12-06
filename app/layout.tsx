@@ -31,19 +31,15 @@ export default async function RootLayout({
         <link rel="icon" href="/yodeai.png" />
         <ColorSchemeScript />
       </head>
-      <body
-      // className="flex flex-col py-2 min-h-screen font-sans bg-[#fffefc] text-[#1a202c]"
-      >
+      <body>
         <MantineProvider defaultColorScheme="light">
           <ModalsProvider>
             <ContextMenuProvider>
               <header>
-                <Flex align={"flex-start"} justify={"flex-start"} direction={"column"} style={{ zIndex: 290, width: '100%', position: 'fixed', top: 0, height: '60px', padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' }}>
-                  <HeadingBar />
-                </Flex>
+                <HeadingBar />
               </header>
               <Toaster />
-              <Flex direction={'column'} h={'100vh'} w={'100%'}>
+              <Flex direction='column' w='100%' className="h-[calc(100%-60px)]">
                 {children}
               </Flex>
             </ContextMenuProvider>
