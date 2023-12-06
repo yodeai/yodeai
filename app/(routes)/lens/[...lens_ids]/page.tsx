@@ -17,7 +17,7 @@ import { Box, Flex } from "@mantine/core";
 
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
-import useDebouncedCallback from "@utils/hooks";
+import { useDebouncedCallback } from "@utils/hooks";
 
 function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
   let layout = null;

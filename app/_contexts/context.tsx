@@ -22,6 +22,13 @@ type contextType = {
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
   accessType: "owner" | "editor" | "reader",
   setAccessType: React.Dispatch<React.SetStateAction<string>>;
+
+  layoutRefs: {
+    sidebar: React.RefObject<HTMLDivElement>;
+  },
+
+  draggingNewBlock: boolean;
+  setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 
@@ -41,7 +48,14 @@ const defaultValue: contextType = {
   pinnedLenses: [],
   setPinnedLenses: () => { },
   accessType: "owner",
-  setAccessType: () => { }
+  setAccessType: () => { },
+
+  layoutRefs: {
+    sidebar: React.createRef<HTMLDivElement>(),
+  },
+
+  draggingNewBlock: false,
+  setDraggingNewBlock: () => { },
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -67,6 +81,11 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
   const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
+  const [draggingNewBlock, setDraggingNewBlock] = useState(false);
+
+  const layoutRefs = {
+    sidebar: React.createRef<HTMLDivElement>(),
+  }
 
   const getAllLenses = async () => {
     return fetch('/api/lens/getAllNames')
@@ -163,6 +182,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   return (
     <context.Provider value={{
+      draggingNewBlock, setDraggingNewBlock,
+      layoutRefs,
       lensId, setLensId,
       lensName, setLensName,
       reloadKey, reloadLenses, allLenses,
