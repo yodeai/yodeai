@@ -9,8 +9,9 @@ import formatDate from "@lib/format-date";
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Container from "@components/Container";
-import { Button, Flex, Group, List, ListItem, Modal, Select, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import { Button, Flex, Group, List, ListItem, Modal, Select, Text, TextInput, LoadingOverlay } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import toast from 'react-hot-toast';
 
 type ShareLensComponentProps = {
     lensId: number
@@ -26,9 +27,12 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     const [published, setPublished] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const [opened, { open, close }] = modalController;
+
     const deleteLensUsers = async (lensId, user_id) => {
+        setLoading(true);
         try {
             // Fetch all lens_ids with the specified parent_id
             const { data: subspaces } = await supabase.from('lens').select('lens_id').eq('parent_id', lensId);
@@ -50,6 +54,8 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
         } catch (error) {
             console.error('Error:', error.message);
             // Handle the error accordingly
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -66,8 +72,9 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 .from('lens_invites')
                 .delete()
                 .eq('lens_id', lensId).eq("recipient", recipient).eq("sender", sender);
-            const newLensCollaborator = lensCollaborators.filter((item) => { item.users.id !== user_id && item.lens_id !== lensId })
-            setLensCollaborators(newLensCollaborator);
+            const newLensCollaborator = lensCollaborators.filter((item) => { item.recipient_id !== user_id && item.lens_id !== lensId })
+
+            fetchCollaborators();
 
             if (newLensCollaborator.length == 0) {
                 // change shared to false
@@ -83,52 +90,96 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 const { error: subspacesError } = await supabase
                     .from('lens')
                     .update({ "shared": false })
-                    .eq('root', lensId)
-                if (error) {
+                    .contains("parents", [lensId])
+                if (subspacesError) {
                     console.error("Error", error.message)
                 }
-                handleRefresh();
+            }
+        }
+    }
+    const fetchCollaborators = async () => {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        // fetch current lens sharing information
+        const { data: unacceptedInvites, error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
+        const { data: acceptedInvites, error: acceptedInvitesError } = await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
+        const allInvites = []
+
+        // construct a universal collaborators list
+        for (const unacceptedInvite of unacceptedInvites) {
+            allInvites.push({
+                "access_type": unacceptedInvite.access_type,
+                "sender": user.email,
+                "recipient_id": unacceptedInvite.users.id,
+                "recipient": unacceptedInvite.recipient
+            });
+        }
+
+        for (const acceptedInvite of acceptedInvites) {
+            allInvites.push({
+                "access_type": acceptedInvite.access_type,
+                "sender": user.email,
+                "recipient_id": acceptedInvite.user_id,
+                "recipient": acceptedInvite.users.email
+            });
+        }
+
+
+        setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
+    }
+    const checkPublishedLens = async () => {
+        const { data: lens, error } = await supabase
+            .from('lens')
+            .select()
+            .eq('lens_id', lensId);
+        if (error) {
+            console.log("error", error.message)
+        } else {
+            setPublished(lens[0].public)
+            if (lens[0].public) {
+                const { data: lens, error } = await supabase
+                    .from('lens_published')
+                    .select()
+                    .eq('lens_id', lensId);
+                setPublishInformation(lens[0].updated_at);
             }
         }
     }
 
     useEffect(() => {
-        const fetchCollaborators = async () => {
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            // fetch current lens sharing information
-            const { data, error } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId);
-            setLensCollaborators(data?.filter((item) => item.users.id != user.id));
-        }
-        const checkPublishedLens = async () => {
-            const { data: lens, error } = await supabase
-                .from('lens')
-                .select()
-                .eq('lens_id', lensId);
-            if (error) {
-                console.log("error", error.message)
-            } else {
-                setPublished(lens[0].public)
-                if (lens[0].public) {
-                    const { data: lens, error } = await supabase
-                        .from('lens_published')
-                        .select()
-                        .eq('lens_id', lensId);
-                    setPublishInformation(lens[0].updated_at);
-                }
-            }
-        }
         checkPublishedLens();
         fetchCollaborators();
+
+        const channel = supabase
+            .channel('schema-db-changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_published' }, () => {
+                console.log("A new row was inserted into the lens_published table");
+                checkPublishedLens()
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_published' }, () => {
+                console.log("A row was deleted from the lens_published table");
+                checkPublishedLens()
+            })
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_invites' }, () => {
+                console.log("A new row was inserted into the lens_invites table");
+                fetchCollaborators()
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_invites' }, () => {
+                console.log("A row was deleted from the lens_invites table");
+                fetchCollaborators()
+            })
+            .subscribe();
+
+        return () => {
+            if (channel) channel.unsubscribe();
+        };
     }, [])
 
-    const handleRefresh = () => {
-        window.location.reload();
-    }
-
     const handleShare = async () => {
+        setLoading(true);
         const { data: { user }, error } = await supabase.auth.getUser();
         if (shareEmail == user.email) {
-            alert("You cannot share with yourself!")
+            toast.error("You cannot share with yourself!");
+            setLoading(false);
             return;
         }
         await apiClient('/shareLens', 'POST',
@@ -149,23 +200,24 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 let { error: subspaceError } = await supabase
                     .from('lens')
                     .update({ "shared": true })
-                    .eq('root', lensId);// set lens to shared status
+                    .contains("parents", [lensId])// set lens to shared status
                 if (subspaceError) {
                     console.log(error);
                     throw error;
                 }
-                alert("Shared successfully!");
-                close();
-                handleRefresh();
-
+                fetchCollaborators();
+                toast.success("Shared successfully!");
             })
             .catch(error => {
                 console.error(error);
-                alert("Failed to share the lens!");
-            });
+                toast.error("Failed to share the lens!");
+            }).finally(() => {
+                setLoading(false);
+            })
     };
 
     const handleRepublishClick = async () => {
+        setLoading(true);
         try {
             // Update 'lens' table to set 'public' to true
             const { data: lens, error } = await supabase
@@ -231,23 +283,26 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 return;
             }
 
-            alert("Republished successfully!");
+            toast.success("Republished successfully!");
             props.setOpenModal(undefined);
-            handleRefresh();
         } catch (error) {
             console.error("An unexpected error occurred:", error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleClick = async () => {
         if (published) {
             if (window.confirm("Are you sure you want to unpublish this lens?")) {
+                setLoading(true);
                 const { data: lens, error } = await supabase
                     .from('lens')
                     .update({ 'public': false })
                     .eq('lens_id', lensId);
                 if (error) {
                     console.log("error", error.message)
+                    setLoading(false);
                 } else {
                     // delete lens_published
                     const { error: deleteError } = await supabase
@@ -257,6 +312,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
                     if (deleteError) {
                         console.error('Error deleting row from the source table:', deleteError.message);
+                        setLoading(false);
                         return;
                     }
                     // delete lens_blocks_published
@@ -290,13 +346,13 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                     }
 
                     setPublished(false)
-
                 }
-                alert("Updated privacy successfully!");
-                close();
-                handleRefresh();
+                setLoading(false);
+                toast.success("Updated privacy successfully!");
+                // close();
             }
         } else {
+            setLoading(true);
             const { data: lens, error } = await supabase
                 .from('lens')
                 .update({ 'public': true })
@@ -304,6 +360,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
             // insert to lens_published
             if (error) {
+                setLoading(false);
                 console.log("error", error.message)
             } else {
                 const { error: insertError } = await supabase
@@ -312,6 +369,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
                 if (insertError) {
                     console.error('Error inserting row into the destination table:', insertError.message);
+                    setLoading(false);
                     return;
                 }
 
@@ -326,6 +384,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                     .upsert(mappings); // Insert the first row from the selection
 
                 if (insertMappingError) {
+                    setLoading(false);
                     console.error('Error inserting row into the destination table:', insertMappingError.message);
                     return;
                 }
@@ -338,6 +397,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                     .in('block_id', block_ids)
 
                 if (blocksError) {
+                    setLoading(false);
                     console.error("Error");
                     throw blocksError;
                 }
@@ -347,14 +407,14 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                     .upsert(blocks); // Insert the first row from the selection
 
                 if (insertBlocksError) {
+                    setLoading(false);
                     console.error('Error inserting row into the destination table:', insertBlocksError.message);
                     return;
                 }
 
+                setLoading(false);
                 setPublished(true)
-                alert("Updated privacy successfully!");
-                close();
-                handleRefresh();
+                toast.success("Updated privacy successfully!");
             }
         }
     };
@@ -370,10 +430,11 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     return <Container className="max-w-3xl absolute">
         <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>Share Space</Text>} centered>
             <Modal.Body p={2} pt={0}>
+                <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                 <Group>
                     <Flex w={"100%"} direction={"column"}>
                         <Text size='sm' fw={500}>General Access</Text>
-                        <Button size='xs' w={"100%"} h={26} color={published ? 'red' : 'green'} onClick={handleClick}>
+                        <Button loading={loading} size='xs' w={"100%"} h={26} color={published ? 'red' : 'green'} onClick={handleClick}>
                             {published ? 'Unpublish' : 'Publish for general access'}
                         </Button>
                         {published && (
@@ -413,7 +474,6 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                             placeholder="Enter email to share"
                         />
                         <Select
-                            style={{ zIndex: 100000000000 }}
                             label="Role"
                             size='xs'
                             value={selectedRole}
@@ -451,7 +511,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                                                     c={"red"}
                                                     variant='light'
                                                     size='xs'
-                                                    onClick={() => handleRevocation(item.users.id, lensId, item.recipient, item.sender)}
+                                                    onClick={() => handleRevocation(item.recipient_id, lensId, item.recipient, item.sender)}
                                                 >
                                                     Revoke
                                                 </Button>

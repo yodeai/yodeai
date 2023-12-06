@@ -20,6 +20,8 @@ type contextType = {
   pinnedLensesLoading: boolean;
   pinnedLenses: Lens[];
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
+  accessType: "owner" | "editor" | "reader",
+  setAccessType: React.Dispatch<React.SetStateAction<string>>;
 };
 
 
@@ -38,6 +40,8 @@ const defaultValue: contextType = {
   pinnedLensesLoading: true,
   pinnedLenses: [],
   setPinnedLenses: () => { },
+  accessType: "owner",
+  setAccessType: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -62,6 +66,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
   const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
+  const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
 
   const getAllLenses = async () => {
     return fetch('/api/lens/getAllNames')
@@ -156,7 +161,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       lensName, setLensName,
       reloadKey, reloadLenses, allLenses,
       activeComponent, setActiveComponent,
-      pinnedLensesLoading, pinnedLenses, setPinnedLenses
+      pinnedLensesLoading, pinnedLenses, setPinnedLenses,
+      accessType, setAccessType
     }}>
       {children}
     </context.Provider>

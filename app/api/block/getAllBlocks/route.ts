@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
             .from('block')
             .select(`
             *, 
+            
             lens_blocks!fk_block (
                 lens: lens!fk_lens (lens_id, name)
             )
