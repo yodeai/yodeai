@@ -129,8 +129,6 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                                 </UnstyledButton>
                             </Menu.Target> || ""}
                             {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
-
-                            {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
                             {lens.public && <>
                                 <Tooltip position="bottom" offset={0} label="Public Lens">
                                     <UnstyledButton onClick={shareModalController.open}>
@@ -184,11 +182,11 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             </Menu.Dropdown >
         </Menu>
 
-        { lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
+        { !loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
         ? <Flex justify={"center"} align={"center"}>
             <Flex justify={"center"} align={"center"} gap={"sm"}>
                 <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
-                <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />
+                {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
             </Flex>
         </Flex>
         : <span className="text-xl font-semibold">

@@ -27,7 +27,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     const [published, setPublished] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [opened, { open, close }] = modalController;
 
@@ -97,12 +97,19 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
             }
         }
     }
+
     const fetchCollaborators = async () => {
+        setLoading(true);
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         // fetch current lens sharing information
-        const { data: unacceptedInvites, error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
-        const { data: acceptedInvites, error: acceptedInvitesError } = await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
-        const allInvites = []
+        const { data: unacceptedInvites = [], error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
+        const { data: acceptedInvites = [], error: acceptedInvitesError } = await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
+        const allInvites = [];
+
+        console.log({
+            unacceptedInvites,
+            acceptedInvites
+        })
 
         // construct a universal collaborators list
         for (const unacceptedInvite of unacceptedInvites) {
@@ -125,8 +132,11 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
 
         setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
+        setLoading(false);
     }
+
     const checkPublishedLens = async () => {
+        setLoading(true);
         const { data: lens, error } = await supabase
             .from('lens')
             .select()
@@ -143,6 +153,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 setPublishInformation(lens[0].updated_at);
             }
         }
+        setLoading(false);
     }
 
     useEffect(() => {
