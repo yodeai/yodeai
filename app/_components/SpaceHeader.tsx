@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { FaCheck, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { CiGlobe } from "react-icons/ci";
 import {
@@ -15,6 +15,7 @@ import { FaAngleDown, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
+import { useAppContext } from "@contexts/context";
 
 type SpaceHeaderProps = {
     loading: boolean,
@@ -58,6 +59,9 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
+    const { pinnedLenses } = useAppContext();
+    const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
+
     const openDeleteModal = () => modals.openConfirmModal({
         title: 'Confirm block deletion',
         centered: true,
@@ -79,6 +83,16 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             if (!pinResponse.ok) console.error("Failed to pin lens");
         } catch (error) {
             console.error("Error pinning lens:", error);
+        }
+    }
+
+    const onUnpinLens = async () => {
+        try {
+            const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "DELETE" });
+            if (pinResponse.ok) console.log("Lens unpinned");
+            if (!pinResponse.ok) console.error("Failed to unpin lens");
+        } catch (error) {
+            console.error("Error unpinning lens:", error);
         }
     }
 
@@ -169,32 +183,32 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
 
             <Menu.Dropdown>
                 <Link className="decoration-transparent text-inherit" href="/new" prefetch>
-                    <Menu.Item>
-                        Add Block
-                    </Menu.Item>
+                    <Menu.Item disabled={!["owner", "editor"].includes(accessType)}>Add Block</Menu.Item>
                 </Link>
-                <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
+                <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item disabled>Pin this lens</Menu.Item>
+                <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
+                    {isPinned ? "Unpin" : "Pin"} this lens
+                </Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
             </Menu.Dropdown >
         </Menu>
 
-        { !loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
-        ? <Flex justify={"center"} align={"center"}>
-            <Flex justify={"center"} align={"center"} gap={"sm"}>
-                <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
-                {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
+        {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
+            ? <Flex justify={"center"} align={"center"}>
+                <Flex justify={"center"} align={"center"} gap={"sm"}>
+                    <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
+                    {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
+                </Flex>
             </Flex>
-        </Flex>
-        : <span className="text-xl font-semibold">
-            {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
+            : <span className="text-xl font-semibold">
+                {/* <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
             <FaThLarge className="iconStyle spaceIconStyle" />
             <span className="text-xl font-semibold ">{lensName}</span>
                 </div> */}
-        </span>
-}
+            </span>
+        }
     </>
 }

@@ -99,7 +99,6 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     }
 
     const fetchCollaborators = async () => {
-        setLoading(true);
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         // fetch current lens sharing information
         const { data: unacceptedInvites = [], error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
@@ -132,11 +131,9 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
 
         setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
-        setLoading(false);
     }
 
     const checkPublishedLens = async () => {
-        setLoading(true);
         const { data: lens, error } = await supabase
             .from('lens')
             .select()
@@ -153,37 +150,32 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 setPublishInformation(lens[0].updated_at);
             }
         }
-        setLoading(false);
     }
 
     useEffect(() => {
-        checkPublishedLens();
-        fetchCollaborators();
+        Promise.all([
+            checkPublishedLens(),
+            fetchCollaborators()
+        ]).then(() => {
+            setLoading(false);
+        });
 
+        return () => {
+            setLoading(true);
+        }
+    }, [lensId])
+
+    useEffect(() => {
         const channel = supabase
             .channel('schema-db-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_published' }, () => {
-                console.log("A new row was inserted into the lens_published table");
-                checkPublishedLens()
-            })
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_published' }, () => {
-                console.log("A row was deleted from the lens_published table");
-                checkPublishedLens()
-            })
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_invites' }, () => {
-                console.log("A new row was inserted into the lens_invites table");
-                fetchCollaborators()
-            })
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_invites' }, () => {
-                console.log("A row was deleted from the lens_invites table");
-                fetchCollaborators()
-            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published' }, checkPublishedLens)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_invites' }, fetchCollaborators)
             .subscribe();
 
         return () => {
             if (channel) channel.unsubscribe();
         };
-    }, [])
+    }, [lensId])
 
     const handleShare = async () => {
         setLoading(true);

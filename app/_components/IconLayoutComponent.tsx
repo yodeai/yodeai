@@ -271,7 +271,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     title: "Delete",
     disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => openDeleteModal()
-  }], []);
+  }], [accessType]);
 
   const onContextMenu = showContextMenu(actions);
 
@@ -372,7 +372,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
     title: isPinned ? "Unpin" : "Pin",
     onClick: isPinned ? onUnpinLens : onPinLens
-  }], [isPinned]);
+  }], [isPinned, accessType]);
 
   const onContextMenu = showContextMenu(actions);
 
