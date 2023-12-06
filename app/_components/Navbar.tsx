@@ -90,7 +90,7 @@ export default function Navbar() {
   }
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
-    event.preventDefault();
+    event.stopPropagation();
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "DELETE" });
       if (pinResponse.ok) console.log("Lens unpinned");
