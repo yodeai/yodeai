@@ -189,7 +189,7 @@ export default function Navbar() {
       labelPosition="center"
     />
 
-    <Flex direction="column" ref={layoutRefs.sidebar} h="100%" className={`${draggingNewBlock && "bg-gray-100"}`}>
+    <Flex direction="column" ref={layoutRefs.sidebar} className={`${draggingNewBlock && "bg-gray-100"} flex-1 flex`}>
       <ScrollArea.Autosize className="h-full" scrollbarSize={0} type='auto'>
         {draggingNewBlock && <Box m={5} className="bg-gray-200 rounded-md" h={30}>
           <Text p={5} size="sm" c="gray.6" className="text-center">Pin here</Text>

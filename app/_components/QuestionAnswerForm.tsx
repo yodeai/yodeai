@@ -23,8 +23,6 @@ const QuestionAnswerForm: React.FC = () => {
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
-
-
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
     //       try {
@@ -173,9 +171,8 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <Flex
             w="100%"
-            h="100%"
             direction={"column"}
-            className="bg-white border-l border-l-[#eeeeee]"
+            className="bg-white border-l border-l-[#eeeeee] top-0 sticky h-[calc(100vh-60px)]"
             justify={"space-between"}>
             <Box>
                 <Divider

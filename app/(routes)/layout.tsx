@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <LensProvider>
       <div style={{ flex: 1 }} className="flex flex-col sm:flex-row">
         {/* Left Side bar */}
-        <Flex component="nav" className="flex flex-col h-full bg-white border-r border-r-[#eeeeee]" display={{ base: 'none', sm: 'block' }} >
+        <Flex component="nav" className="relative flex flex-col h-full bg-white border-r border-r-[#eeeeee]" display={{ base: 'none', sm: 'block' }} >
           <Navbar />
         </Flex>
 
@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* QuestionAnswerForm with a left border */}
           <Box h='100%' display={{ base: 'none', sm: 'block' }} w={{
             base: '0px',
-            sm: '25vw'
+            sm: '20vw'
           }}>
             <QuestionAnswerForm />
           </Box>
