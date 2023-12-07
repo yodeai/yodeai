@@ -17,7 +17,7 @@ import { Box, Flex } from "@mantine/core";
 
 import InfoPopover from "@components/InfoPopover";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
-import useDebouncedCallback from "@utils/hooks";
+import { useDebouncedCallback } from "@utils/hooks";
 
 function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
   let layout = null;
@@ -82,11 +82,11 @@ export default function Lens({ params }) {
   }
   async function isChildOf(childId, parentId, user) {
     try {
-      const { data: subspace_only, error:subspaceOnlyError } = await supabase
-      .from('lens_users')
-      .select('subspace_only')
-      .eq('lens_id', childId).eq('user_id', user.id)
-  
+      const { data: subspace_only, error: subspaceOnlyError } = await supabase
+        .from('lens_users')
+        .select('subspace_only')
+        .eq('lens_id', childId).eq('user_id', user.id)
+
       if (subspace_only) {
         return true;
       }
@@ -151,7 +151,7 @@ export default function Lens({ params }) {
           console.error('Error fetching lens data:', error);
         })
     })();
-  }, [params.lens_id, searchParams]);
+  }, [params.lens_ids, searchParams]);
 
   const getLensData = async (lensId: string) => {
     return fetch(`/api/lens/${lensId}`)
@@ -237,65 +237,74 @@ export default function Lens({ params }) {
       ...prevLayout,
       [layoutName]: layoutData
     }))
-  }
+  };
+
+
+  // memoized realtime callback functions in order to prevent channel subscription from being called multiple times
+  const updateBlocks = useCallback((payload) => {
+    let block_id = payload["new"]["block_id"]
+    setBlocks(prevBlocks =>
+      prevBlocks.map(item => {
+        if (item.block_id === block_id) {
+          return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
+        }
+        return item;
+      })
+    );
+  }, []);
+
+  const addBlocks = useCallback((payload) => {
+    let block_id = payload["new"]["block_id"]
+    console.log("Added a block", block_id)
+    let newBlock = payload["new"]
+    if (!blocks.some(item => item.block_id === block_id)) {
+      setBlocks(prevBlocks => [newBlock, ...prevBlocks]);
+    }
+  }, [blocks])
+
+  const deleteBlocks = useCallback((payload) => {
+    let block_id = payload["old"]["block_id"]
+    console.log("Deleting block", block_id);
+    setBlocks((prevBlocks) => prevBlocks.filter((block) => block.block_id !== block_id))
+  }, [blocks]);
+
+  const addSubspaces = useCallback((payload) => {
+    let lens_id = payload["new"]["lens_id"]
+    console.log("Added a subspace", lens_id)
+    let newSubspace = payload["new"]
+    if (!subspaces.some(item => item.lens_id === lens_id)) {
+      setSubspaces(prevSubspaces => [newSubspace, ...prevSubspaces]);
+    }
+  }, [subspaces]);
+
+  const deleteSubspace = useCallback((payload) => {
+    let lens_id = payload["old"]["lens_id"]
+    console.log("Deleting lens", payload);
+    setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
+  }, []);
 
   useEffect(() => {
-    const updateBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      setBlocks(prevBlocks =>
-        prevBlocks.map(item => {
-          if (item.block_id === block_id) {
-            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
-          }
-          return item;
-        })
-      );
-    };
+    const currentLensId = lens_ids[lens_ids.length - 1];
 
-    const addBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Added a block", block_id)
-      let newBlock = payload["new"]
-      if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([newBlock, ...blocks]);
-      }
-    }
-
-    const deleteBlocks = (payload) => {
-      let block_id = payload["old"]["block_id"]
-      console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id !== block_id))
-    }
-
-    const addSubspaces = (payload) => {
-      let lens_id = payload["new"]["lens_id"]
-      console.log("Added a subspace", lens_id)
-      let newSubspace = payload["new"]
-      if (!subspaces.some(item => item.lens_id === lens_id)) {
-        setSubspaces([newSubspace, ...subspaces]);
-      }
-    }
-
-    const deleteSubspace = (payload) => {
-      let lens_id = payload["old"]["lens_id"]
-      console.log("Deleting lens", lens_id);
-      setSubspaces((subspaces) => subspaces.filter((subspace) => subspace.lens_id !== lens_id))
-    }
-
+    console.log("Subscribing to lens changes...", { currentLensId })
     const channel = supabase
       .channel('schema-db-changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, addSubspaces)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens?.lens_id}` }, deleteSubspace)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lens?.lens_id}` }, () => getLensData(lens_ids[lens_ids.length - 1]))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens', filter: `parent_id=eq.${currentLensId}` }, addSubspaces)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${currentLensId}` }, deleteSubspace)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${currentLensId}` }, () => getLensData(currentLensId))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${currentLensId}` }, () => getLensData(currentLensId))
       .subscribe();
 
     return () => {
-      if (channel) channel.unsubscribe();
+      if (channel) {
+        channel.unsubscribe();
+        console.log("Unsubscribed from lens changes.")
+      }
     };
-  }, [blocks, subspaces, lens]);
+  }, [lens_ids]);
 
   const updateLensName = async (lens_id: number, newName: string) => {
     const updatePromise = fetch(`/api/lens/${lens_id}`, {
@@ -394,15 +403,16 @@ export default function Lens({ params }) {
     });
   }
 
-  if (!lens || loading) {
-    return (
-      <div className="flex flex-col p-2 pt-0 flex-grow">
-        <LoadingSkeleton />
-      </div>
-    );
-  }
+  // TODO: remove this loading condition and pass it to Space
+  // if (!lens || loading) {
+  //   return (
+  //     <div className="flex flex-col p-2 pt-0 flex-grow">
+  //       <LoadingSkeleton boxCount={10} lineHeight={80} />
+  //     </div>
+  //   );
+  // }
 
-  if (!lens) {
+  if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
         <p>Error fetching lens data.</p>
@@ -410,32 +420,35 @@ export default function Lens({ params }) {
     );
   }
   if (shouldRender) {
-  return (
-    <Flex direction={"column"} pt={0} className="h-full">
-      <SpaceHeader
-        lens={lens}
-        lens_ids={lens_ids}
-        lensName={lensName}
-        editingLensName={editingLensName}
-        isEditingLensName={isEditingLensName}
-        setIsEditingLensName={setIsEditingLensName}
-        handleNameChange={handleNameChange}
-        handleKeyPress={handleKeyPress}
-        saveNewLensName={saveNewLensName}
-        handleDeleteLens={handleDeleteLens}
-        accessType={accessType}
-        selectedLayoutType={selectedLayoutType}
-        handleChangeLayoutView={handleChangeLayoutView}
-      />
-      <Box className="flex items-stretch flex-col h-full">
-        <LayoutController
-          subspaces={subspaces}
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          onChangeLayout={onChangeLensLayout}
-          layout={layoutData} lens_id={params.lens_id}
-          blocks={blocks} layoutView={selectedLayoutType} />
-      </Box>
-    </Flex >
-  );
-}}
+    return (
+      <Flex direction={"column"} pt={0} className="h-full">
+        <SpaceHeader
+          loading={loading}
+          lens={lens}
+          lens_ids={lens_ids}
+          lensName={lensName}
+          editingLensName={editingLensName}
+          isEditingLensName={isEditingLensName}
+          setIsEditingLensName={setIsEditingLensName}
+          handleNameChange={handleNameChange}
+          handleKeyPress={handleKeyPress}
+          saveNewLensName={saveNewLensName}
+          handleDeleteLens={handleDeleteLens}
+          accessType={accessType}
+          selectedLayoutType={selectedLayoutType}
+          handleChangeLayoutView={handleChangeLayoutView}
+        />
+        <Box className="flex items-stretch flex-col h-full">
+          {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={10} />}
+          <LayoutController
+            subspaces={subspaces}
+            handleBlockChangeName={handleBlockChangeName}
+            handleBlockDelete={handleBlockDelete}
+            onChangeLayout={onChangeLensLayout}
+            layout={layoutData} lens_id={params.lens_id}
+            blocks={blocks} layoutView={selectedLayoutType} />
+        </Box>
+      </Flex >
+    );
+  }
+}

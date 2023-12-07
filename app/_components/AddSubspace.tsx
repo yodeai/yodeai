@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import Container from "@components/Container";
-import { Button, Flex, Group, Modal, Text, TextInput } from '@mantine/core';
+import { Button, Flex, Group, Modal, Text, TextInput, LoadingOverlay } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import toast from 'react-hot-toast';
@@ -70,6 +70,7 @@ export default function AddSubspace({ lensId, modalController }: AddSubspaceProp
   return <Container className="max-w-3xl absolute">
     <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Subspace</Text>} centered>
       <Modal.Body p={2} pt={0}>
+        <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
         <Group>
           <Flex w={'100%'} direction={"column"}>
             <TextInput
@@ -83,10 +84,10 @@ export default function AddSubspace({ lensId, modalController }: AddSubspaceProp
           </Flex>
         </Group>
         <Flex mt={20}>
-          <Button loading={loading} h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleCreateLens}>
+          <Button h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleCreateLens}>
             Create
           </Button>
-          <Button loading={loading} h={26} style={{ flex: 1, marginLeft: 5 }} size='xs' color="gray" onClick={() => {
+          <Button h={26} style={{ flex: 1, marginLeft: 5 }} size='xs' color="gray" onClick={() => {
             setLensName("");
             close();
           }}>

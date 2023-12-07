@@ -17,16 +17,19 @@ import { NavLink, Text } from "@mantine/core";
 interface LensProps {
   compact?: boolean;
   lens: Lens;
+  rightSection?: React.ReactNode;
 }
-export default function LensComponent({ lens, compact }: LensProps) {
+export default function LensComponent({ lens, compact, rightSection }: LensProps) {
   const router = useRouter();
   const { lensId, setLensId } = useAppContext(); // the selected lens retrieved from the context
   const [user, setUser] = useState(null);
   const supabase = createClientComponentClient();
+
   const handleLensClick = (e: React.MouseEvent) => {
     setLensId(lens.lens_id.toString());
     router.push(`/lens/${lens.lens_id}`);
   };
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -48,11 +51,12 @@ export default function LensComponent({ lens, compact }: LensProps) {
             </Text>
           )}
           <Text c={'green'} size="xs">
-          {lens.public ? 'Published' : 'Not Published'}
+            {lens.public ? 'Published' : 'Not Published'}
           </Text>
         </>
       }
-      leftSection={<FaCube size={14} />}
+      leftSection={<FaFolder size={18} />}
+      rightSection={rightSection}
       active
       color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}
       variant={Number(lensId) !== lens.lens_id ? 'subtle' : 'light'}

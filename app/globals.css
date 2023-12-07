@@ -57,40 +57,6 @@
   width: 256px;
 }
 
-.skeleton-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  border-radius: 4px;
-  animation: shimmer 1.5s infinite;
-  margin-bottom: 8px;
-}
-
-.skeleton.title {
-  width: 20%;
-  height: 40px;
-}
-
-.skeleton.line {
-  width: 100%;
-  height: 110px;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
 .cross {
   width: 16px;
   height: 16px;

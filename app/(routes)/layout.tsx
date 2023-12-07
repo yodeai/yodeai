@@ -7,7 +7,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({ children }: { children: React.ReactNode; }) {
-  // redirect if not logged in
   const supabase = createServerComponentClient({ cookies })
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {

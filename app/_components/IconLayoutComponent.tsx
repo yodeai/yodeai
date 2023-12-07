@@ -2,10 +2,11 @@ import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "rea
 import { Block } from "app/_types/block";
 import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
+import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, TextProps, Textarea, Popover, Button } from '@mantine/core';
+import { Text, Flex, Box, Textarea } from '@mantine/core';
+import { Layout } from "react-grid-layout";
 
-import { truncateText } from "@utils/index";
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
@@ -15,7 +16,8 @@ import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
-import Link from 'next/link';
+import { set } from "date-fns";
+import { useDebouncedCallback } from "@utils/hooks";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -40,7 +42,10 @@ export default function IconLayoutComponent({
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
-  const { lensName, lensId } = useAppContext();
+  const { lensName, lensId, layoutRefs, setDraggingNewBlock } = useAppContext();
+
+  const { pinnedLenses } = useAppContext();
+  const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
@@ -139,6 +144,40 @@ export default function IconLayoutComponent({
     </div>
   }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems])
 
+  const onPinLens = async (lens_id: string) => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "PUT" });
+      if (pinResponse.ok) console.log("Lens pinned");
+      if (!pinResponse.ok) console.error("Failed to pin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
+  const onDrag = useDebouncedCallback((layout: Layout[], oldItem: Layout, newItem: Layout, placeholder: Layout, event: MouseEvent, element: HTMLElement) => {
+    const target = event.target as HTMLElement;
+    if (!newItem.i.startsWith("ss")) return;
+
+    const [_, lens_id] = newItem.i.split("_");
+    if (pinnedLensIds.includes(Number(lens_id))) return;
+
+    if (layoutRefs.sidebar.current?.contains(target)) {
+      setDraggingNewBlock(true);
+    } else {
+      setDraggingNewBlock(false);
+    }
+  }, 10, [pinnedLensIds]);
+
+  const onDragStop = (layout: Layout[], oldItem: any, newItem: any, placeholder: any, event: MouseEvent, element: HTMLElement) => {
+    const target = event.target as HTMLElement;
+    if (layoutRefs.sidebar.current?.contains(target)) {
+      if (!newItem.i.startsWith("ss")) return;
+      const [_, lens_id] = newItem.i.split("_");
+      onPinLens(String(lens_id))
+      setDraggingNewBlock(false);
+    }
+  }
+
   return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
     <ResponsiveReactGridLayout
       layouts={layouts}
@@ -150,6 +189,8 @@ export default function IconLayoutComponent({
       isResizable={false}
       onWidthChange={onWidthChange}
       onDragStart={calculateDoubleClick}
+      onDrag={onDrag}
+      onDragStop={onDragStop}
       verticalCompact={false}>
       {layoutItems}
     </ResponsiveReactGridLayout>
@@ -253,7 +294,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     onClick: () => {
       router.push(`/block/${block.block_id}`)
     }
-  },{
+  }, {
     key: 'rename',
     color: "#228be6",
     icon: <FaICursor size={16} />,
@@ -270,7 +311,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     title: "Delete",
     disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => openDeleteModal()
-  }], []);
+  }], [accessType]);
 
   const onContextMenu = showContextMenu(actions);
 
@@ -303,7 +344,8 @@ type SubspaceIconItemProps = {
 const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
-  const { accessType } = useAppContext();
+  const { pinnedLenses, accessType } = useAppContext();
+  const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm block deletion',
@@ -329,6 +371,26 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     }
   }
 
+  const onPinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "PUT" });
+      if (pinResponse.ok) console.log("Lens pinned");
+      if (!pinResponse.ok) console.error("Failed to pin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
+  const onUnpinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "DELETE" });
+      if (pinResponse.ok) console.log("Lens unpinned");
+      if (!pinResponse.ok) console.error("Failed to unpin lens");
+    } catch (error) {
+      console.error("Error pinning lens:", error);
+    }
+  }
+
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
     color: "#228be6",
@@ -344,7 +406,13 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     title: "Delete",
     onClick: openDeleteModal,
     disabled: ["owner", "editor"].includes(accessType) === false
-  }], []);
+  }, {
+    key: 'pin',
+    color: "#228be6",
+    icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
+    title: isPinned ? "Unpin" : "Pin",
+    onClick: isPinned ? onUnpinLens : onPinLens
+  }], [isPinned, accessType]);
 
   const onContextMenu = showContextMenu(actions);
 

@@ -27,7 +27,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     const [published, setPublished] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [opened, { open, close }] = modalController;
 
@@ -73,7 +73,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 .delete()
                 .eq('lens_id', lensId).eq("recipient", recipient).eq("sender", sender);
             const newLensCollaborator = lensCollaborators.filter((item) => { item.recipient_id !== user_id && item.lens_id !== lensId })
-            
+
             fetchCollaborators();
 
             if (newLensCollaborator.length == 0) {
@@ -97,82 +97,85 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
             }
         }
     }
-        const fetchCollaborators = async () => {
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            // fetch current lens sharing information
-            const { data:unacceptedInvites, error:unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
-            const { data: acceptedInvites, error: acceptedInvitesError } =  await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
-            const allInvites = []
 
-            // construct a universal collaborators list
-            for (const unacceptedInvite of unacceptedInvites) {
-                allInvites.push({
-                    "access_type": unacceptedInvite.access_type,
-                    "sender": user.email,
-                    "recipient_id":unacceptedInvite.users.id,
-                    "recipient": unacceptedInvite.recipient
-                });
-            }
-            
-            for (const acceptedInvite of acceptedInvites) {
-                allInvites.push({
-                    "access_type": acceptedInvite.access_type,
-                    "sender": user.email,
-                    "recipient_id": acceptedInvite.user_id,
-                    "recipient": acceptedInvite.users.email
-                });
-            }
-            
+    const fetchCollaborators = async () => {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        // fetch current lens sharing information
+        const { data: unacceptedInvites = [], error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
+        const { data: acceptedInvites = [], error: acceptedInvitesError } = await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
+        const allInvites = [];
 
-            setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
+        console.log({
+            unacceptedInvites,
+            acceptedInvites
+        })
+
+        // construct a universal collaborators list
+        for (const unacceptedInvite of unacceptedInvites) {
+            allInvites.push({
+                "access_type": unacceptedInvite.access_type,
+                "sender": user.email,
+                "recipient_id": unacceptedInvite.users.id,
+                "recipient": unacceptedInvite.recipient
+            });
         }
-        const checkPublishedLens = async () => {
-            const { data: lens, error } = await supabase
-                .from('lens')
-                .select()
-                .eq('lens_id', lensId);
-            if (error) {
-                console.log("error", error.message)
-            } else {
-                setPublished(lens[0].public)
-                if (lens[0].public) {
-                    const { data: lens, error } = await supabase
-                        .from('lens_published')
-                        .select()
-                        .eq('lens_id', lensId);
-                    setPublishInformation(lens[0].updated_at);
-                }
+
+        for (const acceptedInvite of acceptedInvites) {
+            allInvites.push({
+                "access_type": acceptedInvite.access_type,
+                "sender": user.email,
+                "recipient_id": acceptedInvite.user_id,
+                "recipient": acceptedInvite.users.email
+            });
+        }
+
+
+        setLensCollaborators(allInvites.filter((item) => item.recipient_id != user.id));
+    }
+
+    const checkPublishedLens = async () => {
+        const { data: lens, error } = await supabase
+            .from('lens')
+            .select()
+            .eq('lens_id', lensId);
+        if (error) {
+            console.log("error", error.message)
+        } else {
+            setPublished(lens[0].public)
+            if (lens[0].public) {
+                const { data: lens, error } = await supabase
+                    .from('lens_published')
+                    .select()
+                    .eq('lens_id', lensId);
+                setPublishInformation(lens[0].updated_at);
             }
         }
+    }
 
     useEffect(() => {
-        checkPublishedLens();
-        fetchCollaborators();
+        Promise.all([
+            checkPublishedLens(),
+            fetchCollaborators()
+        ]).then(() => {
+            setLoading(false);
+        });
 
+        return () => {
+            setLoading(true);
+        }
+    }, [lensId])
+
+    useEffect(() => {
         const channel = supabase
             .channel('schema-db-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_published' }, () => {
-                console.log("A new row was inserted into the lens_published table");
-                checkPublishedLens()
-            })
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_published' }, () => {
-                console.log("A row was deleted from the lens_published table");
-                checkPublishedLens()
-            })
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_invites' }, () => {
-                console.log("A new row was inserted into the lens_invites table");
-                fetchCollaborators()
-            })
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens_invites' }, () => {
-                console.log("A row was deleted from the lens_invites table");
-                fetchCollaborators()
-            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published' }, checkPublishedLens)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_invites' }, fetchCollaborators)
             .subscribe();
 
         return () => {
             if (channel) channel.unsubscribe();
         };
-    }, [])
+    }, [lensId])
 
     const handleShare = async () => {
         setLoading(true);
@@ -198,9 +201,9 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
                 }
                 // share all subspaces
                 let { error: subspaceError } = await supabase
-                .from('lens')
-                .update({ "shared": true })
-                .contains("parents", [lensId])// set lens to shared status
+                    .from('lens')
+                    .update({ "shared": true })
+                    .contains("parents", [lensId])// set lens to shared status
                 if (subspaceError) {
                     console.log(error);
                     throw error;

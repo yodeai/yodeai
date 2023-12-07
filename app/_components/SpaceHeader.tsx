@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { FaCheck, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
 import { CiGlobe } from "react-icons/ci";
 import {
@@ -14,8 +14,11 @@ import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
+import LoadingSkeleton from "./LoadingSkeleton";
+import { useAppContext } from "@contexts/context";
 
 type SpaceHeaderProps = {
+    loading: boolean,
     lens: Lens,
     lensName: string,
     accessType: string,
@@ -32,6 +35,7 @@ type SpaceHeaderProps = {
 }
 export default function SpaceHeader(props: SpaceHeaderProps) {
     const {
+        loading,
         lens,
         lensName,
         accessType,
@@ -55,6 +59,9 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
+    const { pinnedLenses } = useAppContext();
+    const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
+
     const openDeleteModal = () => modals.openConfirmModal({
         title: 'Confirm block deletion',
         centered: true,
@@ -69,6 +76,26 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         onConfirm: handleDeleteLens
     });
 
+    const onPinLens = async () => {
+        try {
+            const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
+            if (pinResponse.ok) console.log("Lens pinned");
+            if (!pinResponse.ok) console.error("Failed to pin lens");
+        } catch (error) {
+            console.error("Error pinning lens:", error);
+        }
+    }
+
+    const onUnpinLens = async () => {
+        try {
+            const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "DELETE" });
+            if (pinResponse.ok) console.log("Lens unpinned");
+            if (!pinResponse.ok) console.error("Failed to unpin lens");
+        } catch (error) {
+            console.error("Error unpinning lens:", error);
+        }
+    }
+
     useEffect(() => {
         if (isEditingLensName) {
             titleInputRef.current?.focus();
@@ -80,8 +107,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         <Menu shadow="md" position="bottom-start" width={150}>
             <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
                 <Box>
-                    {isEditingLensName
-                        ? <>
+                    {
+                        !loading && isEditingLensName && <>
                             <Input
                                 ref={titleInputRef}
                                 unstyled
@@ -104,10 +131,13 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                             >
                                 <FaCheck size={14} />
                             </ActionIcon>
-                        </>
-                        : <div className="flex items-center align-middle">
+                        </> || ""
+                    }
+                    {
+                        !loading && !isEditingLensName && <div className="flex items-center align-middle">
                             <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
-                            {accessType !== "reader" && <Menu.Target>
+
+                            {!loading && <Menu.Target>
                                 <UnstyledButton>
                                     <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
                                 </UnstyledButton>
@@ -127,46 +157,50 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                                     </UnstyledButton>
                                 </Tooltip>
                             </> || ""}
-                        </div>
+                        </div> || ""
                     }
-                </Box>
+                    {loading && <LoadingSkeleton w={"150px"} boxCount={1} m={3} lineHeight={30} /> || ""}
+                </Box >
                 <Box>
-                    <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
-                        ? "Switch to icon view."
-                        : "Switch to list view."
-                    }>
-                        <Button
-                            size="md"
-                            c="gray.6"
-                            variant="subtle"
-                            onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                        >
-                            {selectedLayoutType === "icon" ? <FaFolder size={20} /> : <FaList size={20} />}
-                        </Button>
-                    </Tooltip>
+                    {!loading && <>
+                        <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
+                            ? "Switch to icon view."
+                            : "Switch to list view."
+                        }>
+                            <Button
+                                size="md"
+                                c="gray.6"
+                                variant="subtle"
+                                onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
+                            >
+                                {selectedLayoutType === "icon" ? <FaFolder size={20} /> : <FaList size={20} />}
+                            </Button>
+                        </Tooltip>
+                    </> || ""}
+                    {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
                 </Box>
-            </Flex>
+            </Flex >
 
             <Menu.Dropdown>
                 <Link className="decoration-transparent text-inherit" href="/new" prefetch>
-                    <Menu.Item>
-                        Add Block
-                    </Menu.Item>
+                    <Menu.Item disabled={!["owner", "editor"].includes(accessType)}>Add Block</Menu.Item>
                 </Link>
-                <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
+                <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item disabled>Pin this lens</Menu.Item>
+                <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
+                    {isPinned ? "Unpin" : "Pin"} this lens
+                </Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
-            </Menu.Dropdown>
+            </Menu.Dropdown >
         </Menu>
 
-        {!lens.shared || accessType == 'owner' || accessType == 'editor'
+        {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
                     <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
-                    <ShareLensComponent modalController={shareModalDisclosure} lensId={lens.lens_id} />
+                    {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">
@@ -174,6 +208,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             <FaThLarge className="iconStyle spaceIconStyle" />
             <span className="text-xl font-semibold ">{lensName}</span>
                 </div> */}
-            </span>}
+            </span>
+        }
     </>
 }
