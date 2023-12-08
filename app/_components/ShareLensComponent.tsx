@@ -213,7 +213,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
             })
             .catch(error => {
                 console.error(error);
-                toast.error("Failed to share the lens!");
+                toast.error("Failed to share the space!");
             }).finally(() => {
                 setLoading(false);
             })
@@ -297,7 +297,7 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
 
     const handleClick = async () => {
         if (published) {
-            if (window.confirm("Are you sure you want to unpublish this lens?")) {
+            if (window.confirm("Are you sure you want to unpublish this space?")) {
                 setLoading(true);
                 const { data: lens, error } = await supabase
                     .from('lens')

@@ -61,7 +61,7 @@ export default function IconLayoutComponent({
 
   const breadcrumbs = useMemo(() => {
     let elements = [
-      { title: 'Lens' },
+      { title: 'Space' },
       { title: lensName, href: `/lens/${lensId}` }
     ];
 

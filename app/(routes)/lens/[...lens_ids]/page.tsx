@@ -323,13 +323,13 @@ export default function Lens({ params }) {
     if (lens) {
       try {
         if (editingLensName === "") {
-          throw new Error("Lens title cannot be empty");
+          throw new Error("Space title cannot be empty");
         }
         const updatePromise = updateLensName(lens.lens_id, editingLensName);
         await load(updatePromise, {
-          loading: "Updating lens name...",
-          success: "Lens name updated!",
-          error: "Failed to update lens name.",
+          loading: "Updating space name...",
+          success: "Space name updated!",
+          error: "Failed to update space name.",
         });
         setLens({ ...lens, name: editingLensName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
@@ -338,7 +338,7 @@ export default function Lens({ params }) {
         return true;
       } catch (error) {
         console.log("error", error.message)
-        toast.error('Failed to update lens name: ' + error.message);
+        toast.error('Failed to update space name: ' + error.message);
         return false;
       }
     }
@@ -415,7 +415,7 @@ export default function Lens({ params }) {
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
-        <p>Error fetching lens data.</p>
+        <p>Error fetching space data.</p>
       </div>
     );
   }
