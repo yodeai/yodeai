@@ -155,8 +155,9 @@ export default function IconLayoutComponent({
   }
 
   const checkOverlap = (target: HTMLElement, target2: HTMLElement) => {
-    const rect1 = target.getBoundingClientRect();
-    const rect2 = target2.getBoundingClientRect();
+    const rect1 = target?.getBoundingClientRect();
+    const rect2 = target2?.getBoundingClientRect();
+    if(!rect1 || !rect2) return false;
     return (rect1.left < rect2.right &&
       rect1.right > rect2.left &&
       rect1.top < rect2.bottom &&
@@ -211,6 +212,7 @@ export default function IconLayoutComponent({
       onDragStart={calculateDoubleClick}
       onDrag={onDrag}
       onDragStop={onDragStop}
+      preventCollision={true}
       verticalCompact={false}>
       {layoutItems}
     </ResponsiveReactGridLayout>
