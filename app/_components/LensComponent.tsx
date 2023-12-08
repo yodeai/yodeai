@@ -55,7 +55,7 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
           </Text>
         </>
       }
-      leftSection={<FaFolder size={18} />}
+      leftSection={<FaCube size={18} />}
       rightSection={rightSection}
       active
       color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}

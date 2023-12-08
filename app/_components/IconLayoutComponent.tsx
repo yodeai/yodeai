@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
@@ -50,7 +50,7 @@ export default function IconLayoutComponent({
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
-    subspace: <FaFolder size={32} color="#fd7e14" />,
+    subspace: <FaCube size={32} color="#fd7e14" />,
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
