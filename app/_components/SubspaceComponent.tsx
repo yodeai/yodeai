@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Anchor, Text, Button, Flex, Skeleton } from '@mantine/core';
 import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
+import LoadingSkeleton from './LoadingSkeleton';
 
 export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -63,12 +64,10 @@ export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
                 ))}
               </div>
               :
-              <Flex ml={Math.min(25 * (hierarchy + 1), 300)}  direction={"column"}>
+              <Flex ml={Math.min(25 * (hierarchy + 1), 300)} direction={"column"}>
                 {fetching ?
                   <>
-                    <Skeleton height={8} radius="xl" />
-                    <Skeleton height={8} mt={6} radius="xl" />
-                    <Skeleton height={8} mt={6} radius="xl" />
+                    <LoadingSkeleton boxCount={3} lineHeight={15} />
                   </>
                   :
                   <Text size="sm" fw={400} c="gray.6">{"No blocks found within this subspace"}</Text>

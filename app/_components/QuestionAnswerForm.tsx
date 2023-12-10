@@ -23,8 +23,6 @@ const QuestionAnswerForm: React.FC = () => {
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
-
-
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
     //       try {
@@ -171,69 +169,72 @@ const QuestionAnswerForm: React.FC = () => {
     }, [questionHistory]);
 
     return (
-        <Flex w={'25vw'} direction={"column"} style={{ position: 'fixed', bottom: 0, backgroundColor: '#fff' }}>
-            <Divider
-                style={{ position: 'fixed', top: 50, paddingTop: 10, width: '25vw' }}
-                mb={0}
-                mt={3}
-                pl={8}
-                pr={8}
-                label={
-                    <>
-                        <Flex maw={'25vw'} style={{ whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {lensId && lensName ?
-                                'Context: ' + lensName
-                                :
-                                ((activeComponent === "global") ?
-                                    "Ask a question from your blocks"
+        <Flex
+            w="100%"
+            direction={"column"}
+            className="bg-white border-l border-l-[#eeeeee] top-0 sticky h-[calc(100vh-60px)]"
+            justify={"space-between"}>
+            <Box>
+                <Divider
+                    p={15}
+                    label={
+                        <>
+                            <Flex style={{ whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {lensId && lensName ?
+                                    'Context: ' + lensName
                                     :
-                                    "Ask a question from Inbox")
-                            }
-                        </Flex>
-                        <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
-                    </>
-                }
-                labelPosition="center"
-            />
+                                    ((activeComponent === "global") ?
+                                        "Ask a question from your blocks"
+                                        :
+                                        "Ask a question from Inbox")
+                                }
+                            </Flex>
+                            <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
+                        </>
+                    }
+                    labelPosition="center"
+                />
 
-            <ScrollArea.Autosize p={10} pt={0} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
-                {
-                    (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
-                        <QuestionComponent
-                            lensID={lensId}
-                            id={null}
-                            key={index}
-                            question={question}
-                            answer={answer}
-                            sources={sources}
-                            published={false}
-                        />
-                    ))
-
-                }
-            </ScrollArea.Autosize>
-
-            <Divider color={"#eee"} />
-
-            <Flex p={10} pt={0} direction={"column"}>
-                <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
-                    {(
-                        <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                            <Textarea
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Enter your question"
+                <ScrollArea.Autosize p={10} pt={0} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
+                    {
+                        (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
+                            <QuestionComponent
+                                lensID={lensId}
+                                id={null}
+                                key={index}
+                                question={question}
+                                answer={answer}
+                                sources={sources}
+                                published={false}
                             />
-                            <Group justify="flex-end" mt="xs">
-                                <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isLoading}>
-                                    <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />
-                                    {isLoading ? 'Loading...' : 'Ask'}
-                                </Button>
-                            </Group>
-                        </form>
-                    )}
+                        ))
+
+                    }
+                </ScrollArea.Autosize>
+
+                <Divider color={"#eee"} />
+            </Box>
+            <Box>
+                <Flex p={10} pt={0} direction={"column"}>
+                    <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
+                        {(
+                            <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
+                                <Textarea
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    placeholder="Enter your question"
+                                />
+                                <Group justify="flex-end" mt="xs">
+                                    <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isLoading}>
+                                        <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />
+                                        {isLoading ? 'Loading...' : 'Ask'}
+                                    </Button>
+                                </Group>
+                            </form>
+                        )}
+                    </Flex>
                 </Flex>
-            </Flex>
+            </Box>
             {/* 
                 <form onSubmit={form.onSubmit((values) => console.log(values))}>
                     <TextInput

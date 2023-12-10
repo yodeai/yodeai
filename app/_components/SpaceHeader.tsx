@@ -106,7 +106,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     return <>
         <Menu shadow="md" position="bottom-start" width={150}>
             <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
-                <Box>
+                <Box className="flex items-center">
                     {
                         !loading && isEditingLensName && <>
                             <Input
@@ -134,7 +134,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         </> || ""
                     }
                     {
-                        !loading && !isEditingLensName && <div className="flex items-center align-middle">
+                        !loading && !isEditingLensName && <div className="flex justify-center align-middle">
                             <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
 
                             {!loading && <Menu.Target>
@@ -144,14 +144,14 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                             </Menu.Target> || ""}
                             {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
                             {lens.public && <>
-                                <Tooltip position="bottom" offset={0} label="Public Lens">
+                                <Tooltip position="bottom" offset={0} label="Public Space">
                                     <UnstyledButton onClick={shareModalController.open}>
                                         <CiGlobe size={18} className="mt-2 ml-[5px]" />
                                     </UnstyledButton>
                                 </Tooltip>
                             </> || ""}
                             {!lens.public && lens.shared && <>
-                                <Tooltip position="bottom" offset={0} label={`Shared lens, collaborative: ${accessType}`}>
+                                <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${accessType}`}>
                                     <UnstyledButton>
                                         <FaUserGroup size={18} className="mt-2 ml-[5px] text-gray-600" />
                                     </UnstyledButton>
@@ -190,7 +190,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                 <Menu.Divider />
                 <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
-                    {isPinned ? "Unpin" : "Pin"} this lens
+                    {isPinned ? "Unpin" : "Pin"} this space
                 </Menu.Item>
                 <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
             </Menu.Dropdown >

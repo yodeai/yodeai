@@ -29,7 +29,7 @@ export default function AddSubspace({ lensId, modalController }: AddSubspaceProp
               .eq('lens_id', currentLensId);
   
           if (error) {
-              console.error(`Error fetching lens data: ${error.message}`);
+              console.error(`Error fetching space data: ${error.message}`);
               return { rootId: null, parents }; // or handle the error accordingly
           }
   

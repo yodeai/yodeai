@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaFolder, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
@@ -50,7 +50,7 @@ export default function IconLayoutComponent({
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
-    subspace: <FaFolder size={32} color="#fd7e14" />,
+    subspace: <FaCube size={32} color="#fd7e14" />,
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
@@ -61,7 +61,7 @@ export default function IconLayoutComponent({
 
   const breadcrumbs = useMemo(() => {
     let elements = [
-      { title: 'Lens' },
+      { title: 'Space' },
       { title: lensName, href: `/lens/${lensId}` }
     ];
 
@@ -154,23 +154,44 @@ export default function IconLayoutComponent({
     }
   }
 
-  const onDrag = useDebouncedCallback((layout: Layout[], oldItem: Layout, newItem: Layout, placeholder: Layout, event: MouseEvent, element: HTMLElement) => {
-    const target = event.target as HTMLElement;
-    if (!newItem.i.startsWith("ss")) return;
+  const checkOverlap = (target: HTMLElement, target2: HTMLElement) => {
+    const rect1 = target?.getBoundingClientRect();
+    const rect2 = target2?.getBoundingClientRect();
+    if(!rect1 || !rect2) return false;
+    return (rect1.left < rect2.right &&
+      rect1.right > rect2.left &&
+      rect1.top < rect2.bottom &&
+      rect1.bottom > rect2.top)
+  }
 
-    const [_, lens_id] = newItem.i.split("_");
-    if (pinnedLensIds.includes(Number(lens_id))) return;
+  const onDrag = useDebouncedCallback(
+    (
+      layout: Layout[],
+      oldItem: Layout,
+      newItem: Layout,
+      placeholder: Layout,
+      event: MouseEvent,
+      element: HTMLElement
+    ) => {
+      const target = event.target as HTMLElement;
+      if (!newItem.i.startsWith("ss")) return;
 
-    if (layoutRefs.sidebar.current?.contains(target)) {
-      setDraggingNewBlock(true);
-    } else {
-      setDraggingNewBlock(false);
-    }
-  }, 10, [pinnedLensIds]);
+      const [_, lens_id] = newItem.i.split("_");
+      if (pinnedLensIds.includes(Number(lens_id))) return;
+
+      if (checkOverlap(target, layoutRefs.sidebar.current)) {
+        setDraggingNewBlock(true);
+      } else {
+        setDraggingNewBlock(false);
+      }
+    },
+    10,
+    [pinnedLensIds]
+  );
 
   const onDragStop = (layout: Layout[], oldItem: any, newItem: any, placeholder: any, event: MouseEvent, element: HTMLElement) => {
     const target = event.target as HTMLElement;
-    if (layoutRefs.sidebar.current?.contains(target)) {
+    if (checkOverlap(target, layoutRefs.sidebar.current)) {
       if (!newItem.i.startsWith("ss")) return;
       const [_, lens_id] = newItem.i.split("_");
       onPinLens(String(lens_id))
@@ -191,10 +212,11 @@ export default function IconLayoutComponent({
       onDragStart={calculateDoubleClick}
       onDrag={onDrag}
       onDragStop={onDragStop}
+      preventCollision={true}
       verticalCompact={false}>
       {layoutItems}
     </ResponsiveReactGridLayout>
-    <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
+    {/* <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
       breadcrumbs.map(({ title, href }, index) => (
         <Fragment key={index}>
           {href
@@ -203,7 +225,7 @@ export default function IconLayoutComponent({
           }
         </Fragment>
       ))
-    }</Breadcrumbs>
+    }</Breadcrumbs> */}
   </div>
 }
 
