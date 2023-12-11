@@ -428,7 +428,7 @@ export default function Lens({ params }) {
   }
   if (shouldRender) {
     return (
-      <Flex direction={"column"} pt={0} className="h-full">
+      <Flex direction="column" pt={0} h="100%">
         <DynamicSpaceHeader
           loading={loading}
           lens={lens}

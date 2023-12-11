@@ -130,13 +130,13 @@ export default function Home() {
   }, [])
 
   return (
-    <Flex direction="column" p={16} pt={0}>
+    <Flex direction="column" pt={0} h="100%">
       <SpaceHeader
         title="Home"
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
       />
-      <Box className="flex items-stretch flex-col h-full">
+      <Box className="flex p-2 items-stretch flex-col h-full">
         {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />}
         <LayoutController
           blocks={[]}
