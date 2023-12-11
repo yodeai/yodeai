@@ -476,7 +476,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
-    <SpaceIconHint subIcons={subIcons}>{icon}</SpaceIconHint>
+    <SpaceIconHint>{icon}</SpaceIconHint>
     <Box w={75} h={30} variant="unstyled" className="text-center">
       <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
         {subspace.name}
