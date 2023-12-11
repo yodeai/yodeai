@@ -3,15 +3,18 @@ import { Anchor, Text, Button, Flex, Skeleton } from '@mantine/core';
 import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
 import LoadingSkeleton from './LoadingSkeleton';
+import { useRouter } from 'next/navigation';
 
 export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [blocks, setBlocks] = useState([]);
   const [childSubspaces, setChildSubspaces] = useState([]);
+  const router = useRouter();
 
   const handleSubspaceClick = () => {
-    window.location.href = `${window.location.pathname}/${subspace.lens_id}`;
+    if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
+    else router.push(`${window.location.pathname}/${subspace.lens_id}`)
   };
 
   useEffect(() => {

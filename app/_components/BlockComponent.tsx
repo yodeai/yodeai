@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import { formatDistanceToNow } from "date-fns";
 import InlineSpoiler from "./InlineSpoiler";
+import { useRouter } from "next/navigation";
 
 interface BlockProps {
   compact?: boolean;
@@ -22,6 +23,7 @@ interface BlockProps {
   hierarchy?: number;
 }
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
+  const router = useRouter();
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -43,12 +45,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       error: "Failed to archive.",
     });
     onArchive();
-
-
   };
-
-
-
 
   const retryProcessBlock = async () => {
     console.log("Retrying")
@@ -60,8 +57,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         toast.error('Error processing block: ' + error.message);
       });
   }
-
-
 
   const firstTwoLinesComplete = block.content?.split('\n').slice(0, 2).join('\n');
   const firstTwoLines = firstTwoLinesComplete?.length < 300 ? firstTwoLinesComplete : firstTwoLinesComplete?.slice(0, 300);
@@ -78,7 +73,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
   // useEffect(()=>{
   //   const supabase = createClientComponentClient()
-    
+
   //   let getAccessType = async() => {
   //     const { data: { user } } = await supabase.auth.getUser();
 
@@ -90,8 +85,12 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   //     block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
   //   }
   //   getAccessType();
-  
+
   // }, [])
+
+  const onClickBlock = () => {
+    router.push(`/block/${block.block_id}`)
+  }
 
   return (
     <div>
@@ -103,7 +102,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               <Anchor
                 size={"xs"}
                 underline="never"
-                onClick={() => window.location.href = `/block/${block.block_id}`}
+                onClick={onClickBlock}
               >
                 <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
               </Anchor>
