@@ -10,7 +10,7 @@ import { Layout } from "react-grid-layout";
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout, Subspace } from "app/_types/lens";
+import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
@@ -23,7 +23,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 interface IconLayoutComponentProps {
   blocks: Block[];
-  subspaces: Subspace[];
+  subspaces: (Subspace | Lens)[];
   layouts: LensLayout["icon_layout"]
   lens_id: string;
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
@@ -57,7 +57,7 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
-  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
+  const items: (Block | Subspace | Lens)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
     let elements = [
@@ -364,7 +364,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
 
 type SubspaceIconItemProps = {
   icon: JSX.Element,
-  subspace: Subspace
+  subspace: Subspace | Lens
   selected?: boolean;
   unselectBlocks?: () => void
 }
@@ -433,7 +433,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(accessType) === false
+    disabled: ["owner", "editor"].includes(subspace.access_type) === false,
   }, {
     key: 'pin',
     color: "#228be6",

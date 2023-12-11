@@ -1,7 +1,7 @@
 
 import BlockComponent from "./BlockComponent";
 import { Block } from "app/_types/block";
-import { Subspace, LensLayout } from "app/_types/lens";
+import { Subspace, LensLayout, Lens } from "app/_types/lens";
 import IconLayoutComponent from "./IconLayoutComponent";
 import React from "react";
 import { Flex, Grid, ScrollArea } from "@mantine/core";
@@ -11,7 +11,7 @@ import BlockHeader from "./BlockHeader";
 
 type LayoutControllerProps = {
     blocks: Block[]
-    subspaces: Subspace[]
+    subspaces: (Subspace | Lens)[]
     layout: LensLayout,
     layoutView: "block" | "icon",
     lens_id: string

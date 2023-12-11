@@ -41,7 +41,7 @@ function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
 export default function Home() {
   const supabase = createClientComponentClient()
 
-  const [lenses, setLenses] = useState<Subspace[]>([]);
+  const [lenses, setLenses] = useState<(Lens)[]>([]);
   const [loading, setLoading] = useState(true);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
