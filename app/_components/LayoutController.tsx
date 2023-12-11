@@ -29,6 +29,23 @@ export default function LayoutController(props: LayoutControllerProps) {
         onChangeLayout, handleBlockChangeName, handleBlockDelete
     } = props;
 
+    if (blocks.length === 0 && subspaces.length === 0) return (
+        <Flex
+            align="center"
+            justify="center"
+        >
+            <Text
+                size="sm"
+                c={"gray.7"}
+                ta={"center"}
+                mt={30}
+                mb={15}
+            >
+                This space is empty, add blocks to populate this space with content & context.
+            </Text>
+        </Flex>
+    )
+
     switch (layoutView) {
         case "block":
             return (
@@ -36,14 +53,12 @@ export default function LayoutController(props: LayoutControllerProps) {
                     <ScrollArea type={"scroll"} w={'100%'} p={20} scrollbarSize={8} >
                         {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
                         {blocks && blocks.length > 0
-                            ? <React.Fragment>
+                            && <React.Fragment>
                                 <BlockHeader />
                                 {blocks.map((block) => (
                                     <BlockComponent key={block.block_id} block={block} />
                                 ))}</React.Fragment>
-                            : <Text display={(subspaces && subspaces.length > 0) ? "none" : "block"} size={"sm"} c={"gray.7"} ta={"center"} mt={30} mb={15}>
-                                This space is empty, add blocks to populate this space with content & context.
-                            </Text>}
+                            || ""}
 
                         {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" /> */}
                         {subspaces && subspaces.length > 0

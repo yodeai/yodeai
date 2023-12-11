@@ -6,7 +6,7 @@ import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import { Lens, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import SpaceHeader from '@components/SpaceHeader';
+import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
 import { Pencil2Icon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
@@ -53,7 +53,8 @@ export default function Lens({ params }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [isEditingLensName, setIsEditingLensName] = useState(false);
-  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(getLayoutViewFromLocalStorage(params.lens_id));
+  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
+  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const router = useRouter();
@@ -63,6 +64,7 @@ export default function Lens({ params }) {
   } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
+
   async function isValidHierarchy(lensIds) {
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -77,9 +79,9 @@ export default function Lens({ params }) {
         return false;
       }
     }
-
     return true;
   }
+
   async function isChildOf(childId, parentId, user) {
     try {
       const { data: subspace_only, error: subspaceOnlyError } = await supabase
@@ -124,10 +126,15 @@ export default function Lens({ params }) {
     validateAndRedirect();
   }, [lens_ids]);
 
-
   useEffect(() => {
     setEditingLensName(lensName);
   }, [lensName]);
+
+  useEffect(() => {
+    if (!getLayoutViewFromLocalStorage("default_layout")) {
+      setLayoutViewToLocalStorage("default_layout", "block")
+    }
+  }, [])
 
   useEffect(() => {
     (async () => {
@@ -373,7 +380,7 @@ export default function Lens({ params }) {
 
   const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
     setSelectedLayoutType(newLayoutView)
-    setLayoutViewToLocalStorage(params.lens_id, newLayoutView)
+    setLayoutViewToLocalStorage("default_layout", newLayoutView)
   }
 
   // the following two functions are used under layout components
@@ -422,7 +429,7 @@ export default function Lens({ params }) {
   if (shouldRender) {
     return (
       <Flex direction={"column"} pt={0} className="h-full">
-        <SpaceHeader
+        <DynamicSpaceHeader
           loading={loading}
           lens={lens}
           lens_ids={lens_ids}

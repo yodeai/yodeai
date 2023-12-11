@@ -86,8 +86,12 @@ export default function IconLayoutComponent({
   }, [items, lensName, lensId, selectedItems]);
 
   const onDoubleClick = (itemType: string, itemId: number) => {
-    const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
-    router.push(path)
+    if (window.location.pathname === "/") {
+      router.push(`/lens/${itemId}`)
+    } else {
+      const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
+      router.push(path)
+    }
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
@@ -157,7 +161,7 @@ export default function IconLayoutComponent({
   const checkOverlap = (target: HTMLElement, target2: HTMLElement) => {
     const rect1 = target?.getBoundingClientRect();
     const rect2 = target2?.getBoundingClientRect();
-    if(!rect1 || !rect2) return false;
+    if (!rect1 || !rect2) return false;
     return (rect1.left < rect2.right &&
       rect1.right > rect2.left &&
       rect1.top < rect2.bottom &&
@@ -419,7 +423,8 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaLink size={16} />,
     title: "Open",
     onClick: () => {
-      router.push(`${window.location.pathname}/${subspace.lens_id}`)
+      if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
+      else router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
   }, {
     key: 'remove',
