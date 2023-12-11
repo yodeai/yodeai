@@ -4,7 +4,7 @@ import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-ico
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, Textarea } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
 import { Layout } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
@@ -51,6 +51,7 @@ export default function IconLayoutComponent({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
+    sharedSubspace: <FaCube size={32} color="#d92e02" />,
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
@@ -137,7 +138,11 @@ export default function IconLayoutComponent({
         ? <SubspaceIconItem
           selected={selectedItems.includes(item_id)}
           unselectBlocks={() => setSelectedItems([])}
-          icon={fileTypeIcons.subspace} subspace={item} />
+          icon={
+            (item.access_type === "owner" || !item?.access_type)
+              ? fileTypeIcons.subspace
+              : fileTypeIcons.sharedSubspace
+          } subspace={item} />
         : <BlockIconItem
           selected={selectedItems.includes(item_id)}
           handleBlockChangeName={handleBlockChangeName}
@@ -347,7 +352,9 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
-    {loading ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" /> : icon}
+    {loading
+      ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+      : <SpaceIconHint>{icon}</SpaceIconHint>}
     <Box w={70} h={30} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea
@@ -433,7 +440,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(subspace.access_type) === false,
+    disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
   }, {
     key: 'pin',
     color: "#228be6",
@@ -444,16 +451,49 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
 
   const onContextMenu = showContextMenu(actions);
 
+  const subIcons = useMemo(() => {
+    let subIcons: JSX.Element[] = [];
+    if (isPinned) subIcons.push(
+      <Tooltip label="Pinned Item" events={{ hover: true, focus: true, touch: false }}>
+        <div>
+          <AiOutlinePushpin size={18} stroke="2" color="#eeeeee" className="bg-slate-500 rounded-full p-1 opacity-60 hover:opacity-100" />
+        </div>
+      </Tooltip>
+    );
+
+    if (subspace.access_type === "editor") subIcons.push(
+      <Tooltip label="Shared" events={{ hover: true, focus: true, touch: false }}>
+        <div>
+          <FaICursor size={16} stroke="2" color="#eeeeee" className="bg-slate-700 rounded-full opacity-60 hover:opacity-100" />
+        </div>
+      </Tooltip>
+    );
+    return subIcons;
+  }, [isPinned])
+
   return <Flex
     onContextMenu={onContextMenu}
     mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
-    {icon}
+    <SpaceIconHint subIcons={subIcons}>{icon}</SpaceIconHint>
     <Box w={75} h={30} variant="unstyled" className="text-center">
       <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
         {subspace.name}
       </Text>
     </Box>
   </Flex>
+}
+
+type SpaceIconHintProps = {
+  children: JSX.Element
+  subIcons?: JSX.Element[]
+}
+const SpaceIconHint = ({ children, subIcons }: SpaceIconHintProps) => {
+  return <>
+    {children}
+    <div className="absolute top-1 right-1">
+      {subIcons}
+    </div>
+  </>
 }
