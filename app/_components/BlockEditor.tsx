@@ -182,7 +182,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     if (lensId) {
       router.back();
     } else {
-      router.push(`/`);
+      router.push(`/myblocks`);
     }
     // router.back();
   };

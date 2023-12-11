@@ -4,13 +4,13 @@ import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-ico
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, Textarea } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
 import { Layout } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout, Subspace } from "app/_types/lens";
+import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
@@ -23,7 +23,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 interface IconLayoutComponentProps {
   blocks: Block[];
-  subspaces: Subspace[];
+  subspaces: (Subspace | Lens)[];
   layouts: LensLayout["icon_layout"]
   lens_id: string;
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
@@ -51,13 +51,14 @@ export default function IconLayoutComponent({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
+    sharedSubspace: <FaCube size={32} color="#d92e02" />,
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
-  const items: (Block | Subspace)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
+  const items: (Block | Subspace | Lens)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
     let elements = [
@@ -86,8 +87,12 @@ export default function IconLayoutComponent({
   }, [items, lensName, lensId, selectedItems]);
 
   const onDoubleClick = (itemType: string, itemId: number) => {
-    const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
-    router.push(path)
+    if (window.location.pathname === "/") {
+      router.push(`/lens/${itemId}`)
+    } else {
+      const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
+      router.push(path)
+    }
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
@@ -133,7 +138,11 @@ export default function IconLayoutComponent({
         ? <SubspaceIconItem
           selected={selectedItems.includes(item_id)}
           unselectBlocks={() => setSelectedItems([])}
-          icon={fileTypeIcons.subspace} subspace={item} />
+          icon={
+            (item.access_type === "owner" || !item?.access_type)
+              ? fileTypeIcons.subspace
+              : fileTypeIcons.sharedSubspace
+          } subspace={item} />
         : <BlockIconItem
           selected={selectedItems.includes(item_id)}
           handleBlockChangeName={handleBlockChangeName}
@@ -157,7 +166,7 @@ export default function IconLayoutComponent({
   const checkOverlap = (target: HTMLElement, target2: HTMLElement) => {
     const rect1 = target?.getBoundingClientRect();
     const rect2 = target2?.getBoundingClientRect();
-    if(!rect1 || !rect2) return false;
+    if (!rect1 || !rect2) return false;
     return (rect1.left < rect2.right &&
       rect1.right > rect2.left &&
       rect1.top < rect2.bottom &&
@@ -201,6 +210,7 @@ export default function IconLayoutComponent({
 
   return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
     <ResponsiveReactGridLayout
+      style={{ height: "100%" }}
       layouts={layouts}
       cols={cols}
       breakpoint={breakpoint}
@@ -342,7 +352,9 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
     mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
-    {loading ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" /> : icon}
+    {loading
+      ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+      : <SpaceIconHint>{icon}</SpaceIconHint>}
     <Box w={70} h={30} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea
@@ -359,7 +371,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
 
 type SubspaceIconItemProps = {
   icon: JSX.Element,
-  subspace: Subspace
+  subspace: Subspace | Lens
   selected?: boolean;
   unselectBlocks?: () => void
 }
@@ -419,7 +431,8 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaLink size={16} />,
     title: "Open",
     onClick: () => {
-      router.push(`${window.location.pathname}/${subspace.lens_id}`)
+      if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
+      else router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
   }, {
     key: 'remove',
@@ -427,7 +440,7 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(accessType) === false
+    disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
   }, {
     key: 'pin',
     color: "#228be6",
@@ -438,16 +451,49 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
 
   const onContextMenu = showContextMenu(actions);
 
+  const subIcons = useMemo(() => {
+    let subIcons: JSX.Element[] = [];
+    if (isPinned) subIcons.push(
+      <Tooltip label="Pinned Item" events={{ hover: true, focus: true, touch: false }}>
+        <div>
+          <AiOutlinePushpin size={18} stroke="2" color="#eeeeee" className="bg-slate-500 rounded-full p-1 opacity-60 hover:opacity-100" />
+        </div>
+      </Tooltip>
+    );
+
+    if (subspace.access_type === "editor") subIcons.push(
+      <Tooltip label="Shared" events={{ hover: true, focus: true, touch: false }}>
+        <div>
+          <FaICursor size={16} stroke="2" color="#eeeeee" className="bg-slate-700 rounded-full opacity-60 hover:opacity-100" />
+        </div>
+      </Tooltip>
+    );
+    return subIcons;
+  }, [isPinned])
+
   return <Flex
     onContextMenu={onContextMenu}
     mih={75} gap="6px"
     justify="normal" align="center"
     direction="column" wrap="nowrap">
-    {icon}
+    <SpaceIconHint>{icon}</SpaceIconHint>
     <Box w={75} h={30} variant="unstyled" className="text-center">
       <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
         {subspace.name}
       </Text>
     </Box>
   </Flex>
+}
+
+type SpaceIconHintProps = {
+  children: JSX.Element
+  subIcons?: JSX.Element[]
+}
+const SpaceIconHint = ({ children, subIcons }: SpaceIconHintProps) => {
+  return <>
+    {children}
+    <div className="absolute top-1 right-1">
+      {subIcons}
+    </div>
+  </>
 }
