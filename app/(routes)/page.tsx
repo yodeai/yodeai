@@ -116,7 +116,7 @@ export default function Home() {
       channel = supabase
         .channel('schema-db-changes')
         .on('postgres_changes', {
-          event: 'INSERT', schema: 'public', table: 'lens_users',
+          event: '*', schema: 'public', table: 'lens_users',
           filter: `user_id=eq.${user_id}`
         }, getLenses)
         .subscribe();
@@ -126,7 +126,6 @@ export default function Home() {
       console.log("Unsubscribing from lens changes")
       channel.unsubscribe();
     }
-
   }, [])
 
   return (
