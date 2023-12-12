@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useCallback } from "react";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
 import { Lens, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
@@ -15,34 +15,8 @@ import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { Box, Flex } from "@mantine/core";
 
-import InfoPopover from "@components/InfoPopover";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import { useDebouncedCallback } from "@utils/hooks";
-
-function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
-  let layout = null;
-  if (global.localStorage) {
-    try {
-      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return layout ? layout[lens_id] : null;
-}
-
-function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
-  if (global.localStorage) {
-    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
-    global.localStorage.setItem(
-      "layoutView",
-      JSON.stringify({
-        ...layout,
-        [lens_id]: value
-      })
-    );
-  }
-}
+import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 export default function Lens({ params }) {
   const { lens_ids } = params;
@@ -60,7 +34,7 @@ export default function Lens({ params }) {
   const router = useRouter();
   const {
     setLensId, lensName, setLensName, reloadLenses, setActiveComponent,
-    accessType, setAccessType
+    accessType, setAccessType, sortingOptions
   } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient()
@@ -426,6 +400,47 @@ export default function Lens({ params }) {
       </div>
     );
   }
+
+  const sortedSubspaces = useMemo(() => {
+    if (sortingOptions.sortBy === null) return subspaces;
+
+    let _sorted_subspaces = [...subspaces].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_subspaces.reverse();
+    }
+
+    return _sorted_subspaces;
+  }, [sortingOptions, subspaces])
+
+  const sortedBlocks = useMemo(() => {
+    if (sortingOptions.sortBy === null) return blocks;
+
+    let _sorted_blocks = [...blocks].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.title.localeCompare(b.title);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_blocks.reverse();
+    }
+
+    return _sorted_blocks;
+  }, [sortingOptions, blocks])
+
   if (shouldRender) {
     return (
       <Flex direction="column" pt={0} h="100%">
@@ -448,12 +463,12 @@ export default function Lens({ params }) {
         <Box className="flex items-stretch flex-col h-full">
           {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={10} />}
           <LayoutController
-            subspaces={subspaces}
+            subspaces={sortedSubspaces}
             handleBlockChangeName={handleBlockChangeName}
             handleBlockDelete={handleBlockDelete}
             onChangeLayout={onChangeLensLayout}
             layout={layoutData} lens_id={params.lens_id}
-            blocks={blocks} layoutView={selectedLayoutType} />
+            blocks={sortedBlocks} layoutView={selectedLayoutType} />
         </Box>
       </Flex >
     );

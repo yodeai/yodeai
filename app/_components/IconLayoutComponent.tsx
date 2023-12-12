@@ -5,7 +5,7 @@ import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
 import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
-import { Layout } from "react-grid-layout";
+import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
@@ -44,7 +44,7 @@ export default function IconLayoutComponent({
   const $lastClick = useRef<number>(0);
   const { lensName, lensId, layoutRefs, setDraggingNewBlock } = useAppContext();
 
-  const { pinnedLenses } = useAppContext();
+  const { pinnedLenses, sortingOptions } = useAppContext();
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
   const fileTypeIcons = useMemo(() => ({
@@ -120,7 +120,29 @@ export default function IconLayoutComponent({
     setBreakpoint(breakpoint[0])
   }
 
-  const layoutItems = useMemo(() => items.map((item, index) => {
+  const sortedItems = useMemo(() => {
+    if (sortingOptions.sortBy === null) return items;
+
+    let _sorted_items = items.sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        let aName = "lens_id" in a ? a.name : a.title;
+        let bName = "lens_id" in b ? b.name : b.title;
+        return aName.localeCompare(bName);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    if (sortingOptions.order === "desc") {
+      _sorted_items = _sorted_items.reverse();
+    }
+    return _sorted_items;
+
+  }, [items, sortingOptions])
+
+  const layoutItems = useMemo(() => sortedItems.map((item, index) => {
     const isSubspace = "lens_id" in item;
 
     const key = isSubspace ? `ss_${item.lens_id}` : `bl_${item.block_id}`;
@@ -132,7 +154,7 @@ export default function IconLayoutComponent({
       w: 1, h: 1, isResizable: false
     };
 
-    const dataGrid = layouts?.[breakpoint]?.[index] || defaultDataGrid;
+    const dataGrid = sortingOptions.sortBy === null ? layouts?.[breakpoint]?.[index] || defaultDataGrid : defaultDataGrid;
     return <div key={key} data-grid={dataGrid} className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {isSubspace
         ? <SubspaceIconItem
@@ -151,7 +173,7 @@ export default function IconLayoutComponent({
           icon={fileTypeIcons[item.block_type]} block={item} />
       }
     </div>
-  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems])
+  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems, sortedItems, sortingOptions])
 
   const onPinLens = async (lens_id: string) => {
     try {
@@ -208,6 +230,11 @@ export default function IconLayoutComponent({
     }
   }
 
+  const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
+    if(sortingOptions.sortBy !== null) return;
+    onChangeLayout("icon_layout", layouts)
+  }, [sortingOptions])
+
   return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
     <ResponsiveReactGridLayout
       style={{ height: "100%" }}
@@ -216,7 +243,7 @@ export default function IconLayoutComponent({
       breakpoint={breakpoint}
       breakpoints={breakpoints}
       rowHeight={75}
-      onLayoutChange={(layout, layouts) => onChangeLayout("icon_layout", layouts)}
+      onLayoutChange={onLayoutChange}
       isResizable={false}
       onWidthChange={onWidthChange}
       onDragStart={calculateDoubleClick}
