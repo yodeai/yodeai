@@ -23,6 +23,8 @@ export default function MyBlocks() {
   const [loading, setLoading] = useState(true);
   const supabase = createClientComponentClient()
 
+  const { setLensId } = useAppContext();
+
   useEffect(() => {
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -65,7 +67,6 @@ export default function MyBlocks() {
     };
   }, [blocks]);
 
-
   const fetchBlocks = () => {
     fetch(`/api/block/getAllBlocks`)
       .then((response) => response.json())
@@ -81,6 +82,7 @@ export default function MyBlocks() {
 
   useEffect(() => {
     fetchBlocks();
+    setLensId(null);
   }, []);
 
   return (
@@ -91,7 +93,7 @@ export default function MyBlocks() {
       {
         loading ? (
           <div className="mt-2">
-            <LoadingSkeleton />
+            <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
           </div>
         ) : blocks?.length > 0 ? (
           blocks.map((block) => (

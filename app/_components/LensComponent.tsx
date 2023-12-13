@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NavLink, Text } from "@mantine/core";
-
+import Link from "next/link";
 interface LensProps {
   compact?: boolean;
   lens: Lens;
@@ -25,11 +25,6 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
   const [user, setUser] = useState(null);
   const supabase = createClientComponentClient();
 
-  const handleLensClick = (e: React.MouseEvent) => {
-    setLensId(lens.lens_id.toString());
-    router.push(`/lens/${lens.lens_id}`);
-  };
-
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -39,27 +34,28 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
   }, [])
 
   return (
-    <NavLink
-      label={<Text lh={1.2} size={"sm"}>{lens.name}</Text>}
-      onClick={handleLensClick}
-      description={
-        <>
-          <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
-          {lens.shared && (
-            <Text c="blue" size="xs">
-              Collaborative: {lens.user_to_access_type[user?.id] ?? ''}
+    <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline">
+      <NavLink
+        label={<Text lh={1.2} size={"sm"}>{lens.name}</Text>}
+        description={
+          <>
+            <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+            {lens.shared && (
+              <Text c="blue" size="xs">
+                Collaborative: {lens.user_to_access_type[user?.id] ?? ''}
+              </Text>
+            )}
+            <Text c={'green'} size="xs">
+              {lens.public ? 'Published' : 'Not Published'}
             </Text>
-          )}
-          <Text c={'green'} size="xs">
-            {lens.public ? 'Published' : 'Not Published'}
-          </Text>
-        </>
-      }
-      leftSection={<FaCube size={18} />}
-      rightSection={rightSection}
-      active
-      color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}
-      variant={Number(lensId) !== lens.lens_id ? 'subtle' : 'light'}
-    />
+          </>
+        }
+        leftSection={<FaCube size={18} />}
+        rightSection={rightSection}
+        active
+        color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}
+        variant={Number(lensId) !== lens.lens_id ? 'subtle' : 'light'}
+      />
+    </Link>
   );
 }

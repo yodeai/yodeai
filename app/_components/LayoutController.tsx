@@ -14,7 +14,6 @@ type LayoutControllerProps = {
     subspaces: (Subspace | Lens)[]
     layout: LensLayout,
     layoutView: "block" | "icon",
-    lens_id: string
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
     onChangeLayout: (
@@ -25,7 +24,7 @@ type LayoutControllerProps = {
 
 export default function LayoutController(props: LayoutControllerProps) {
     const {
-        blocks, layout, layoutView, lens_id, subspaces,
+        blocks, layout, layoutView, subspaces,
         onChangeLayout, handleBlockChangeName, handleBlockDelete
     } = props;
 
@@ -72,7 +71,6 @@ export default function LayoutController(props: LayoutControllerProps) {
                 handleBlockChangeName={handleBlockChangeName}
                 handleBlockDelete={handleBlockDelete}
                 layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
-                lens_id={lens_id}
                 subspaces={subspaces}
                 blocks={blocks} />
     }

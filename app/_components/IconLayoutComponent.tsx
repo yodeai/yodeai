@@ -25,7 +25,6 @@ interface IconLayoutComponentProps {
   blocks: Block[];
   subspaces: (Subspace | Lens)[];
   layouts: LensLayout["icon_layout"]
-  lens_id: string;
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
@@ -33,7 +32,6 @@ interface IconLayoutComponentProps {
 export default function IconLayoutComponent({
   blocks,
   layouts,
-  lens_id,
   subspaces,
   onChangeLayout,
   handleBlockChangeName,

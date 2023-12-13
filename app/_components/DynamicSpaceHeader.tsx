@@ -30,8 +30,7 @@ type DynamicSpaceHeaderProps = {
     saveNewLensName: any,
     handleDeleteLens: any,
     selectedLayoutType: string,
-    handleChangeLayoutView: any,
-    lens_ids: any
+    handleChangeLayoutView: any
 }
 export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const {
@@ -48,7 +47,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         handleDeleteLens,
         selectedLayoutType,
         handleChangeLayoutView,
-        lens_ids
     } = props;
 
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +57,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
-    const { pinnedLenses, sortingOptions, setSortingOptions } = useAppContext();
+    const { lensId, pinnedLenses, sortingOptions, setSortingOptions } = useAppContext();
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
 
     const openDeleteModal = () => modals.openConfirmModal({
@@ -236,7 +234,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
-                    <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
+                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
