@@ -4,6 +4,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
 
+import { useDisclosure } from "@mantine/hooks";
+
 // Update the type for the context value
 type contextType = {
   lensId: string | null;
@@ -29,6 +31,8 @@ type contextType = {
 
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
+
+  subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
 };
 
 
@@ -56,6 +60,8 @@ const defaultValue: contextType = {
 
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
+
+  subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }]
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -82,6 +88,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
+
+  const subspaceModalDisclosure = useDisclosure(false);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -140,7 +148,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       if (!user_id) return;
 
       console.log("Subscribing to pinned_lens changes...")
-      
+
       channel = supabase
         .channel('schema-db-changes')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_users', filter: `user_id=eq.${user_id}` }, getPinnedLenses)
@@ -192,7 +200,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       reloadKey, reloadLenses, allLenses,
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
-      accessType, setAccessType
+      accessType, setAccessType,
+      subspaceModalDisclosure
     }}>
       {children}
     </context.Provider>

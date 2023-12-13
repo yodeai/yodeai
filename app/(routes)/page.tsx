@@ -124,7 +124,7 @@ export default function Home() {
 
     return () => {
       console.log("Unsubscribing from lens changes")
-      channel.unsubscribe();
+      if(channel) channel.unsubscribe();
     }
   }, [])
 

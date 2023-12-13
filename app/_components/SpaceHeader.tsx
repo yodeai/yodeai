@@ -8,7 +8,7 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 import Link from "next/link";
 import AddSubspace from "@components/AddSubspace";
-import { useDisclosure } from "@mantine/hooks";
+import { useAppContext } from "@contexts/context";
 
 type SpaceHeaderProps = {
     title: string;
@@ -22,7 +22,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         handleChangeLayoutView,
     } = props;
 
-    const subspaceModalDisclosure = useDisclosure(false);
+    const { subspaceModalDisclosure } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     return <>
@@ -37,7 +37,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                             </UnstyledButton>
                         </Menu.Target>
                     </div>
-                </Box >
+                </Box>
                 <Box>
                     <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
                         ? "Switch to icon view."

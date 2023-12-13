@@ -78,6 +78,7 @@
     "react-textarea-autosize": "^8.5.3",
     "status": "^0.0.13",
     "styled-components": "^6.0.7",
+    "tailwind-merge": "^2.1.0",
     "tiptap-markdown": "^0.8.2",
     "twilio": "^4.15.0",
     "typescript": "5.1.3",

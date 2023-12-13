@@ -172,7 +172,7 @@ const QuestionAnswerForm: React.FC = () => {
     return (
         <Flex
             direction={"column"}
-            className="bg-white border-l border-l-[#eeeeee] h-[calc(100vh-60px)] w-full"
+            className="h-full w-full"
             justify={"space-between"}>
             <Box>
                 <ToolbarHeader>
