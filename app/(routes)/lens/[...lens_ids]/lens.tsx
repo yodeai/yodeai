@@ -15,6 +15,7 @@ import { Box, Flex } from "@mantine/core";
 
 type LensProps = {
   lens_id: number;
+  lensData: Lens;
   user: User
 }
 
@@ -22,10 +23,10 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 export default function Lens(props: LensProps) {
-  const { lens_id, user } = props;
+  const { lens_id, user, lensData } = props;
   const [loading, setLoading] = useState(true);
 
-  const [lens, setLens] = useState<Lens | null>(null);
+  const [lens, setLens] = useState<Lens | null>(lensData);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
@@ -59,7 +60,7 @@ export default function Lens(props: LensProps) {
       setLoading(true);
       await Promise.all([
         getLensBlocks(lens_id),
-        getLensData(lens_id),
+        // getLensData(lens_id),
         getLensSubspaces(lens_id),
         getLensLayout(lens_id)
       ])
@@ -71,6 +72,12 @@ export default function Lens(props: LensProps) {
         })
     })();
   }, [lens_id, searchParams]);
+
+  useEffect(() => {
+    setLensName(lensData.name);
+    setAccessType(lensData.user_to_access_type[user.id]);
+    setLensId(String(lensData.lens_id));
+  }, [lensData])
 
   const getLensData = async (lensId: number) => {
     return fetch(`/api/lens/${lensId}`)
