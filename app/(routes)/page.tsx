@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import { Block } from "app/_types/block";
 import { Lens, Subspace } from "app/_types/lens";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import SpaceHeader from "@components/SpaceHeader";
@@ -12,6 +12,7 @@ import LoadingSkeleton from "@components/LoadingSkeleton";
 import LayoutController from '../_components/LayoutController';
 import { LensLayout } from "app/_types/lens";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { useAppContext } from "@contexts/context";
 
 function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
   let layout = null;
@@ -46,6 +47,8 @@ export default function Home() {
   const [layoutData, setLayoutData] = useState<LensLayout>({})
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
+
+  const { sortingOptions, setSortingOptions } = useAppContext();
 
   const getLenses = async () => {
     return fetch(`/api/lens/getAll`)
@@ -128,6 +131,26 @@ export default function Home() {
     }
   }, [])
 
+  const sortedLenses = useMemo(() => {
+    if (sortingOptions.sortBy === null) return lenses;
+
+    let _sorted_lenses = [...lenses].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    if (sortingOptions.order === "desc") {
+      _sorted_lenses = _sorted_lenses.reverse();
+    }
+
+    return _sorted_lenses;
+  }, [sortingOptions, lenses]);
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <SpaceHeader
@@ -139,7 +162,7 @@ export default function Home() {
         {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />}
         <LayoutController
           blocks={[]}
-          subspaces={lenses}
+          subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}
           lens_id={"-1"}

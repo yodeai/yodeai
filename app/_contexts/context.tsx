@@ -3,11 +3,12 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
+import { getSortingOptionsFromLocalStorage, setSortingOptionsToLocalStorage } from '@utils/localStorage';
 
 import { useDisclosure } from "@mantine/hooks";
 
 // Update the type for the context value
-type contextType = {
+export type contextType = {
   lensId: string | null;
   setLensId: React.Dispatch<React.SetStateAction<string | null>>;
   lensName: string | null;
@@ -33,6 +34,11 @@ type contextType = {
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
   subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
+  sortingOptions: {
+    order: "asc" | "desc",
+    sortBy: null | "name" | "createdAt" | "updatedAt"
+  },
+  setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
 };
 
 
@@ -61,7 +67,12 @@ const defaultValue: contextType = {
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
-  subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }]
+  subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  sortingOptions: getSortingOptionsFromLocalStorage() ?? {
+    order: "asc",
+    sortBy: null
+  },
+  setSortingOptions: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -88,6 +99,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
+  const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
 
   const subspaceModalDisclosure = useDisclosure(false);
 
@@ -187,6 +199,10 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   }, [lensId]);
 
+  useEffect(() => {
+    setSortingOptionsToLocalStorage(sortingOptions);
+  }, [sortingOptions])
+
   const reloadLenses = () => {
     setReloadKey(prevKey => prevKey + 1);
   };
@@ -201,7 +217,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      subspaceModalDisclosure
+      subspaceModalDisclosure,
+      sortingOptions, setSortingOptions
     }}>
       {children}
     </context.Provider>

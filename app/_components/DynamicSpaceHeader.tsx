@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from "react";
-import { FaCheck, FaTrashAlt, FaFolder, FaList } from "react-icons/fa";
+import { FaCheck, FaTrashAlt, FaFolder, FaList, FaCaretDown, FaCaretUp, FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { CiGlobe } from "react-icons/ci";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
-    Menu, rem, UnstyledButton, Divider
+    Menu, rem, UnstyledButton, Divider, Select
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
 import AddSubspace from "@components/AddSubspace";
@@ -15,7 +15,7 @@ import { FaAngleDown, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
-import { useAppContext } from "@contexts/context";
+import { useAppContext, contextType } from "@contexts/context";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -56,7 +56,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
-    const { pinnedLenses, subspaceModalDisclosure } = useAppContext();
+    const { pinnedLenses, subspaceModalDisclosure, sortingOptions, setSortingOptions } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
@@ -103,8 +103,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     }, [isEditingLensName])
 
     return <>
-        <Menu shadow="md" position="bottom-start" width={150}>
-            <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
+        <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
+            <Menu shadow="md" position="bottom-start" width={150}>
                 <Box className="flex items-center">
                     {
                         !loading && isEditingLensName && <>
@@ -159,37 +159,74 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                         </div> || ""
                     }
                     {loading && <LoadingSkeleton w={"150px"} boxCount={1} m={3} lineHeight={30} /> || ""}
-                </Box >
-                <Box>
-                    {!loading && <>
-                        <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
-                            ? "Switch to icon view."
-                            : "Switch to list view."
-                        }>
-                            <Button
-                                size="md"
-                                c="gray.6"
-                                variant="subtle"
-                                onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                            >
-                                {selectedLayoutType === "icon" ? <FaFolder size={20} /> : <FaList size={20} />}
-                            </Button>
-                        </Tooltip>
-                    </> || ""}
-                    {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
                 </Box>
-            </Flex >
 
-            <Menu.Dropdown>
-                <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
-                <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
-                <Menu.Divider />
-                <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
-                    {isPinned ? "Unpin" : "Pin"} this space
-                </Menu.Item>
-                <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
-            </Menu.Dropdown >
-        </Menu>
+                <Menu.Dropdown>
+                    <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
+                    <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
+                        {isPinned ? "Unpin" : "Pin"} this space
+                    </Menu.Item>
+                    <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                </Menu.Dropdown >
+            </Menu>
+
+            <Box className="flex flex-row items-center align-middle">
+                {!loading && <>
+                    <Select
+                        variant="filled"
+                        className="inline w-[150px]"
+                        leftSection={<Box>
+                            <Button
+                                size="xs"
+                                variant="subtle"
+                                p={8}
+                                mr={5}
+                                onClick={() => {
+                                    setSortingOptions({
+                                        ...sortingOptions,
+                                        order: sortingOptions.order === "asc" ? "desc" : "asc"
+                                    })
+                                }}>
+                                {sortingOptions.order === "asc"
+                                    ? <FaArrowDown size={12} className="text-gray-500" />
+                                    : <FaArrowUp size={12} className="text-gray-500" />}
+                            </Button>
+                        </Box>}
+                        placeholder="Sort by"
+                        size="sm"
+                        data={[
+                            { value: "name", label: "Name" },
+                            { value: "createdAt", label: "Created At" },
+                            { value: "updatedAt", label: "Updated At" },
+                        ]}
+                        allowDeselect={true}
+                        value={sortingOptions.sortBy}
+                        onChange={(value: contextType["sortingOptions"]["sortBy"]) => {
+                            setSortingOptions({ ...sortingOptions, sortBy: value })
+                        }}
+                    />
+                    <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
+                        ? "Switch to icon view."
+                        : "Switch to list view."
+                    }>
+                        <Button
+                            size="sm"
+                            variant="subtle"
+                            color="gray.7"
+                            p={7}
+                            mx={10}
+                            onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
+                        >
+                            {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
+                        </Button>
+                    </Tooltip>
+                </> || ""}
+                {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
+            </Box>
+
+        </Flex >
 
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
