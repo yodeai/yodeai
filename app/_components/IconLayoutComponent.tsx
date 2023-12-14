@@ -12,12 +12,13 @@ import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaICursor } from "react-icons/fa";
+import { FaHome, FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
-import { set } from "date-fns";
 import { useDebouncedCallback } from "@utils/hooks";
+import Link from "next/link";
+import LoadingSkeleton from "./LoadingSkeleton";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -40,9 +41,12 @@ export default function IconLayoutComponent({
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
-  const { lensName, lensId, layoutRefs, setDraggingNewBlock } = useAppContext();
+  const {
+    lensName, lensId, layoutRefs,
+    pinnedLenses, sortingOptions,
+    setDraggingNewBlock
+  } = useAppContext();
 
-  const { pinnedLenses, sortingOptions } = useAppContext();
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
   const fileTypeIcons = useMemo(() => ({
@@ -56,13 +60,21 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
+  const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
+  const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
+
   const items: (Block | Subspace | Lens)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
-    let elements = [
-      { title: 'Space' },
-      { title: lensName, href: `/lens/${lensId}` }
-    ];
+    let elements = [].concat(
+      [{ name: 'Spaces', lens_id: null }],
+      breadcrumbData || lensId && [{ lens_id: lensId, name: lensName }] || []
+    )
+    elements = elements.reduce((acc, lens, index, arr) => {
+      return [...acc,
+      { title: lens.name, href: lens.lens_id ? `/lens/${lens.lens_id}` : "/" }
+      ]
+    }, []);
 
     if (selectedItems.length === 0) {
       return elements;
@@ -82,7 +94,31 @@ export default function IconLayoutComponent({
     }
 
     return elements;
-  }, [items, lensName, lensId, selectedItems]);
+  }, [breadcrumbData, items, lensName, lensId, selectedItems])
+
+  const getLensParents = () => {
+    return fetch(`/api/lens/${lensId}/getParents`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Couldn't get parents of the lens.")
+        } else {
+          return res.json();
+        }
+      })
+      .then(res => {
+        setBreadcrumbData(res.data)
+      })
+      .catch(err => {
+        console.log(err.message);
+      })
+      .finally(() => {
+        setBreadcrumbLoading(false);
+      })
+  }
+
+  useEffect(() => {
+    getLensParents()
+  }, [])
 
   const onDoubleClick = (itemType: string, itemId: number) => {
     if (window.location.pathname === "/") {
@@ -229,12 +265,13 @@ export default function IconLayoutComponent({
   }
 
   const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
-    if(sortingOptions.sortBy !== null) return;
+    if (sortingOptions.sortBy !== null) return;
     onChangeLayout("icon_layout", layouts)
   }, [sortingOptions])
 
-  return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
+  return <div className="flex flex-col justify-between h-[calc(100%-20px)]">
     <ResponsiveReactGridLayout
+      className="p-2"
       style={{ height: "100%" }}
       layouts={layouts}
       cols={cols}
@@ -251,16 +288,25 @@ export default function IconLayoutComponent({
       verticalCompact={false}>
       {layoutItems}
     </ResponsiveReactGridLayout>
-    {/* <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
-      breadcrumbs.map(({ title, href }, index) => (
-        <Fragment key={index}>
-          {href
-            ? <Anchor href={href} size="sm" c="dimmed">{title}</Anchor>
-            : <Text size="sm" c="dimmed">{title}</Text>
-          }
-        </Fragment>
-      ))
-    }</Breadcrumbs> */}
+    <Box className="flex flex-row gap-2 px-5 pt-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+      {breadcrumbLoading
+        ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
+        : <>
+          <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />
+          <Breadcrumbs separatorMargin={5} className="z-50">{
+            breadcrumbs.map(({ title, href }, index) => (
+              <Fragment key={index}>
+                {href
+                  ? <Link href={href} className="no-underline hover:underline" prefetch>
+                    <Text size="sm" c="dimmed">{title}</Text>
+                  </Link>
+                  : <Text size="sm" c="dimmed">{title}</Text>
+                }
+              </Fragment>
+            ))}
+          </Breadcrumbs>
+        </>}
+    </Box>
   </div>
 }
 
