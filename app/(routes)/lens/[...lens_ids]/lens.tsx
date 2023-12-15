@@ -72,7 +72,7 @@ export default function Lens(props: LensProps) {
         })
     })();
 
-    if(window.location.hash === "#newLens"){
+    if (window.location.hash === "#newLens") {
       setIsEditingLensName(true);
       window.location.hash = "";
     }
@@ -334,6 +334,15 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleLensDelete = async (lens_id: number) => {
+    const deletePromise = fetch(`/api/lens/${lens_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting lens...",
+      success: "Lens deleted!",
+      error: "Failed to delete lens.",
+    });
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -405,6 +414,7 @@ export default function Lens(props: LensProps) {
           subspaces={sortedSubspaces}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensDelete={handleLensDelete}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
           blocks={sortedBlocks} layoutView={selectedLayoutType} />}

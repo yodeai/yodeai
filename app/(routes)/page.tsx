@@ -99,6 +99,15 @@ export default function Home() {
     });
   }
 
+  const handleLensDelete = async (lens_id: number) => {
+    const deletePromise = fetch(`/api/lens/${lens_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting lens...",
+      success: "Lens deleted!",
+      error: "Failed to delete lens.",
+    });
+  }
+
   const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
     setLayoutViewToLocalStorage("default_layout", newLayoutView)
     setSelectedLayoutType(newLayoutView)
@@ -166,6 +175,7 @@ export default function Home() {
           layoutView={selectedLayoutType}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensDelete={handleLensDelete}
           onChangeLayout={onChangeLensLayout}
         />
       </Box>

@@ -1,16 +1,22 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
+import { ok, notOk } from "@lib/ok";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
+    const lens_id = Number(params.lens_id)
+    if (isNaN(lens_id)) {
+        return notOk("Invalid ID");
+    }
+
     try {
         const supabase = createServerComponentClient({ cookies });
 
         const lensResponse = await supabase
             .from('lens').select('parents')
-            .eq('lens_id', params.lens_id)
+            .eq('lens_id', lens_id)
             .single();
         if (lensResponse.error) throw lensResponse.error.message;
 
@@ -21,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             );
         }
 
-        const parentIds: number[] = [...lensResponse.data.parents.slice(0, -1), params.lens_id];
+        const parentIds: number[] = [...lensResponse.data.parents.slice(0, -1), lens_id];
 
         const parentLenses = await supabase
             .from('lens').select('lens_id, name')

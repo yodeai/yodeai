@@ -32,6 +32,7 @@ interface IconLayoutComponentProps {
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
+  handleLensDelete: (lens_id: number) => Promise<any>
 }
 export default function IconLayoutComponent({
   blocks,
@@ -39,7 +40,8 @@ export default function IconLayoutComponent({
   subspaces,
   onChangeLayout,
   handleBlockChangeName,
-  handleBlockDelete
+  handleBlockDelete,
+  handleLensDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -198,6 +200,7 @@ export default function IconLayoutComponent({
         ? <SubspaceIconItem
           selected={selectedItems.includes(item_id)}
           unselectBlocks={() => setSelectedItems([])}
+          handleLensDelete={handleLensDelete}
           icon={
             (item.access_type === "owner" || !item?.access_type)
               ? fileTypeIcons.subspace
@@ -456,12 +459,14 @@ type SubspaceIconItemProps = {
   subspace: Subspace | Lens
   selected?: boolean;
   unselectBlocks?: () => void
+  handleLensDelete: (lens_id: number) => Promise<any>
 }
-const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
+const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
   const { pinnedLenses, accessType } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const shareModalDisclosure = useDisclosure(false);
   const [shareModalState, shareModalController] = shareModalDisclosure;
@@ -480,15 +485,11 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     onConfirm: onConfirmDelete,
   });
 
-  const onConfirmDelete = async () => {
-    try {
-      const deleteResponse = await fetch(`/api/lens/${subspace.lens_id}`, { method: "DELETE" });
-      if (deleteResponse.ok) console.log("Lens deleted");
-      if (!deleteResponse.ok) console.error("Failed to delete lens");
-    } catch (error) {
-      console.error("Error deleting lens:", error);
-    }
+  const onConfirmDelete = () => {
+    setLoading(true);
+    handleLensDelete(subspace.lens_id).then(res => setLoading(false));
   }
+
 
   const onPinLens = async () => {
     try {
@@ -572,7 +573,10 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
       mih={75} gap="6px"
       justify="normal" align="center"
       direction="column" wrap="nowrap">
-      <SpaceIconHint>{icon}</SpaceIconHint>
+      {loading
+        ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+        : <SpaceIconHint>{icon}</SpaceIconHint>
+      }
       <Box w={75} h={30} variant="unstyled" className="text-center">
         <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
           {subspace.name}
