@@ -12,13 +12,16 @@ import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaHome, FaICursor } from "react-icons/fa";
+import { FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
+
+import ShareLensComponent from './ShareLensComponent';
+import { useDisclosure } from "@mantine/hooks";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -43,8 +46,9 @@ export default function IconLayoutComponent({
   const $lastClick = useRef<number>(0);
   const {
     lensName, lensId, layoutRefs,
-    pinnedLenses, sortingOptions,
-    setDraggingNewBlock
+    pinnedLenses, setPinnedLenses,
+    sortingOptions,
+    setDraggingNewBlock,
   } = useAppContext();
 
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
@@ -212,7 +216,14 @@ export default function IconLayoutComponent({
   const onPinLens = async (lens_id: string) => {
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "PUT" });
-      if (pinResponse.ok) console.log("Lens pinned");
+      if (pinResponse.ok) {
+        const subspace = subspaces.find(subspace => subspace.lens_id === Number(lens_id));
+        if (subspace) {
+          setPinnedLenses((pinnedLenses) => [...pinnedLenses, subspace as Lens])
+        }
+
+        console.log("Lens pinned");
+      }
       if (!pinResponse.ok) console.error("Failed to pin lens");
     } catch (error) {
       console.error("Error pinning lens:", error);
@@ -452,16 +463,19 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
   const { pinnedLenses, accessType } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
 
+  const shareModalDisclosure = useDisclosure(false);
+  const [shareModalState, shareModalController] = shareModalDisclosure;
+
   const openDeleteModal = () => modals.openConfirmModal({
-    title: 'Confirm block deletion',
+    title: 'Confirm space deletion',
     centered: true,
     confirmProps: { color: 'red' },
     children: (
       <Text size="sm">
-        Are you sure you want to delete this block? This action cannot be undone.
+        Are you sure you want to delete this space? This action cannot be undone.
       </Text>
     ),
-    labels: { confirm: 'Delete block', cancel: "Cancel" },
+    labels: { confirm: 'Delete Space', cancel: "Cancel" },
     onCancel: () => console.log('Canceled deletion'),
     onConfirm: onConfirmDelete,
   });
@@ -505,14 +519,23 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
       if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
       else router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
-  }, {
+  },
+  {
+    key: 'share',
+    color: "#228be6",
+    icon: <FaShare size={14} />,
+    title: "Share",
+    onClick: () => shareModalController.open()
+  },
+  {
     key: 'remove',
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
     disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
-  }, {
+  },
+  {
     key: 'pin',
     color: "#228be6",
     icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
@@ -542,18 +565,22 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     return subIcons;
   }, [isPinned])
 
-  return <Flex
-    onContextMenu={onContextMenu}
-    mih={75} gap="6px"
-    justify="normal" align="center"
-    direction="column" wrap="nowrap">
-    <SpaceIconHint>{icon}</SpaceIconHint>
-    <Box w={75} h={30} variant="unstyled" className="text-center">
-      <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
-        {subspace.name}
-      </Text>
-    </Box>
-  </Flex>
+  return <>
+    {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
+    <Flex
+      onContextMenu={onContextMenu}
+      mih={75} gap="6px"
+      justify="normal" align="center"
+      direction="column" wrap="nowrap">
+      <SpaceIconHint>{icon}</SpaceIconHint>
+      <Box w={75} h={30} variant="unstyled" className="text-center">
+        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
+          {subspace.name}
+        </Text>
+      </Box>
+    </Flex>
+
+  </>
 }
 
 type SpaceIconHintProps = {

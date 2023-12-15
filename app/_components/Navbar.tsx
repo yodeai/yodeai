@@ -39,8 +39,7 @@ export default function Navbar() {
     setLensId(newLensId);
     console.log(lensId);
     reloadLenses();
-    router.push(`/lens/${newLensId}?edit=true`);
-
+    router.push(`/lens/${newLensId}#newLens`);
   }, [router]);
 
   const handleNewBlock = (e: React.MouseEvent) => {

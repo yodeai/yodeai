@@ -53,6 +53,7 @@ export default function Lens(props: LensProps) {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
       setLayoutViewToLocalStorage("default_layout", "block")
     }
+
   }, [])
 
   useEffect(() => {
@@ -60,7 +61,6 @@ export default function Lens(props: LensProps) {
       setLoading(true);
       await Promise.all([
         getLensBlocks(lens_id),
-        // getLensData(lens_id),
         getLensSubspaces(lens_id),
         getLensLayout(lens_id)
       ])
@@ -71,6 +71,11 @@ export default function Lens(props: LensProps) {
           console.error('Error fetching lens data:', error);
         })
     })();
+
+    if(window.location.hash === "#newLens"){
+      setIsEditingLensName(true);
+      window.location.hash = "";
+    }
   }, [lens_id, searchParams]);
 
   useEffect(() => {

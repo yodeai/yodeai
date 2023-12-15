@@ -97,7 +97,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     useEffect(() => {
         if (isEditingLensName) {
             titleInputRef.current?.focus();
-            titleInputRef.current?.setSelectionRange(0, titleInputRef.current.value.length);
+            titleInputRef.current?.setSelectionRange(0, titleInputRef.current?.value.length);
         }
     }, [isEditingLensName])
 

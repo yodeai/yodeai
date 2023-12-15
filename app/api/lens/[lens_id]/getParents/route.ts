@@ -14,6 +14,13 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             .single();
         if (lensResponse.error) throw lensResponse.error.message;
 
+        if (!lensResponse.data?.parents) {
+            return new NextResponse(
+                JSON.stringify({ data: null }),
+                { status: 200 }
+            );
+        }
+
         const parentIds: number[] = [...lensResponse.data.parents.slice(0, -1), params.lens_id];
 
         const parentLenses = await supabase
@@ -26,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error retrieving lens's parents:", error.message);
+        console.error("Error retrieving lens's parents:", error);
         return new NextResponse(
             JSON.stringify({ error: 'Failed to retrieve parents for lens.' }),
             { status: 500 }
