@@ -285,7 +285,6 @@ export default function IconLayoutComponent({
 
   return <div className="flex flex-col justify-between h-[calc(100%-20px)]">
     <ResponsiveReactGridLayout
-      className="p-2"
       style={{ height: "100%" }}
       layouts={layouts}
       cols={cols}
