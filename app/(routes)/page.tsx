@@ -1,118 +1,176 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { Block } from 'app/_types/block';
-import BlockComponent from '@components/BlockComponent';
-import Link from "next/link";
-import { PlusIcon } from "@radix-ui/react-icons";
-import LoadingSkeleton from '@components/LoadingSkeleton';
+import { notFound } from "next/navigation";
+import { Block } from "app/_types/block";
+import { Lens, Subspace } from "app/_types/lens";
+import { useState, useEffect, useMemo } from "react";
+import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button, Divider, Flex, NavLink, Text } from "@mantine/core";
-import { FaPlusSquare } from "react-icons/fa";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
+import SpaceHeader from "@components/SpaceHeader";
+import LensComponent from "@components/LensComponent";
+import { Flex, Text, Divider, Box } from "@mantine/core";
+import LoadingSkeleton from "@components/LoadingSkeleton";
+import LayoutController from '../_components/LayoutController';
+import { LensLayout } from "app/_types/lens";
+import { RealtimeChannel } from "@supabase/supabase-js";
+import { useAppContext } from "@contexts/context";
 
-export const dynamic = 'force-dynamic';
-
-export default function Index() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const supabase = createClientComponentClient()
-  useEffect(() => {
-    const updateBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      setBlocks(prevBlocks =>
-        prevBlocks.map(item => {
-          if (item.block_id === block_id) {
-            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
-          }
-          return item;
-        })
-      );
-    };
-
-    const addBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Added a block", block_id)
-      let newBlock = payload["new"]
-      if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([newBlock, ...blocks]);
-      }
+function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
+  let layout = null;
+  if (global.localStorage) {
+    try {
+      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
+    } catch (e) {
+      /*Ignore*/
     }
+  }
+  return layout ? layout[lens_id] : null;
+}
 
-    const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-
-    }      
-
-      const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'block'}, deleteBlocks)
-      .subscribe();
-
-    return () => {
-      if (channel) channel.unsubscribe();
-    };
-  }, [blocks]);
-
-  useEffect(() => {
-    // Fetch blocks from the API
-    fetch('/api/block/getAllBlocks')
-      .then(response => response.json())
-      .then(data => {
-        setBlocks(data.data || []);
-        setLoading(false);
+function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
+  if (global.localStorage) {
+    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
+    global.localStorage.setItem(
+      "layoutView",
+      JSON.stringify({
+        ...layout,
+        [lens_id]: value
       })
-      .catch(error => {
-        console.error('Error fetching blocks:', error);
-        setError('Failed to load blocks');
-        setLoading(false);
-      });
-  }, []);
-
-
-  // const handleNewBlock = (e: React.MouseEvent) => {
-  //   setLensId(null);
-  //   setActiveComponent("global");
-  //   router.push(`/new`);
-  // };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col p-2 pt-0 flex-grow">
-        <LoadingSkeleton />
-      </div>
-
     );
   }
+}
 
-  if (error) {
-    return <p>Error: {error}</p>;
+export default function Home() {
+  const supabase = createClientComponentClient()
+
+  const [lenses, setLenses] = useState<(Lens)[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [layoutData, setLayoutData] = useState<LensLayout>({})
+  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
+  const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
+
+  const { sortingOptions, setSortingOptions } = useAppContext();
+
+  const getLenses = async () => {
+    return fetch(`/api/lens/getAll`)
+      .then((response) => response.json())
+      .then((data) => {
+        setLenses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching lens:", error);
+        notFound();
+      }).finally(() => {
+        setLoading(false);
+      })
   }
 
+  useEffect(() => {
+    getLenses();
+  }, []);
+
+  const onChangeLensLayout = async (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => {
+    // saveLayoutToSupabase(layoutName, layoutData)
+    setLayoutData(prevLayout => ({
+      ...prevLayout,
+      [layoutName]: layoutData
+    }))
+  };
+
+  const handleBlockChangeName = async (block_id: number, newBlockName: string) => {
+    const updatePromise = fetch(`/api/block/${block_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ title: newBlockName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating block name...",
+      success: "Block name updated!",
+      error: "Failed to update block name.",
+    });
+  }
+
+  const handleBlockDelete = (block_id: number) => {
+    const deletePromise = fetch(`/api/block/${block_id}`, {
+      method: "DELETE"
+    });
+    return load(deletePromise, {
+      loading: "Deleting block...",
+      success: "Block deleted!",
+      error: "Failed to delete block.",
+    });
+  }
+
+  const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
+    setLayoutViewToLocalStorage("default_layout", newLayoutView)
+    setSelectedLayoutType(newLayoutView)
+  }
+
+  useEffect(() => {
+    if (!getLayoutViewFromLocalStorage("default_layout")) {
+      setLayoutViewToLocalStorage("default_layout", "block")
+    }
+
+    console.log("Subscribing to lens changes")
+    let channel: RealtimeChannel;
+    (async () => {
+      const user_id = (await supabase.auth?.getUser())?.data?.user?.id;
+      if (!user_id) return;
+
+      channel = supabase
+        .channel('schema-db-changes')
+        .on('postgres_changes', {
+          event: '*', schema: 'public', table: 'lens_users',
+          filter: `user_id=eq.${user_id}`
+        }, getLenses)
+        .subscribe();
+    })();
+
+    return () => {
+      console.log("Unsubscribing from lens changes")
+      channel.unsubscribe();
+    }
+  }, [])
+
+  const sortedLenses = useMemo(() => {
+    if (sortingOptions.sortBy === null) return lenses;
+
+    let _sorted_lenses = [...lenses].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    if (sortingOptions.order === "desc") {
+      _sorted_lenses = _sorted_lenses.reverse();
+    }
+
+    return _sorted_lenses;
+  }, [sortingOptions, lenses]);
+
   return (
-    <Flex mih={'100vh'} direction="column">
-      <Flex direction="column" p={16} pt={0}>
-        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>All blocks</Text>} labelPosition="center" />
-
-        {blocks.length > 0 ? (
-          blocks.map((block: Block) => (
-
-            <div key={block.block_id}>
-              <BlockComponent block={block} />
-            </div>
-          ))
-        ) : (
-          <p>No blocks found.</p>
-        )}
-      </Flex>
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
-    </Flex>
+    <Flex direction="column" pt={0} h="100%">
+      <SpaceHeader
+        title="Home"
+        selectedLayoutType={selectedLayoutType}
+        handleChangeLayoutView={handleChangeLayoutView}
+      />
+      <Box className="flex p-2 items-stretch flex-col h-full">
+        {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />}
+        <LayoutController
+          blocks={[]}
+          subspaces={sortedLenses}
+          layout={layoutData}
+          layoutView={selectedLayoutType}
+          lens_id={"-1"}
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          onChangeLayout={onChangeLensLayout}
+        />
+      </Box>
+    </Flex >
   );
 }

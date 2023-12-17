@@ -18,6 +18,7 @@ export type Lens = {
   public: boolean;
   user_to_access_type: UserToAccessType
   parent_id: number;
+  access_type: string;
 }
 
 export type LensLayout = {
@@ -37,4 +38,6 @@ export type Subspace = {
   shared: boolean
   public: boolean
   root: number
+  parents: number[]
+  access_type: string;
 }

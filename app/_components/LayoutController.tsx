@@ -1,16 +1,17 @@
 
 import BlockComponent from "./BlockComponent";
 import { Block } from "app/_types/block";
-import { Subspace, LensLayout } from "app/_types/lens";
+import { Subspace, LensLayout, Lens } from "app/_types/lens";
 import IconLayoutComponent from "./IconLayoutComponent";
 import React from "react";
-import { ScrollArea } from "@mantine/core";
+import { Flex, Grid, ScrollArea } from "@mantine/core";
 import { Divider, Text } from "@mantine/core";
 import SubspaceComponent from "@components/SubspaceComponent"
+import BlockHeader from "./BlockHeader";
 
 type LayoutControllerProps = {
     blocks: Block[]
-    subspaces: Subspace[]
+    subspaces: (Subspace | Lens)[]
     layout: LensLayout,
     layoutView: "block" | "icon",
     lens_id: string
@@ -28,26 +29,44 @@ export default function LayoutController(props: LayoutControllerProps) {
         onChangeLayout, handleBlockChangeName, handleBlockDelete
     } = props;
 
+    if (blocks.length === 0 && subspaces.length === 0) return (
+        <Flex
+            align="center"
+            justify="center"
+        >
+            <Text
+                size="sm"
+                c={"gray.7"}
+                ta={"center"}
+                mt={30}
+                mb={15}
+            >
+                This space is empty, add blocks to populate this space with content & context.
+            </Text>
+        </Flex>
+    )
+
     switch (layoutView) {
         case "block":
-            return <ScrollArea type={"scroll"} mt={15.5} w={'100%'} scrollbarSize={8} >
-                <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" />
-                {blocks && blocks.length > 0
-                    ? <React.Fragment>{blocks.map((block) => (
-                        <BlockComponent key={block.block_id} block={block} />
-                    ))}</React.Fragment>
-                    : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30} mb={15}>
-                        This space is empty, add blocks to populate this space with content & context.
-                    </Text>}
+            return (
+                <>
+                    <ScrollArea type={"scroll"} w={'100%'} p={20} scrollbarSize={8} >
+                        {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
+                        {blocks && blocks.length > 0
+                            && <React.Fragment>
+                                <BlockHeader />
+                                {blocks.map((block) => (
+                                    <BlockComponent key={block.block_id} block={block} />
+                                ))}</React.Fragment>
+                            || ""}
 
-                <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" />
-
-                {subspaces && subspaces.length > 0
-                    ? subspaces.map((childLens) => (
-                        <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
-                    )) : <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                        There are no subspaces, add subspaces to organize your blocks.</Text>}
-            </ScrollArea>
+                        {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" /> */}
+                        {subspaces && subspaces.length > 0
+                            ? subspaces.map((childLens) => (
+                                <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
+                            )) : null}
+                    </ScrollArea>
+                </>)
         case "icon":
             return <IconLayoutComponent
                 handleBlockChangeName={handleBlockChangeName}

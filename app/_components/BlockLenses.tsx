@@ -87,9 +87,9 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
 
 
     load(request, {
-      loading: "Adding lens...",
-      success: "Lens added!",
-      error: "Failed to add lens."
+      loading: "Adding space...",
+      success: "Space added!",
+      error: "Failed to add space."
     })
       .then((response: Response) => response.json())
       .then(data => {
@@ -121,9 +121,9 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     });
 
     load(request, {
-      loading: "Deleting lens...",
-      success: "Lens removed!",
-      error: "Failed to remove lens."
+      loading: "Deleting space...",
+      success: "Space removed!",
+      error: "Failed to remove space."
     })
       .then((response: Response) => response.json())
       .then(data => {
@@ -132,7 +132,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
         setProcessingLensId(null);
       })
       .catch(error => {
-        console.error("Error deleting lens relation:", error);
+        console.error("Error deleting space relation:", error);
         setProcessingLensId(null);
       });
   };
@@ -187,7 +187,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
             size="xs"
             value={newLensName}
             onSearchChange={handleInputChange}
-            placeholder="Enter lens name..."
+            placeholder="Enter space name..."
             // data={[
             //   { value: 'react', label: 'React' },
             //   { value: 'ng', label: 'Angular' },

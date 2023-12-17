@@ -122,7 +122,7 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     return (        
         <div className="container p-4 " >
             <h1 className="font-semibold text-lg flex-grow-0 flex-shrink-0 w-full">
-                {lensId ? 'Ask a question from this lens' : 'Ask a question from your data'}
+                {lensId ? 'Ask a question from this space' : 'Ask a question from your data'}
             </h1>
             
             <div className="flex flex-col  lg:py-12 text-foreground">
