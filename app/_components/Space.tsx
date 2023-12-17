@@ -1,5 +1,3 @@
-import { notFound } from "next/navigation";
-import Container from "@components/Container";
 import Link from "next/link";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
@@ -13,18 +11,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import ShareLensComponent from "@components/ShareLensComponent";
 import toast from "react-hot-toast";
-import { FaCheck, FaPlus, FaPlusSquare, FaThLarge, FaTrash, FaTrashAlt } from "react-icons/fa";
-import { isErrored } from "stream";
+import { FaCheck, FaPlus, FaThLarge, FaTrashAlt } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
-import InfoPopover from "@components/InfoPopover";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
 
   const [lens, setLens] = useState<Lens | null>(null);
   const [editingLensName, setEditingLensName] = useState("");
@@ -39,9 +32,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const fetchAllData = (lensId: string) => {
     setLoading(true);
     let apicalls = [fetchBlocks(lensId)];
-    if (lensId == "inbox") {
-      apicalls.push(fetchInvites());
-    } else {
+    if (lensId != "inbox" && lensId != "allBlocks") {
       apicalls.push(fetchSpace(lensId));
       // Check if 'edit' query parameter is present and set isEditingLensName accordingly
       if (searchParams.get("edit") === 'true') {
@@ -78,19 +69,6 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
           console.error('(fetchBlocks) Error fetching blocks:', error);
           throw error;
         });
-  };
-
-  const fetchInvites = async() => {
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data, error } = await supabase
-    .from('lens_invites')
-    .select()
-    .eq('recipient', user.email).eq("status", "sent")
-    if (error) {
-      console.error("(fetchInvites) Error fetching space invites:", error.message);
-      throw error;
-    }
-    setUnacceptedInvites(data);
   };
 
   const fetchSpace = async(lensId: string) => {
