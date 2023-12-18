@@ -11,7 +11,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
-import ToolbarHeader from './ToolbarHeder';
+import ToolbarHeader from './ToolbarHeader';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 

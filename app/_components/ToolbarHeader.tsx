@@ -10,7 +10,7 @@ export default function ToolbarHeader({
     children
 }: ToolbarHeaderProps) {
     const { closeComponent } = useToolbarContext();
-    return <Flex justify={"space-between"} className="w-full p-4">
+    return <Flex justify={"space-between"} className="w-full p-4 bg-white border-b border-b-[#eeeeee]">
         <Box>
             {children}
         </Box>

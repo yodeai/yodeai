@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext, use } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu } from '@mantine/core';
 import { FaInfo, FaPlus } from 'react-icons/fa';
@@ -9,7 +9,9 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
+
 import ConditionalTooltip from './ConditionalTooltip';
+import LensChat from './LensChat';
 
 type contextType = {
     activeComponent: "social" | "questionform";
@@ -17,7 +19,7 @@ type contextType = {
 };
 
 const defaultValue: contextType = {
-    activeComponent: "questionform",
+    activeComponent: undefined,
     closeComponent: () => { },
 }
 
@@ -42,7 +44,13 @@ export default function Toolbar() {
         setActiveComponent(component);
     }
 
-    return <Flex direction="row" className="h-[calc(100vh-60px)] sticky top-0">
+    useEffect(() => {
+        if (!lensId && activeComponent === "social"){
+            switchComponent(undefined);
+        }
+    }, [lensId])
+
+    return <Flex direction="row" className="h-[calc(100vh-60px)] w-full">
         { /*toolbar buttons*/}
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
             <Flex direction="column" gap={5} className="mt-1 p-1">
@@ -80,6 +88,7 @@ export default function Toolbar() {
                 </Menu>
                 <Box>
                     <Button
+                        disabled={!lensId}
                         variant={activeComponent === "social" ? "light" : "subtle"}
                         c="gray.6"
                         onClick={switchComponent.bind(null, "social")}>
@@ -98,13 +107,14 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box>
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "w-[20vw]" : "w-[0px]")}>
+        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "min-w-[350px]" : "w-[0px]")}>
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,
                 activeComponent
             }}>
                 {activeComponent === "questionform" && <QuestionAnswerForm />}
+                {activeComponent === "social" && <LensChat />}
             </context.Provider>
         </Box>
     </Flex >
