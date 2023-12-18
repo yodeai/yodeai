@@ -4,7 +4,7 @@ import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-ico
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip, ScrollArea } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
@@ -283,25 +283,27 @@ export default function IconLayoutComponent({
     onChangeLayout("icon_layout", layouts)
   }, [sortingOptions])
 
-  return <div className="flex flex-col justify-between h-[calc(100%-20px)]">
-    <ResponsiveReactGridLayout
-      style={{ height: "100%" }}
-      layouts={layouts}
-      cols={cols}
-      breakpoint={breakpoint}
-      breakpoints={breakpoints}
-      rowHeight={75}
-      onLayoutChange={onLayoutChange}
-      isResizable={false}
-      onWidthChange={onWidthChange}
-      onDragStart={calculateDoubleClick}
-      onDrag={onDrag}
-      onDragStop={onDragStop}
-      preventCollision={true}
-      verticalCompact={false}>
-      {layoutItems}
-    </ResponsiveReactGridLayout>
-    <Box className="flex flex-row gap-2 px-5 pt-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+  return <div className="flex flex-col justify-between">
+    <ScrollArea type={"scroll"} w={'100%'} p={0} scrollbarSize={8} style={{ height: "calc(100vh - 180px)", overflow: "scroll" }}>
+      <ResponsiveReactGridLayout
+        layouts={layouts}
+        cols={cols}
+        breakpoint={breakpoint}
+        breakpoints={breakpoints}
+        rowHeight={75}
+        onLayoutChange={onLayoutChange}
+        isResizable={false}
+        onWidthChange={onWidthChange}
+        onDragStart={calculateDoubleClick}
+        onDrag={onDrag}
+        onDragStop={onDragStop}
+        preventCollision={true}
+        verticalCompact={false}>
+        {layoutItems}
+      </ResponsiveReactGridLayout>
+
+    </ScrollArea>
+    <Box className="flex flex-row z-50 gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
       {breadcrumbLoading
         ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
         : <>
@@ -447,7 +449,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
           variant="unstyled" size="xs" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
           onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">{titleText}</Text>
+        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
       }
     </Box>
   </Flex>
@@ -577,7 +579,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
         : <SpaceIconHint>{icon}</SpaceIconHint>
       }
       <Box w={75} h={30} variant="unstyled" className="text-center">
-        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
+        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
         </Text>
       </Box>

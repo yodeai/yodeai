@@ -166,8 +166,10 @@ export default function Home() {
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
       />
-      <Box className="flex p-2 items-stretch flex-col h-full">
-        {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />}
+      <Box className="flex items-stretch flex-col h-full">
+        {loading && <div className="p-3">
+          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+        </div>}
         <LayoutController
           blocks={[]}
           subspaces={sortedLenses}
