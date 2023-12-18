@@ -30,8 +30,7 @@ type DynamicSpaceHeaderProps = {
     saveNewLensName: any,
     handleDeleteLens: any,
     selectedLayoutType: string,
-    handleChangeLayoutView: any,
-    lens_ids: any
+    handleChangeLayoutView: any
 }
 export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const {
@@ -48,7 +47,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         handleDeleteLens,
         selectedLayoutType,
         handleChangeLayoutView,
-        lens_ids
     } = props;
 
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -56,8 +54,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
-    const { pinnedLenses, subspaceModalDisclosure, sortingOptions, setSortingOptions } = useAppContext();
-    const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
+    const { lensId, pinnedLenses, subspaceModalDisclosure, sortingOptions, setSortingOptions } = useAppContext();
 
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
 
@@ -98,7 +95,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     useEffect(() => {
         if (isEditingLensName) {
             titleInputRef.current?.focus();
-            titleInputRef.current?.setSelectionRange(0, titleInputRef.current.value.length);
+            titleInputRef.current?.setSelectionRange(0, titleInputRef.current?.value.length);
         }
     }, [isEditingLensName])
 
@@ -231,7 +228,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
-                    <AddSubspace modalController={subspaceModalDisclosure} lensId={lens_ids[lens_ids.length - 1]} />
+                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
