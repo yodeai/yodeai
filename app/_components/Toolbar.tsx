@@ -19,7 +19,7 @@ type contextType = {
 };
 
 const defaultValue: contextType = {
-    activeComponent: undefined,
+    activeComponent: "social",
     closeComponent: () => { },
 }
 

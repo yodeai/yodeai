@@ -97,9 +97,6 @@ dependencies:
   '@tiptap/starter-kit':
     specifier: ^2.1.7
     version: 2.1.12(@tiptap/pm@2.1.12)
-  '@types/react-dom':
-    specifier: 18.2.4
-    version: 18.2.4
   '@xenova/transformers':
     specifier: ^2.6.0
     version: 2.9.0
@@ -181,6 +178,9 @@ dependencies:
   react-dropzone:
     specifier: ^14.2.3
     version: 14.2.3(react@18.2.0)
+  react-gravatar:
+    specifier: ^2.6.3
+    version: 2.6.3(react@18.2.0)
   react-grid-layout:
     specifier: ^1.4.3
     version: 1.4.4(react-dom@18.2.0)(react@18.2.0)
@@ -240,6 +240,12 @@ devDependencies:
   '@types/react':
     specifier: 18.2.7
     version: 18.2.7
+  '@types/react-dom':
+    specifier: 18.2.4
+    version: 18.2.4
+  '@types/react-gravatar':
+    specifier: ^2.6.14
+    version: 2.6.14
   '@types/react-grid-layout':
     specifier: ^1.3.5
     version: 1.3.5
@@ -1753,7 +1759,12 @@ packages:
     resolution: {integrity: sha512-G2mHoTMTL4yoydITgOGwWdWMVd8sNgyEP85xVmMKAPUBwQWm9wBPQUmvbeF4V3WBY1P7mmL4BkjQ0SqUpf1snw==}
     dependencies:
       '@types/react': 18.2.7
-    dev: false
+
+  /@types/react-gravatar@2.6.14:
+    resolution: {integrity: sha512-esbOXcvdGEJAsu1X8yHmArQ28Jo1gUmRZNVyA8MlEn7Z1mjj+9daHKiRoDQk61Y0kqbFGl75C4DOfUhb9uk5Tw==}
+    dependencies:
+      '@types/react': 18.2.7
+    dev: true
 
   /@types/react-grid-layout@1.3.5:
     resolution: {integrity: sha512-WH/po1gcEcoR6y857yAnPGug+ZhkF4PaTUxgAbwfeSH/QOgVSakKHBXoPGad/sEznmkiaK3pqHk+etdWisoeBQ==}
@@ -4356,6 +4367,10 @@ packages:
       has-tostringtag: 1.0.0
     dev: false
 
+  /is-retina@1.0.3:
+    resolution: {integrity: sha512-/tCmbIETZwCd8uHWO+GvbRa7jxwHFHdfetHfiwoP0aN9UDf3prUJMtKn7iBFYipYhqY1bSTjur8hC/Dakt8eyw==}
+    dev: false
+
   /is-set@2.0.2:
     resolution: {integrity: sha512-+2cnTEZeY5z/iXGbLhPrOAaK/Mau5k5eXq9j14CpRTftq0pAJu2MwVRSZhyZWBzx3o6X795Lz6Bpb6R0GKf37g==}
     dev: false
@@ -6343,6 +6358,14 @@ packages:
       side-channel: 1.0.4
     dev: false
 
+  /query-string@4.3.4:
+    resolution: {integrity: sha512-O2XLNDBIg1DnTOa+2XrIwSiXEV8h2KImXUnjhhn2+UsvZ+Es2uyd5CCRTNQlDGbzUQOW3aYCBx9rVA6dzsiY7Q==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      object-assign: 4.1.1
+      strict-uri-encode: 1.1.0
+    dev: false
+
   /querystring@0.2.0:
     resolution: {integrity: sha512-X/xY82scca2tau62i9mDyU9K+I+djTMUsvwf7xnUX5GLvVzgJybOJf4Y6o9Zx3oJK/LSXg5tTZBjwzqVPaPO2g==}
     engines: {node: '>=0.4.x'}
@@ -6415,6 +6438,17 @@ packages:
       attr-accept: 2.2.2
       file-selector: 0.6.0
       prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
+  /react-gravatar@2.6.3(react@18.2.0):
+    resolution: {integrity: sha512-yITonigS2LmG7Fw0gWfZfcVwy1mpiBHNVmoFyetitQjXu7JCYoE6jtub0GIfq+ydpnQSYyJT3kwpX6zj1wXR4w==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      is-retina: 1.0.3
+      md5: 2.3.0
+      query-string: 4.3.4
       react: 18.2.0
     dev: false
 
@@ -7174,6 +7208,11 @@ packages:
     dependencies:
       fast-fifo: 1.3.2
       queue-tick: 1.0.1
+    dev: false
+
+  /strict-uri-encode@1.1.0:
+    resolution: {integrity: sha512-R3f198pcvnB+5IpnBlRkphuE9n46WyVl8I39W/ZUTZLz4nqSP/oLYUrcnJrw462Ds8he4YKMov2efsTIw1BDGQ==}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /string-width@4.2.3:

@@ -39,7 +39,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     if (lensData.parents) {
         // parent control check if lens_ids on the route is different
         const lens_ids_from_route = lens_ids.slice(0, -1).join('/')
-        const parent_ids_from_db = lensData.parents.slice(0, -1).reverse().join('/')
+        const parent_ids_from_db = lensData.parents.slice(0, -1).filter(el => Number(el) > 0).reverse().join('/')
 
         if (lens_ids_from_route !== parent_ids_from_db) {
             return redirect(`/lens/${parent_ids_from_db}/${lens_id}`)

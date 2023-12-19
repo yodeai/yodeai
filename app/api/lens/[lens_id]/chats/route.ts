@@ -7,25 +7,31 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
     const { lens_id } = params;
+    const searchParams = request.nextUrl.searchParams
+    const limit = Number(searchParams.get('limit')) || 25;
+    const offset = Number(searchParams.get('offset')) || 0;
+
     const supabase = createServerComponentClient({ cookies });
 
     try {
         if (isNaN(Number(lens_id))) return notOk("Invalid ID");
 
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
             .from('lens_chats')
-            .select(`*, users(*)`)
-            .eq('lens_id', params.lens_id);
+            .select(`*, users(*)`, { count: 'exact' })
+            .eq('lens_id', params.lens_id)
+            .order('created_at', { ascending: false })
+            .range(offset, limit + offset);
 
         if (error) throw error;
 
-
-
-        const chats = data
-        return ok(chats)
+        return ok({
+            messages: data,
+            hasMore: count > limit + offset,
+        })
 
     } catch (err) {
-        return notOk(`${err}`);
+        return notOk(`${err.message}`);
     }
 }
 
