@@ -12,6 +12,8 @@ import Link from 'next/link';
 
 import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
+import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
+import { usePathname } from 'next/navigation';
 
 type contextType = {
     activeComponent: "social" | "questionform";
@@ -19,7 +21,7 @@ type contextType = {
 };
 
 const defaultValue: contextType = {
-    activeComponent: "social",
+    activeComponent: getActiveToolbarTab(),
     closeComponent: () => { },
 }
 
@@ -30,6 +32,8 @@ export const useToolbarContext = () => {
 };
 
 export default function Toolbar() {
+    const pathname = usePathname();
+
     const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>(defaultValue.activeComponent);
 
     const { accessType, subspaceModalDisclosure, lensId } = useAppContext();
@@ -45,10 +49,8 @@ export default function Toolbar() {
     }
 
     useEffect(() => {
-        if (!lensId && activeComponent === "social"){
-            switchComponent(undefined);
-        }
-    }, [lensId])
+        setActiveToolbarTab(activeComponent);
+    }, [activeComponent]);
 
     return <Flex direction="row" className="h-[calc(100vh-60px)] w-full">
         { /*toolbar buttons*/}
