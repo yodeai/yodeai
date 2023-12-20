@@ -13,12 +13,15 @@ import { useAppContext, contextType } from "@contexts/context";
 
 type SpaceHeaderProps = {
     title: string;
-    selectedLayoutType: string,
-    handleChangeLayoutView: any,
+    staticLayout?: boolean;
+    selectedLayoutType: "block" | "icon",
+    handleChangeLayoutView?: any
 }
+
 export default function SpaceHeader(props: SpaceHeaderProps) {
     const {
         title,
+        staticLayout,
         selectedLayoutType,
         handleChangeLayoutView,
     } = props;
@@ -84,7 +87,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
                 />
-                <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
+                {staticLayout && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
                     ? "Switch to icon view."
                     : "Switch to list view."
                 }>
@@ -98,7 +101,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                     >
                         {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                     </Button>
-                </Tooltip>
+                </Tooltip> || ""}
             </Box>
         </Flex>
 
