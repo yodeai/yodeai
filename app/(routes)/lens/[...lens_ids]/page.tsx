@@ -1,3 +1,4 @@
+import { notOk } from "@lib/ok";
 import Lens from "./lens";
 import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
@@ -12,7 +13,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
     const { data: lens, error } = await supabase
         .from('lens').select('*, lens_users(user_id, access_type)')
         .eq('lens_id', lens_id).single();
-    if (error) throw error;
+    if (error) return null;
 
     lens.user_to_access_type = {}
     lens.lens_users.forEach(obj => {
@@ -35,6 +36,11 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     const user = userData.data.user;
 
     const lensData = await getLensData(supabase, lens_id);
+
+    if(!lensData){
+        redirect("/notFound");
+        return;
+    }
 
     if (lensData.parents) {
         // parent control check if lens_ids on the route is different

@@ -24,7 +24,7 @@ export default function LensChat() {
     const [isSending, setIsSending] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState<string>('');
     const [hasMore, setHasMore] = useState<boolean>(true);
-    const { lensId, lensName } = useAppContext();
+    const { lensId, lensName, user } = useAppContext();
 
     const supabase = createClientComponentClient()
 
@@ -49,7 +49,7 @@ export default function LensChat() {
                 }
             })
             .then(data => {
-                setMessages(_messages => [..._messages, ...data.data.messages]);
+                setMessages(_messages => [...data.data.messages, ..._messages]);
                 setHasMore(data.data.hasMore);
                 $hasMore.current = data.data.hasMore;
             })
@@ -89,22 +89,26 @@ export default function LensChat() {
     }
 
     useEffect(() => {
-        if (!lensId) {
-            setMessages([]);
-            return;
-        }
+        if (!user?.id || !lensId) return;
         fetchLensChat();
 
         const channel = supabase
             .channel('schema-db-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_chats' }, fetchMessage)
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens_chats', filter: `user_id=neq.${user?.id}` }, fetchMessage)
             .subscribe();
 
         return () => {
             if (channel) channel.unsubscribe();
-        }
-    }, [lensId])
+            setMessages([]);
+            setIsLoading(true);
+            setIsSending(false);
 
+            $loadMore.current = null;
+            $offset.current = 0;
+            $hasMore.current = false;
+            $fetching.current = false;
+        }
+    }, [lensId, user]);
 
     useEffect(() => {
         if (!$loadMore.current) return;
@@ -144,7 +148,7 @@ export default function LensChat() {
                 }
             })
             .then(data => {
-                setMessages([...messages, data.data[0]]);
+                setMessages([data.data[0], ...messages]);
                 setInputValue('');
             })
             .catch(err => {
