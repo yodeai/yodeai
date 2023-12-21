@@ -1,29 +1,22 @@
 "use client";
+import { useState, useEffect, useMemo } from "react";
 import { notFound } from "next/navigation";
-import Container from "@components/Container";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
-import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Link from 'next/link';
-import { PlusIcon } from "@radix-ui/react-icons";
 
-import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
-import { FaPlus } from "react-icons/fa";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
-import LensInviteComponent from "@components/LensInviteComponent";
+import { Flex, Text, Box } from "@mantine/core";
 import BlockHeader from "@components/BlockHeader";
-
+import SpaceHeader from "@components/SpaceHeader";
 
 export default function MyBlocks() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClientComponentClient()
 
-  const { setLensId } = useAppContext();
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { sortingOptions, setLensId } = useAppContext();
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -46,7 +39,6 @@ export default function MyBlocks() {
         setBlocks([newBlock, ...blocks]);
       }
     }
-
 
     const deleteBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -85,30 +77,52 @@ export default function MyBlocks() {
     setLensId(null);
   }, []);
 
-  return (
-    <Flex direction="column" p={16} pt={0}>
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My Blocks</Text>} labelPosition="center" />
-      <BlockHeader />
+  const sortedBlocks = useMemo(() => {
+    if (sortingOptions.sortBy === null) return blocks;
 
-      {
-        loading ? (
-          <div className="mt-2">
-            <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-          </div>
-        ) : blocks?.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
-          ))
-        ) : (
-          <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-            Nothing to show here. As you add blocks they will initially show up in your Inbox.
-          </Text>
-        )
+    let _sorted_blocks = [...blocks].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.title.localeCompare(b.title);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    if (sortingOptions.order === "desc") {
+      _sorted_blocks = _sorted_blocks.reverse();
+    }
+
+    return _sorted_blocks;
+  }, [sortingOptions, blocks]);
+
+  return (
+    <Flex direction="column" pt={0}>
+      <SpaceHeader
+        title="My Blocks"
+        selectedLayoutType="block"
+      />
+      {loading && <div className="p-3">
+        <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
+      </div> || ""
       }
 
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
+      {!loading && sortedBlocks.length > 0 &&
+        <Box p={16}>
+          <BlockHeader />
+          {sortedBlocks.map((block) =>
+            <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
+          )}
+        </Box> || ""
+      }
+
+      {!loading && sortedBlocks?.length == 0 &&
+        <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+          Nothing to show here. As you add blocks they will initially show up in your Inbox.
+        </Text> || ""
+      }
+
     </Flex >
   );
 }

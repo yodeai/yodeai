@@ -51,13 +51,11 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const titleInputRef = useRef<HTMLInputElement>(null);
 
-    const subspaceModalDisclosure = useDisclosure(false);
-    const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
-
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
-    const { lensId, pinnedLenses, sortingOptions, setSortingOptions } = useAppContext();
+    const { lensId, pinnedLenses, subspaceModalDisclosure, sortingOptions, setSortingOptions } = useAppContext();
+
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
 
     const openDeleteModal = () => modals.openConfirmModal({
@@ -161,10 +159,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </Box>
 
                 <Menu.Dropdown>
-                    <Link className="decoration-transparent text-inherit" href="/new" prefetch>
-                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)}>Add Block</Menu.Item>
-                    </Link>
-                    <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                     <Menu.Divider />

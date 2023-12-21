@@ -4,38 +4,15 @@ import { Lens } from "app/_types/lens";
 import { useState, useEffect, useMemo } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import SpaceHeader from "@components/SpaceHeader";
 import { Flex, Box } from "@mantine/core";
+
+import SpaceHeader from "@components/SpaceHeader";
 import LoadingSkeleton from "@components/LoadingSkeleton";
-import LayoutController from '../_components/LayoutController';
+import LayoutController from 'app/_components/LayoutController';
 import { LensLayout } from "app/_types/lens";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useAppContext } from "@contexts/context";
-
-function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
-  let layout = null;
-  if (global.localStorage) {
-    try {
-      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return layout ? layout[lens_id] : null;
-}
-
-function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
-  if (global.localStorage) {
-    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
-    global.localStorage.setItem(
-      "layoutView",
-      JSON.stringify({
-        ...layout,
-        [lens_id]: value
-      })
-    );
-  }
-}
+import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 export default function Home() {
   const supabase = createClientComponentClient()
