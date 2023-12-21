@@ -11,15 +11,18 @@ type LensPageProps = {
 const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
     const { data: lens, error } = await supabase
         .from('lens').select('*, lens_users(user_id, access_type)')
-        .eq('lens_id', lens_id).single();
+        .eq('lens_id', lens_id)
+    
     if (error) throw error;
-
-    lens.user_to_access_type = {}
-    lens.lens_users.forEach(obj => {
-        lens.user_to_access_type[obj.user_id] = obj.access_type;
+    if (lens.length == 0) {
+        return redirect(`/notFound`)
+      }
+    lens[0].user_to_access_type = {}
+    lens[0].lens_users.forEach(obj => {
+        lens[0].user_to_access_type[obj.user_id] = obj.access_type;
     });
 
-    return lens;
+    return lens[0];
 }
 
 export default async function LensPage({ params, searchParams }: LensPageProps) {

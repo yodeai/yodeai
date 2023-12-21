@@ -104,7 +104,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
 
         <Flex justify={"center"} align={"center"}>
             <Flex justify={"center"} align={"center"} gap={"sm"}>
-                <AddSubspace modalController={subspaceModalDisclosure} lensId={-1} />
+                <AddSubspace modalController={subspaceModalDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>
