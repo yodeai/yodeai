@@ -36,6 +36,7 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
   return (
     <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline">
       <NavLink
+        component="div"
         label={<Text lh={1.2} size={"sm"}>{lens.name}</Text>}
         description={
           <>

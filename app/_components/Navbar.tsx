@@ -117,6 +117,7 @@ export default function Navbar() {
     <Flex direction="column" gap={5} mt={10}>
       <Link href="/" className="no-underline">
         <NavLink
+          component="div"
           label="Home"
           leftSection={<FaHouse size={18} />}
           color={pathname === "/" ? "blue" : "#888"}
@@ -126,6 +127,7 @@ export default function Navbar() {
       </Link>
       <Link href="/myblocks" className="no-underline">
         <NavLink
+          component="div"
           label="My Blocks"
           leftSection={<FaThLarge size={18} />}
           color={pathname === "/myblocks" ? "blue" : "#888"}
@@ -135,6 +137,7 @@ export default function Navbar() {
       </Link>
       <Link href="/inbox" className="no-underline">
         <NavLink
+          component="div"
           label="Inbox"
           leftSection={<FaInbox size={18} />}
           color={pathname === "/inbox" ? "blue" : "#888"}
