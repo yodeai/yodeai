@@ -4,6 +4,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
 import { getSortingOptionsFromLocalStorage, setSortingOptionsToLocalStorage } from '@utils/localStorage';
+import { User } from '@supabase/auth-helpers-nextjs';
+import { useDisclosure } from "@mantine/hooks";
 
 // Update the type for the context value
 export type contextType = {
@@ -31,11 +33,14 @@ export type contextType = {
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
+  subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
   sortingOptions: {
     order: "asc" | "desc",
     sortBy: null | "name" | "createdAt" | "updatedAt"
   },
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
+
+  user?: User;
 };
 
 
@@ -64,11 +69,13 @@ const defaultValue: contextType = {
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
+  subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
     sortBy: null
   },
-  setSortingOptions: () => { }
+  setSortingOptions: () => { },
+  user: undefined
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -96,6 +103,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
+  const [user, setUser] = useState<User>();
+
+  const subspaceModalDisclosure = useDisclosure(false);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -124,6 +134,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       })
   }
 
+  const getUserId = async () => {
+    supabase.auth.getUser().then((user) => {
+      if (!user?.data?.user) return;
+      setUser(user.data.user);
+    })
+  }
+
   useEffect(() => {
     // Get the lensId from the URL
     const path = window.location.pathname;
@@ -144,6 +161,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     // Get all the lenses that this user has
     getAllLenses();
     getPinnedLenses();
+    getUserId();
   }, []);
 
   useEffect(() => {
@@ -211,7 +229,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      sortingOptions, setSortingOptions
+      subspaceModalDisclosure,
+      sortingOptions, setSortingOptions,
+      user
     }}>
       {children}
     </context.Provider>

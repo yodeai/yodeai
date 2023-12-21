@@ -8,7 +8,6 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 import Link from "next/link";
 import AddSubspace from "@components/AddSubspace";
-import { useDisclosure } from "@mantine/hooks";
 import { useAppContext, contextType } from "@contexts/context";
 
 type SpaceHeaderProps = {
@@ -23,9 +22,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         handleChangeLayoutView,
     } = props;
 
-    const { sortingOptions, setSortingOptions } = useAppContext();
-
-    const subspaceModalDisclosure = useDisclosure(false);
+    const { subspaceModalDisclosure,  sortingOptions, setSortingOptions  } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     return <>
