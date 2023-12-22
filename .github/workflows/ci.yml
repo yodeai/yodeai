@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js and install pnpm
         uses: actions/setup-node@v1
         with:
-          node-version: "14"
+          node-version: "18.17.1"
       - run: npm install -g pnpm
 
       - name: Install dependencies
