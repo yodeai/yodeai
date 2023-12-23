@@ -38,7 +38,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     const lensData = await getLensData(supabase, lens_id);
 
     if(!lensData){
-        redirect("/notFound");
+        redirect("/notFound")
         return;
     }
 
