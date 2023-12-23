@@ -262,7 +262,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
-                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} />
+                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>

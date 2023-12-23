@@ -11,8 +11,9 @@ import toast from 'react-hot-toast';
 type AddSubspaceProps = {
   lensId: number
   modalController: ReturnType<typeof useDisclosure>
+  accessType: string
 }
-export default function AddSubspace({ lensId, modalController }: AddSubspaceProps) {
+export default function AddSubspace({ lensId, modalController, accessType }: AddSubspaceProps) {
   const [lensName, setLensName] = useState("");
   const [loading, setLoading] = useState(false);
   const supabase = createClientComponentClient();
@@ -55,7 +56,7 @@ export default function AddSubspace({ lensId, modalController }: AddSubspaceProp
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents }),
+          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents, accessType: accessType }),
         });
         if (!response.ok) {
           setLensName("");
