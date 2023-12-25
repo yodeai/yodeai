@@ -15,6 +15,8 @@ import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
 import toast from "react-hot-toast";
 import { ActionIcon, Button, Flex, Text, TextInput } from '@mantine/core';
+import { CollaborativeEditor } from './CollaborativeEditor';
+import CollabRoom from './CollabRoom';
 
 
 
@@ -275,12 +277,15 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
           </div>
 
 
+            <CollabRoom />
+
           <div className="min-w-full mt-1">
             <div className="prose text-gray-600">
-              <DynamicSimpleMDE
+              {/* <CollabRoom /> */}
+              {/* <DynamicSimpleMDE
                 value={content}
                 onChange={setContent}
-              />
+              /> */}
             </div>
 
 

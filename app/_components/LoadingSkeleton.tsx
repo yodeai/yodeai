@@ -10,7 +10,7 @@ type LoadingSkeletonProps = {
 }
 function LoadingSkeleton({ lineHeight = 50, boxCount = 5, m = 0, w = "100%" }: LoadingSkeletonProps) {
   return (
-    <Flex gap={10} direction={"column"} m={m} className="animate-pulse">
+    <Flex gap={5} direction={"column"} m={m} className="animate-pulse">
       {[...Array(boxCount)].map((_, i) => (
         <Box key={i} w={w} className="skeleton bg-gray-200 rounded-md" h={lineHeight}></Box>
       ))}

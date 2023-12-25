@@ -70,7 +70,7 @@ export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
               <Flex ml={Math.min(25 * (hierarchy + 1), 300)} direction={"column"}>
                 {fetching ?
                   <>
-                    <LoadingSkeleton boxCount={3} lineHeight={15} />
+                    <LoadingSkeleton boxCount={4} lineHeight={7} />
                   </>
                   :
                   <Text size="sm" fw={400} c="gray.6">{"No blocks found within this subspace"}</Text>
