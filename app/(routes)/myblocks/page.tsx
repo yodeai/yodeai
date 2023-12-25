@@ -102,6 +102,7 @@ export default function MyBlocks() {
       <SpaceHeader
         title="My Blocks"
         selectedLayoutType="block"
+        staticLayout={true}
       />
       {loading && <div className="p-3">
         <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />

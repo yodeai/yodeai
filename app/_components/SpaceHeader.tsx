@@ -84,7 +84,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
                 />
-                {staticLayout && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
+                {staticLayout === false && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
                     ? "Switch to icon view."
                     : "Switch to list view."
                 }>
