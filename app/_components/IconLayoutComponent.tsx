@@ -293,7 +293,7 @@ export default function IconLayoutComponent({
         cols={cols}
         breakpoint={breakpoint}
         breakpoints={breakpoints}
-        rowHeight={75}
+        rowHeight={100}
         onLayoutChange={onLayoutChange}
         isResizable={false}
         onWidthChange={onWidthChange}
@@ -438,38 +438,51 @@ const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlo
   const onContextMenu = showContextMenu(actions);
 
   const blockPreviewContent = useMemo(() => {
-    if (zoomLevel < 150 || !block.preview) {
-      return <Box className="flex-1" variant="unstyled">
+    if (zoomLevel < 125 || !block.preview) {
+      return <Box variant="unstyled">
         {loading
           ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
           : <SpaceIconHint>{icon}</SpaceIconHint>}
       </Box>
     } else {
       return <Tooltip
+        position="bottom"
+        maw={300}
         opened={showPreview}
         label={
-          <Text component="span" size="16px" className="break-words select-none whitespace-break-spaces">
+          <Text component="div" size={`${20 * zoomLevel / 200}px`} className="break-words select-none whitespace-break-spaces">
             {block.preview}
           </Text>
         }>
-          <Box className="flex-1 border border-gray-100 p-1 rounded-lg mx-1" variant="unstyled">
-            <Text component="span" size="5px" c="dimmed" lineClamp={6} className="break-words select-none whitespace-break-spaces">
-              {block.preview}
-            </Text>
-          </Box>
+        <Box h={70} className="border border-gray-200 p-1 rounded-lg mx-1" variant="unstyled">
+          <Text component="span" size={`6px`} c="dimmed" lineClamp={10} className="break-words select-none whitespace-break-spaces">
+            {block.preview}
+          </Text>
+        </Box>
       </Tooltip>
     }
   }, [zoomLevel, showPreview]);
 
+  const $mouseEnter = useRef<boolean>(false);
   const onMouseEnter = useDebouncedCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>, value) => {
     setShowPreview(value);
-  }, 300);
+  }, 1000);
 
   return <Flex
-    onMouseEnter={(event) => onMouseEnter(event, true)}
+    onContextMenu={onContextMenu}
+    onMouseEnter={(event) => {
+      $mouseEnter.current = true;
+      onMouseEnter(event, true)
+    }}
     onMouseDown={() => setShowPreview(false)}
-    onMouseLeave={(event) => onMouseEnter(event, false)}
-    mih={75} gap="6px"
+    onMouseMove={() => {
+      if ($mouseEnter.current) setShowPreview(false)
+    }}
+    onMouseLeave={(event) => {
+      $mouseEnter.current = false;
+      onMouseEnter(event, false)
+    }}
+    mih={100} gap="6px"
     align="center" justify="flex-end"
     direction="column" wrap="nowrap">
     {blockPreviewContent}
@@ -522,7 +535,6 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     setLoading(true);
     handleLensDelete(subspace.lens_id).then(res => setLoading(false));
   }
-
 
   const onPinLens = async () => {
     try {
@@ -603,7 +615,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
     <Flex
       onContextMenu={onContextMenu}
-      mih={75} gap="6px"
+      mih={100} gap="6px"
       justify="flex-end" align="center"
       direction="column" wrap="nowrap">
       <Box>
@@ -612,7 +624,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
           : <SpaceIconHint>{icon}</SpaceIconHint>
         }
       </Box>
-      <Box w={75} h={30} variant="unstyled" className="text-center">
+      <Box w={100} h={30} variant="unstyled" className="text-center">
         <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
         </Text>
