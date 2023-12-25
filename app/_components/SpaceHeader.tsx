@@ -13,6 +13,7 @@ import { useAppContext, contextType } from "@contexts/context";
 type SpaceHeaderProps = {
     title: string;
     staticLayout?: boolean;
+    staticSortBy?: boolean;
     selectedLayoutType: "block" | "icon",
     handleChangeLayoutView?: any
 }
@@ -20,12 +21,13 @@ type SpaceHeaderProps = {
 export default function SpaceHeader(props: SpaceHeaderProps) {
     const {
         title,
-        staticLayout,
+        staticLayout = false,
+        staticSortBy = false,
         selectedLayoutType,
         handleChangeLayoutView,
     } = props;
 
-    const { subspaceModalDisclosure,  sortingOptions, setSortingOptions  } = useAppContext();
+    const { subspaceModalDisclosure, sortingOptions, setSortingOptions } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     return <>
@@ -51,7 +53,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             </Menu>
 
             <Box className="flex flex-row items-center align-middle">
-                <Select
+                {staticSortBy === false && <Select
                     variant="filled"
                     className="inline w-[150px]"
                     leftSection={<Box>
@@ -83,7 +85,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                     onChange={(value: contextType["sortingOptions"]["sortBy"]) => {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
-                />
+                />}
                 {staticLayout === false && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
                     ? "Switch to icon view."
                     : "Switch to list view."

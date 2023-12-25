@@ -142,7 +142,6 @@ export default function Home() {
         title="Home"
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
-        staticLayout={false}
       />
       <Box className="flex items-stretch flex-col h-full">
         {loading && <div className="p-3">
