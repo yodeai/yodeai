@@ -9,10 +9,11 @@ import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 
-import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
+import { Button, Flex, Box, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockHeader from "@components/BlockHeader";
+import SpaceHeader from "@components/SpaceHeader";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -96,61 +97,69 @@ export default function Inbox() {
   }, []);
 
   return (
-    <Flex direction="column" p={16} pt={0}>
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Inbox</Text>} labelPosition="center" />
-      <Flex justify={"center"} align={"center"}>
+    <Flex direction="column" pt={0}>
+      <SpaceHeader
+        title="Inbox"
+        selectedLayoutType="block"
+        handleChangeLayoutView={() => { }}
+        staticLayout={true}
+        staticSortBy={true}
+      />
+      <Box p={16}>
         <Flex justify={"center"} align={"center"}>
-          <Link href="/new">
-            <Button
-              size="xs"
-              variant="subtle"
-              leftSection={<FaPlus />}
-            // onClick={() => setIsEditingLensName(true)}
-            >
-              Add Block
-            </Button>
-          </Link>
+          <Flex justify={"center"} align={"center"}>
+            <Link href="/new">
+              <Button
+                size="xs"
+                variant="subtle"
+                leftSection={<FaPlus />}
+              // onClick={() => setIsEditingLensName(true)}
+              >
+                Add Block
+              </Button>
+            </Link>
+          </Flex>
         </Flex>
-      </Flex>
 
-      <Paper mb={10}>
-        <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
+        <Paper mb={10}>
+          <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
+          {
+            unacceptedInvites?.length > 0 ? (
+              unacceptedInvites.map((invite) => (
+                <div key={invite.lens_id} >
+                  <LensInviteComponent invite={invite}></LensInviteComponent>
+                </div>
+              ))
+            ) : (
+              <Text ta={"center"} c={"gray.6"} size="sm">
+                No unaccepted invites!
+              </Text>
+            )
+          }
+        </Paper>
+
+        <BlockHeader />
+
         {
-          unacceptedInvites?.length > 0 ? (
-            unacceptedInvites.map((invite) => (
-              <div key={invite.lens_id} >
-                <LensInviteComponent invite={invite}></LensInviteComponent>
-              </div>
+          loading ? (
+            <div className="mt-2">
+              <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
+            </div>
+          ) : blocks?.length > 0 ? (
+            blocks.map((block) => (
+              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
             ))
           ) : (
-            <Text ta={"center"} c={"gray.6"} size="sm">
-              No unaccepted invites!
+            <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+              Nothing to show here. As you add blocks they will initially show up in your Inbox.
             </Text>
           )
         }
-      </Paper>
 
-      <BlockHeader />
-
-      {
-        loading ? (
-          <div className="mt-2">
-            <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-          </div>
-        ) : blocks?.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
-          ))
-        ) : (
-          <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-            Nothing to show here. As you add blocks they will initially show up in your Inbox.
-          </Text>
-        )
-      }
-
-      {/* <Flex direction={"column"} justify={"flex-end"}>
+        {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />
       </Flex> */}
+      </Box>
     </Flex >
   );
 }

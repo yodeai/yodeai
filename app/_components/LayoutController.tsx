@@ -67,7 +67,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                     )) : null}
             </ScrollArea>
         case "icon":
-            return <ScrollArea type={"scroll"} w={'100%'} p={0} scrollbarSize={8}>
+            return <ScrollArea type={"scroll"} w={'100%'} h={"100%"} scrollbarSize={8}>
                 <IconLayoutComponent
                     handleBlockChangeName={handleBlockChangeName}
                     handleBlockDelete={handleBlockDelete}

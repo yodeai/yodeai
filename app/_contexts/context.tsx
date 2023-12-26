@@ -41,6 +41,9 @@ export type contextType = {
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
 
   user?: User;
+
+  zoomLevel: number;
+  setZoomLevel: React.Dispatch<React.SetStateAction<number>>;
 };
 
 
@@ -75,7 +78,10 @@ const defaultValue: contextType = {
     sortBy: null
   },
   setSortingOptions: () => { },
-  user: undefined
+  user: undefined,
+
+  zoomLevel: 100,
+  setZoomLevel: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -104,6 +110,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
   const [user, setUser] = useState<User>();
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const subspaceModalDisclosure = useDisclosure(false);
 
@@ -231,7 +238,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       accessType, setAccessType,
       subspaceModalDisclosure,
       sortingOptions, setSortingOptions,
-      user
+      user,
+      zoomLevel, setZoomLevel
     }}>
       {children}
     </context.Provider>

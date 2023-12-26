@@ -44,7 +44,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     const user = userData.data.user;
 
     const lensData = await getLensData(supabase, lens_id);
-
+    
     if (lensData.parents) {
         // parent control check if lens_ids on the route is different
         const lens_ids_from_route = lens_ids.slice(0, -1).join('/')
