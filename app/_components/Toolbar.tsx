@@ -57,7 +57,7 @@ export default function Toolbar() {
             || ["/"].includes(pathname);
     }, [accessType, lensId, pathname]);
 
-    return <Flex direction="row" className="h-[calc(100vh-60px)] w-full">
+    return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
         { /*toolbar buttons*/}
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
             <Flex direction="column" gap={5} className="mt-1 p-1">
