@@ -239,7 +239,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                                 className="my-4 mx-2"
                                 color="blue"
                                 value={zoomLevel}
-                                onChange={setZoomLevel}
+                                onChange={value => setZoomLevel(value, lensId)}
                                 min={100}
                                 max={200}
                                 step={25}

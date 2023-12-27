@@ -450,11 +450,11 @@ const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlo
         maw={300}
         opened={showPreview}
         label={
-          <Text component="div" size={`${20 * zoomLevel / 200}px`} className="break-words select-none whitespace-break-spaces">
+          <Text component="div" size={`${20 * zoomLevel / 200}px`} className="w-full break-words select-none whitespace-break-spaces">
             {block.preview}
           </Text>
         }>
-        <Box h={70} className="border border-gray-200 p-1 rounded-lg mx-1" variant="unstyled">
+        <Box h={70} className="w-full border border-gray-200 p-1 rounded-lg mx-1" variant="unstyled">
           <Text component="span" size={`6px`} c="dimmed" lineClamp={10} className="break-words select-none whitespace-break-spaces">
             {block.preview}
           </Text>
@@ -486,15 +486,20 @@ const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlo
     align="center" justify="flex-end"
     direction="column" wrap="nowrap">
     {blockPreviewContent}
-    <Box w={70} h={30} variant="unstyled" className="text-center">
+    <Box w={70} h={40} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea
-          className="z-50"
-          minRows={1} maxRows={2} ref={$textarea}
-          variant="unstyled" size="xs" ta="center" c="dimmed"
+          rows={1}
+          className="z-50 block-input leading-4 w-full"
+          maxRows={2}
+          ref={$textarea}
+          variant="unstyled" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
-          onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+          size={`${7 * 200 / zoomLevel}px`}
+          p={0} m={0}
+          h={20}
+          onChange={onChangeTitle} placeholder="Title" value={titleText} />
+        : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
       }
     </Box>
   </Flex>
@@ -624,8 +629,8 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
           : <SpaceIconHint>{icon}</SpaceIconHint>
         }
       </Box>
-      <Box w={100} h={30} variant="unstyled" className="text-center">
-        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+      <Box w={100} h={40} variant="unstyled" className="text-center">
+        <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
         </Text>
       </Box>

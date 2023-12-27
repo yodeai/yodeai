@@ -1,9 +1,9 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, setSortingOptionsToLocalStorage } from '@utils/localStorage';
+import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 
@@ -43,7 +43,7 @@ export type contextType = {
   user?: User;
 
   zoomLevel: number;
-  setZoomLevel: React.Dispatch<React.SetStateAction<number>>;
+  setZoomLevel: (zoomLevel: number, lensIdOrTitle: string) => void;
 };
 
 
@@ -226,6 +226,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     setReloadKey(prevKey => prevKey + 1);
   };
 
+  const setIconViewZoomLevel = (zoomLevel: number, lensIdOrTitle: string = "default") => {
+    setZoomLevel(zoomLevel);
+    setZoomLevelToLocalStorage(lensIdOrTitle, zoomLevel);
+  }
+
+  const memoizedZoomLevel = useMemo(() => {
+    return getZoomLevelFromLocalStorage(lensId || "default") || 100;
+  }, [zoomLevel, lensId])
+
   return (
     <context.Provider value={{
       draggingNewBlock, setDraggingNewBlock,
@@ -239,7 +248,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       subspaceModalDisclosure,
       sortingOptions, setSortingOptions,
       user,
-      zoomLevel, setZoomLevel
+      zoomLevel: memoizedZoomLevel,
+      setZoomLevel: setIconViewZoomLevel
     }}>
       {children}
     </context.Provider>
