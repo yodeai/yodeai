@@ -106,23 +106,8 @@ export default function Inbox() {
         staticSortBy={true}
       />
       <Box p={16}>
-        <Flex justify={"center"} align={"center"}>
-          <Flex justify={"center"} align={"center"}>
-            <Link href="/new">
-              <Button
-                size="xs"
-                variant="subtle"
-                leftSection={<FaPlus />}
-              // onClick={() => setIsEditingLensName(true)}
-              >
-                Add Block
-              </Button>
-            </Link>
-          </Flex>
-        </Flex>
-
         <Paper mb={10}>
-          <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
+          <Text size="lg" fw={600} c={"gray.7"}>Invitations</Text>
           {
             unacceptedInvites?.length > 0 ? (
               unacceptedInvites.map((invite) => (
@@ -131,7 +116,7 @@ export default function Inbox() {
                 </div>
               ))
             ) : (
-              <Text ta={"center"} c={"gray.6"} size="sm">
+              <Text c={"gray.6"} mt={5} size="md">
                 No unaccepted invites!
               </Text>
             )
@@ -139,6 +124,8 @@ export default function Inbox() {
         </Paper>
 
         <BlockHeader />
+
+        <Text size="lg" fw={600} c={"gray.7"}>Latest Blocks</Text>
 
         {
           loading ? (

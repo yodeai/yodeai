@@ -35,25 +35,11 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
 
     return <>
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
-            <Menu shadow="md" position="bottom-start" width={150}>
-                <Box className="flex items-center">
-                    <div className="flex justify-center align-middle">
-                        <Text span={true} c={"gray.7"} size="xl" fw={700}>{title}</Text>
-                        <Menu.Target>
-                            <UnstyledButton>
-                                <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
-                            </UnstyledButton>
-                        </Menu.Target>
-                    </div>
-                </Box >
-
-                <Menu.Dropdown>
-                    <Link className="decoration-transparent text-inherit" href="/new" prefetch>
-                        <Menu.Item>Add Block</Menu.Item>
-                    </Link>
-                    <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
+            <Box className="flex items-center">
+                <div className="flex justify-center align-middle m-1">
+                    <Text span={true} c={"gray.7"} size="xl" fw={700}>{title}</Text>
+                </div>
+            </Box>
 
             <Box className="flex flex-row items-center align-middle">
                 {staticSortBy === false && <Select

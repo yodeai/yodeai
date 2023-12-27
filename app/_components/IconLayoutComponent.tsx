@@ -461,7 +461,7 @@ const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlo
         </Box>
       </Tooltip>
     }
-  }, [zoomLevel, showPreview]);
+  }, [zoomLevel, showPreview, loading]);
 
   const $mouseEnter = useRef<boolean>(false);
   const onMouseEnter = useDebouncedCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>, value) => {

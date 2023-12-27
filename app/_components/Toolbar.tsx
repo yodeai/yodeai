@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, createContext, useContext, use } from 'react';
+import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu } from '@mantine/core';
 import { FaInfo, FaPlus } from 'react-icons/fa';
@@ -52,6 +52,11 @@ export default function Toolbar() {
         setActiveToolbarTab(activeComponent);
     }, [activeComponent]);
 
+    const allowedToCreateNewItem = useMemo(() => {
+        return (lensId && ["owner", "editor"].includes(accessType))
+            || ["/"].includes(pathname);
+    }, [accessType, lensId, pathname]);
+
     return <Flex direction="row" className="h-[calc(100vh-60px)] w-full">
         { /*toolbar buttons*/}
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
@@ -63,31 +68,23 @@ export default function Toolbar() {
                         <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
                     </Button>
                 </Box>
-                <Menu>
-                    <Box>
-                        <Menu.Target>
-                            <Button variant="subtle" c="gray.6">
-                                <FaPlus size={18} />
-                            </Button>
-                        </Menu.Target>
-                    </Box>
-
-                    <Menu.Dropdown>
-                        <ConditionalTooltip
-                            visible={lensId && !["owner", "editor"].includes(accessType)}
-                            label="You are not allowed to add new block">
-                            <Link href="/new" className={cn("decoration-transparent text-inherit",
-                                lensId && !["owner", "editor"].includes(accessType) && "pointer-events-none")}>
-                                <Menu.Item disabled={lensId && !["owner", "editor"].includes(accessType)}>Add Block</Menu.Item>
+                <ConditionalTooltip visible={!allowedToCreateNewItem} label="You are not allowed to add new items on this space.">
+                    <Menu position="left">
+                        <Box>
+                            <Menu.Target>
+                                <Button disabled={!allowedToCreateNewItem} variant="subtle" c="gray.6">
+                                    <FaPlus size={18} />
+                                </Button>
+                            </Menu.Target>
+                        </Box>
+                        <Menu.Dropdown>
+                            <Link href="/new" className="decoration-transparent text-inherit">
+                                <Menu.Item>Add Block</Menu.Item>
                             </Link>
-                        </ConditionalTooltip>
-                        <ConditionalTooltip
-                            visible={lensId && !["owner", "editor"].includes(accessType)}
-                            label="You are not allowed to add new block">
-                            <Menu.Item disabled={lensId && !["owner", "editor"].includes(accessType)} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
-                        </ConditionalTooltip>
-                    </Menu.Dropdown>
-                </Menu>
+                            <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
+                </ConditionalTooltip>
                 <Box>
                     <Button
                         disabled={!lensId}
@@ -108,7 +105,7 @@ export default function Toolbar() {
                     </Button>
                 </Box> */}
             </Flex>
-        </Box>
+        </Box >
         <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "min-w-[350px]" : "w-[0px]")}>
             { /* toolbar content with context */}
             <context.Provider value={{
