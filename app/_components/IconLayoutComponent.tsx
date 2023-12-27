@@ -45,6 +45,7 @@ export default function IconLayoutComponent({
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
+  const $gridContainer = useRef<HTMLDivElement>(null);
   const {
     lensName, lensId, layoutRefs,
     pinnedLenses, setPinnedLenses,
@@ -282,18 +283,21 @@ export default function IconLayoutComponent({
     onChangeLayout("icon_layout", layouts)
   }, [sortingOptions]);
 
-  return <div className="flex flex-col justify-between">
-    <div style={{
+  const ROW_HEIGHT = 100;
+
+  return <div className="flex flex-col justify-between z-50">
+    <div ref={$gridContainer} style={{
       transform: `scale(${zoomLevel / 100}) translateZ(0)`,
       transformOrigin: 'top left',
-      height: "calc(100vh - 240px)"
-    }} className="overflow-scroll">
+      height: "calc(100vh - 160px)"
+    }}>
       <ResponsiveReactGridLayout
+        maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
         layouts={layouts}
         cols={cols}
         breakpoint={breakpoint}
         breakpoints={breakpoints}
-        rowHeight={100}
+        rowHeight={ROW_HEIGHT}
         onLayoutChange={onLayoutChange}
         isResizable={false}
         onWidthChange={onWidthChange}
@@ -306,7 +310,7 @@ export default function IconLayoutComponent({
         {layoutItems}
       </ResponsiveReactGridLayout>
     </div>
-    <Box className="absolute bottom-0 w-full flex flex-row z-50 gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+    <Box className="fixed bottom-0 w-full flex flex-row gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
       {breadcrumbLoading
         ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
         : <>
