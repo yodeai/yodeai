@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             .select(`
                 *,
                 block!fk_block (
-                    *,
+                    block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
                     lens_blocks!fk_block (
                         lens: lens!fk_lens (lens_id, name)
                     )
