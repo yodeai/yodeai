@@ -139,6 +139,7 @@ export default function Home() {
   return (
     <Flex direction="column" pt={0} h="100%">
       <SpaceHeader
+        staticZoomLevel={false}
         title="Home"
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
