@@ -106,7 +106,7 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box >
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "min-w-[350px]" : "w-[0px]")}>
+        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,

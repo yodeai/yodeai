@@ -216,6 +216,7 @@ const QuestionAnswerForm: React.FC = () => {
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                                 <Textarea
+                                    disabled={isLoading}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="Enter your question"
