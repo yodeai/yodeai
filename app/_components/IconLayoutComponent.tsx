@@ -458,8 +458,8 @@ const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlo
             {block.preview}
           </Text>
         }>
-        <Box h={70} className="w-full border border-gray-200 p-1 rounded-lg mx-1" variant="unstyled">
-          <Text component="span" size={`6px`} c="dimmed" lineClamp={10} className="break-words select-none whitespace-break-spaces">
+        <Box h={70} className="w-full border border-gray-200 p-1 rounded-lg mx-1 overflow-hidden" variant="unstyled">
+          <Text component="span" size={`${6 * 200 / zoomLevel}px`} c="dimmed" lineClamp={15} className="break-words select-none whitespace-break-spaces">
             {block.preview}
           </Text>
         </Box>
