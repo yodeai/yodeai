@@ -145,7 +145,7 @@ const QuestionAnswerForm: React.FC = () => {
             const endTime = performance.now(); // Capture end time
             const duration = endTime - startTime; // Calculate the duration
             console.log(`Time to get the answer: ${duration.toFixed(2)} ms`);
-
+            setInputValue('');
             setIsLoading(false);
         }
     }
