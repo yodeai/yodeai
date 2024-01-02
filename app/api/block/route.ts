@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
       );
     }
     let delay = requestData.delay;
-    console.log("saving: ", requestData);
 
     delete requestData["delay"]
     requestData.owner_id = user.id;
@@ -62,7 +61,6 @@ export async function POST(request: NextRequest) {
       throw error;
     }
     let newBlock: Block;
-    console.log("Request data: ", requestData);
     
     if (data && data[0]) {
       newBlock = data[0];

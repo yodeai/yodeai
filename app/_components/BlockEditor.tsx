@@ -15,6 +15,7 @@ import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
 import toast from "react-hot-toast";
 import { ActionIcon, Button, Flex, Text, TextInput } from '@mantine/core';
+import { RequestBodyType } from '@api/types';
 
 
 
@@ -64,14 +65,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       return true;
     }
     setIsSaving(true);
-
-    type RequestBodyType = {
-      block_type: string;
-      content: string;
-      title: string;
-      lens_id?: string;
-      delay: number;
-    };
 
     const requestBody: RequestBodyType = {
       block_type: "note",
