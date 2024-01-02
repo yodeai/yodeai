@@ -85,7 +85,7 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
   };
 
   return (
-    <Paper withBorder radius="md" mb="xs">
+    <Paper component="div" withBorder radius="md" mb="xs">
       <div className="flex flex-col p-5 hover:bg-gray-50">
         <div>
           <Text size='sm' fw={500}>
@@ -109,15 +109,11 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
                 {sources.map(({ title, blockId }) => (
                   <List.Item key={blockId}>
                     {published
-                      ? <Link href={`/publishedBlocks/${blockId}`} className="no-underline text-inherit hover:underline">
-                        <Text size='sm'>
-                          {title}
-                        </Text>
+                      ? <Link href={`/publishedBlocks/${blockId}`} className="no-underline text-inherit hover:underline text-sm text-gray-400">
+                        {title}
                       </Link>
-                      : <Link href={`/block/${blockId}`} className="no-underline text-inherit hover:underline">
-                        <Text size='sm'>
-                          {title}
-                        </Text>
+                      : <Link href={`/block/${blockId}`} className="no-underline text-inherit hover:underline text-sm text-gray-400">
+                        {title}
                       </Link>
                     }
                   </List.Item>
