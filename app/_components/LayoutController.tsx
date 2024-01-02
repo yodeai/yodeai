@@ -30,7 +30,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         handleBlockDelete, handleLensDelete
     } = props;
 
-    if (blocks.length === 0 && subspaces.length === 0) return (
+    if (blocks.length === 0 && subspaces && subspaces.length === 0) return (
         <Flex
             align="center"
             justify="center"

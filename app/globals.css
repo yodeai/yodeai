@@ -181,3 +181,7 @@
 .react-grid-item:active, .react-grid-item:focus{
   background-color: transparent;
 }
+
+.ql-editor {
+  min-height: 400px;
+}

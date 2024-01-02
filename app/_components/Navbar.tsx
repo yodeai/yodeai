@@ -167,7 +167,7 @@ export default function Navbar() {
           <Text p={5} size="sm" c="gray.6" className="text-center">Pin here</Text>
         </Box>}
         {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
-        {!pinnedLensesLoading && (pinnedLenses.length > 0
+        {!pinnedLensesLoading && (pinnedLenses && pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
             <Box key={lens.lens_id} pos="relative">
               <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false}></LoadingOverlay>
@@ -181,7 +181,7 @@ export default function Navbar() {
               />
             </Box>
           ))
-          : pinnedLenses.length === 0 && (
+          : (pinnedLenses && pinnedLenses.length === 0) && (
             <Text mt={5} size="sm" c="gray.5" className="text-center">No pinned spaces</Text>
           ))}
       </ScrollArea.Autosize>

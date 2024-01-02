@@ -8,7 +8,7 @@ import { useRoom } from "../../liveblocks.config";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import 'react-quill/dist/quill.snow.css';
-
+import { Flex } from "@mantine/core";
 
 Quill.register("modules/cursors", QuillCursors);
 
