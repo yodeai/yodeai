@@ -18,14 +18,22 @@ export async function GET(request: NextRequest, { params, }: { params: { lens_id
         return notOk("Not logged in");
     }
     try {
-
-        const { data, error } = await supabase
+        let { data, error } = await supabase
             .from('questions')
-            .select('*')
+            .select('id, user_id, question_text, answer_full, popularity, lens_id, created_at, updated_at, block_ids')
             .eq('lens_id', lens_id)
             .eq('user_id', user_id)
 
-        if (error) throw error;
+        data = await Promise.all(data.map(async (question) => {
+            const { data: sources, error } = await supabase
+                .from('block')
+                .select('block_id, title')
+                .in('block_id', question.block_ids || [])
+            if (error) throw error.message;
+            return { ...question, sources }
+        }));
+
+        if (error) throw error.message;
 
         return ok(data);
     } catch (err) {

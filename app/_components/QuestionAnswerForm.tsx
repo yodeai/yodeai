@@ -16,7 +16,7 @@ const QuestionAnswerForm: React.FC = () => {
     const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>([]);
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, lensName, activeComponent, user } = useAppContext();
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
@@ -44,9 +44,14 @@ const QuestionAnswerForm: React.FC = () => {
     useEffect(() => {
         if (!lensId) return;
         fetchLensQuestions();
+
+        return () => {
+            setQuestionHistory([]);
+        }
     }, [lensId])
 
     const fetchLensQuestions = useCallback(async () => {
+        setIsLoading(true);
         try {
             const data = await fetch(`/api/lens/${lensId}/questions`, { method: "GET" })
                 .then((response) => {
@@ -62,7 +67,10 @@ const QuestionAnswerForm: React.FC = () => {
                     return {
                         question: qa.question_text,
                         answer: qa.answer_full,
-                        sources: []
+                        sources: qa.sources.map(source => ({
+                            title: source.title,
+                            blockId: source.block_id
+                        }))
                     }
                 }).reverse();
 
@@ -130,7 +138,7 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
-                return [...prevQuestionHistory, errorQA]
+                return [errorQA, ...prevQuestionHistory,]
             });
         } finally {
             const endTime = performance.now(); // Capture end time
@@ -163,7 +171,12 @@ const QuestionAnswerForm: React.FC = () => {
                     </Flex>
                 </ToolbarHeader>
 
-                <div className="h-[calc(100vh-230px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
+                <div className="h-[calc(100vh-235px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
+                    {!isLoading && questionHistory.length === 0 && (
+                        <span className="text-center text-gray-400 text-sm">
+                            No questions yet. Ask a question to get started.
+                        </span>
+                    )}
                     {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
                     {questionHistory.map(({ question, answer, sources }, index) => (
                         <QuestionComponent

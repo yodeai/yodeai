@@ -6,6 +6,7 @@ import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Anchor, List, Paper, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
+import Link from 'next/link';
 
 interface QuestionProps {
   id: string;
@@ -16,12 +17,12 @@ interface QuestionProps {
   lensID: string
 }
 
-
 const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sources, published, lensID }) => {
   const [votes, setVotes] = useState(0);
   const supabase = createClientComponentClient()
   const [user, setUser] = useState(null);
   const [currentVote, setCurrentVote] = useState(0)
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -84,8 +85,8 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
   };
 
   return (
-    <Paper p="md" mb={10} withBorder>
-      <div className="flex flex-col">
+    <Paper withBorder radius="md" mb="xs">
+      <div className="flex flex-col p-5 hover:bg-gray-50">
         <div>
           <Text size='sm' fw={500}>
             Q: {question}
@@ -95,9 +96,9 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
           {/* <Text size='sm'> */}
           <div className="markdown-content">
             <ReactMarkdown>
-             {answer}
+              {answer}
             </ReactMarkdown>
-            </div>
+          </div>
           {/* </Text> */}
           {sources && sources.length > 0 && (
             <div className="mt-2">
@@ -106,14 +107,20 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
               </Text>
               <List>
                 {sources.map(({ title, blockId }) => (
-                  published ?
-                    <List.Item key={blockId}>
-                      <Anchor size='sm' href={`/publishedBlocks/${blockId}`}>{title}</Anchor>
-                    </List.Item>
-                    :
-                    <List.Item key={blockId}>
-                      <Anchor size='sm' href={`/block/${blockId}`}>{title}</Anchor>
-                    </List.Item>
+                  <List.Item key={blockId}>
+                    {published
+                      ? <Link href={`/publishedBlocks/${blockId}`} className="no-underline text-inherit hover:underline">
+                        <Text size='sm'>
+                          {title}
+                        </Text>
+                      </Link>
+                      : <Link href={`/block/${blockId}`} className="no-underline text-inherit hover:underline">
+                        <Text size='sm'>
+                          {title}
+                        </Text>
+                      </Link>
+                    }
+                  </List.Item>
                 ))}
               </List>
             </div>
