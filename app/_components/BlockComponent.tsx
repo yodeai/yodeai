@@ -130,7 +130,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               <>
                 <div className="flex text-gray-600 ">
                   <img src="/pdf-icon.png" alt="Space Icon" className="mr-1 w-5" />
-                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url.split('/').pop()}</Text>
+                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url?.split('/').pop()}</Text>
                 </div>
               </>
             ) : null}

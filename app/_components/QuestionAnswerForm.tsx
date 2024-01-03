@@ -13,7 +13,7 @@ import LoadingSkeleton from './LoadingSkeleton';
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
 const QuestionAnswerForm: React.FC = () => {
-    const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>([]);
+    const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
     const [inputValue, setInputValue] = useState<string>('');
     const { lensId, lensName, activeComponent, user } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -39,14 +39,23 @@ const QuestionAnswerForm: React.FC = () => {
     //     }, 2000)
 
     //     return () => clearTimeout(delayDebounceFn)
-    // }, [inputValue])
+    // }, [inputValue]);
+
+    const handleComponentUnmount = () => {
+        setQuestionHistory([]);
+        setIsLoading(false);
+        setIsSubmitting(false);
+    }
 
     useEffect(() => {
-        if (!lensId) return;
+        if (!lensId) {
+            handleComponentUnmount();
+            return;
+        }
         fetchLensQuestions();
 
         return () => {
-            setQuestionHistory([]);
+            handleComponentUnmount();
         }
     }, [lensId])
 
@@ -61,28 +70,25 @@ const QuestionAnswerForm: React.FC = () => {
             if (!data && data.ok !== true) {
                 throw new Error('Failed to retrieve lens questions');
             }
-
-            setQuestionHistory((prevQuestionHistory) => {
-                const newQAs = data.data.map((qa) => {
-                    return {
-                        question: qa.question_text,
-                        answer: qa.answer_full,
-                        sources: qa.sources.map(source => ({
-                            title: source.title,
-                            blockId: source.block_id
-                        }))
-                    }
-                }).reverse();
-
-                return [...newQAs, ...prevQuestionHistory]
-
+            const QAs = data.data.map((qa) => {
+                return {
+                    question: qa.question_text,
+                    answer: qa.answer_full,
+                    created_at: qa.created_at,
+                    sources: qa.sources.map(source => ({
+                        title: source.title,
+                        blockId: source.block_id
+                    }))
+                }
             });
+
+            setQuestionHistory(QAs);
         } catch (error) {
             console.error('Failed to retrieve searchable feed. ', error);
         } finally {
             setIsLoading(false);
         }
-    }, [lensId])
+    }, [lensId, questionHistory])
 
     const updateQuestion = (question: Question, diff: number) => {
         let newRelatedQuestions: Question[] = [...relatedQuestions]
@@ -125,10 +131,10 @@ const QuestionAnswerForm: React.FC = () => {
 
             setQuestionHistory((prevQuestionHistory) => {
                 if (response && response.answer) {
-                    const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
+                    const newQA = { question: inputValue, answer: response.answer, sources: blockTitles, created_at: new Date().toISOString() };
                     return [newQA, ...prevQuestionHistory]
                 } else {
-                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString()  };
                     return [newQA, ...prevQuestionHistory]
                 }
             });
@@ -137,7 +143,7 @@ const QuestionAnswerForm: React.FC = () => {
             console.error('Failed to fetch answer.', error);
 
             setQuestionHistory((prevQuestionHistory) => {
-                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
+                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [], created_at: new Date().toISOString() }
                 return [errorQA, ...prevQuestionHistory,]
             });
         } finally {
@@ -178,8 +184,9 @@ const QuestionAnswerForm: React.FC = () => {
                         </span>
                     )}
                     {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
-                    {questionHistory.map(({ question, answer, sources }, index) => (
+                    {questionHistory.map(({ question, answer, created_at, sources }, index) => (
                         <QuestionComponent
+                            created_at={created_at}
                             lensID={lensId}
                             id={null}
                             key={index}

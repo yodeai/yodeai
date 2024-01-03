@@ -7,6 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Anchor, List, Paper, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import { timeAgo } from '@utils/index';
 
 interface QuestionProps {
   id: string;
@@ -15,9 +16,10 @@ interface QuestionProps {
   sources: { title: string; blockId: string }[];
   published: boolean
   lensID: string
+  created_at?: string;
 }
 
-const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sources, published, lensID }) => {
+const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sources, published, lensID, created_at }) => {
   const [votes, setVotes] = useState(0);
   const supabase = createClientComponentClient()
   const [user, setUser] = useState(null);
@@ -122,6 +124,13 @@ const QuestionComponent: React.FC<QuestionProps> = ({ id, question, answer, sour
             </div>
           )}
         </div>
+        {created_at &&
+          <div>
+            <span className="text-xs text-gray-400">
+              Asked {timeAgo(created_at)}
+            </span>
+          </div> || ""
+        }
         {published ?
           <div className="flex items-center">
             <div>

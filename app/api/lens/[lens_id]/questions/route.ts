@@ -23,6 +23,7 @@ export async function GET(request: NextRequest, { params, }: { params: { lens_id
             .select('id, user_id, question_text, answer_full, popularity, lens_id, created_at, updated_at, block_ids')
             .eq('lens_id', lens_id)
             .eq('user_id', user_id)
+            .order('created_at', { ascending: false })
 
         data = await Promise.all(data.map(async (question) => {
             const { data: sources, error } = await supabase
