@@ -57,6 +57,10 @@ export default function Toolbar() {
             || ["/"].includes(pathname);
     }, [accessType, lensId, pathname]);
 
+    useEffect(() => {
+        if(!lensId && activeComponent === "social") closeComponent();
+    }, [lensId])
+
     return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
         { /*toolbar buttons*/}
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
