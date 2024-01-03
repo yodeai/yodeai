@@ -151,7 +151,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   useEffect(() => {
     // Get the lensId from the URL
     const path = window.location.pathname;
-    const parts = path.split('/');
+    const parts = path?.split('/');
     // Check if the URL is '/inbox' and set isInbox to true
     if (path === '/inbox') {
       setActiveComponent("inbox");

@@ -6,8 +6,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { Button, Flex, Text } from '@mantine/core';
-import { DEFAULT_WELCOME_CONTENT, DEFAULT_WELCOME_TITLE } from '@api/constants';
-import { RequestBodyType } from '@api/types';
 
 const UserAccountHandler = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -29,43 +27,6 @@ const UserAccountHandler = () => {
           } else if (user) {
             // User is logged in
             setUser(user);
-
-            const { data: userData, error: userError } = await supabase
-              .from('users')
-              .select()
-              .eq('id', user?.id)
-              .single();
-
-            if (userError) {
-              console.error('Error getting user', userError);
-            }
-            if (userData.first_sign_in) {
-              // automatically create a new welcome block for this user
-              const requestBody: RequestBodyType = {
-                block_type: 'note',
-                content: DEFAULT_WELCOME_CONTENT,
-                title: DEFAULT_WELCOME_TITLE,
-                delay: 0,
-              };
-              let method = 'POST';
-              let endpoint = `/api/block`;
-              try {
-                const response = await fetch(endpoint, {
-                  method: method,
-                  body: JSON.stringify(requestBody),
-                });
-
-                // Check if the block creation was successful before updating the user
-                if (response.ok) {
-                  // Update the user's first_sign_in field
-                  await supabase.from('users').update({ first_sign_in: false }).eq('id', user.id);
-                } else {
-                  console.error('Error creating welcome block:', response.status, response.statusText);
-                }
-              } catch (error) {
-                console.error('Error creating welcome block:', error.message);
-              }
-            }
           }
         }
       }

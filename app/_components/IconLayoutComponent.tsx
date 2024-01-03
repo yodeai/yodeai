@@ -136,7 +136,7 @@ export default function IconLayoutComponent({
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
-    const [itemType, itemId] = newItem.i.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
+    const [itemType, itemId] = newItem.i?.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
 
     const now = Date.now();
     if ($lastClick.current && (now - $lastClick.current) < 300) {
@@ -255,7 +255,7 @@ export default function IconLayoutComponent({
       const target = event.target as HTMLElement;
       if (!newItem.i.startsWith("ss")) return;
 
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       if (pinnedLensIds.includes(Number(lens_id))) return;
 
       if (checkOverlap(target, layoutRefs.sidebar.current)) {
@@ -272,7 +272,7 @@ export default function IconLayoutComponent({
     const target = event.target as HTMLElement;
     if (checkOverlap(target, layoutRefs.sidebar.current)) {
       if (!newItem.i.startsWith("ss")) return;
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       onPinLens(String(lens_id))
       setDraggingNewBlock(false);
     }
