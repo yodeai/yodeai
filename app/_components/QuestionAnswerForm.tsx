@@ -1,41 +1,37 @@
-// components/QuestionAnswerForm.tsx
 "use client";
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useCallback, useMemo } from 'react';
 import apiClient from '@utils/apiClient';
 import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
-import { clearConsole } from 'debug/tools';
 import QuestionComponent from './QuestionComponent';
-import { getUserID } from 'utils/getUserID';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
-import { useForm } from '@mantine/form';
 import ToolbarHeader from './ToolbarHeader';
+import LoadingSkeleton from './LoadingSkeleton';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
 const QuestionAnswerForm: React.FC = () => {
-    const [questionHistory, setQuestionHistory] = useState<Map<string, Array<{ question: string, answer: string, sources: { title: string, blockId: string }[] }>>>(new Map());
+    const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName, activeComponent } = useAppContext();
-    const mapKey = activeComponent + lensId;
+    const { lensId, lensName, activeComponent, user } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const scrollableDivRef = useRef<HTMLDivElement | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
 
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
-    //       try {
-    //         if (inputValue) {
-    //             console.log('inputValue', inputValue);
-    //             const dataToPost = { question: inputValue, lens_id: lensId };
-    //             console.log("Making POST request")
-    //             await apiClient('/searchableFeed', 'POST', dataToPost
-    //             ).then((response) => {
-    //                 setRelatedQuestions(response.answer.documents)
-    //             });
-    //         }
+    //         try {
+    //             if (inputValue) {
+    //                 console.log('inputValue', inputValue);
+    //                 const dataToPost = { question: inputValue, lens_id: lensId };
+    //                 console.log("Making POST request")
+    //                 await apiClient('/searchableFeed', 'POST', dataToPost
+    //                 ).then((response) => {
+    //                     setRelatedQuestions(response.answer.documents)
+    //                 });
+    //             }
     //         } catch (error) {
     //             console.error('Failed to retrieve searchable feed. ', error);
     //         } finally {
@@ -43,29 +39,57 @@ const QuestionAnswerForm: React.FC = () => {
     //     }, 2000)
 
     //     return () => clearTimeout(delayDebounceFn)
-    //   }, [inputValue])
+    // }, [inputValue]);
 
-
-    const makePatchRequest = async (q: Question, id: string, diff: number) => {
-        let url;
-        if (diff > 0) {
-            url = `/increasePopularity`
-        } else {
-            url = `/decreasePopularity`
-        }
-        try {
-            const dataToPatch = { row_id: id, lens_id: lensId };
-            const response = await apiClient(url, 'PATCH', dataToPatch)
-            console.log("error?")
-            if (response.error == null) {
-                updateQuestion(q, diff);
-            }
-
-        } catch (error) {
-            console.error('Failed to increase answer. ', error);
-        } finally {
-        }
+    const handleComponentUnmount = () => {
+        setQuestionHistory([]);
+        setIsLoading(false);
+        setIsSubmitting(false);
     }
+
+    useEffect(() => {
+        if (!lensId) {
+            handleComponentUnmount();
+            return;
+        }
+        fetchLensQuestions();
+
+        return () => {
+            handleComponentUnmount();
+        }
+    }, [lensId])
+
+    const fetchLensQuestions = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetch(`/api/lens/${lensId}/questions`, { method: "GET" })
+                .then((response) => {
+                    return response.json()
+                });
+
+            if (!data && data.ok !== true) {
+                throw new Error('Failed to retrieve lens questions');
+            }
+            const QAs = data.data.map((qa) => {
+                return {
+                    question: qa.question_text,
+                    answer: qa.answer_full,
+                    created_at: qa.created_at,
+                    sources: qa.sources.map(source => ({
+                        title: source.title,
+                        blockId: source.block_id
+                    }))
+                }
+            });
+
+            setQuestionHistory(QAs);
+        } catch (error) {
+            console.error('Failed to retrieve searchable feed. ', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [lensId, questionHistory])
+
     const updateQuestion = (question: Question, diff: number) => {
         let newRelatedQuestions: Question[] = [...relatedQuestions]
         let indexOfQuestion = newRelatedQuestions.findIndex((q: Question) => q.metadata["3"] === question.metadata["3"])
@@ -73,22 +97,17 @@ const QuestionAnswerForm: React.FC = () => {
         newRelatedQuestions[indexOfQuestion] = { ...question, metadata: { ...newRelatedQuestions[indexOfQuestion].metadata, "3": question.metadata["3"] + diff } }
         setRelatedQuestions(newRelatedQuestions);
     }
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
+        setIsSubmitting(true);
         const startTime = performance.now();
 
         try {
-
             const supabase = createClientComponentClient()
 
-            let { data, error } = await supabase.auth.getUser();
-            if (error) {
-                throw error;
-            }
-
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId ? lensId : "NONE", activeComponent: activeComponent, userID: data.user.id, published: false };
+            const dataToPost = { question: inputValue, lensID: lensId ? lensId : "NONE", activeComponent: activeComponent, userID: user.id, published: false };
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {
@@ -110,64 +129,31 @@ const QuestionAnswerForm: React.FC = () => {
                 );
             }
 
-
-
             setQuestionHistory((prevQuestionHistory) => {
-                const newQuestionHistory = new Map(prevQuestionHistory); // Create a new Map from previous state
-                const previousQAs = newQuestionHistory.get(mapKey) || []; // Get the existing array of Q&A for the lens_id or an empty array
-
                 if (response && response.answer) {
-                    const newQA = { question: inputValue, answer: response.answer, sources: blockTitles };
-                    previousQAs.unshift(newQA);
-                    newQuestionHistory.set(mapKey, previousQAs);
+                    const newQA = { question: inputValue, answer: response.answer, sources: blockTitles, created_at: new Date().toISOString() };
+                    return [newQA, ...prevQuestionHistory]
                 } else {
-                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [] };
-                    previousQAs.push(newQA);
-                    newQuestionHistory.set(mapKey, previousQAs);
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString()  };
+                    return [newQA, ...prevQuestionHistory]
                 }
-
-                return newQuestionHistory;
             });
 
         } catch (error: any) {
             console.error('Failed to fetch answer.', error);
 
             setQuestionHistory((prevQuestionHistory) => {
-                const newQuestionHistory = new Map(prevQuestionHistory);
-                const previousQAs = newQuestionHistory.get(mapKey) || [];
-                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [] };
-                previousQAs.push(errorQA);
-                newQuestionHistory.set(mapKey, previousQAs);
-
-                return newQuestionHistory;
+                const errorQA = { question: inputValue, answer: `Failed to fetch answer. ${error}`, sources: [], created_at: new Date().toISOString() }
+                return [errorQA, ...prevQuestionHistory,]
             });
         } finally {
             const endTime = performance.now(); // Capture end time
             const duration = endTime - startTime; // Calculate the duration
             console.log(`Time to get the answer: ${duration.toFixed(2)} ms`);
             setInputValue('');
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     }
-
-    const form = useForm({
-        initialValues: {
-            email: '',
-            termsOfService: false,
-        },
-
-        validate: {
-            email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-        },
-    });
-
-    const viewport = useRef<HTMLDivElement>(null);
-    const scrollToBottom = () =>
-        viewport.current!.scrollTo({ top: viewport.current!.scrollHeight, behavior: 'smooth' });
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [questionHistory]);
 
     return (
         <Flex
@@ -191,22 +177,26 @@ const QuestionAnswerForm: React.FC = () => {
                     </Flex>
                 </ToolbarHeader>
 
-                <ScrollArea.Autosize p={10} pt={0} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
-                    {
-                        (questionHistory.get(mapKey) || []).slice().reverse().map(({ question, answer, sources }, index) => (
-                            <QuestionComponent
-                                lensID={lensId}
-                                id={null}
-                                key={index}
-                                question={question}
-                                answer={answer}
-                                sources={sources}
-                                published={false}
-                            />
-                        ))
-
-                    }
-                </ScrollArea.Autosize>
+                <div className="h-[calc(100vh-235px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
+                    {!isLoading && questionHistory.length === 0 && (
+                        <span className="text-center text-gray-400 text-sm">
+                            No questions yet. Ask a question to get started.
+                        </span>
+                    )}
+                    {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
+                    {questionHistory.map(({ question, answer, created_at, sources }, index) => (
+                        <QuestionComponent
+                            created_at={created_at}
+                            lensID={lensId}
+                            id={null}
+                            key={index}
+                            question={question}
+                            answer={answer}
+                            sources={sources}
+                            published={false}
+                        />
+                    ))}
+                </div>
 
                 <Divider color={"#eee"} />
             </Box>
@@ -216,15 +206,15 @@ const QuestionAnswerForm: React.FC = () => {
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                                 <Textarea
-                                    disabled={isLoading}
+                                    disabled={isSubmitting}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="Enter your question"
                                 />
                                 <Group justify="flex-end" mt="xs">
-                                    <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isLoading}>
+                                    <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isSubmitting}>
                                         <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />
-                                        {isLoading ? 'Loading...' : 'Ask'}
+                                        {isSubmitting ? 'Asking...' : 'Ask'}
                                     </Button>
                                 </Group>
                             </form>

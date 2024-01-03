@@ -16,12 +16,12 @@ import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname } from 'next/navigation';
 
 type contextType = {
-    activeComponent: "social" | "questionform";
+    activeToolbarComponent: "social" | "questionform";
     closeComponent: () => void;
 };
 
 const defaultValue: contextType = {
-    activeComponent: getActiveToolbarTab(),
+    activeToolbarComponent: getActiveToolbarTab(),
     closeComponent: () => { },
 }
 
@@ -34,28 +34,32 @@ export const useToolbarContext = () => {
 export default function Toolbar() {
     const pathname = usePathname();
 
-    const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>(defaultValue.activeComponent);
+    const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
     const { accessType, subspaceModalDisclosure, lensId } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     const closeComponent = () => {
-        setActiveComponent(null);
+        setActiveToolbarComponent(null);
     }
 
-    const switchComponent = (component: contextType["activeComponent"]) => {
-        if (activeComponent === component) return closeComponent();
-        setActiveComponent(component);
+    const switchComponent = (component: contextType["activeToolbarComponent"]) => {
+        if (activeToolbarComponent === component) return closeComponent();
+        setActiveToolbarComponent(component);
     }
 
     useEffect(() => {
-        setActiveToolbarTab(activeComponent);
-    }, [activeComponent]);
+        setActiveToolbarTab(activeToolbarComponent);
+    }, [activeToolbarComponent]);
 
     const allowedToCreateNewItem = useMemo(() => {
         return (lensId && ["owner", "editor"].includes(accessType))
             || ["/"].includes(pathname);
     }, [accessType, lensId, pathname]);
+
+    useEffect(() => {
+        if(!lensId && activeToolbarComponent === "social") closeComponent();
+    }, [lensId])
 
     return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
         { /*toolbar buttons*/}
@@ -63,7 +67,7 @@ export default function Toolbar() {
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
                     <Button
-                        variant={activeComponent === "questionform" ? "light" : "subtle"}
+                        variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
                         onClick={switchComponent.bind(null, "questionform")} c="gray.6">
                         <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
                     </Button>
@@ -88,7 +92,7 @@ export default function Toolbar() {
                 <Box>
                     <Button
                         disabled={!lensId}
-                        variant={activeComponent === "social" ? "light" : "subtle"}
+                        variant={activeToolbarComponent === "social" ? "light" : "subtle"}
                         c="gray.6"
                         onClick={switchComponent.bind(null, "social")}>
                         <IoIosChatbubbles size={18} />
@@ -106,14 +110,14 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box >
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
+        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeToolbarComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,
-                activeComponent
+                activeToolbarComponent
             }}>
-                {activeComponent === "questionform" && <QuestionAnswerForm />}
-                {activeComponent === "social" && <LensChat />}
+                {activeToolbarComponent === "questionform" && <QuestionAnswerForm />}
+                {activeToolbarComponent === "social" && <LensChat />}
             </context.Provider>
         </Box>
     </Flex >
