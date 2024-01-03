@@ -11,6 +11,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
 import { useForm } from '@mantine/form';
+import ToolbarHeader from './ToolbarHeader';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
@@ -144,7 +145,7 @@ const QuestionAnswerForm: React.FC = () => {
             const endTime = performance.now(); // Capture end time
             const duration = endTime - startTime; // Calculate the duration
             console.log(`Time to get the answer: ${duration.toFixed(2)} ms`);
-
+            setInputValue('');
             setIsLoading(false);
         }
     }
@@ -170,30 +171,25 @@ const QuestionAnswerForm: React.FC = () => {
 
     return (
         <Flex
-            w="100%"
             direction={"column"}
-            className="bg-white border-l border-l-[#eeeeee] top-0 sticky h-[calc(100vh-60px)]"
+            className="h-full w-full"
             justify={"space-between"}>
             <Box>
-                <Divider
-                    p={15}
-                    label={
-                        <>
-                            <Flex style={{ whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {lensId && lensName ?
-                                    'Context: ' + lensName
+                <ToolbarHeader>
+                    <Flex align="center" direction="row">
+                        <Text size="sm">
+                            {lensId && lensName ?
+                                'Context: ' + lensName
+                                :
+                                ((activeComponent === "global") ?
+                                    "Ask a question "
                                     :
-                                    ((activeComponent === "global") ?
-                                        "Ask a question from your blocks"
-                                        :
-                                        "Ask a question from Inbox")
-                                }
-                            </Flex>
-                            <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
-                        </>
-                    }
-                    labelPosition="center"
-                />
+                                    "Ask a question")
+                            }
+                        </Text>
+                        <InfoPopover infoText={"Ask a question and Yodeai will respond to it using the data in your blocks."} />
+                    </Flex>
+                </ToolbarHeader>
 
                 <ScrollArea.Autosize p={10} pt={0} pb={0} mah={'70vh'} scrollbarSize={0} type='auto' viewportRef={viewport}>
                     {
@@ -220,6 +216,7 @@ const QuestionAnswerForm: React.FC = () => {
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                                 <Textarea
+                                    disabled={isLoading}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="Enter your question"

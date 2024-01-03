@@ -1,5 +1,5 @@
 import Navbar from "@components/Navbar";
-import QuestionAnswerForm from '@components/QuestionAnswerForm'
+import Toolbar from '@components/Toolbar'
 import { LensProvider } from "@contexts/context";
 import { Flex, Box } from "@mantine/core";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -24,16 +24,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         {/* Main content area */}
         <Flex mah='100%' w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Box h='100%' style={{ flex: 1 }}>
+          <Box h='100%' className="flex-1">
             {children}
           </Box>
 
           {/* QuestionAnswerForm with a left border */}
-          <Box h='100%' display={{ base: 'none', sm: 'block' }} w={{
-            base: '0px',
-            sm: '20vw'
-          }}>
-            <QuestionAnswerForm />
+          <Box h='100%' display={{ base: 'none', sm: 'flex' }}>
+            <Toolbar />
           </Box>
         </Flex>
 

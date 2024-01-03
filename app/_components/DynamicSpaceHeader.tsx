@@ -5,13 +5,13 @@ import { FaCheck, FaTrashAlt, FaFolder, FaList, FaCaretDown, FaCaretUp, FaArrowD
 import { CiGlobe } from "react-icons/ci";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
-    Menu, rem, UnstyledButton, Divider, Select
+    Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
 import AddSubspace from "@components/AddSubspace";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
-import { FaAngleDown, FaUserGroup } from "react-icons/fa6";
+import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
@@ -51,13 +51,15 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const titleInputRef = useRef<HTMLInputElement>(null);
 
-    const subspaceModalDisclosure = useDisclosure(false);
-    const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
-
     const shareModalDisclosure = useDisclosure(false);
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
-    const { lensId, pinnedLenses, sortingOptions, setSortingOptions } = useAppContext();
+    const {
+        lensId, pinnedLenses, subspaceModalDisclosure,
+        sortingOptions, setSortingOptions,
+        zoomLevel, setZoomLevel
+    } = useAppContext();
+
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
 
     const openDeleteModal = () => modals.openConfirmModal({
@@ -161,10 +163,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </Box>
 
                 <Menu.Dropdown>
-                    <Link className="decoration-transparent text-inherit" href="/new" prefetch>
-                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)}>Add Block</Menu.Item>
-                    </Link>
-                    <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                     <Menu.Divider />
@@ -219,12 +217,42 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             variant="subtle"
                             color="gray.7"
                             p={7}
-                            mx={10}
+                            ml={5}
                             onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
                         >
                             {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                         </Button>
                     </Tooltip>
+                    <HoverCard width={320} shadow="md" position="left">
+                        <HoverCard.Target>
+                            <Button
+                                size="sm"
+                                variant="subtle"
+                                color="gray.7"
+                                p={7}
+                                ml={5}>
+                                <FaMagnifyingGlassPlus size={18} />
+                            </Button>
+                        </HoverCard.Target>
+                        <HoverCard.Dropdown>
+                            <Slider
+                                className="my-4 mx-2"
+                                color="blue"
+                                value={zoomLevel}
+                                onChange={value => setZoomLevel(value, lensId)}
+                                min={100}
+                                max={200}
+                                step={25}
+                                marks={[
+                                    { value: 100, label: '1x' },
+                                    { value: 125, label: '1.25x' },
+                                    { value: 150, label: '1.5x' },
+                                    { value: 175, label: '1.75x' },
+                                    { value: 200, label: '2x' },
+                                ]}
+                            />
+                        </HoverCard.Dropdown>
+                    </HoverCard>
                 </> || ""}
                 {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
             </Box>
@@ -234,7 +262,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
-                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} />
+                    <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>

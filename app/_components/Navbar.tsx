@@ -15,7 +15,7 @@ import LoadingSkeleton from "./LoadingSkeleton";
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
+    lensId, setLensId, reloadLenses, setActiveComponent,
     pinnedLenses, setPinnedLenses, pinnedLensesLoading, draggingNewBlock, layoutRefs
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
@@ -51,13 +51,13 @@ export default function Navbar() {
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
     event.preventDefault();
-
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "DELETE" });
       if (pinResponse.ok) {
-        setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id !== lens_id));
+        setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id != lens_id));
+        setStateOfLenses({ ...stateOfLenses, [lens_id]: false });
         console.log("Lens unpinned");
       }
       if (!pinResponse.ok) console.error("Failed to unpin lens");
@@ -117,6 +117,7 @@ export default function Navbar() {
     <Flex direction="column" gap={5} mt={10}>
       <Link href="/" className="no-underline">
         <NavLink
+          component="div"
           label="Home"
           leftSection={<FaHouse size={18} />}
           color={pathname === "/" ? "blue" : "#888"}
@@ -126,6 +127,7 @@ export default function Navbar() {
       </Link>
       <Link href="/myblocks" className="no-underline">
         <NavLink
+          component="div"
           label="My Blocks"
           leftSection={<FaThLarge size={18} />}
           color={pathname === "/myblocks" ? "blue" : "#888"}
@@ -135,6 +137,7 @@ export default function Navbar() {
       </Link>
       <Link href="/inbox" className="no-underline">
         <NavLink
+          component="div"
           label="Inbox"
           leftSection={<FaInbox size={18} />}
           color={pathname === "/inbox" ? "blue" : "#888"}
