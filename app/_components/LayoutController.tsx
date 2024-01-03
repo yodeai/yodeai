@@ -49,8 +49,7 @@ export default function LayoutController(props: LayoutControllerProps) {
 
     switch (layoutView) {
         case "block":
-            return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8}
-                className="h-[calc(100vh-120px)]">
+            return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
                 {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
                 {blocks && blocks.length > 0
                     && <React.Fragment>
