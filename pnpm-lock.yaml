@@ -155,6 +155,9 @@ dependencies:
   install:
     specifier: ^0.13.0
     version: 0.13.0
+  js-cookie:
+    specifier: ^3.0.5
+    version: 3.0.5
   langchain:
     specifier: ^0.0.128
     version: 0.0.128(@huggingface/inference@1.8.0)(@mozilla/readability@0.4.4)(@supabase/supabase-js@2.39.0)(encoding@0.1.13)(jsdom@23.0.0)
@@ -185,6 +188,9 @@ dependencies:
   react-dropzone:
     specifier: ^14.2.3
     version: 14.2.3(react@18.2.0)
+  react-google-picker:
+    specifier: ^0.1.0
+    version: 0.1.0(react@18.2.0)
   react-gravatar:
     specifier: ^2.6.3
     version: 2.6.3(react@18.2.0)
@@ -4502,6 +4508,11 @@ packages:
     resolution: {integrity: sha512-W+oqK4H+r5sITxfxpSU+MMdr/YSWGvgZMQDIsNoBDGGy4i7GBPTtvFKibQzW06n3U3TqHjhvBJsirShsEJ6eeQ==}
     dev: false
 
+  /js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
+    dev: false
+
   /js-tiktoken@1.0.8:
     resolution: {integrity: sha512-r7XK3E9/I+SOrbAGqb39pyO/rHAS1diAOSRAvaaLfHgXjkUSK9AiSd+r84Vn2f/GvXJYRAxKj8NHrUvqlaH5qg==}
     dependencies:
@@ -4950,6 +4961,10 @@ packages:
 
   /linkifyjs@4.1.3:
     resolution: {integrity: sha512-auMesunaJ8yfkHvK4gfg1K0SaKX/6Wn9g2Aac/NwX+l5VdmFZzo/hdPGxEOETj+ryRa4/fiOPjeeKURSAJx1sg==}
+    dev: false
+
+  /load-script@1.0.0:
+    resolution: {integrity: sha512-kPEjMFtZvwL9TaZo0uZ2ml+Ye9HUMmPwbYRJ324qF9tqMejwykJ5ggTyvzmrbBeapCAbk98BSbTeovHEEP1uCA==}
     dev: false
 
   /locate-path@6.0.0:
@@ -6537,6 +6552,15 @@ packages:
       attr-accept: 2.2.2
       file-selector: 0.6.0
       prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
+  /react-google-picker@0.1.0(react@18.2.0):
+    resolution: {integrity: sha512-0y3TtinsdNwEx77Upsmh7Q4bXuBt/d/KntQDNxLOIf2v77UQQi0FBYAtAkjrkP28IOX7gfcXhdY5XXZRGHSODw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      load-script: 1.0.0
       react: 18.2.0
     dev: false
 

@@ -5,6 +5,8 @@ import BlockEditor from "@components/BlockEditor";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState } from "react";
 import { useAppContext } from "@contexts/context";
+import Cookies from 'js-cookie';
+import GoogleDocs from "@components/GoogleDocs"
 
 export default function New() {
   const [value, setValue] = useState("write");
@@ -33,12 +35,23 @@ export default function New() {
             >
               Upload
             </Tabs.Trigger>
+            { Cookies.get('google') ? <Tabs.Trigger
+              value="google"
+              className="px-4 py-2 font-medium text-gray-500 data-[state=active]:text-black data-[state=active]:bg-gray-50"
+            >
+              Import a Google Doc from Google Drive
+            </Tabs.Trigger> : null}
+
           </Tabs.List>
           <Tabs.Content value="write">
             <BlockEditor />
           </Tabs.Content>
           <Tabs.Content value="upload">
             <UploadBlocks />
+          </Tabs.Content>
+
+          <Tabs.Content value="google">
+            <GoogleDocs />
           </Tabs.Content>
         </Tabs.Root>
       </div>

@@ -7,6 +7,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
 import ClientOAuth2 from 'client-oauth2';
+import Cookies from 'js-cookie';
+
 export const googleOAuth2Client = new ClientOAuth2({
   clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET,
@@ -56,12 +58,12 @@ const UserAccountHandler = () => {
             >
               Hey, {user.email}!
             </Text>
+            { Cookies.get('google') ? <div> Google Account Connected </div> :
             <a href={googleOAuth2Client.code.getUri()}>
             <Button color="blue" size="xs" variant="light">
-              
-              Login with Google
+              Connect Google Account
             </Button>
-            </a>
+            </a>}
             <LogoutButton />
           </div>
         ) : (

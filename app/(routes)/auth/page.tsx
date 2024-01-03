@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { googleOAuth2Client } from '@components/UserAccount';
 import apiClient from '@utils/apiClient';
+import Cookies from 'js-cookie';
 
 const GoogleCallback = () => {
       
@@ -14,20 +15,27 @@ const GoogleCallback = () => {
     const callBackend = async() => {
         await apiClient('/googleAuth', 'POST', { code: authorizationCode })
         .then(result => {
-          console.log('yay', result);
+            let google_tokens = result["google_tokens"]
+            console.log("result", google_tokens["access_token"], google_tokens["expires_in"])
+            Cookies.set("google", google_tokens["access_token"], {
+                expires: new Date(new Date().getTime() + google_tokens["expires_in"] * 1000)
+              });
+
+              const google = Cookies.get("google");
+console.log("access", google);
         })
         .catch(error => {
           console.error('failed :( ' + error.message);
         });
     }
-    // Call getGoogleAccessToken with the authorization code
+    // Call getgoogle with the authorization code
     if (authorizationCode) {
         callBackend();
     
     }
   }, []);
 
-  return <div>Processing...</div>;
+  return <div>Google Account Connected!</div>;
 };
 
 export default GoogleCallback;
