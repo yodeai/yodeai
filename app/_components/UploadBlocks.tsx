@@ -127,7 +127,7 @@ export default function UploadBlocks() {
           const reader = new FileReader();
           reader.onloadend = async () => {
             if (reader.result) {
-              const base64 = (reader.result as string).split(',')[1];
+              const base64 = (reader.result as string)?.split(',')[1];
               uploadAndRedirect({
                 title: files[0].name,
                 lens_id: lensId,
