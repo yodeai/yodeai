@@ -1,5 +1,5 @@
 "use client";
-import clsx from "clsx";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
@@ -9,30 +9,8 @@ import React, { useCallback, useState } from "react";
 import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
 import { FaHouse } from "react-icons/fa6";
 import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
-
-export function ActiveLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  return (
-    <Link
-      className={clsx(
-        "px-2 py-1 rounded font-medium",
-        pathname === href && "bg-gray-100 text-black"
-      )}
-      href={href}
-    >
-      {children}
-    </Link>
-  );
-}
 
 export default function Navbar() {
   const router = useRouter();
@@ -41,6 +19,7 @@ export default function Navbar() {
     pinnedLenses, setPinnedLenses, pinnedLensesLoading, draggingNewBlock, layoutRefs
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
+  const pathname = usePathname();
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -60,8 +39,7 @@ export default function Navbar() {
     setLensId(newLensId);
     console.log(lensId);
     reloadLenses();
-    router.push(`/lens/${newLensId}?edit=true`);
-
+    router.push(`/lens/${newLensId}#newLens`);
   }, [router]);
 
   const handleNewBlock = (e: React.MouseEvent) => {
@@ -71,26 +49,9 @@ export default function Navbar() {
     router.push(`/new`);
   };
 
-  const handleOpenInbox = (e: React.MouseEvent) => {
-    setLensId(null);
-    setActiveComponent("inbox");
-    router.push(`/inbox`);
-  };
-
-  const handleHomeClick = () => {
-    setLensId(null);
-    setActiveComponent("global");
-    router.push(`/`);
-  }
-
-  const handleMyBlocksClick = () => {
-    setLensId(null);
-    setActiveComponent("myblocks");
-    router.push(`/myblocks`);
-  }
-
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
-    event.stopPropagation();
+    event.preventDefault();
+
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
@@ -154,30 +115,36 @@ export default function Navbar() {
     </Popover>
 
     <Flex direction="column" gap={5} mt={10}>
-      <NavLink
-        onClick={handleHomeClick}
-        label="Home"
-        leftSection={<FaHouse size={18} />}
-        color={(!lensId && activeComponent === "global") ? "blue" : "#888"}
-        variant={(!lensId && activeComponent === "global") ? "light" : "subtle"}
-        active
-      />
-      <NavLink
-        onClick={handleMyBlocksClick}
-        label="My Blocks"
-        leftSection={<FaThLarge size={18} />}
-        color={(!lensId && activeComponent === "myblocks") ? "blue" : "#888"}
-        variant={(!lensId && activeComponent === "myblocks") ? "light" : "subtle"}
-        active
-      />
-      <NavLink
-        onClick={handleOpenInbox}
-        label="Inbox"
-        leftSection={<FaInbox size={18} />}
-        color={(!lensId && activeComponent === "inbox") ? "blue" : "#888"}
-        variant={(!lensId && activeComponent === "inbox") ? "light" : "subtle"}
-        active
-      />
+      <Link href="/" className="no-underline">
+        <NavLink
+          component="div"
+          label="Home"
+          leftSection={<FaHouse size={18} />}
+          color={pathname === "/" ? "blue" : "#888"}
+          variant={pathname === "/" ? "light" : "subtle"}
+          active
+        />
+      </Link>
+      <Link href="/myblocks" className="no-underline">
+        <NavLink
+          component="div"
+          label="My Blocks"
+          leftSection={<FaThLarge size={18} />}
+          color={pathname === "/myblocks" ? "blue" : "#888"}
+          variant={pathname === "/myblocks" ? "light" : "subtle"}
+          active
+        />
+      </Link>
+      <Link href="/inbox" className="no-underline">
+        <NavLink
+          component="div"
+          label="Inbox"
+          leftSection={<FaInbox size={18} />}
+          color={pathname === "/inbox" ? "blue" : "#888"}
+          variant={pathname === "/inbox" ? "light" : "subtle"}
+          active
+        />
+      </Link>
     </Flex>
 
     <Divider

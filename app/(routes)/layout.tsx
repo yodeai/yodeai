@@ -1,6 +1,7 @@
 import Navbar from "@components/Navbar";
 import { MobileNavbar } from "@components/MobileNavbar";
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
+import Toolbar from '@components/Toolbar'
 import { LensProvider } from "@contexts/context";
 import { Flex, Box } from "@mantine/core";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -33,11 +34,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Box>
 
           {/* QuestionAnswerForm with a left border */}
-          <Box h='100%' display={{ base: 'none', sm: 'block' }} w={{
-            base: '0px',
-            sm: '20vw'
-          }}>
-            <QuestionAnswerForm />
+          <Box h='100%' display={{ base: 'none', sm: 'flex' }}>
+            <Toolbar />
           </Box>
         </Flex>
 

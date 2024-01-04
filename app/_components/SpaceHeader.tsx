@@ -8,24 +8,24 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 import Link from "next/link";
 import AddSubspace from "@components/AddSubspace";
-import { useDisclosure } from "@mantine/hooks";
 import { useAppContext, contextType } from "@contexts/context";
 
 type SpaceHeaderProps = {
     title: string;
-    selectedLayoutType: string,
-    handleChangeLayoutView: any,
+    staticLayout?: boolean;
+    selectedLayoutType: "block" | "icon",
+    handleChangeLayoutView?: any
 }
+
 export default function SpaceHeader(props: SpaceHeaderProps) {
     const {
         title,
+        staticLayout,
         selectedLayoutType,
         handleChangeLayoutView,
     } = props;
 
-    const { sortingOptions, setSortingOptions } = useAppContext();
-
-    const subspaceModalDisclosure = useDisclosure(false);
+    const { subspaceModalDisclosure,  sortingOptions, setSortingOptions  } = useAppContext();
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
 
     return <>
@@ -84,7 +84,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
                 />
-                <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
+                {staticLayout && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
                     ? "Switch to icon view."
                     : "Switch to list view."
                 }>
@@ -98,13 +98,13 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                     >
                         {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                     </Button>
-                </Tooltip>
+                </Tooltip> || ""}
             </Box>
         </Flex>
 
         <Flex justify={"center"} align={"center"}>
             <Flex justify={"center"} align={"center"} gap={"sm"}>
-                <AddSubspace modalController={subspaceModalDisclosure} lensId={-1} />
+                <AddSubspace modalController={subspaceModalDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>

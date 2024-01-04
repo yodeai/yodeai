@@ -1,43 +1,18 @@
 "use client";
 import { notFound } from "next/navigation";
-import { Block } from "app/_types/block";
-import { Lens, Subspace } from "app/_types/lens";
+import { Lens } from "app/_types/lens";
 import { useState, useEffect, useMemo } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Flex, Box } from "@mantine/core";
+
 import SpaceHeader from "@components/SpaceHeader";
-import LensComponent from "@components/LensComponent";
-import { Flex, Text, Divider, Box } from "@mantine/core";
 import LoadingSkeleton from "@components/LoadingSkeleton";
-import LayoutController from '../_components/LayoutController';
+import LayoutController from 'app/_components/LayoutController';
 import { LensLayout } from "app/_types/lens";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useAppContext } from "@contexts/context";
-
-function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
-  let layout = null;
-  if (global.localStorage) {
-    try {
-      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return layout ? layout[lens_id] : null;
-}
-
-function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
-  if (global.localStorage) {
-    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
-    global.localStorage.setItem(
-      "layoutView",
-      JSON.stringify({
-        ...layout,
-        [lens_id]: value
-      })
-    );
-  }
-}
+import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 export default function Home() {
   const supabase = createClientComponentClient()
@@ -48,7 +23,7 @@ export default function Home() {
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
-  const { sortingOptions, setSortingOptions } = useAppContext();
+  const { sortingOptions, setLensId } = useAppContext();
 
   const getLenses = async () => {
     return fetch(`/api/lens/getAll`)
@@ -65,6 +40,7 @@ export default function Home() {
   }
 
   useEffect(() => {
+    setLensId(null)
     getLenses();
   }, []);
 
@@ -100,6 +76,15 @@ export default function Home() {
     });
   }
 
+  const handleLensDelete = async (lens_id: number) => {
+    const deletePromise = fetch(`/api/lens/${lens_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting lens...",
+      success: "Lens deleted!",
+      error: "Failed to delete lens.",
+    });
+  }
+
   const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
     setLayoutViewToLocalStorage("default_layout", newLayoutView)
     setSelectedLayoutType(newLayoutView)
@@ -127,7 +112,7 @@ export default function Home() {
 
     return () => {
       console.log("Unsubscribing from lens changes")
-      channel.unsubscribe();
+      if (channel) channel.unsubscribe();
     }
   }, [])
 
@@ -158,16 +143,18 @@ export default function Home() {
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
       />
-      <Box className="flex p-2 items-stretch flex-col h-full">
-        {loading && <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />}
+      <Box className="flex items-stretch flex-col h-full">
+        {loading && <div className="p-3">
+          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+        </div>}
         <LayoutController
           blocks={[]}
           subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}
-          lens_id={"-1"}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensDelete={handleLensDelete}
           onChangeLayout={onChangeLensLayout}
         />
       </Box>

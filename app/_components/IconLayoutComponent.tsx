@@ -4,7 +4,7 @@ import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-ico
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip, ScrollArea } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
@@ -12,12 +12,16 @@ import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaICursor } from "react-icons/fa";
+import { FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
-import { set } from "date-fns";
 import { useDebouncedCallback } from "@utils/hooks";
+import Link from "next/link";
+import LoadingSkeleton from "./LoadingSkeleton";
+
+import ShareLensComponent from './ShareLensComponent';
+import { useDisclosure } from "@mantine/hooks";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -25,26 +29,30 @@ interface IconLayoutComponentProps {
   blocks: Block[];
   subspaces: (Subspace | Lens)[];
   layouts: LensLayout["icon_layout"]
-  lens_id: string;
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
+  handleLensDelete: (lens_id: number) => Promise<any>
 }
 export default function IconLayoutComponent({
   blocks,
   layouts,
-  lens_id,
   subspaces,
   onChangeLayout,
   handleBlockChangeName,
-  handleBlockDelete
+  handleBlockDelete,
+  handleLensDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
-  const { lensName, lensId, layoutRefs, setDraggingNewBlock } = useAppContext();
+  const {
+    lensName, lensId, layoutRefs,
+    pinnedLenses, setPinnedLenses,
+    sortingOptions,
+    setDraggingNewBlock,
+  } = useAppContext();
 
-  const { pinnedLenses, sortingOptions } = useAppContext();
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
   const fileTypeIcons = useMemo(() => ({
@@ -58,13 +66,21 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
+  const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
+  const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
+
   const items: (Block | Subspace | Lens)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
 
   const breadcrumbs = useMemo(() => {
-    let elements = [
-      { title: 'Space' },
-      { title: lensName, href: `/lens/${lensId}` }
-    ];
+    let elements = [].concat(
+      [{ name: 'Spaces', lens_id: null }],
+      breadcrumbData || lensId && [{ lens_id: lensId, name: lensName }] || []
+    )
+    elements = elements.reduce((acc, lens, index, arr) => {
+      return [...acc,
+      { title: lens.name, href: lens.lens_id ? `/lens/${lens.lens_id}` : "/" }
+      ]
+    }, []);
 
     if (selectedItems.length === 0) {
       return elements;
@@ -84,7 +100,31 @@ export default function IconLayoutComponent({
     }
 
     return elements;
-  }, [items, lensName, lensId, selectedItems]);
+  }, [breadcrumbData, items, lensName, lensId, selectedItems])
+
+  const getLensParents = () => {
+    return fetch(`/api/lens/${lensId}/getParents`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Couldn't get parents of the lens.")
+        } else {
+          return res.json();
+        }
+      })
+      .then(res => {
+        setBreadcrumbData(res.data)
+      })
+      .catch(err => {
+        console.log(err.message);
+      })
+      .finally(() => {
+        setBreadcrumbLoading(false);
+      })
+  }
+
+  useEffect(() => {
+    getLensParents()
+  }, [])
 
   const onDoubleClick = (itemType: string, itemId: number) => {
     if (window.location.pathname === "/") {
@@ -160,6 +200,7 @@ export default function IconLayoutComponent({
         ? <SubspaceIconItem
           selected={selectedItems.includes(item_id)}
           unselectBlocks={() => setSelectedItems([])}
+          handleLensDelete={handleLensDelete}
           icon={
             (item.access_type === "owner" || !item?.access_type)
               ? fileTypeIcons.subspace
@@ -178,7 +219,14 @@ export default function IconLayoutComponent({
   const onPinLens = async (lens_id: string) => {
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "PUT" });
-      if (pinResponse.ok) console.log("Lens pinned");
+      if (pinResponse.ok) {
+        const subspace = subspaces.find(subspace => subspace.lens_id === Number(lens_id));
+        if (subspace) {
+          setPinnedLenses((pinnedLenses) => [...pinnedLenses, subspace as Lens])
+        }
+
+        console.log("Lens pinned");
+      }
       if (!pinResponse.ok) console.error("Failed to pin lens");
     } catch (error) {
       console.error("Error pinning lens:", error);
@@ -231,38 +279,49 @@ export default function IconLayoutComponent({
   }
 
   const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
-    if(sortingOptions.sortBy !== null) return;
+    if (sortingOptions.sortBy !== null) return;
     onChangeLayout("icon_layout", layouts)
   }, [sortingOptions])
 
-  return <div className="flex flex-col p-2 justify-between h-[calc(100%-50px)]">
-    <ResponsiveReactGridLayout
-      style={{ height: "100%" }}
-      layouts={layouts}
-      cols={cols}
-      breakpoint={breakpoint}
-      breakpoints={breakpoints}
-      rowHeight={75}
-      onLayoutChange={onLayoutChange}
-      isResizable={false}
-      onWidthChange={onWidthChange}
-      onDragStart={calculateDoubleClick}
-      onDrag={onDrag}
-      onDragStop={onDragStop}
-      preventCollision={true}
-      verticalCompact={false}>
-      {layoutItems}
-    </ResponsiveReactGridLayout>
-    {/* <Breadcrumbs className="overflow bottom-0 left-0 z-50">{
-      breadcrumbs.map(({ title, href }, index) => (
-        <Fragment key={index}>
-          {href
-            ? <Anchor href={href} size="sm" c="dimmed">{title}</Anchor>
-            : <Text size="sm" c="dimmed">{title}</Text>
-          }
-        </Fragment>
-      ))
-    }</Breadcrumbs> */}
+  return <div className="flex flex-col justify-between">
+    <ScrollArea type={"scroll"} w={'100%'} p={0} scrollbarSize={8} style={{ height: "calc(100vh - 180px)", overflow: "scroll" }}>
+      <ResponsiveReactGridLayout
+        layouts={layouts}
+        cols={cols}
+        breakpoint={breakpoint}
+        breakpoints={breakpoints}
+        rowHeight={75}
+        onLayoutChange={onLayoutChange}
+        isResizable={false}
+        onWidthChange={onWidthChange}
+        onDragStart={calculateDoubleClick}
+        onDrag={onDrag}
+        onDragStop={onDragStop}
+        preventCollision={true}
+        verticalCompact={false}>
+        {layoutItems}
+      </ResponsiveReactGridLayout>
+
+    </ScrollArea>
+    <Box className="flex flex-row z-50 gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+      {breadcrumbLoading
+        ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
+        : <>
+          <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />
+          <Breadcrumbs separatorMargin={5} className="z-50">{
+            breadcrumbs.map(({ title, href }, index) => (
+              <Fragment key={index}>
+                {href
+                  ? <Link href={href} className="no-underline hover:underline" prefetch>
+                    <Text size="sm" c="dimmed">{title}</Text>
+                  </Link>
+                  : <Text size="sm" c="dimmed">{title}</Text>
+                }
+              </Fragment>
+            ))}
+          </Breadcrumbs>
+        </>}
+    </Box>
   </div>
 }
 
@@ -390,7 +449,7 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
           variant="unstyled" size="xs" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
           onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">{titleText}</Text>
+        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
       }
     </Box>
   </Flex>
@@ -401,36 +460,37 @@ type SubspaceIconItemProps = {
   subspace: Subspace | Lens
   selected?: boolean;
   unselectBlocks?: () => void
+  handleLensDelete: (lens_id: number) => Promise<any>
 }
-const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemProps) => {
+const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
   const { pinnedLenses, accessType } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const shareModalDisclosure = useDisclosure(false);
+  const [shareModalState, shareModalController] = shareModalDisclosure;
 
   const openDeleteModal = () => modals.openConfirmModal({
-    title: 'Confirm block deletion',
+    title: 'Confirm space deletion',
     centered: true,
     confirmProps: { color: 'red' },
     children: (
       <Text size="sm">
-        Are you sure you want to delete this block? This action cannot be undone.
+        Are you sure you want to delete this space? This action cannot be undone.
       </Text>
     ),
-    labels: { confirm: 'Delete block', cancel: "Cancel" },
+    labels: { confirm: 'Delete Space', cancel: "Cancel" },
     onCancel: () => console.log('Canceled deletion'),
     onConfirm: onConfirmDelete,
   });
 
-  const onConfirmDelete = async () => {
-    try {
-      const deleteResponse = await fetch(`/api/lens/${subspace.lens_id}`, { method: "DELETE" });
-      if (deleteResponse.ok) console.log("Lens deleted");
-      if (!deleteResponse.ok) console.error("Failed to delete lens");
-    } catch (error) {
-      console.error("Error deleting lens:", error);
-    }
+  const onConfirmDelete = () => {
+    setLoading(true);
+    handleLensDelete(subspace.lens_id).then(res => setLoading(false));
   }
+
 
   const onPinLens = async () => {
     try {
@@ -461,14 +521,23 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
       if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
       else router.push(`${window.location.pathname}/${subspace.lens_id}`)
     }
-  }, {
+  },
+  {
+    key: 'share',
+    color: "#228be6",
+    icon: <FaShare size={14} />,
+    title: "Share",
+    onClick: () => shareModalController.open()
+  },
+  {
     key: 'remove',
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
     disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
-  }, {
+  },
+  {
     key: 'pin',
     color: "#228be6",
     icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
@@ -498,18 +567,25 @@ const SubspaceIconItem = ({ subspace, icon, unselectBlocks }: SubspaceIconItemPr
     return subIcons;
   }, [isPinned])
 
-  return <Flex
-    onContextMenu={onContextMenu}
-    mih={75} gap="6px"
-    justify="normal" align="center"
-    direction="column" wrap="nowrap">
-    <SpaceIconHint>{icon}</SpaceIconHint>
-    <Box w={75} h={30} variant="unstyled" className="text-center">
-      <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none">
-        {subspace.name}
-      </Text>
-    </Box>
-  </Flex>
+  return <>
+    {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
+    <Flex
+      onContextMenu={onContextMenu}
+      mih={75} gap="6px"
+      justify="normal" align="center"
+      direction="column" wrap="nowrap">
+      {loading
+        ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+        : <SpaceIconHint>{icon}</SpaceIconHint>
+      }
+      <Box w={75} h={30} variant="unstyled" className="text-center">
+        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+          {subspace.name}
+        </Text>
+      </Box>
+    </Flex>
+
+  </>
 }
 
 type SpaceIconHintProps = {

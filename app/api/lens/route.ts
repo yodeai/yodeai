@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
     const parentId = body.parentId ? body.parentId : -1
     const rootId = body.root? body.root : -1
     const parents = body.parents ? body.parents: [-1]
+    const accessType = body.accessType ? body.accessType : "owner"
     if (!name) {
       return new NextResponse(
         JSON.stringify({ error: 'Name is required' }),
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       {
         "lens_id": data[0]["lens_id"],
         "user_id": data[0]["owner_id"],
-        "access_type": "owner",
+        "access_type": accessType,
       },
     );
     if (lensUsersObj.error) {

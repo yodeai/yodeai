@@ -1,29 +1,27 @@
 "use client";
+
 import { notFound } from "next/navigation";
-import Container from "@components/Container";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
-import { clearConsole } from "debug/tools";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
-import { PlusIcon } from "@radix-ui/react-icons";
 
 import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockHeader from "@components/BlockHeader";
-
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [unacceptedInvites, setUnacceptedInvites] = useState([]);
 
+  const { setLensId } = useAppContext();
   const supabase = createClientComponentClient()
+
   useEffect(() => {
     const updateBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -37,8 +35,6 @@ export default function Inbox() {
       );
     };
 
-    
-
     const addBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
       console.log("Added a block", block_id)
@@ -47,7 +43,6 @@ export default function Inbox() {
         setBlocks([newBlock, ...blocks]);
       }
     }
-
 
     const deleteBlocks = (payload) => {
       let block_id = payload["new"]["block_id"]
@@ -97,6 +92,7 @@ export default function Inbox() {
   useEffect(() => {
     fetchBlocks();
     fetchInvites();
+    setLensId(null);
   }, []);
 
   return (
@@ -139,7 +135,7 @@ export default function Inbox() {
       {
         loading ? (
           <div className="mt-2">
-            <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+            <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
           </div>
         ) : blocks?.length > 0 ? (
           blocks.map((block) => (
