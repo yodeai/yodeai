@@ -8,7 +8,7 @@ import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
 import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
@@ -24,9 +24,15 @@ const DynamicSimpleMDE = dynamic(
   { ssr: false, loading: () => <p>Loading editor...</p> }
 );
 
+type BlockEditorProps = {
+  block?: Block;
+  onSave?: (block: Block) => void;
+}
 
-export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
+export default function BlockEditor({ block: initialBlock, onSave }: BlockEditorProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
   const [content, setContent] = useState(block?.content || "");
@@ -35,7 +41,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-
 
   //let controller;
   const saveContent = async (delay = 180) => {
@@ -161,6 +166,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const handleSaveAndNavigate = async () => {
     // remove the "saved" sign
     setIsSaved(false);
+
     if (isSaving) {
       // If isSaving is true, wait for it to become false
       while (isSaving) {
@@ -171,13 +177,12 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // Save one last time
     await saveContent(0);
 
-    // Navigate back using the router
-    if (lensId) {
-      router.back();
-    } else {
-      router.push(`/myblocks`);
+    if(pathname === "/new"){
+      router.push(`/block/${block.block_id}`);
+      return;
     }
-    // router.back();
+
+    return onSave({ ...block, title: title, content: content });
   };
 
 
@@ -186,8 +191,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   //     saveContent(0); // save content one last time
   //   };
   // }, []);
-
-
 
   return (
     <div className="flex flex-col gap-1 w-full">
