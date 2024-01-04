@@ -181,3 +181,8 @@
 .react-grid-item:active, .react-grid-item:focus{
   background-color: transparent;
 }
+
+
+.block-input .mantine-Textarea-input{
+  padding: 0px;
+}

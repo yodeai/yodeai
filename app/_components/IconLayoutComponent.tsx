@@ -4,7 +4,7 @@ import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-ico
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
-import { Text, Flex, Box, Textarea, Tooltip, ScrollArea } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip, ScrollArea, Breadcrumbs, HoverCard, UnstyledButton } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
@@ -14,7 +14,6 @@ import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
-import { Breadcrumbs, Anchor } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
 import Link from "next/link";
@@ -46,11 +45,12 @@ export default function IconLayoutComponent({
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
+  const $gridContainer = useRef<HTMLDivElement>(null);
   const {
     lensName, lensId, layoutRefs,
     pinnedLenses, setPinnedLenses,
-    sortingOptions,
-    setDraggingNewBlock,
+    sortingOptions, setDraggingNewBlock,
+    zoomLevel
   } = useAppContext();
 
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
@@ -136,7 +136,7 @@ export default function IconLayoutComponent({
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
-    const [itemType, itemId] = newItem.i.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
+    const [itemType, itemId] = newItem.i?.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
 
     const now = Date.now();
     if ($lastClick.current && (now - $lastClick.current) < 300) {
@@ -214,7 +214,7 @@ export default function IconLayoutComponent({
           icon={fileTypeIcons[item.block_type]} block={item} />
       }
     </div>
-  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems, sortedItems, sortingOptions])
+  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel])
 
   const onPinLens = async (lens_id: string) => {
     try {
@@ -255,7 +255,7 @@ export default function IconLayoutComponent({
       const target = event.target as HTMLElement;
       if (!newItem.i.startsWith("ss")) return;
 
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       if (pinnedLensIds.includes(Number(lens_id))) return;
 
       if (checkOverlap(target, layoutRefs.sidebar.current)) {
@@ -272,7 +272,7 @@ export default function IconLayoutComponent({
     const target = event.target as HTMLElement;
     if (checkOverlap(target, layoutRefs.sidebar.current)) {
       if (!newItem.i.startsWith("ss")) return;
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       onPinLens(String(lens_id))
       setDraggingNewBlock(false);
     }
@@ -281,16 +281,23 @@ export default function IconLayoutComponent({
   const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
     if (sortingOptions.sortBy !== null) return;
     onChangeLayout("icon_layout", layouts)
-  }, [sortingOptions])
+  }, [sortingOptions]);
 
-  return <div className="flex flex-col justify-between">
-    <ScrollArea type={"scroll"} w={'100%'} p={0} scrollbarSize={8} style={{ height: "calc(100vh - 180px)", overflow: "scroll" }}>
+  const ROW_HEIGHT = 100;
+
+  return <div className="flex flex-col justify-between z-50">
+    <div ref={$gridContainer} style={{
+      transform: `scale(${zoomLevel / 100}) translateZ(0)`,
+      transformOrigin: 'top left',
+      height: "calc(100vh - 160px)"
+    }}>
       <ResponsiveReactGridLayout
+        maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
         layouts={layouts}
         cols={cols}
         breakpoint={breakpoint}
         breakpoints={breakpoints}
-        rowHeight={75}
+        rowHeight={ROW_HEIGHT}
         onLayoutChange={onLayoutChange}
         isResizable={false}
         onWidthChange={onWidthChange}
@@ -298,12 +305,12 @@ export default function IconLayoutComponent({
         onDrag={onDrag}
         onDragStop={onDragStop}
         preventCollision={true}
-        verticalCompact={false}>
+        verticalCompact={false}
+        transformScale={zoomLevel / 100}>
         {layoutItems}
       </ResponsiveReactGridLayout>
-
-    </ScrollArea>
-    <Box className="flex flex-row z-50 gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+    </div>
+    <Box className="fixed bottom-0 w-full flex flex-row gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
       {breadcrumbLoading
         ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
         : <>
@@ -322,7 +329,7 @@ export default function IconLayoutComponent({
           </Breadcrumbs>
         </>}
     </Box>
-  </div>
+  </div >
 }
 
 type BlockIconItemProps = {
@@ -333,15 +340,16 @@ type BlockIconItemProps = {
   handleBlockDelete?: (block_id: number) => Promise<any>
   unselectBlocks?: () => void
 }
-const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, unselectBlocks }: BlockIconItemProps) => {
+const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: BlockIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
-  const { accessType } = useAppContext();
+  const { accessType, zoomLevel } = useAppContext();
   const router = useRouter();
 
   const [titleText, setTitleText] = useState<string>(block.title);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
   useEffect(() => {
     setTitleText(block.title);
@@ -433,23 +441,69 @@ const BlockIconItem = ({ block, icon, handleBlockChangeName, handleBlockDelete, 
 
   const onContextMenu = showContextMenu(actions);
 
+  const blockPreviewContent = useMemo(() => {
+    if (zoomLevel < 125 || !block.preview) {
+      return <Box variant="unstyled">
+        {loading
+          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+          : <SpaceIconHint>{icon}</SpaceIconHint>}
+      </Box>
+    } else {
+      return <Tooltip
+        position="bottom"
+        maw={300}
+        opened={showPreview}
+        label={
+          <Text component="div" size={`${20 * zoomLevel / 200}px`} className="w-full break-words select-none whitespace-break-spaces">
+            {block.preview}
+          </Text>
+        }>
+        <Box h={70} className="w-full border border-gray-200 p-1 rounded-lg mx-1 overflow-hidden" variant="unstyled">
+          <Text component="span" size={`${6 * 200 / zoomLevel}px`} c="dimmed" lineClamp={15} className="break-words select-none whitespace-break-spaces">
+            {block.preview}
+          </Text>
+        </Box>
+      </Tooltip>
+    }
+  }, [zoomLevel, showPreview, loading]);
+
+  const $mouseEnter = useRef<boolean>(false);
+  const onMouseEnter = useDebouncedCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>, value) => {
+    setShowPreview(value);
+  }, 1000);
+
   return <Flex
     onContextMenu={onContextMenu}
-    mih={75} gap="6px"
-    justify="normal" align="center"
+    onMouseEnter={(event) => {
+      $mouseEnter.current = true;
+      onMouseEnter(event, true)
+    }}
+    onMouseDown={() => setShowPreview(false)}
+    onMouseMove={() => {
+      if ($mouseEnter.current) setShowPreview(false)
+    }}
+    onMouseLeave={(event) => {
+      $mouseEnter.current = false;
+      onMouseEnter(event, false)
+    }}
+    mih={100} gap="6px"
+    align="center" justify="flex-end"
     direction="column" wrap="nowrap">
-    {loading
-      ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-      : <SpaceIconHint>{icon}</SpaceIconHint>}
-    <Box w={70} h={30} variant="unstyled" className="text-center">
+    {blockPreviewContent}
+    <Box w={70} h={40} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea
-          className="z-50"
-          minRows={1} maxRows={2} ref={$textarea}
-          variant="unstyled" size="xs" ta="center" c="dimmed"
+          rows={1}
+          className="z-50 block-input leading-4 w-full"
+          maxRows={2}
+          ref={$textarea}
+          variant="unstyled" ta="center" c="dimmed"
           onKeyDown={onKeyDown}
-          onChange={onChangeTitle} placeholder="Title" value={titleText} autosize />
-        : <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+          size={`${7 * 200 / zoomLevel}px`}
+          p={0} m={0}
+          h={20}
+          onChange={onChangeTitle} placeholder="Title" value={titleText} />
+        : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
       }
     </Box>
   </Flex>
@@ -465,7 +519,7 @@ type SubspaceIconItemProps = {
 const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
-  const { pinnedLenses, accessType } = useAppContext();
+  const { pinnedLenses, accessType, zoomLevel } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -490,7 +544,6 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     setLoading(true);
     handleLensDelete(subspace.lens_id).then(res => setLoading(false));
   }
-
 
   const onPinLens = async () => {
     try {
@@ -565,21 +618,23 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
       </Tooltip>
     );
     return subIcons;
-  }, [isPinned])
+  }, [isPinned, zoomLevel]);
 
   return <>
     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
     <Flex
       onContextMenu={onContextMenu}
-      mih={75} gap="6px"
-      justify="normal" align="center"
+      mih={100} gap="6px"
+      justify="flex-end" align="center"
       direction="column" wrap="nowrap">
-      {loading
-        ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-        : <SpaceIconHint>{icon}</SpaceIconHint>
-      }
-      <Box w={75} h={30} variant="unstyled" className="text-center">
-        <Text inline={true} size="xs" ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+      <Box>
+        {loading
+          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+          : <SpaceIconHint>{icon}</SpaceIconHint>
+        }
+      </Box>
+      <Box w={100} h={40} variant="unstyled" className="text-center">
+        <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
         </Text>
       </Box>

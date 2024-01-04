@@ -65,3 +65,29 @@ export function setActiveToolbarTab(activeTab: "questionform" | "social") {
         global.localStorage.setItem("activeToolbarTab", JSON.stringify(activeTab));
     }
 }
+
+export function getZoomLevelFromLocalStorage(lensIdOrTitle: string) {
+    let zoomLevel = null;
+    if (global.localStorage) {
+        try {
+            zoomLevel = JSON.parse(global.localStorage.getItem("zoomLevel")) || null;
+        } catch (e) {
+            /*Ignore*/
+        }
+    }
+
+    return zoomLevel ? zoomLevel[lensIdOrTitle] : null;
+}
+
+export function setZoomLevelToLocalStorage(lensIdOrTitle: string, zoomLevel: number) {
+    if (global.localStorage) {
+        const zoomLevels = JSON.parse(global.localStorage.getItem("zoomLevel") || "{}");
+        global.localStorage.setItem(
+            "zoomLevel",
+            JSON.stringify({
+                ...zoomLevels,
+                [lensIdOrTitle]: zoomLevel
+            })
+        );
+    }
+}

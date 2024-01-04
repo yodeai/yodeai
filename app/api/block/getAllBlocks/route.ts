@@ -22,13 +22,12 @@ export async function GET(request: NextRequest) {
         const { data: blocks, error } = await supabase
             .from('block')
             .select(`
-            *, 
-            
+            *,
             lens_blocks!fk_block (
                 lens: lens!fk_lens (lens_id, name)
             )
         `).eq('lens_blocks.direct_child', true)
-        .order('updated_at', { ascending: false });
+            .order('updated_at', { ascending: false });
 
         const blocksWithLenses = (blocks || []).map(block => ({
             ...block,
@@ -39,8 +38,8 @@ export async function GET(request: NextRequest) {
                     name: lb.lens.name
                 }))
         }));
-        
-        
+
+
 
         return new NextResponse(
             JSON.stringify({ data: blocksWithLenses }),

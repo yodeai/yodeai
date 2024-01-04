@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 
 export async function GET(request: NextRequest) {
-    
+
     try {
         const supabase = createServerComponentClient({
             cookies,
@@ -15,21 +15,21 @@ export async function GET(request: NextRequest) {
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: inboxBlocks, error } = await supabase
-        .from('inbox')
-        .select(`
+            .from('inbox')
+            .select(`
             *,
             block!inbox_block_id_fkey (
-                *,
+                block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
                 lens_blocks!fk_block (
                     lens: lens!fk_lens (lens_id, name)
                 ) 
             )
         `).eq("block.lens_blocks.direct_child", true)
-    if (error) {
-        throw error;
-    }
-    
-    
+        if (error) {
+            throw error;
+        }
+
+
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = inboxBlocks
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
                 .filter(block => block !== null)
             : [];
 
-        
+
 
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;

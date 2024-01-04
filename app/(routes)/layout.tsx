@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <LensProvider>
       <div style={{ flex: 1 }} className="flex flex-col sm:flex-row">
         {/* Left Side bar */}
-        <Flex component="nav" className="flex flex-col max-h-[calc(100vh-60px)] bg-white border-r border-r-[#eeeeee] top-0 sticky"
+        <Flex component="nav" className="flex flex-col h-full bg-white border-r border-r-[#eeeeee] top-0 sticky"
           display={{ base: 'none', sm: 'flex' }}>
           <Navbar />
         </Flex>
@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         {/* Main content area */}
         <Flex mah='100%' w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Box h='100%' style={{ flex: 1 }} ml={{ base: 20, sm: 0 }} >
+          <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01" ml={{ base: 20, sm: 0 }} >
             {children}
           </Box>
 

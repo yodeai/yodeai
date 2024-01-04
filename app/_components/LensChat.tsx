@@ -184,7 +184,7 @@ export default function LensChat() {
                                 : "Ask a question "
                             }
                         </Text>
-                        <InfoPopover infoText={"Ask a question and Yode will respond to it using the data in your blocks."} />
+                        <InfoPopover infoText={"Ask a question and Yodeai will respond to it using the data in your blocks."} />
                     </Flex>
                 </ToolbarHeader>
 
@@ -192,7 +192,7 @@ export default function LensChat() {
                     {messages.map((message, index) => {
                         return <MessageBox key={index} message={message} />
                     })}
-                    {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 7} lineHeight={80} />)}
+                    {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
                     {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
                     {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
                         label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}

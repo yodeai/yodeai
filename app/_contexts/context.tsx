@@ -1,11 +1,12 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, setSortingOptionsToLocalStorage } from '@utils/localStorage';
+import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
+import { usePathname } from 'next/navigation';
 
 // Update the type for the context value
 export type contextType = {
@@ -17,7 +18,7 @@ export type contextType = {
   reloadLenses: () => void;
   allLenses: { lens_id: number, name: string, access_type: string }[];
   // activeComponent can be "global", "lens", or "inbox"
-  activeComponent: string;
+  activeComponent: "global" | "lens" | "myblocks" | "inbox";
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
 
   pinnedLensesLoading: boolean;
@@ -41,6 +42,9 @@ export type contextType = {
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
 
   user?: User;
+
+  zoomLevel: number;
+  setZoomLevel: (zoomLevel: number, lensIdOrTitle: string) => void;
 };
 
 
@@ -75,7 +79,10 @@ const defaultValue: contextType = {
     sortBy: null
   },
   setSortingOptions: () => { },
-  user: undefined
+  user: undefined,
+
+  zoomLevel: 100,
+  setZoomLevel: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -90,6 +97,7 @@ export const useAppContext = () => {
 };
 
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+  const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -99,11 +107,12 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string; pinned: true }[]>([]);
   const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
-  const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
+  const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
   const [user, setUser] = useState<User>();
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const subspaceModalDisclosure = useDisclosure(false);
 
@@ -143,26 +152,30 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Get the lensId from the URL
-    const path = window.location.pathname;
-    const parts = path.split('/');
-    // Check if the URL is '/inbox' and set isInbox to true
-    if (path === '/inbox') {
+    const parts = pathname.split('/');
+
+    if (pathname === '/') {
+      setActiveComponent("global");
+    }
+
+    if (pathname === '/inbox') {
       setActiveComponent("inbox");
     }
-    if (path === '/myblocks') {
+    if (pathname === '/myblocks') {
       setActiveComponent("myblocks");
     }
 
     else if (parts[1] === 'lens') {
       console.log("setting app context to be ", parts[parts.length - 1])
       setLensId(parts[parts.length - 1]);  // Set the lensId based on the URL
+      setActiveComponent("lens");
     }
 
     // Get all the lenses that this user has
     getAllLenses();
     getPinnedLenses();
     getUserId();
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     let channel: RealtimeChannel;
@@ -219,6 +232,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     setReloadKey(prevKey => prevKey + 1);
   };
 
+  const setIconViewZoomLevel = (zoomLevel: number, lensIdOrTitle: string = "default") => {
+    setZoomLevel(zoomLevel);
+    setZoomLevelToLocalStorage(lensIdOrTitle, zoomLevel);
+  }
+
+  const memoizedZoomLevel = useMemo(() => {
+    return getZoomLevelFromLocalStorage(lensId || "default") || 100;
+  }, [zoomLevel, lensId])
+
   return (
     <context.Provider value={{
       draggingNewBlock, setDraggingNewBlock,
@@ -231,7 +253,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       accessType, setAccessType,
       subspaceModalDisclosure,
       sortingOptions, setSortingOptions,
-      user
+      user,
+      zoomLevel: memoizedZoomLevel,
+      setZoomLevel: setIconViewZoomLevel
     }}>
       {children}
     </context.Provider>

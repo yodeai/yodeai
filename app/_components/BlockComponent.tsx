@@ -11,7 +11,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
-import { formatDistanceToNow } from "date-fns";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
 
@@ -67,7 +66,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   };
 
   // let updateTime = block.updated_at.toDate();
-  let timeAgo = formatDistanceToNow(new Date(block.updated_at), { addSuffix: true });
+  let timeAgo = formatDate(block.updated_at);
   timeAgo = timeAgo.replace("about ", "");
 
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
@@ -131,7 +130,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
               <>
                 <div className="flex text-gray-600 ">
                   <img src="/pdf-icon.png" alt="Space Icon" className="mr-1 w-5" />
-                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url.split('/').pop()}</Text>
+                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url?.split('/').pop()}</Text>
                 </div>
               </>
             ) : null}
