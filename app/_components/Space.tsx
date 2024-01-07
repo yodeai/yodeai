@@ -229,126 +229,16 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   return (
     <Flex direction={"column"} p={16} pt={0}>
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>{lensName}</Text>} labelPosition="center" />
+      <div className="flex items-stretch flex-col gap-4 mt-4">
 
-      {!lens.shared || accessType == 'owner' || accessType == 'editor' ?
-        <Flex justify={"center"} align={"center"}>
-          {!isEditingLensName ? (
-            <Flex justify={"center"} align={"center"}>
-              <Link href="/new">
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  leftSection={<FaPlus />}
-                // onClick={() => setIsEditingLensName(true)}
-                >
-                  Add Block
-                </Button>
-              </Link>
-              <Tooltip color="blue" label="Edit lens.">
-                <Button
-                  size="xs"
-                  variant="subtle"
-                  leftSection={<Pencil2Icon />}
-                  onClick={() => setIsEditingLensName(true)}
-                >
-                  Edit
-                </Button>
-              </Tooltip>
-              {!lens.shared || accessType == 'owner' ? <ShareLensComponent lensId={lens.lens_id} /> : ""}
-              <Text style={{ display: 'block', whiteSpace: 'nowrap' }} size="xs" fw={500} c={"green"}>
-                <strong>Status:</strong> {lens.public ? 'Published' : 'Not Published'}
-              </Text>
-            </Flex>
-          ) : (
-            <Flex align={"center"}>
-              <TextInput
-                size="xs"
-                value={editingLensName || ""}
-                onChange={handleNameChange}
-                onKeyUp={handleKeyPress}
-              />
-
-              <ActionIcon
-                onClick={() => { saveNewLensName().then(result => { console.log("Success", result); if (result) setIsEditingLensName(false); }); }}
-                size="md"
-                color="green"
-                variant="gradient"
-                ml={5}
-                gradient={{ from: 'green', to: 'lime', deg: 116 }}
-              >
-                <FaCheck size={14} />
-              </ActionIcon>
-              {!lens.shared || accessType == 'owner' ?
-                <Tooltip color="red" label="This will delete the space. Please proceed with caution.">
-                  <ActionIcon
-                    onClick={handleDeleteLens}
-                    size="md"
-                    color="red"
-                    variant="gradient"
-                    ml={5}
-                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                  >
-                    <FaTrashAlt size={14} />
-                  </ActionIcon>
-
-                </Tooltip> : ""}
-
-            </Flex>
-
-          )}
-        </Flex>
-        : <span className="text-xl font-semibold">
-          <div className="flex items-center mt-4 text-gray-600 gap-2 justify-start">
-            <FaThLarge className="iconStyle spaceIconStyle" />
-            <span className="text-xl font-semibold ">{lensName}</span>
-          </div>
-        </span>}
-
-      <Text ta={"center"} size="xs" fw={600} c={"blue"}>
-        {lens.shared ? `Collaborative: ${lens.shared ? `${accessType}` : ''}` : ''}
-      </Text>
-
-      {
-        !lens.shared || accessType == 'editor' || accessType == 'owner' ?
-          <div className="flex items-stretch flex-col gap-4 mt-4">
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
-              ))
-            ) : (
-              <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                This space is empty, add blocks to populate this space with content & context.
-              </Text>
-            )}
-
-            {/* Display child lenses if they exist */}
-            {lens.children && lens.children.length > 0 ? (
-              lens.children.map((childLens) => (
-                <div key={childLens.lens_id}>
-                  {/* Child lens display logic */}
-                  Child Lens: {childLens.name}
-                </div>
-              ))
-            ) : (
-              <p></p>
-            )}
-          </div>
-          :
-          <div className="flex items-stretch flex-col gap-4 mt-4">
-
-            {blocks && blocks.length > 0 ? (
-              blocks.map((block) => (
-                <BlockComponent key={block.block_id} block={block} />
-              ))
-            ) : (
-              <p>This lens is empty.</p>
-            )}
-          </div>
-      }
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
+        {blocks && blocks.length > 0 ? (
+          blocks.map((block) => (
+            <BlockComponent key={block.block_id} block={block} />
+          ))
+        ) : (
+          <p>This lens is empty.</p>
+        )}
+      </div>
     </Flex >
   );
 }
