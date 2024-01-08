@@ -278,7 +278,7 @@ export default function IconLayoutComponent({
       const target = event.target as HTMLElement;
       if (!newItem.i.startsWith("ss")) return;
 
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       if (pinnedLensIds.includes(Number(lens_id))) return;
 
       if (checkOverlap(target, layoutRefs.sidebar.current)) {
@@ -295,7 +295,7 @@ export default function IconLayoutComponent({
     const target = event.target as HTMLElement;
     if (checkOverlap(target, layoutRefs.sidebar.current)) {
       if (!newItem.i.startsWith("ss")) return;
-      const [_, lens_id] = newItem.i.split("_");
+      const [_, lens_id] = newItem.i?.split("_");
       onPinLens(String(lens_id))
       setDraggingNewBlock(false);
     }
