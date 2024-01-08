@@ -2,7 +2,7 @@
 
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
-import { Lens, LensLayout, Subspace } from "app/_types/lens";
+import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
@@ -29,6 +29,7 @@ export default function Lens(props: LensProps) {
   const [lens, setLens] = useState<Lens | null>(lensData);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
+  const [whiteboards, setWhiteBoards] = useState<Whiteboard[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const [editingLensName, setEditingLensName] = useState("");
@@ -62,6 +63,7 @@ export default function Lens(props: LensProps) {
       await Promise.all([
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
+        getLensWhiteboards(lens_id),
         getLensLayout(lens_id)
       ])
         .then(() => {
@@ -117,6 +119,17 @@ export default function Lens(props: LensProps) {
       })
       .catch((error) => {
         console.error('Error fetching subspaces:', error);
+      })
+  }
+
+  const getLensWhiteboards = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getWhiteboards`)
+      .then((response) => response.json())
+      .then((data) => {
+        setWhiteBoards(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching whiteboards:', error);
       })
   }
 
@@ -391,6 +404,26 @@ export default function Lens(props: LensProps) {
     return _sorted_blocks;
   }, [sortingOptions, blocks])
 
+  const sortedWhiteboards = useMemo(() => {
+    if (sortingOptions.sortBy === null) return whiteboards;
+
+    let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_whiteboards.reverse();
+    }
+
+    return _sorted_whiteboards;
+  }, [sortingOptions, whiteboards])
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <DynamicSpaceHeader
@@ -411,13 +444,15 @@ export default function Lens(props: LensProps) {
       <Box className="flex items-stretch flex-col h-full">
         {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
         {!loading && <LayoutController
-          subspaces={sortedSubspaces}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
           handleLensDelete={handleLensDelete}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
-          blocks={sortedBlocks} layoutView={selectedLayoutType} />}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          layoutView={selectedLayoutType} />}
       </Box>
     </Flex >
   );

@@ -36,8 +36,10 @@ export default function Toolbar() {
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
-    const { accessType, subspaceModalDisclosure, lensId } = useAppContext();
+    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, lensId } = useAppContext();
+
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
+    const [whiteboardModalState, whiteboardModalController] = whiteboardModelDisclosure;
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
@@ -86,6 +88,7 @@ export default function Toolbar() {
                                 <Menu.Item>Add Block</Menu.Item>
                             </Link>
                             <Menu.Item onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
+                            <Menu.Item onClick={whiteboardModalController.open}>Add Whiteboard</Menu.Item>
                         </Menu.Dropdown>
                     </Menu>
                 </ConditionalTooltip>

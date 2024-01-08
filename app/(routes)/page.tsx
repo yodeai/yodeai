@@ -150,6 +150,7 @@ export default function Home() {
         </div>}
         <LayoutController
           blocks={[]}
+          whiteboards={[]}
           subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}
