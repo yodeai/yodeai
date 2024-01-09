@@ -23,22 +23,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           display={{ base: 'none', sm: 'flex' }}>
           <Navbar />
         </Flex>
-        <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ zIndex: 280, position: 'fixed', top: 50, backgroundColor: '#fff', marginTop: 10, borderRightWidth: 1, borderRightColor: '#eee' }}>
-          <MobileNavbar />
-        </Flex>
 
         {/* Main content area */}
-        <Flex mah='100%' w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01" ml={{ base: 20, sm: 0 }} >
+        <Flex mah='100%' w={'100%'} direction={{ base: 'row' }}>
+          {/* Left Side Navbar for MobileView */}
+          <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
+            <MobileNavbar />
+          </Flex>
+          <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01" >
             {children}
           </Box>
-
           {/* QuestionAnswerForm with a left border */}
-          <Box h='100%' display={{ base: 'none', sm: 'flex' }}>
+          <Box h='100%' >
             <Toolbar />
           </Box>
         </Flex>
-
       </div>
     </LensProvider>
   );
