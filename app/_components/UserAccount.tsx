@@ -7,7 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
 import ClientOAuth2 from 'client-oauth2';
-import Cookies from 'js-cookie';
+import { useAppContext } from '@contexts/context';
 
 export const googleOAuth2Client = new ClientOAuth2({
   clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -15,12 +15,16 @@ export const googleOAuth2Client = new ClientOAuth2({
   accessTokenUri: 'https://accounts.google.com/o/oauth2/token',
   authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
   redirectUri: 'http://localhost:3000/auth', // Replace with your redirect URI
-  scopes: ['https://www.googleapis.com/auth/drive'],
+  scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/userinfo.profile'],
 });
 
 const UserAccountHandler = () => {
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
+  const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
+
+  const { checkGoogleAccountConnected } = useAppContext();
+
 
   useEffect(() => {
 
@@ -38,8 +42,18 @@ const UserAccountHandler = () => {
         }
       }
     }
-
-    fetchData();
+    const fetchAndCheckGoogle = async () => {
+      await fetchData();
+      const connected = await checkGoogleAccountConnected();
+      if (connected) {
+        setGoogleAccountConnected(true)
+      } else {
+        setGoogleAccountConnected(false)
+      }
+      setGoogleAccountConnected(true);
+    };
+  
+    fetchAndCheckGoogle();
   }, []);
 
 
@@ -58,7 +72,9 @@ const UserAccountHandler = () => {
             >
               Hey, {user.email}!
             </Text>
-            { Cookies.get('google') ? <div> Google Account Connected </div> :
+            { googleAccountConnected ? <Text size='sm'
+              c={"gray.8"}
+              fw={500}> Google Account Connected </Text> :
             <a href={googleOAuth2Client.code.getUri()}>
             <Button color="blue" size="xs" variant="light">
               Connect Google Account

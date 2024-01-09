@@ -104,6 +104,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         const newBlock = responseData.data[0];
         setBlock(newBlock);
       }
+
+      if (block.block_type == "google_doc" && delay == 0) {
+        // post to google docs
+        
+      }
     } catch (error) {
       setIsSaved(false);
       setIsSaving(false);
@@ -186,15 +191,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     }
     // router.back();
   };
-
-
-  // useEffect(() => {
-  //   return () => {
-  //     saveContent(0); // save content one last time
-  //   };
-  // }, []);
-
-
 
   return (
     <div className="flex flex-col gap-1 w-full">

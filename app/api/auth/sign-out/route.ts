@@ -10,6 +10,20 @@ export async function POST(request: Request) {
 
   await supabase.auth.signOut()
 
+  //   // Get rid of any cookies set
+  // const setCookieResponse = await fetch(`${requestUrl.origin}/api/google/signOut`, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  // });
+
+  // if (setCookieResponse.ok) {
+  //   console.log("Google Account Removed!");
+  // } else {
+  //   console.error("Failed to remove Google cookie.");
+  // }
+
   return NextResponse.redirect(`${requestUrl.origin}/login`, {
     // a 301 status is required to redirect from a POST to a GET route
     status: 301,

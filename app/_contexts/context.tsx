@@ -9,6 +9,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 // Update the type for the context value
 export type contextType = {
+  checkGoogleAccountConnected: () => Promise<boolean>;
   lensId: string | null;
   setLensId: React.Dispatch<React.SetStateAction<string | null>>;
   lensName: string | null;
@@ -49,6 +50,7 @@ export type contextType = {
 
 // Provide a default value for the context
 const defaultValue: contextType = {
+  checkGoogleAccountConnected: async() => false,
   lensId: null,
   setLensId: () => { },
   lensName: null,
@@ -105,6 +107,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string; pinned: true }[]>([]);
   const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
+  const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
@@ -117,6 +120,24 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
   }
+
+  const checkGoogleAccountConnected = async () => {
+    try {
+      const response = await fetch('/api/google/authorized');
+      if (response.ok) {
+        const { isValid } = await response.json();
+        if (isValid) {
+          setGoogleAccountConnected(true);
+          return true
+        } else {
+          setGoogleAccountConnected(false);
+          return false
+        }
+      }
+    } catch (error) {
+      console.error('Error checking Google Account validity:', error.message);
+    }
+  };
 
   const getAllLenses = async () => {
     return fetch('/api/lens/getAllNames')
@@ -169,6 +190,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     getAllLenses();
     getPinnedLenses();
     getUserId();
+    checkGoogleAccountConnected();
   }, []);
 
   useEffect(() => {
@@ -237,6 +259,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   return (
     <context.Provider value={{
+      checkGoogleAccountConnected,
       draggingNewBlock, setDraggingNewBlock,
       layoutRefs,
       lensId, setLensId,

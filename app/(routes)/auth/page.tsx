@@ -1,38 +1,57 @@
 // Your callback route (e.g., /auth/callback)
 // This route should be specified as the redirectUri in your GoogleOAuth2Client configuration
-"use client"
+"use client";
 import { useEffect } from 'react';
-import { googleOAuth2Client } from '@components/UserAccount';
 import apiClient from '@utils/apiClient';
-import Cookies from 'js-cookie';
+import { useAppContext } from '@contexts/context';
 
 const GoogleCallback = () => {
-      
+  const { checkGoogleAccountConnected } = useAppContext();
   useEffect(() => {
-    // Extract the authorization code from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get('code');
-    const callBackend = async() => {
-        await apiClient('/googleAuth', 'POST', { code: authorizationCode })
-        .then(result => {
-            let google_tokens = result["google_tokens"]
-            console.log("result", google_tokens["access_token"], google_tokens["expires_in"])
-            Cookies.set("google", google_tokens["access_token"], {
-                expires: new Date(new Date().getTime() + google_tokens["expires_in"] * 1000)
+    const handleGoogleAuth = async () => {
+      try {
+        // Extract the authorization code from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const authorizationCode = urlParams.get('code');
+
+        if (authorizationCode) {
+          // Call the backend to exchange the authorization code for Google tokens
+          try {
+            const result = await apiClient('/googleAuth', 'POST', { code: authorizationCode });
+            console.log("result", result, "code", authorizationCode);
+              const google_tokens = result.google_tokens;
+              console.log("Google tokens:", google_tokens.access_token, google_tokens.expires_in);
+
+              // Set cookie with the Google access token and expiration seconds
+              const setCookieResponse = await fetch("/api/google/signIn", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  accessToken: google_tokens.access_token,
+                  expireSeconds: google_tokens.expires_in,
+                }),
               });
 
-              const google = Cookies.get("google");
-console.log("access", google);
-        })
-        .catch(error => {
-          console.error('failed :( ' + error.message);
-        });
-    }
-    // Call getgoogle with the authorization code
-    if (authorizationCode) {
-        callBackend();
-    
-    }
+              if (setCookieResponse.ok) {
+                console.log("Google Account Connected!");
+                await checkGoogleAccountConnected();
+
+              } else {
+                console.error("Failed to set Google cookie.");
+              }
+          } catch (error) {
+            console.error('Error processing API response:', error.message);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to handle Google authentication:', error.message);
+      }
+    };
+
+    // Call the function to handle Google authentication on component mount
+    handleGoogleAuth();
   }, []);
 
   return <div>Google Account Connected!</div>;

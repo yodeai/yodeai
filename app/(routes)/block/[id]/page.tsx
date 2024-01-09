@@ -92,6 +92,7 @@ export default function Block({ params }: { params: { id: string } }) {
     <main className="container">
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
+        <Divider mb={0} size={1.5} label={<Text size={"sm"} c="gray.7">Block Type: {block.block_type} </Text>} labelPosition="center" />
         {!isEditing ? (
           <>
             <div className="p-2 pt-0 flex flex-col w-full">
@@ -100,7 +101,6 @@ export default function Block({ params }: { params: { id: string } }) {
                 <Link href={`/block/${block.block_id}`}>
                   <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text>
                 </Link>
-
 
                 {/* <Link href={`/block/${block.block_id}`}> */}
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
