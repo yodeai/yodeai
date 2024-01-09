@@ -11,7 +11,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 //import { useRouter } from 'next/router';
 import { useRouter } from "next/navigation";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensViewOnlyForm from "@components/LensViewOnlyForm";
 
 export default function ViewLens({ params }: { params: { lens_id: string } }) {

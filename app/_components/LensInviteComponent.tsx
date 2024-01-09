@@ -1,15 +1,5 @@
 import React from "react";
-import formatDate from "@lib/format-date";
-import clsx from "clsx";
-import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { Block, LensInvite } from "app/_types/block";
-import { FaArchive } from "react-icons/fa";
-import BlockLenses from "@components/BlockLenses";
-import apiClient from "@utils/apiClient";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import load from "@lib/load";
-import toast from "react-hot-toast";
+import { LensInvite } from "app/_types/block";
 import { Button, Paper, Text } from "@mantine/core";
 
 interface LensProps {

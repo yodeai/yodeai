@@ -1,4 +1,3 @@
-// components/QuestionAnswerForm.tsx
 "use client";
 
 import React, { useState, FormEvent, useMemo } from 'react';

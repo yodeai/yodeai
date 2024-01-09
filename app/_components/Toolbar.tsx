@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu } from '@mantine/core';
-import { FaInfo, FaPlus } from 'react-icons/fa';
+import { Box, Flex, Button, Menu, Text } from '@mantine/core';
+import { FaPlus, FaJira } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
@@ -14,9 +14,10 @@ import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname } from 'next/navigation';
+import JiraIssuesViewer from './JiraIssuesViewer';
 
 type contextType = {
-    activeComponent: "social" | "questionform";
+    activeComponent: "social" | "questionform" | "jira";
     closeComponent: () => void;
 };
 
@@ -94,6 +95,15 @@ export default function Toolbar() {
                         <IoIosChatbubbles size={18} />
                     </Button>
                 </Box>
+                <Box>
+                    <Button
+                        // disabled={activeComponent !== "jira"}
+                        variant={activeComponent === "jira" ? "light" : "subtle"}
+                        c="gray.6"
+                        onClick={switchComponent.bind(null, "jira")}>
+                        <FaJira size={18} />
+                    </Button>
+                </Box>
                 {/* <Box>
                     <Button variant="transparent">
                         <FaHand size={18} />
@@ -112,6 +122,7 @@ export default function Toolbar() {
                 closeComponent,
                 activeComponent
             }}>
+                {activeComponent === "jira" && <JiraIssuesViewer />}
                 {activeComponent === "questionform" && <QuestionAnswerForm />}
                 {activeComponent === "social" && <LensChat />}
             </context.Provider>

@@ -143,9 +143,6 @@ export default function Inbox() {
           )
         }
 
-        {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
       </Box>
     </Flex >
   );

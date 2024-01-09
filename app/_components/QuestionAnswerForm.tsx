@@ -1,4 +1,3 @@
-// components/QuestionAnswerForm.tsx
 "use client";
 import React, { useState, FormEvent } from 'react';
 import apiClient from '@utils/apiClient';

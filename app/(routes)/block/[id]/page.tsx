@@ -135,9 +135,6 @@ export default function Block({ params }: { params: { id: string } }) {
           // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
         )}
       </Flex>
-      {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
     </main>
 
   );

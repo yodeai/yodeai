@@ -60,7 +60,7 @@ export function getActiveToolbarTab() {
     return activeTab;
 }
 
-export function setActiveToolbarTab(activeTab: "questionform" | "social") {
+export function setActiveToolbarTab(activeTab: "questionform" | "social" | "jira") {
     if (global.localStorage) {
         global.localStorage.setItem("activeToolbarTab", JSON.stringify(activeTab));
     }
