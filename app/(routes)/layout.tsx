@@ -1,4 +1,6 @@
 import Navbar from "@components/Navbar";
+import { MobileNavbar } from "@components/MobileNavbar";
+import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import Toolbar from '@components/Toolbar'
 import { LensProvider } from "@contexts/context";
 import { Flex, Box } from "@mantine/core";
@@ -23,19 +25,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </Flex>
 
         {/* Main content area */}
-        <Flex mah='100%' w={'100%'} direction={{ base: 'column', sm: 'row' }}>
-          <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01">
+        <Flex mah='100%' w={'100%'} direction={{ base: 'row' }}>
+          {/* Left Side Navbar for MobileView */}
+          <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
+            <MobileNavbar />
+          </Flex>
+          <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01" >
             {children}
           </Box>
-
           {/* QuestionAnswerForm with a left border */}
-          <Box h='100%' display={{ base: 'none', sm: 'flex' }}>
+          <Box h='100%' >
             <Toolbar />
           </Box>
         </Flex>
-
       </div>
     </LensProvider>
   );
 }
-
