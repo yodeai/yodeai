@@ -11,13 +11,13 @@ export async function GET(req: NextRequest) {
       console.log("Google cookie not found");
       return new NextResponse(
         JSON.stringify({ isValid: false, error: 'Invalid Access Token' }),
-        { status: 200 }
+        { status: 401 }
       );
     }
 
     const response = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${accessToken}`, {
       headers: {
-        Cookie: `httpOnlyCookie=${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 

@@ -3,10 +3,9 @@
 "use client";
 import { useEffect } from 'react';
 import apiClient from '@utils/apiClient';
-import { useAppContext } from '@contexts/context';
+import { checkGoogleAccountConnected } from '@utils/googleUtils';
 
 const GoogleCallback = () => {
-  const { checkGoogleAccountConnected } = useAppContext();
   useEffect(() => {
     const handleGoogleAuth = async () => {
       try {

@@ -4,24 +4,26 @@ import { NextResponse, NextRequest } from 'next/server';
 
 export async function GET(req, { params }: { params: { documentId: string }; }){
   try {
-    const cookieHeader = req.headers.cookie || '';
-    const cookies = parse(cookieHeader);
-    const httpOnlyValue = cookies.httpOnlyCookie; // Replace 'httpOnlyCookie' with your actual HTTP-only cookie name
-
-    if (!httpOnlyValue) {
+    const cookieHeader = req.headers.get('cookie');
+    const cookies = parse(cookieHeader || "");
+    const accessToken = cookies["googleAccessToken"]; // Replace 'googleAccessToken' with your actual cookie name
+    if (!accessToken) {
       console.log("Google cookie not found");
-      return false;
+      return new NextResponse(
+        JSON.stringify({ isValid: false, error: 'Invalid Access Token' }),
+        { status: 401 }
+      );
     }
-
     const response = await axios.get(`https://www.googleapis.com/drive/v3/files/${params.documentId}/export?mimeType=text/plain`, {
       headers: {
-        Cookie: `httpOnlyCookie=${httpOnlyValue}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    return response.data;
+    return new NextResponse(JSON.stringify({data: response.data}), {status : 200});
+
   } catch (error) {
-    console.error("Error checking access token validity:", error.message);
+    console.error("Error fetching doc content:", error.message);
     return new NextResponse(
         JSON.stringify({ error: 'Failed to get Google Doc Content.' }),
         { status: 500 }

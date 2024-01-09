@@ -14,7 +14,8 @@ import { useAppContext } from "@contexts/context";
 import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import PDFViewerIframe from "@components/PDFViewer";
 import toast from "react-hot-toast";
-import { ActionIcon, Button, Flex, Text, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
+import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
 
 
 
@@ -28,14 +29,28 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const router = useRouter();
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
+  const [documentType, setDocumentType] = useState(block.block_type);
+
   const [content, setContent] = useState(block?.content || "");
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 500);
   const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [googleDocId, setGoogleDocId] = useState(null)
+  const [googleUserId, setGoogleUserId] = useState(null)
+  useEffect(() => {
+    const updateGoogleDocContent = async() => {
+      if (documentType == 'google_doc') {
+        // bring in updated content
+        block.content = await fetchGoogleDocContent(block.google_doc_id);
+      }
+    }
 
+    updateGoogleDocContent();
+    setGoogleUserId(getUserInfo());
 
+  }, [])
   //let controller;
   const saveContent = async (delay = 180) => {
     console.log("delay", delay)
@@ -58,6 +73,16 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       console.log("in new block")
       method = "POST";
       endpoint = `/api/block`;
+      // write to google docs
+      if (delay == 0 && documentType == 'google_doc') {
+        const response = await fetch(`/api/google/createDoc/${title}`)
+        if (!response.ok) {
+          console.error("Error creating google doc")
+        } else {
+          let {google_doc_id} = await response.json()
+          setGoogleDocId(google_doc_id)
+        }
+      }
     }
     // If neither condition is met, exit the function early
     else {
@@ -71,13 +96,17 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       title: string;
       lens_id?: string;
       delay: number;
+      google_doc_id: string;
+      google_user_id: string;
     };
 
     const requestBody: RequestBodyType = {
       block_type: "note",
       content: content,
       title: (title ? title : "Untitled"),
-      delay: delay
+      delay: delay,
+      google_doc_id: googleDocId,
+      google_user_id: googleUserId
     };
 
     console.log("saved", requestBody)
@@ -89,6 +118,20 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       method: method,
       body: JSON.stringify(requestBody)
     })
+
+    if (delay == 0 && documentType == "google_doc") {
+      const response = await fetch(`/api/google/updateDoc/${googleDocId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any other necessary headers, such as authorization, if required
+      },
+      body: JSON.stringify({ content: content })})
+      if (!response.ok) {
+        console.error("Error updating google doc")
+      } else {
+        console.log("updated google doc")
+      }
+    }
 
     try {
       const response = await savePromise;
@@ -105,10 +148,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         setBlock(newBlock);
       }
 
-      if (block.block_type == "google_doc" && delay == 0) {
-        // post to google docs
-        
-      }
     } catch (error) {
       setIsSaved(false);
       setIsSaving(false);
@@ -281,6 +320,16 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
 
             {
+              <div>
+        <Select
+        data={[
+          { label: "Google Doc", value: "google_doc" },
+          {label: "Note", value: "note"}
+          // Add more document types as needed
+        ]}
+        value={documentType}
+        onChange={(value) => setDocumentType(value)}
+      />
               <Button
                 style={{ flex: 1, width: "100%", height: 30 }}
                 onClick={handleSaveAndNavigate}
@@ -296,6 +345,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
                   "Save"
                 )}
               </Button>
+              </div>
             }
 
           </div>

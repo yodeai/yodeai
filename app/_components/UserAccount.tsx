@@ -7,7 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
 import ClientOAuth2 from 'client-oauth2';
-import { useAppContext } from '@contexts/context';
+import { checkGoogleAccountConnected } from '@utils/googleUtils';
 
 export const googleOAuth2Client = new ClientOAuth2({
   clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -23,7 +23,6 @@ const UserAccountHandler = () => {
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
 
-  const { checkGoogleAccountConnected } = useAppContext();
 
 
   useEffect(() => {
@@ -45,12 +44,12 @@ const UserAccountHandler = () => {
     const fetchAndCheckGoogle = async () => {
       await fetchData();
       const connected = await checkGoogleAccountConnected();
+      console.log("DANA", connected)
       if (connected) {
         setGoogleAccountConnected(true)
       } else {
         setGoogleAccountConnected(false)
       }
-      setGoogleAccountConnected(true);
     };
   
     fetchAndCheckGoogle();

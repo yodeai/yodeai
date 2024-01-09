@@ -6,10 +6,11 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { useState, useEffect } from "react";
 import { useAppContext } from "@contexts/context";
 import GoogleDocs from "@components/GoogleDocs"
+import { checkGoogleAccountConnected } from "@utils/googleUtils";
 
 export default function New() {
   const [value, setValue] = useState("write");
-  const { lensId, lensName, checkGoogleAccountConnected } = useAppContext();
+  const { lensId, lensName } = useAppContext();
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
 
@@ -22,7 +23,6 @@ export default function New() {
       } else {
         setGoogleAccountConnected(false)
       }
-      setGoogleAccountConnected(true);
     };
   
     fetchAndCheckGoogle();
@@ -55,7 +55,7 @@ export default function New() {
               value="google"
               className="px-4 py-2 font-medium text-gray-500 data-[state=active]:text-black data-[state=active]:bg-gray-50"
             >
-              Google Docs
+              Import
             </Tabs.Trigger> : null}
 
           </Tabs.List>

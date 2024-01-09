@@ -4,27 +4,13 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req) {
   try {
-    const cookieHeader = req.headers.cookie || '';
-    const cookies = parse(cookieHeader);
-    const googleAccessToken = cookies.googleAccessToken; // Replace 'httpOnlyCookie' with your actual HTTP-only cookie name
-
-    if (!googleAccessToken) {
-      console.log("Google cookie not found");
-      return new NextResponse(
-        JSON.stringify({ error: 'Google cookie not found.' }),
-        { status: 401 }
-      );
-    }
-
-    const response = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: {
-        Cookie: `httpOnlyCookie=${googleAccessToken}`,
-      },
-    });
+    const cookieHeader = req.headers.get('cookie');
+    const cookies = parse(cookieHeader || "");
+    const accessToken = cookies["googleAccessToken"]; // Replace 'googleAccessToken' with your actual cookie name
 
     // Extract the value associated with googleAccessToken
 
-    if (!googleAccessToken) {
+    if (!accessToken) {
       console.log("Google access token not found in response data");
       return new NextResponse(
         JSON.stringify({ error: 'Google access token not found in response data.' }),
@@ -33,11 +19,14 @@ export async function GET(req) {
     }
 
     // Return only the value associated with googleAccessToken
-    return googleAccessToken;
+    return new NextResponse(
+      JSON.stringify({ accessToken: accessToken }),
+      { status: 200 }
+  );
   } catch (error) {
     console.error("Error checking access token validity:", error.message);
     return new NextResponse(
-      JSON.stringify({ error: 'Failed to get Google user info.' }),
+      JSON.stringify({ error: 'Failed to get accessToken info.' }),
       { status: 500 }
     );
   }

@@ -4,27 +4,18 @@ import useDrivePicker from 'react-google-drive-picker'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import apiClient from "@utils/apiClient";
 import { useAppContext } from "@contexts/context";
+import { useRouter } from "next/navigation";
+import { checkGoogleAccountConnected, getUserInfo, fetchGoogleDocContent } from "@utils/googleUtils";
 
 export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
   const [openPicker, authResponse] = useDrivePicker(); 
-  const { checkGoogleAccountConnected } = useAppContext();
+  const { lensId } = useAppContext();
+  const [accessToken, setAccessToken] = useState("");
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
-  // const handleGoogleConnect = async () => {
-  //   try {
-  //     const response = await fetch('/api/google/authorized');
-  //     if (response.ok) {
-  //       const { isValid } = await response.json();
-  //       if (isValid) {
-  //         setGoogleAccountConnected(true);
-  //       }
-  //     } else {
-  //     }
-  //   } catch (error) {
-  //     console.error('Error checking Google Account validity:', error.message);
-  //   }
-  // };
+  const router = useRouter();
+
   useEffect(() => {
     // handleGoogleConnect();
     const fetchAndCheckGoogle = async () => {
@@ -34,10 +25,11 @@ export default function GoogleDocs() {
       } else {
         setGoogleAccountConnected(false)
       }
-      setGoogleAccountConnected(true);
     };
   
     fetchAndCheckGoogle();
+    getAccessToken();
+    
   }, []);
 
 
@@ -46,7 +38,7 @@ export default function GoogleDocs() {
       const response = await fetch('/api/google/getAccessToken');
       if (response.ok) {
         const data = await response.json();
-        return data.accessToken;
+        setAccessToken(data.accessToken);
       } else {
         console.error('Error retrieving access token:', response.statusText);
         return null;
@@ -57,14 +49,8 @@ export default function GoogleDocs() {
     }
   };
 
-  const handleOpenPicker = async () => {
+  const handleOpenPicker = () => {
     try {
-      const accessToken = await getAccessToken();
-  
-      if (!accessToken) {
-        // Handle the absence of the access token as needed
-        return;
-      }
     openPicker({
     clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     developerKey: process.env.NEXT_PUBLIC_GOOGLE_API_DEVELOPER_KEY,
@@ -81,57 +67,6 @@ export default function GoogleDocs() {
   }
 }
 
-  const checkValid = async () => {
-    try {
-      const response = await fetch('/api/google/authorized');
-      if (response.ok) {
-        const { isValid } = await response.json();
-        console.log('Is valid:', isValid);
-      } else {
-        console.error('Error checking validity');
-      }
-    } catch (error) {
-      console.error('Error checking validity:', error.message);
-    }
-  };
-
-
-    const getUserInfo = async () => {
-    try {
-        const response = await apiClient('/api/google/getUserInfo', 'GET')
-
-        if (response.ok) {
-        const userInfo = await response.json();
-        const googleUserId = userInfo["sub"];
-        console.log("Google User ID:", googleUserId);
-        return googleUserId
-        } else {
-        console.error("Failed to fetch user info:", response.statusText);
-        console.log(await response.text());
-        }
-    } catch (error) {
-        console.error("Error fetching user info:", error.message);
-    }
-    };
-
-const fetchGoogleDocContent = async (documentId) => {
-  try {
-    const response = await apiClient(`/api/google/fetchDocContent/${documentId}`, 'GET')
-    if (response.ok) {
-      // Assuming the document content is in plain text
-      const content = await response.text();
-      console.log("Google Doc Content:", content);
-      return content
-    } else {
-      console.error("Failed to fetch Google Doc content:", response.statusText);
-      console.log(await response.text());
-    }
-  } catch (error) {
-    console.error("Error fetching Google Doc content:", error.message);
-  }
-};
-
-
 
   const saveFile = async() => {
     // get the current user id
@@ -139,50 +74,59 @@ const fetchGoogleDocContent = async (documentId) => {
     // get file content
     let content = await fetchGoogleDocContent(selectedGoogleDriveFile.id)
     // call create/process block on it
-    const supabase = createClientComponentClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
+    if (user_id == null || content == null) {
+      console.error("failed saving doc")
+      return
+    }
 
       const requestBody = {
         block_type: "google_doc",
         content: content,
         title: selectedGoogleDriveFile.name,
-        google_user_id: user_id
+        google_user_id: user_id,
+        google_doc_id: selectedGoogleDriveFile.id,
+        delay: 0
       };
-
-    const { data, error } = await supabase
-    .from('block')
-    .insert([requestBody])
-    .select();
-
-    if (error) {
-        console.log("Error inserting block", error)
+      const method = "POST";
+      const endpoint = `/api/block`;
+      try {
+        let response = await fetch(endpoint, {
+          method: method,
+          body: JSON.stringify(requestBody)
+        })
+    
+        if (response.ok) {
+          console.log("Inserted block");
+          if (lensId) {
+            router.back();
+          } else {
+            router.push(`/myblocks`);
+          }
+        }
+        if (!response.ok) console.error("Error inserting block");
+    } catch (error) {
+        console.error("Error pinning lens:", error);
     }
-
-    console.log("block created", data)
-
-
   }
 
   return (
 
     <div className="flex flex-col gap-1 w-full">
-                <Button onClick={checkValid}> Check validity</Button>
                 {selectedGoogleDriveFile && (
         <div>
           <p>Selected Google Doc: {selectedGoogleDriveFile.name}</p>
+          <Button onClick={saveFile}> Save </Button>
+
         </div>
       )}
       {/* Google Drive file picker button */}
       {googleAccountConnected ? (
         <div>
-        <Button variant="gradient" onClick={async() => await handleOpenPicker()}>{selectedGoogleDriveFile ? "Change Doc" :"Import a Doc"}</Button>
+        <Button variant="gradient" onClick={async() => handleOpenPicker()}>{selectedGoogleDriveFile ? "Change Google Doc" :"Import Google Doc"}</Button>
+
         </div>
       ) : null}
 
-<Button onClick={saveFile}> Save </Button>
 
     </div>
   );
