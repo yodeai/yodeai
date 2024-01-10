@@ -6,6 +6,7 @@ import { Lens } from 'app/_types/lens';
 import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
+import { usePathname } from 'next/navigation';
 
 // Update the type for the context value
 export type contextType = {
@@ -17,7 +18,7 @@ export type contextType = {
   reloadLenses: () => void;
   allLenses: { lens_id: number, name: string, access_type: string }[];
   // activeComponent can be "global", "lens", or "inbox"
-  activeComponent: string;
+  activeComponent: "global" | "lens" | "myblocks" | "inbox";
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
 
   pinnedLensesLoading: boolean;
@@ -96,6 +97,7 @@ export const useAppContext = () => {
 };
 
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+  const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -105,7 +107,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string; pinned: true }[]>([]);
   const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
-  const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
+  const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
@@ -150,26 +152,30 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Get the lensId from the URL
-    const path = window.location.pathname;
-    const parts = path.split('/');
-    // Check if the URL is '/inbox' and set isInbox to true
-    if (path === '/inbox') {
+    const parts = pathname.split('/');
+
+    if (pathname === '/') {
+      setActiveComponent("global");
+    }
+
+    if (pathname === '/inbox') {
       setActiveComponent("inbox");
     }
-    if (path === '/myblocks') {
+    if (pathname === '/myblocks') {
       setActiveComponent("myblocks");
     }
 
     else if (parts[1] === 'lens') {
       console.log("setting app context to be ", parts[parts.length - 1])
       setLensId(parts[parts.length - 1]);  // Set the lensId based on the URL
+      setActiveComponent("lens");
     }
 
     // Get all the lenses that this user has
     getAllLenses();
     getPinnedLenses();
     getUserId();
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     let channel: RealtimeChannel;

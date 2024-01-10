@@ -8,7 +8,7 @@ import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
 import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
@@ -16,6 +16,8 @@ import PDFViewerIframe from "@components/PDFViewer";
 import toast from "react-hot-toast";
 import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
 import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
+import { RequestBodyType } from '@api/types';
+
 
 
 
@@ -24,9 +26,15 @@ const DynamicSimpleMDE = dynamic(
   { ssr: false, loading: () => <p>Loading editor...</p> }
 );
 
+type BlockEditorProps = {
+  block?: Block;
+  onSave?: (block: Block) => void;
+}
 
-export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
+export default function BlockEditor({ block: initialBlock, onSave }: BlockEditorProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
   const [documentType, setDocumentType] = useState(block?.block_type || 'note');
@@ -114,16 +122,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         console.log("updated google doc")
       }
     }
-
-    type RequestBodyType = {
-      block_type: string;
-      content: string;
-      title: string;
-      lens_id?: string;
-      delay: number;
-      google_doc_id: string;
-      google_user_id: string;
-    };
 
     const requestBody: RequestBodyType = {
       block_type: documentType,
@@ -221,6 +219,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const handleSaveAndNavigate = async () => {
     // remove the "saved" sign
     setIsSaved(false);
+
     if (isSaving) {
       // If isSaving is true, wait for it to become false
       while (isSaving) {
@@ -231,13 +230,12 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // Save one last time
     await saveContent(0);
 
-    // Navigate back using the router
-    if (lensId) {
-      router.back();
-    } else {
-      router.push(`/myblocks`);
+    if(pathname === "/new"){
+      router.push(`/block/${block.block_id}`);
+      return;
     }
-    // router.back();
+
+    return onSave({ ...block, title: title, content: content });
   };
 
   return (

@@ -12,7 +12,6 @@ import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
 import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
-import QuestionAnswerForm from "@components/QuestionAnswerForm";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -35,9 +34,7 @@ export default function Block({ params }: { params: { id: string } }) {
           })
         }
       })
-
   }, [params.id]);
-
 
   useEffect(() => {
     async function fetchPresignedUrl() {
@@ -88,6 +85,12 @@ export default function Block({ params }: { params: { id: string } }) {
     return data.data;
   }
 
+  const onSave = (block: Block) => {
+    console.log(block)
+    setIsEditing(false);
+    setBlock(block);
+  }
+
   return (
     <main className="container">
       <Flex direction="column" p={16} pt={0}>
@@ -131,7 +134,7 @@ export default function Block({ params }: { params: { id: string } }) {
             </div>
           </>
         ) : (
-          <BlockEditor block={block} /> // this recreates the entire block view but allows for editing            
+          <BlockEditor block={block} onSave={onSave} /> // this recreates the entire block view but allows for editing            
           // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
         )}
       </Flex>
