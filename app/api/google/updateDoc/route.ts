@@ -4,7 +4,6 @@ import { parse } from 'cookie';
 
 async function replaceContent(googleDocId, content, oldContent, accessToken, title) {
   try {
-    console.log("OLD CONTENT", oldContent, "new content", content);
 
     let requests = [];
 
@@ -82,14 +81,12 @@ async function replaceContent(googleDocId, content, oldContent, accessToken, tit
 export async function PUT(req: NextRequest) {
   try {
     const { google_doc_id, content, oldContent, title } = await req.json();
-    console.log("KATE", google_doc_id, "content", content);
 
     const cookieHeader = req.headers.get('cookie');
     const cookies = parse(cookieHeader || "");
     const accessToken = cookies["googleAccessToken"];
 
     if (!accessToken) {
-      console.log("Google cookie not found");
       return new NextResponse(
         JSON.stringify({ isValid: false, error: 'Invalid Access Token' }),
         { status: 401 }

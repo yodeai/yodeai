@@ -33,7 +33,6 @@ export default function Block({ params }: { params: { id: string } }) {
         console.error("Error fetching user:", error.message);
         return null;
       }
-      console.log("USER", user)
       setUser(user);
     }
     getUserData();
@@ -105,7 +104,6 @@ export default function Block({ params }: { params: { id: string } }) {
 
   const handleEditing = async (startEditing) => {
     try {
-      console.log("editing", startEditing, user)
       if (!startEditing) {
           updateCurrentEditor(null)
         
@@ -133,7 +131,6 @@ export default function Block({ params }: { params: { id: string } }) {
 
         if (newBlock?.current_editor == user?.email) {
           setIsEditing(startEditing)
-          console.log("Editing!")
         } else {
           toast.error(`Sorry, ${newBlock.current_editor} is currently editing the block`)
         }
@@ -176,7 +173,6 @@ export default function Block({ params }: { params: { id: string } }) {
   }
 
   const onSave = (block: Block) => {
-    console.log(block)
     setIsEditing(false);
     handleEditing(false)
     setBlock(block);

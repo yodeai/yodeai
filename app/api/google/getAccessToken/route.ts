@@ -11,7 +11,6 @@ export async function GET(req) {
     // Extract the value associated with googleAccessToken
 
     if (!accessToken) {
-      console.log("Google access token not found in response data");
       return new NextResponse(
         JSON.stringify({ error: 'Google access token not found in response data.' }),
         { status: 500 }

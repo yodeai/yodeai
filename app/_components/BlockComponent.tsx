@@ -69,24 +69,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   let timeAgo = formatDate(block.updated_at);
   timeAgo = timeAgo.replace("about ", "");
 
-  // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
-  // useEffect(()=>{
-  //   const supabase = createClientComponentClient()
-
-  //   let getAccessType = async() => {
-  //     const { data: { user } } = await supabase.auth.getUser();
-
-  //     const { data: accessLevel, error: accessLevelError } = await supabase.rpc('get_access_type_block', { "chosen_block_id": block.block_id, "chosen_user_id": user.id })
-  //     if (accessLevelError) {
-  //       console.log("message", accessLevelError.message)
-  //       throw accessLevelError;
-  //     }
-  //     block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
-  //   }
-  //   getAccessType();
-
-  // }, [])
-
   const onClickBlock = () => {
     router.push(`/block/${block.block_id}`)
   }

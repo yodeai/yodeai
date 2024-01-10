@@ -9,7 +9,6 @@ export async function POST(req) {
     const cookieValue = body.accessToken;
     const expire_seconds = body.expireSeconds;
     if (!cookieValue || isNaN(expire_seconds)) {
-    console.log('Request body:', body);
 
     return new NextResponse(
         JSON.stringify({ error: 'Invalid request parameters' }),
