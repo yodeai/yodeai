@@ -2,8 +2,9 @@ import axios from 'axios';
 import { NextRequest, NextResponse} from 'next/server';
 import { parse } from 'cookie';
 
-export async function POST(req: NextRequest, { params }: { params: { title: string }; }) {
+export async function POST(req: NextRequest) {
   try {
+    const {title} = await req.json()
     const cookieHeader = req.headers.get('cookie');
     const cookies = parse(cookieHeader || "");
     const accessToken = cookies["googleAccessToken"]; // Replace 'googleAccessToken' with your actual cookie name
@@ -17,8 +18,9 @@ export async function POST(req: NextRequest, { params }: { params: { title: stri
     const response = await axios.post(
       'https://www.googleapis.com/drive/v3/files',
       {
-        name: params.title, // Document title
+        name: title, // Document title
         mimeType: 'application/vnd.google-apps.document',
+
       },
       {
         headers: {

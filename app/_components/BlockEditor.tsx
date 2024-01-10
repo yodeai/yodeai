@@ -29,26 +29,30 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const router = useRouter();
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
-  const [documentType, setDocumentType] = useState(block.block_type);
+  const [documentType, setDocumentType] = useState(block?.block_type || 'note');
 
   const [content, setContent] = useState(block?.content || "");
+  const [oldContent, setOldContent] = useState(block?.content || "");
+
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 500);
   const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [googleDocId, setGoogleDocId] = useState(null)
-  const [googleUserId, setGoogleUserId] = useState(null)
+  const [googleDocId, setGoogleDocId] = useState(block?.google_doc_id || null)
+  const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || null)
   useEffect(() => {
     const updateGoogleDocContent = async() => {
       if (documentType == 'google_doc') {
         // bring in updated content
-        block.content = await fetchGoogleDocContent(block.google_doc_id);
+        let content = await fetchGoogleDocContent(block.google_doc_id);
+        setContent(content)
+        setOldContent(content)
       }
+      if (!block?.google_user_id) setGoogleUserId(await getUserInfo());
     }
-
+    console.log("BOCK", block, initialBlock)
     updateGoogleDocContent();
-    setGoogleUserId(getUserInfo());
 
   }, [])
   //let controller;
@@ -73,22 +77,46 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       console.log("in new block")
       method = "POST";
       endpoint = `/api/block`;
-      // write to google docs
-      if (delay == 0 && documentType == 'google_doc') {
-        const response = await fetch(`/api/google/createDoc/${title}`)
-        if (!response.ok) {
-          console.error("Error creating google doc")
-        } else {
-          let {google_doc_id} = await response.json()
-          setGoogleDocId(google_doc_id)
-        }
-      }
     }
     // If neither condition is met, exit the function early
     else {
       return true;
     }
     setIsSaving(true);
+    let google_doc_id = googleDocId
+    if (delay == 0 && documentType == "google_doc") {
+      if (google_doc_id == null) {
+              // write to google docs
+        console.log("creaitng new doc because existing google doc id is", google_doc_id)
+        const response = await fetch(`/api/google/createDoc`,{ 
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title })})
+        if (!response.ok) {
+          console.error("Error creating google doc")
+        } else {
+          let data = await response.json()
+          console.log("gogoel doc", data)
+          google_doc_id = data["google_doc_id"]
+          console.log("google doc id", google_doc_id)
+          setGoogleDocId(google_doc_id)
+        }
+      }
+      const response = await fetch(`/api/google/updateDoc`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any other necessary headers, such as authorization, if required
+      },
+      body: JSON.stringify({ google_doc_id, content, title, oldContent })})
+      if (!response.ok) {
+        console.error("Error updating google doc")
+      } else {
+        console.log("updated google doc")
+      }
+    }
 
     type RequestBodyType = {
       block_type: string;
@@ -101,11 +129,11 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     };
 
     const requestBody: RequestBodyType = {
-      block_type: "note",
+      block_type: documentType,
       content: content,
       title: (title ? title : "Untitled"),
       delay: delay,
-      google_doc_id: googleDocId,
+      google_doc_id: google_doc_id,
       google_user_id: googleUserId
     };
 
@@ -118,20 +146,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       method: method,
       body: JSON.stringify(requestBody)
     })
-
-    if (delay == 0 && documentType == "google_doc") {
-      const response = await fetch(`/api/google/updateDoc/${googleDocId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any other necessary headers, such as authorization, if required
-      },
-      body: JSON.stringify({ content: content })})
-      if (!response.ok) {
-        console.error("Error updating google doc")
-      } else {
-        console.log("updated google doc")
-      }
-    }
 
     try {
       const response = await savePromise;
@@ -274,14 +288,32 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
       ) : (
         <>
+        <div className="flex flex-col w-full">
+
           <div className="flex justify-between items-center w-full">
             <TextInput
+            label="Title"
               style={{ flex: 1 }}
               size="xs"
               value={title || ""}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
+                  </div>
+
+
+<div className="flex gap-2">
+        <Select
+        label="Block Type"
+        data={[
+          { label: "Note", value: "note" },
+          { label: "Google Doc", value: "google_doc" },
+          // Add more document types as needed
+        ].filter(option => googleUserId != null || option.value !== "google_doc")}
+        value={documentType}
+        onChange={(value) => setDocumentType(value)}
+      />
+      </div>
 
             <div className="flex gap-2">
               {isSaving && (
@@ -321,15 +353,6 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
 
             {
               <div>
-        <Select
-        data={[
-          { label: "Google Doc", value: "google_doc" },
-          {label: "Note", value: "note"}
-          // Add more document types as needed
-        ]}
-        value={documentType}
-        onChange={(value) => setDocumentType(value)}
-      />
               <Button
                 style={{ flex: 1, width: "100%", height: 30 }}
                 onClick={handleSaveAndNavigate}

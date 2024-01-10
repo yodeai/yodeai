@@ -15,7 +15,7 @@ export const googleOAuth2Client = new ClientOAuth2({
   accessTokenUri: 'https://accounts.google.com/o/oauth2/token',
   authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
   redirectUri: 'http://localhost:3000/auth', // Replace with your redirect URI
-  scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/userinfo.profile'],
+  scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/documents'],
 });
 
 const UserAccountHandler = () => {

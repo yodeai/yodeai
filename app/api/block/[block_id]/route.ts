@@ -103,6 +103,8 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       .eq('block_id', block_id)
       .single();
 
+      console.log("GOT BLOCK", block)
+
     // Check for errors
     if (blockError) {
       throw blockError;
