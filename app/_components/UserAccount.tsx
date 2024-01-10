@@ -53,6 +53,7 @@ const UserAccountHandler = () => {
         setGoogleAccountConnected(false)
       }
     };
+    fetchAndCheckGoogle();
   
 
     // Cleanup function to cancel ongoing tasks if the component unmounts

@@ -41,4 +41,5 @@ export type Block = {
   accessLevel?: string;
   google_doc_id: string;
   google_user_id: string;
+  current_editor: string;
 }

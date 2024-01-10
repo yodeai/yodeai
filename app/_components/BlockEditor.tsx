@@ -295,7 +295,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
                   </div>
 
 
-<div className="flex gap-2">
+<div className="flex justify-between items-center w-full">
         <Select
         label="Block Type"
         data={[
