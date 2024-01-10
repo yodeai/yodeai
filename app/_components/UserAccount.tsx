@@ -44,7 +44,6 @@ const UserAccountHandler = () => {
     const fetchAndCheckGoogle = async () => {
       await fetchData();
       const connected = await checkGoogleAccountConnected();
-      console.log("DANA", connected)
       if (connected) {
         setGoogleAccountConnected(true)
       } else {

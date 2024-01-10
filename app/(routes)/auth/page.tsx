@@ -17,9 +17,7 @@ const GoogleCallback = () => {
           // Call the backend to exchange the authorization code for Google tokens
           try {
             const result = await apiClient('/googleAuth', 'POST', { code: authorizationCode });
-            console.log("result", result, "code", authorizationCode);
               const google_tokens = result.google_tokens;
-              console.log("Google tokens:", google_tokens.access_token, google_tokens.expires_in);
 
               // Set cookie with the Google access token and expiration seconds
               const setCookieResponse = await fetch("/api/google/signIn", {

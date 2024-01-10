@@ -3,6 +3,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest } from "next/server";
 import { cookies } from 'next/headers';
 import apiClient from '@utils/apiClient';
+import { getUserID } from "utils/getUserID";
 
 export const dynamic = 'force-dynamic';
 
@@ -88,7 +89,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
 
 export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
-
+  const userId = await getUserID()
   const block_id = Number(params.block_id);
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -103,7 +104,9 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       .eq('block_id', block_id)
       .single();
 
-      console.log("GOT BLOCK", block)
+      if (block.google_user_id != 'global' && block.google_user_id != userId) {
+        return notOk("Invalid ID")
+      }
 
     // Check for errors
     if (blockError) {

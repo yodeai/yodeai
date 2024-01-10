@@ -40,7 +40,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [googleDocId, setGoogleDocId] = useState(block?.google_doc_id || null)
-  const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || null)
+  const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || 'global')
   useEffect(() => {
     const updateGoogleDocContent = async() => {
       if (documentType == 'google_doc') {
@@ -49,9 +49,8 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         setContent(content)
         setOldContent(content)
       }
-      if (!block?.google_user_id) setGoogleUserId(await getUserInfo());
+      if (!block || block.google_user_id == 'global') setGoogleUserId(await getUserInfo());
     }
-    console.log("BOCK", block, initialBlock)
     updateGoogleDocContent();
 
   }, [])
@@ -86,8 +85,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     let google_doc_id = googleDocId
     if (delay == 0 && documentType == "google_doc") {
       if (google_doc_id == null) {
-              // write to google docs
-        console.log("creaitng new doc because existing google doc id is", google_doc_id)
+        // write to google docs
         const response = await fetch(`/api/google/createDoc`,{ 
         method: "POST",
         headers: {
@@ -98,10 +96,9 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
           console.error("Error creating google doc")
         } else {
           let data = await response.json()
-          console.log("gogoel doc", data)
           google_doc_id = data["google_doc_id"]
-          console.log("google doc id", google_doc_id)
           setGoogleDocId(google_doc_id)
+          console.log("created google doc")
         }
       }
       const response = await fetch(`/api/google/updateDoc`, {
@@ -134,10 +131,8 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       title: (title ? title : "Untitled"),
       delay: delay,
       google_doc_id: google_doc_id,
-      google_user_id: googleUserId
+      google_user_id: documentType == "google_doc" ? googleUserId : 'global'
     };
-
-    console.log("saved", requestBody)
 
     if (lensId) {
       requestBody.lens_id = lensId;
