@@ -29,6 +29,7 @@ function Whiteboard({ data }: WhiteboardProps) {
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [menu, setMenu] = useState(null);
+    const [whiteboard, setWhiteboard] = useState<Tables<"whiteboard">>(data);
     const $whiteboard = useRef(null);
 
     const onConnect = useCallback((params) => {
@@ -82,12 +83,29 @@ function Whiteboard({ data }: WhiteboardProps) {
         fetch(`/api/whiteboard/${data.whiteboard_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: data.name, nodes, edges })
+            body: JSON.stringify({ nodes, edges })
         })
             .then(res => res.json())
             .catch(err => console.error(err))
             .finally(() => setIsSaving(false));
     }, 1000, [nodes, edges, isSaving]);
+
+    const onChangeWhiteboardName = useCallback((name: string) => {
+        setIsSaving(true);
+        return fetch(`/api/whiteboard/${data.whiteboard_id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name })
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.ok) setWhiteboard(wb => ({ ...wb, name }));
+                return res;
+            })
+            .finally(() => {
+                setIsSaving(false);
+            })
+    }, [])
 
     useEffect(() => {
         syncWhiteboard(nodes, edges);
@@ -96,8 +114,8 @@ function Whiteboard({ data }: WhiteboardProps) {
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
     return <div className="w-full h-full relative flex flex-col">
-        <WhiteboardHeader title={data.name} />
-        {isSaving && <div className="absolute top-5 right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
+        <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} />
+        {isSaving && <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
             <ImSpinner8 size={10} className="animate-spin" />
             <Text size="sm" c="gray.7">Auto-save...</Text>
         </div>}

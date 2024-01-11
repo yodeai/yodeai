@@ -114,11 +114,13 @@ export default function Toolbar() {
                     </Box>
                     <Menu.Dropdown>
                         <ConditionalTooltip visible={"block" in disabledItems} label={disabledItems.block}>
-                            <Menu.Item disabled={"block" in disabledItems}>
-                                <Link href="/new" className="decoration-transparent text-inherit">
+                            <Link href="/new" className={cn(
+                                "block decoration-transparent text-inherit bg-gray h-full w-full",
+                                "block" in disabledItems && "pointer-events-none" || "")}>
+                                <Menu.Item disabled={"block" in disabledItems}>
                                     Add Block
-                                </Link>
-                            </Menu.Item>
+                                </Menu.Item>
+                            </Link>
                         </ConditionalTooltip>
                         <ConditionalTooltip visible={"subspace" in disabledItems} label={disabledItems.subspace}>
                             <Menu.Item disabled={"subspace" in disabledItems} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>

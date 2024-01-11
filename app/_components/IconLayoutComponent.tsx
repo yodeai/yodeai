@@ -91,9 +91,9 @@ export default function IconLayoutComponent({
       return elements;
     } else if (selectedItems.length === 1) {
       const selectedItem = items.find(item => {
-        return "lens_id" in item
-          ? item.lens_id === selectedItems[0]
-          : item.block_id === selectedItems[0]
+        if("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
+        if("lens_id" in item) return selectedItems[0] === item.lens_id;
+        if("block_id" in item) return selectedItems[0] === item.block_id;
       });
       if (!selectedItem) return elements;
       elements.push({
