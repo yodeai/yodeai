@@ -20,18 +20,20 @@ import LoadingSkeleton from "./LoadingSkeleton";
 
 import ShareLensComponent from './ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
+import { Tables } from "app/_types/supabase";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 interface IconLayoutComponentProps {
   blocks: Block[];
   subspaces: (Subspace | Lens)[];
-  whiteboards: Whiteboard[];
+  whiteboards: Tables<"whiteboard">[]
   layouts: LensLayout["icon_layout"]
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
   handleLensDelete: (lens_id: number) => Promise<any>
+  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
 }
 export default function IconLayoutComponent({
   blocks,
@@ -41,7 +43,8 @@ export default function IconLayoutComponent({
   onChangeLayout,
   handleBlockChangeName,
   handleBlockDelete,
-  handleLensDelete
+  handleLensDelete,
+  handleWhiteboardDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -172,7 +175,7 @@ export default function IconLayoutComponent({
   const sortedItems = useMemo(() => {
     if (sortingOptions.sortBy === null) return items;
 
-    let _sorted_items = items.sort((a, b) => {
+    let _sorted_items = [...items].sort((a, b) => {
       if (sortingOptions.sortBy === "name") {
         let aName = "lens_id" in a ? a.name : a.title;
         let bName = "lens_id" in b ? b.name : b.title;
@@ -207,6 +210,7 @@ export default function IconLayoutComponent({
       key = `wb_${item.whiteboard_id}`;
       item_id = item.whiteboard_id;
       content = <WhiteboardIconItem
+        handleWhiteboardDelete={handleWhiteboardDelete}
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
         icon={fileTypeIcons.whiteboard} whiteboard={item} />
@@ -670,11 +674,31 @@ type WhiteboardIconItemProps = {
   whiteboard: Whiteboard
   selected?: boolean;
   unselectBlocks?: () => void
+  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
 }
-const WhiteboardIconItem = ({ whiteboard, icon, selected, unselectBlocks }: WhiteboardIconItemProps) => {
+const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm whiteboard deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this whiteboard? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete Whiteboard', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: onConfirmDelete,
+  });
+
+  const onConfirmDelete = () => {
+    setLoading(true);
+    handleWhiteboardDelete(whiteboard.whiteboard_id).then(res => setLoading(false));
+  }
 
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
@@ -684,6 +708,12 @@ const WhiteboardIconItem = ({ whiteboard, icon, selected, unselectBlocks }: Whit
     onClick: () => {
       router.push(`/whiteboard/${whiteboard.whiteboard_id}`)
     }
+  }, {
+    key: 'remove',
+    color: "#ff6b6b",
+    icon: <FaRegTrashCan size={16} />,
+    title: "Delete",
+    onClick: openDeleteModal
   }], []);
 
   const onContextMenu = showContextMenu(actions);

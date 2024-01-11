@@ -6,9 +6,10 @@ import { Divider, Text, Flex, Grid } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { timeAgo } from "@utils/index";
+import { Tables } from "app/_types/supabase";
 
 interface WhiteboardLineComponentProps {
-  whiteboard: Whiteboard;
+  whiteboard: Tables<"whiteboard">;
   hasArchiveButton?: boolean
   onArchive?: () => void;
   hierarchy?: number;
@@ -31,6 +32,9 @@ export default function WhiteboardLineComponent(props: WhiteboardLineComponentPr
           </Grid.Col>
           <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(whiteboard.updated_at)}
+              </Text>
               <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
                 {timeAgo(whiteboard.created_at)}
               </Text>

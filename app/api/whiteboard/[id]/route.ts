@@ -32,3 +32,28 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         return notOk("Error inserting lens", error.message);
     }
 }
+
+  export async function DELETE(request: NextRequest, { params,}: {params: { id: string };}) {
+    const supabase = createServerComponentClient({ cookies });
+    const whiteboard_id = Number(params.id);
+  
+    // Validate the id
+    if (isNaN(whiteboard_id)) {
+      return notOk("Invalid ID");
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('whiteboard')
+        .delete()
+        .eq('whiteboard_id', whiteboard_id);
+  
+      if (error) {
+        throw error;
+      }
+  
+      return ok({ whiteboard_id  });
+    } catch (err) {
+      return notOk(`${err}`);
+    }
+  }

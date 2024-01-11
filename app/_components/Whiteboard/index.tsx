@@ -17,6 +17,7 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { ImSpinner8 } from "react-icons/im";
 import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues } from './Nodes';
+import WhiteboardHeader from './Header';
 
 type WhiteboardProps = {
     data: Tables<"whiteboard">
@@ -94,15 +95,19 @@ function Whiteboard({ data }: WhiteboardProps) {
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
-    return <div className="w-full h-full relative">
+    return <div className="w-full h-full relative flex flex-col">
+        <WhiteboardHeader title={data.name} />
         {isSaving && <div className="absolute top-5 right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
             <ImSpinner8 size={10} className="animate-spin" />
             <Text size="sm" c="gray.7">Auto-save...</Text>
         </div>}
         <ReactFlow
+            className="flex-1"
             minZoom={0.5}
             maxZoom={4}
             ref={$whiteboard}
+            fitView
+            fitViewOptions={{ padding: 0.5 }}
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}

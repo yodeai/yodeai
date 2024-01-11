@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
+import { timeAgo } from "@utils/index";
 
 interface BlockProps {
   compact?: boolean;
@@ -65,10 +66,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
     setExpanded(!expanded);
   };
 
-  // let updateTime = block.updated_at.toDate();
-  let timeAgo = formatDate(block.updated_at);
-  timeAgo = timeAgo.replace("about ", "");
-
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
   // useEffect(()=>{
   //   const supabase = createClientComponentClient()
@@ -118,7 +115,12 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </Grid.Col>
           <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.updated_at)}
+              </Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.created_at)}
+              </Text>
             </Flex>
           </Grid.Col>
         </Grid>
