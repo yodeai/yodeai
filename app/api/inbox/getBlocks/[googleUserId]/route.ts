@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { googleUs
                     lens: lens!fk_lens (lens_id, name)
                 ) 
             )
-        `).in('google_user_id', [params.googleUserId, 'global']).eq("block.lens_blocks.direct_child", true)
+        `).in('block.google_user_id', [params.googleUserId, 'global']).eq("block.lens_blocks.direct_child", true)
         if (error) {
             throw error;
         }
