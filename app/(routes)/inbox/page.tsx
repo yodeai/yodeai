@@ -14,6 +14,7 @@ import { FaPlus } from "react-icons/fa";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockHeader from "@components/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
+import { getUserInfo } from "@utils/googleUtils";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -65,8 +66,8 @@ export default function Inbox() {
   }, [blocks]);
 
 
-  const fetchBlocks = () => {
-    fetch(`/api/inbox/getBlocks`)
+  const fetchBlocks = (googleUserId) => {
+    fetch(`/api/inbox/getBlocks/${googleUserId}`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -91,9 +92,14 @@ export default function Inbox() {
   }
 
   useEffect(() => {
-    fetchBlocks();
-    fetchInvites();
-    setLensId(null);
+    const fetchBlocksAndInfo = async() => {
+      let googleUserId = await getUserInfo();
+      fetchBlocks(googleUserId);
+      fetchInvites();
+      setLensId(null);
+    }
+    fetchBlocksAndInfo();
+
   }, []);
 
   return (

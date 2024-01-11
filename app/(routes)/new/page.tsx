@@ -15,14 +15,10 @@ export default function New() {
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
 
   useEffect(() => {
-    // handleGoogleConnect();
     const fetchAndCheckGoogle = async () => {
       const connected = await checkGoogleAccountConnected();
-      if (connected) {
-        setGoogleAccountConnected(true)
-      } else {
-        setGoogleAccountConnected(false)
-      }
+      setGoogleAccountConnected(connected)
+     
     };
   
     fetchAndCheckGoogle();

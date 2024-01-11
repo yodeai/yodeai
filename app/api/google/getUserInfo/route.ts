@@ -6,9 +6,8 @@ export async function GET(req){
   try {
     const cookieHeader = req.headers.get('cookie');
     const cookies = parse(cookieHeader || "");
-    const accessToken = cookies["googleAccessToken"]; // Replace 'googleAccessToken' with your actual cookie name
+    const accessToken = cookies["googleAccessToken"];
     if (!accessToken) {
-      console.log("Google cookie not found");
       return new NextResponse(
         JSON.stringify({ error: 'Invalid Access Token' }),
         { status: 401 }

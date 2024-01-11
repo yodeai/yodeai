@@ -51,7 +51,7 @@ const GoogleCallback = () => {
     handleGoogleAuth();
   }, []);
 
-  return <div>Google Account Connected!</div>;
+  return <div>Google Account Connected! Please close this page.</div>;
 };
 
 export default GoogleCallback;

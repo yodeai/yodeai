@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: { googleUserId: string }; }) {
 
     try {
         const supabase = createServerComponentClient({
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
                     lens: lens!fk_lens (lens_id, name)
                 ) 
             )
-        `).eq("block.lens_blocks.direct_child", true)
+        `).in('google_user_id', [params.googleUserId, 'global']).eq("block.lens_blocks.direct_child", true)
         if (error) {
             throw error;
         }

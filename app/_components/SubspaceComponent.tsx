@@ -4,6 +4,7 @@ import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
 import LoadingSkeleton from './LoadingSkeleton';
 import { useRouter } from 'next/navigation';
+import { getUserInfo } from '@utils/googleUtils';
 
 export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -23,7 +24,8 @@ export default function SubspaceComponent({ subspace, hierarchy = 0 }) {
 
       if (isExpanded) {
         try {
-          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks`);
+          let googleUserId = await getUserInfo();
+          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks/${googleUserId}`);
           const blocksData = await blocksResponse.json();
           setBlocks(blocksData?.data);
 

@@ -10,6 +10,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Flex, Text, Box } from "@mantine/core";
 import BlockHeader from "@components/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
+import { getUserInfo } from "@utils/googleUtils";
 
 export default function MyBlocks() {
   const supabase = createClientComponentClient()
@@ -17,6 +18,8 @@ export default function MyBlocks() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const { sortingOptions, setLensId } = useAppContext();
+
+
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -59,8 +62,8 @@ export default function MyBlocks() {
     };
   }, [blocks]);
 
-  const fetchBlocks = () => {
-    fetch(`/api/block/getAllBlocks`)
+  const fetchBlocks = (googleUserId) => {
+    fetch(`/api/block/getAllBlocks/${googleUserId}`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -73,8 +76,12 @@ export default function MyBlocks() {
   };
 
   useEffect(() => {
-    fetchBlocks();
-    setLensId(null);
+    const fetchBlocksAndInfo = async() => {
+      let googleUserId = await getUserInfo();
+      fetchBlocks(googleUserId);
+      setLensId(null);
+    }
+    fetchBlocksAndInfo();
   }, []);
 
   const sortedBlocks = useMemo(() => {

@@ -1,23 +1,26 @@
 export const checkGoogleAccountConnected = async () => {
-    try {
-      const response = await fetch('/api/google/authorized');
-      if (response.ok) {
-        const { isValid } = await response.json();
-        if (isValid) {
-          return true
-        } else {
-          return false
-        }
-      }
-    } catch (error) {
-      console.error('Error checking Google Account validity:', error.message);
+  try {
+    const response = await fetch('/api/google/authorized');
+
+    if (response.ok) {
+      const data = await response.json();
+      const isValid = data.isValid;
+
+      return isValid;
+    } else {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
-  };
+  } catch (error) {
+    console.error('Error checking Google Account validity:', error.message);
+    return false;
+  }
+};
+
 
 
   export const getUserInfo = async () => {
     try {
-        const response = await fetch('/api/google/getUserInfo')
+        const response = await fetch(`/api/google/getUserInfo`)
   
         if (response.ok) {
         const userInfo = await response.json();
@@ -48,3 +51,18 @@ export const checkGoogleAccountConnected = async () => {
     }
   };
   
+  export const clearCookies = async() => {
+    // Get rid of any cookies set
+    const setCookieResponse = await fetch(`/api/google/signOut`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    if (setCookieResponse.ok) {
+      console.log("Google Account Removed!");
+    } else {
+      console.error("Failed to remove Google cookie.");
+    }
+  }

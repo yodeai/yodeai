@@ -13,17 +13,18 @@ import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
+import { getUserInfo } from "@utils/googleUtils";
 
 interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
-  onArchive?: () => void;
+  onArchive?: (googleUserId) => void;
   hierarchy?: number;
 }
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
   const router = useRouter();
-
+  const googleUserId = getUserInfo();
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
 
@@ -43,7 +44,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       success: "Archived!",
       error: "Failed to archive.",
     });
-    onArchive();
+    onArchive(googleUserId);
   };
 
   const retryProcessBlock = async () => {

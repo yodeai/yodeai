@@ -89,7 +89,6 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
 
 export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
-  const userId = await getUserID()
   const block_id = Number(params.block_id);
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -103,10 +102,6 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       .select('*')
       .eq('block_id', block_id)
       .single();
-
-      if (block.google_user_id != 'global' && block.google_user_id != userId) {
-        return notOk("Invalid ID")
-      }
 
     // Check for errors
     if (blockError) {

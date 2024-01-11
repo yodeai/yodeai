@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button } from '@mantine/core';
 import useDrivePicker from 'react-google-drive-picker'
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import apiClient from "@utils/apiClient";
 import { useAppContext } from "@contexts/context";
 import { useRouter } from "next/navigation";
 import { checkGoogleAccountConnected, getUserInfo, fetchGoogleDocContent } from "@utils/googleUtils";
+import toast from "react-hot-toast";
+import load from "@lib/load";
+import { RequestBodyType } from "@api/types";
 
 export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
@@ -17,14 +18,9 @@ export default function GoogleDocs() {
   const router = useRouter();
 
   useEffect(() => {
-    // handleGoogleConnect();
     const fetchAndCheckGoogle = async () => {
       const connected = await checkGoogleAccountConnected();
-      if (connected) {
-        setGoogleAccountConnected(true)
-      } else {
-        setGoogleAccountConnected(false)
-      }
+      setGoogleAccountConnected(connected)
     };
   
     fetchAndCheckGoogle();
@@ -69,6 +65,13 @@ export default function GoogleDocs() {
 
 
   const saveFile = async() => {
+    // check if still connected
+    const connected = await checkGoogleAccountConnected();
+    if (!connected){
+      toast.error("You have been signed out of your google account, please log back in and try again")
+      return;
+    }
+
     // get the current user id
     let user_id = await getUserInfo();
     // get file content
@@ -79,7 +82,7 @@ export default function GoogleDocs() {
       return
     }
 
-      const requestBody = {
+      const requestBody: RequestBodyType = {
         block_type: "google_doc",
         content: content,
         title: selectedGoogleDriveFile.name,
@@ -87,23 +90,31 @@ export default function GoogleDocs() {
         google_doc_id: selectedGoogleDriveFile.id,
         delay: 0
       };
+
+      if (lensId) {
+        requestBody.lens_id = lensId;
+      }
       const method = "POST";
       const endpoint = `/api/block`;
       try {
-        let response = await fetch(endpoint, {
+        let saveGoogleDocPromise = fetch(endpoint, {
           method: method,
           body: JSON.stringify(requestBody)
         })
-    
-        if (response.ok) {
-          console.log("Inserted block");
+
+        load(saveGoogleDocPromise, {
+          loading: "Saving...",
+          success: "Saved!",
+          error: "Failed to save.",
+        }).then(() => {
           if (lensId) {
             router.back();
           } else {
             router.push(`/myblocks`);
           }
-        }
-        if (!response.ok) console.error("Error inserting block");
+        })
+    
+  
     } catch (error) {
         console.error("Error pinning lens:", error);
     }
