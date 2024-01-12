@@ -20,6 +20,7 @@ export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+  const [googleUserId, setGoogleUserId] = useState("")
 
   const { setLensId } = useAppContext();
   const supabase = createClientComponentClient()
@@ -93,10 +94,11 @@ export default function Inbox() {
 
   useEffect(() => {
     const fetchBlocksAndInfo = async() => {
-      let googleUserId = await getUserInfo();
-      fetchBlocks(googleUserId);
       fetchInvites();
       setLensId(null);
+      const googleUserId = await getUserInfo();
+      setGoogleUserId(googleUserId)
+      fetchBlocks(googleUserId);
     }
     fetchBlocksAndInfo();
 
@@ -138,9 +140,9 @@ export default function Inbox() {
             <div className="mt-2">
               <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
             </div>
-          ) : blocks?.length > 0 ? (
+          ) : blocks?.length > 0 && googleUserId != "" ? (
             blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
+              <BlockComponent googleUserId={googleUserId} key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
             ))
           ) : (
             <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
