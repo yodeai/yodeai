@@ -12,7 +12,6 @@ export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
   const [openPicker, authResponse] = useDrivePicker(); 
   const { lensId } = useAppContext();
-  const [accessToken, setAccessToken] = useState("");
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const router = useRouter();
@@ -24,7 +23,6 @@ export default function GoogleDocs() {
     };
   
     fetchAndCheckGoogle();
-    getAccessToken();
     
   }, []);
 
@@ -34,7 +32,7 @@ export default function GoogleDocs() {
       const response = await fetch('/api/google/getAccessToken');
       if (response.ok) {
         const data = await response.json();
-        setAccessToken(data.accessToken);
+        return data.accessToken;
       } else {
         console.error('Error retrieving access token:', response.statusText);
         return null;
@@ -45,11 +43,15 @@ export default function GoogleDocs() {
     }
   };
 
-  const handleOpenPicker = () => {
+
+
+  const handleOpenPicker = async() => {
     try {
+      const accessToken = await getAccessToken();
+
     openPicker({
     clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
-    developerKey: process.env.NEXT_PUBLIC_GOOGLE_API_DEVELOPER_KEY,
+    developerKey: "",
     token: accessToken,
       viewId: "DOCUMENTS",
       customScopes: ['https://www.googleapis.com/auth/drive'],
