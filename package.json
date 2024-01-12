@@ -43,7 +43,6 @@
     "@xenova/transformers": "^2.6.0",
     "aws-sdk": "^2.1472.0",
     "axios": "^1.6.5",
-    "client-oauth2": "^4.3.3",
     "clsx": "^2.0.0",
     "common": "link:lowlight/lib/common",
     "concurrently": "^8.2.0",

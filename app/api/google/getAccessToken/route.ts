@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { parse } from 'cookie';
 import { NextResponse } from 'next/server';
 

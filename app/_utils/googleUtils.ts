@@ -12,7 +12,6 @@ export const checkGoogleAccountConnected = async () => {
     }
   } catch (error) {
     console.error('Error checking Google Account validity:', error.message);
-    throw error;
   }
 };
 
@@ -32,7 +31,6 @@ export const checkGoogleAccountConnected = async () => {
         }
     } catch (error) {
         console.error("Error fetching user info:", error.message);
-        throw error;
     }
     };
   
@@ -48,7 +46,6 @@ export const checkGoogleAccountConnected = async () => {
       }
     } catch (error) {
       console.error("Error fetching Google Doc content:", error.message);
-      throw error;
     }
   };
   

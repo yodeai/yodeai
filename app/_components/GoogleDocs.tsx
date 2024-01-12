@@ -12,7 +12,7 @@ export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
   const [openPicker, authResponse] = useDrivePicker(); 
   const { lensId } = useAppContext();
-  const [accessToken, setAccessToken] = useState("");
+  // const [accessToken, setAccessToken] = useState("");
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const router = useRouter();
@@ -24,34 +24,33 @@ export default function GoogleDocs() {
     };
   
     fetchAndCheckGoogle();
-    getAccessToken();
+    // getAccessToken();
     
   }, []);
 
 
-  const getAccessToken = async () => {
-    try {
-      const response = await fetch('/api/google/getAccessToken');
-      if (response.ok) {
-        const data = await response.json();
-        setAccessToken(data.accessToken);
-      } else {
-        console.error('Error retrieving access token:', response.statusText);
-        return null;
-      }
-    } catch (error) {
-      console.error('Error retrieving access token:', error.message);
-      return null;
-    }
-  };
+  // const getAccessToken = async () => {
+  //   try {
+  //     const response = await fetch('/api/google/getAccessToken');
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setAccessToken(data.accessToken);
+  //     } else {
+  //       console.error('Error retrieving access token:', response.statusText);
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     console.error('Error retrieving access token:', error.message);
+  //     return null;
+  //   }
+  // };
 
   const handleOpenPicker = () => {
     try {
     openPicker({
-    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
     developerKey: process.env.NEXT_PUBLIC_GOOGLE_API_DEVELOPER_KEY,
       viewId: "DOCUMENTS",
-      token: accessToken, // pass oauth token in case you already have one
       customScopes: ['https://www.googleapis.com/auth/drive'],
       callbackFunction: (data) => {
         if (data.action == "picked")

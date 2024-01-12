@@ -5,26 +5,16 @@ import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
-import ClientOAuth2 from 'client-oauth2';
-import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
-
-export const googleOAuth2Client = new ClientOAuth2({
-  clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-  clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET,
-  accessTokenUri: 'https://accounts.google.com/o/oauth2/token',
-  authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
-  redirectUri: 'http://localhost:3000/auth', // Replace with your redirect URI
-  scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/documents'],
-});
+import { checkGoogleAccountConnected, clearCookies, getUserInfo } from '@utils/googleUtils';
 
 
 const UserAccountHandler = () => {
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
-
+  const [redirectUri, setRedirectUri] = useState("")
   const openGoogleAuthWindow = () => {
-    const authWindow = window.open(googleOAuth2Client.code.getUri());
+    const authWindow = window.open(redirectUri);
 
     // Add event listener for beforeunload when the window is closed
     window.addEventListener('beforeunload', async () => {
@@ -69,7 +59,17 @@ const UserAccountHandler = () => {
       await fetchData();
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected);
+      const response = await fetch(`/api/google/redirectURI`)
+      if (response.ok) {
+        // Assuming the document content is in plain text
+        const content = await response.json();
+        setRedirectUri(content.uri)
+      } else {
+        console.error("Failed to fetch Google redirect uri", response.statusText);
+      }
     };
+
+
     fetchAndCheckGoogle();
 
     return () => {

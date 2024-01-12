@@ -18,7 +18,7 @@ export async function POST(req) {
     // Set the cookie options, including httpOnly: true
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NEXT_PUBLIC_NODE_ENV == 'production', // Set to true in production for secure (HTTPS) connections
+      secure: process.env.NODE_ENV == 'production', // Set to true in production for secure (HTTPS) connections
       sameSite: 'Strict', 
       maxAge: expire_seconds, 
       path: '/',
