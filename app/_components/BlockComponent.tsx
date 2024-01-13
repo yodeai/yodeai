@@ -20,9 +20,8 @@ interface BlockProps {
   block: Block;
   hasArchiveButton?: boolean
   onArchive?: () => void;
-  hierarchy?: number;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive }: BlockProps) {
   const router = useRouter();
 
   const handleArchive = async () => {
@@ -94,7 +93,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         <Grid>
           <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
-              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
+              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2 }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
@@ -125,7 +124,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </Grid.Col>
         </Grid>
 
-        <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
+        <Flex direction="column">
           <InlineSpoiler>
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
@@ -184,7 +183,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null} */}
       </Flex>
-      <Divider style={{ marginLeft: Math.min(26 * hierarchy, 300) }} mt={11} mb={6} variant="dashed" />
+      <Divider mt={11} mb={6} variant="dashed" />
 
     </div >
   );
