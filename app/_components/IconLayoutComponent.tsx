@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive } from "react-icons/fa6";
 import { AiOutlineLoading } from "react-icons/ai";
 import { AiOutlinePushpin } from 'react-icons/ai';
 
@@ -60,6 +60,7 @@ export default function IconLayoutComponent({
     note: <FaFileLines size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
+    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);

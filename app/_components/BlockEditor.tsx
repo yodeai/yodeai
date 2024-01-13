@@ -91,7 +91,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     }
     setIsSaving(true);
     let google_doc_id = googleDocId
-    if (delay == 0 && documentType == "google_doc") {
+    if (documentType == "google_doc") {
       if (google_doc_id == null) {
         // write to google docs
         const response = await fetch(`/api/google/createDoc`,{ 
