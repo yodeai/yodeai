@@ -1,7 +1,5 @@
 import { FaStickyNote } from "react-icons/fa";
-import { useStoreApi } from 'reactflow';
-import { useDebouncedCallback } from "@utils/hooks";
-import { FaFile, FaLink } from "react-icons/fa6";
+import { FaFile } from "react-icons/fa6";
 import { Tooltip } from "@mantine/core";
 
 export default function WhiteboardDock() {
@@ -17,9 +15,9 @@ export default function WhiteboardDock() {
                 <FaStickyNote color="#ffd43b" size={24} />
             </div>
         </Tooltip>
-        <Tooltip label="Block" position="top">
-            <div className="default p-3 rounded-full flex items-center  cursor-pointer"
-                onDragStart={(event) => onDragStart(event, 'block')} draggable>
+        <Tooltip label="Element" position="top">
+            <div className="default p-3 rounded-full flex items-center cursor-pointer"
+                onDragStart={(event) => onDragStart(event, 'dynamicElement')} draggable>
                 <FaFile color="#aaa" size={24} />
             </div>
         </Tooltip>

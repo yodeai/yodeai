@@ -68,7 +68,6 @@ function Whiteboard({ data }: WhiteboardProps) {
             event.preventDefault();
 
             const pane = $whiteboard.current.getBoundingClientRect();
-            console.log(pane)
             setMenu({
                 id: node.id,
                 top: (event.clientY - pane.top) + 10,

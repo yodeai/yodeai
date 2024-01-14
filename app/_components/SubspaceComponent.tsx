@@ -5,15 +5,16 @@ import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
 import LoadingSkeleton from './LoadingSkeleton';
 import { useRouter } from 'next/navigation';
 import { Lens, Subspace } from 'app/_types/lens';
+import { Block } from 'app/_types/block';
 
 type SubspaceComponentProps = {
   subspace: Subspace | Lens;
-  leftComponent?: (lensId: Lens["lens_id"]) => React.ReactNode;
+  leftComponent?: (type: string, id: Lens["lens_id"]) => React.ReactNode;
 }
 export default function SubspaceComponent({ leftComponent, subspace }: SubspaceComponentProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [blocks, setBlocks] = useState([]);
+  const [blocks, setBlocks] = useState<Block[]>([]);
   const [childSubspaces, setChildSubspaces] = useState([]);
   const router = useRouter();
 
@@ -68,8 +69,8 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
             {(blocks.length > 0) ?
               <div>
                 {blocks.map((block) => (<div className="flex rounded-md">
-                  {leftComponent && leftComponent(block.block_id)}
-                  <div className="flex-1">
+                  {leftComponent && leftComponent("block", block.block_id)}
+                  <div key={block.block_id} className="flex-1">
                     <BlockComponent key={block.block_id} block={block} />
                   </div>
                 </div>))}
@@ -87,7 +88,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
             }
             <div>
               {childSubspaces.map((childSubspace) => (<div className="flex rounded-md">
-                {leftComponent && leftComponent(childSubspace.lens_id)}
+                {leftComponent && leftComponent("lens", childSubspace.lens_id)}
                 <div className="flex-1">
                   <SubspaceComponent
                     leftComponent={leftComponent}
