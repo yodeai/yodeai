@@ -40,7 +40,6 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
   const [documentType, setDocumentType] = useState(block?.block_type || 'note');
 
   const [content, setContent] = useState(block?.content || "");
-  const [oldContent, setOldContent] = useState(block?.content || "");
 
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 500);
@@ -53,13 +52,13 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
 
   useEffect(() => {
     const updateGoogleDocContent = async () => {
+      console.log("CALLING THE DEVIL")
       if (documentType === 'google_doc' && block?.google_doc_id!= null) {
         setIsLoadingContent(true); // Set loading state when fetching content
         try {
           // bring in updated content
           let fetchedContent = await fetchGoogleDocContent(block.google_doc_id);
           setContent(fetchedContent);
-          setOldContent(fetchedContent);
         } finally {
           setIsLoadingContent(false); // Reset loading state after content is fetched
         }
@@ -68,7 +67,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     };
 
     updateGoogleDocContent();
-  }, [documentType, block]);
+  }, []);
 
   //let controller;
   const saveContent = async (delay = 180) => {
@@ -117,18 +116,8 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
           console.log("created google doc", google_doc_id)
         }
       }
-      let oldContent = ""
-      const contentResponse = await fetch(`/api/google/fetchDocContent/${google_doc_id}`)
-      if (contentResponse.ok) {
-        // Assuming the document content is in plain text
-        const content = await contentResponse.json();
-        console.log("HI", oldContent)
-        oldContent = content.data
-      } else {
-        console.log("RESPONSE", googleDocId, contentResponse)
-        console.error("Failed to fetch Google Doc content:", contentResponse.statusText);
-        return false;
-      }
+      let oldContent = await fetchGoogleDocContent(google_doc_id);
+      console.log("new content", content, "oldContent", oldContent)
       
       const response = await fetch(`/api/google/updateDoc`, {
       method: "PUT",

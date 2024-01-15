@@ -7,28 +7,47 @@ async function replaceContent(googleDocId, content, oldContent, accessToken, tit
     let requests = [];
     console.log("old content", oldContent, "new content", content)
 
-    if (oldContent != null && oldContent !== "") {
+    if (oldContent != null && oldContent != "") {
       // Replace existing text
-      requests.push({
-        replaceAllText: {
-          replaceText: content,
-          containsText: {
-            text: oldContent,
-            matchCase: true,
+      if (content != null && content != "") {
+        requests.push({
+          replaceAllText: {
+            replaceText: content,
+            containsText: {
+              text: oldContent,
+              matchCase: true,
+            },
           },
-        },
-      });
+        });
+      } else {
+          // Remove all text
+          requests.push({
+            'deleteContentRange': {
+                'range': {
+                    'startIndex': 1,
+                    'endIndex': 999999, 
+                }
+            }
+        })
+
+      }
     } else {
-      // Insert new text
-      requests.push({
-        insertText: {
-          text: content,
-          location: {
-            index: 1, // Adjust the index based on where you want to insert the text
+
+      if (content != null && content != "") {
+        // Insert new text
+        requests.push({
+          insertText: {
+            text: content,
+            location: {
+              index: 1,
+            },
           },
-        },
-      });
+        });
+      }
+    else {
+      
     }
+  }
 
     const batchUpdateRequest = {
       requests: requests,
