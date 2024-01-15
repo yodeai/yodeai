@@ -18,6 +18,7 @@ import { ImSpinner8 } from "react-icons/im";
 import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues } from './Nodes';
 import WhiteboardHeader from './Header';
+import { useRouter } from 'next/navigation';
 
 type WhiteboardProps = {
     data: Tables<"whiteboard">
@@ -31,6 +32,7 @@ function Whiteboard({ data }: WhiteboardProps) {
     const [menu, setMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState<Tables<"whiteboard">>(data);
     const $whiteboard = useRef(null);
+    const router = useRouter();
 
     const onConnect = useCallback((params) => {
         setEdges((eds) => addEdge(params, eds))
@@ -104,7 +106,20 @@ function Whiteboard({ data }: WhiteboardProps) {
             .finally(() => {
                 setIsSaving(false);
             })
-    }, [])
+    }, []);
+
+    const onDeleteWhiteboard = useCallback(() => {
+        setIsSaving(true);
+        return fetch(`/api/whiteboard/${data.whiteboard_id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.ok) router.replace(`/lens/${data.lens_id}`);
+                return res;
+            })
+    }, []);
 
     useEffect(() => {
         syncWhiteboard(nodes, edges);
@@ -113,7 +128,7 @@ function Whiteboard({ data }: WhiteboardProps) {
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
     return <div className="w-full h-full relative flex flex-col">
-        <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} />
+        <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
         {isSaving && <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
             <ImSpinner8 size={10} className="animate-spin" />
             <Text size="sm" c="gray.7">Auto-save...</Text>

@@ -36,7 +36,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     const supabase = createServerComponentClient({ cookies });
 
     let lens_id: number | string = lens_ids[lens_ids.length - 1];
-    if (Number.isNaN(Number(lens_id))) return <p>Invalid lens id</p>
+    if (Number.isNaN(Number(lens_id))) return redirect(`/notFound`);
     else lens_id = Number(lens_id);
 
     const userData = await supabase.auth.getUser();
