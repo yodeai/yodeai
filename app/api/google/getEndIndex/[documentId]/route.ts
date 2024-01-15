@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { documentId: 
   
       if (response.status !== 200) {
         console.error('Failed to get end index', response.statusText);
-        return false;
+        return new NextResponse(JSON.stringify({ error: 'Failed to get end index.' }), { status: 500 });
       }
       const content = response.data.body.content;
       const lastElement = content[content.length - 1];
