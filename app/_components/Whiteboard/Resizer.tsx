@@ -4,7 +4,23 @@ import { Handle, Position, NodeResizer } from 'reactflow';
 const ResizableNodeSelected = ({ children, selected }) => {
     return (
         <>
-            <NodeResizer color="#3e83f8" isVisible={selected} minWidth={100} minHeight={30} />
+            <NodeResizer
+                color="#3e83f8"
+                isVisible={selected}
+                minWidth={100}
+                minHeight={100}
+                lineStyle={{
+                    padding: 12,
+                    borderColor: "transparent",
+                    borderWidth: 0
+                }}
+                handleStyle={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 10,
+                    backgroundColor: '#3e83f8',
+                }}
+            />
             {children}
         </>
     );

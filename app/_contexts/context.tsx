@@ -182,33 +182,6 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     getUserId();
   }, [pathname]);
 
-  useEffect(() => {
-    let channel: RealtimeChannel;
-
-    (async () => {
-      const user_id = (await supabase.auth?.getUser())?.data?.user?.id;
-      if (!user_id) return;
-
-      console.log("Subscribing to pinned_lens changes...")
-
-      channel = supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_users', filter: `user_id=eq.${user_id}` }, getPinnedLenses)
-      if (lensId) channel = channel
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lensId}` }, getPinnedLenses)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lensId}` }, getPinnedLenses)
-
-      channel.subscribe();
-    })();
-
-    return () => {
-      if (channel) {
-        channel.unsubscribe();
-        console.log("Unsubscribed from pinned_lens changes")
-      }
-    };
-  }, [lensId])
-
   // This useEffect will run whenever lensId changes
   useEffect(() => {
     const fetchLensName = async () => {

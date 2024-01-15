@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useRef, KeyboardEventHandler, ReactEventHandler } from "react";
+import { useState, useRef, } from "react";
 import { Flex, Text, Box, Input, ActionIcon, Menu, UnstyledButton } from "@mantine/core";
 import { FaAngleDown, FaCheck } from "react-icons/fa";
-import LoadingSkeleton from "@components/LoadingSkeleton";
+import { modals } from "@mantine/modals";
 import load from "@lib/load";
-import { useDebouncedCallback } from '../../_utils/hooks';
+import { useDebouncedCallback } from '@utils/hooks';
 
 type WhiteboardHeaderProps = {
     title: string
     onSave: (title: string) => Promise<Response>
+    onDelete: () => Promise<Response>
 }
 
 export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
@@ -33,6 +34,20 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
     const onKeyDown = (event) => {
         if (event.key === "Enter") onClickSave();
     }
+
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm whiteboard deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this whiteboard? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete whiteboard', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: props.onDelete
+    });
 
     return <>
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
@@ -73,6 +88,7 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
 
                     <Menu.Dropdown>
                         <Menu.Item onClick={() => setIsEditing(true)}>Rename</Menu.Item>
+                        <Menu.Item color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
             </Box>

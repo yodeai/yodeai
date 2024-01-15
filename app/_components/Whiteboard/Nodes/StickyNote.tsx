@@ -1,7 +1,7 @@
 import React, { useState, useRef, memo } from 'react'
-import { WrappedComponentType } from '../NodeWrapper'
-import ResizableNode from '../Resizer'
-import { Node, NodeProps } from 'reactflow'
+import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
+import ResizableNode from '@components/Whiteboard/Resizer'
+import {  NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
@@ -29,7 +29,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
             value={node.data.color}
             selected={selected}
         />
-        <div className="border border-gray-200 rounded-md shadow-sm overflow-hidden">
+        <div className="rounded-md shadow-md">
             <textarea
                 style={{
                     backgroundColor: node.data.color,

@@ -21,6 +21,7 @@ import LoadingSkeleton from "./LoadingSkeleton";
 import ShareLensComponent from './ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import { Tables } from "app/_types/supabase";
+import { Breadcrumb } from "./Breadcrumb";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -76,7 +77,7 @@ export default function IconLayoutComponent({
 
   const items: (Block | Subspace | Lens | Whiteboard)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
 
-  const breadcrumbs = useMemo(() => {
+  const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
       [{ name: 'Spaces', lens_id: null }],
       breadcrumbData || lensId && [{ lens_id: lensId, name: lensName }] || []
@@ -91,9 +92,9 @@ export default function IconLayoutComponent({
       return elements;
     } else if (selectedItems.length === 1) {
       const selectedItem = items.find(item => {
-        if("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
-        if("lens_id" in item) return selectedItems[0] === item.lens_id;
-        if("block_id" in item) return selectedItems[0] === item.block_id;
+        if ("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
+        if ("lens_id" in item) return selectedItems[0] === item.lens_id;
+        if ("block_id" in item) return selectedItems[0] === item.block_id;
       });
       if (!selectedItem) return elements;
       elements.push({
@@ -108,6 +109,10 @@ export default function IconLayoutComponent({
   }, [breadcrumbData, items, lensName, lensId, selectedItems])
 
   const getLensParents = () => {
+    if(!lensId){
+      setBreadcrumbLoading(false);
+      return;
+    }
     return fetch(`/api/lens/${lensId}/getParents`)
       .then(res => {
         if (!res.ok) {
@@ -129,7 +134,7 @@ export default function IconLayoutComponent({
 
   useEffect(() => {
     getLensParents()
-  }, [])
+  }, [lensId]);
 
   const onDoubleClick = (itemType: "bl" | "ss" | "wb", itemId: number) => {
     if (itemType === "bl") return router.push(`/block/${itemId}`);
@@ -337,25 +342,7 @@ export default function IconLayoutComponent({
         {layoutItems}
       </ResponsiveReactGridLayout>
     </div>
-    <Box className="fixed bottom-0 w-full flex flex-row gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
-      {breadcrumbLoading
-        ? <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />
-        : <>
-          <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />
-          <Breadcrumbs separatorMargin={5} className="z-50">{
-            breadcrumbs.map(({ title, href }, index) => (
-              <Fragment key={index}>
-                {href
-                  ? <Link href={href} className="no-underline hover:underline" prefetch>
-                    <Text size="sm" c="dimmed">{title}</Text>
-                  </Link>
-                  : <Text size="sm" c="dimmed">{title}</Text>
-                }
-              </Fragment>
-            ))}
-          </Breadcrumbs>
-        </>}
-    </Box>
+    <Breadcrumb loading={breadcrumbLoading} breadcrumbs={breadcrumbs} />
   </div >
 }
 
