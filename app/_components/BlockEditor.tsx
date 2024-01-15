@@ -53,7 +53,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
 
   useEffect(() => {
     const updateGoogleDocContent = async () => {
-      if (documentType === 'google_doc' && googleUserId != null) {
+      if (documentType === 'google_doc' && block?.google_doc_id!= null) {
         setIsLoadingContent(true); // Set loading state when fetching content
         try {
           // bring in updated content
