@@ -1,16 +1,15 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink } from "react-icons/fa6";
-import { AiOutlineLoading } from "react-icons/ai";
-import { AiOutlinePushpin } from 'react-icons/ai';
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaChalkboard } from "react-icons/fa6";
+import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
-import { Text, Flex, Box, Textarea, Tooltip, ScrollArea, Breadcrumbs, HoverCard, UnstyledButton } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout, Subspace, Lens } from "app/_types/lens";
+import { LensLayout, Subspace, Lens, Whiteboard } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
@@ -21,26 +20,31 @@ import LoadingSkeleton from "./LoadingSkeleton";
 
 import ShareLensComponent from './ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
+import { Tables } from "app/_types/supabase";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 interface IconLayoutComponentProps {
   blocks: Block[];
   subspaces: (Subspace | Lens)[];
+  whiteboards: Tables<"whiteboard">[]
   layouts: LensLayout["icon_layout"]
   onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
   handleLensDelete: (lens_id: number) => Promise<any>
+  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
 }
 export default function IconLayoutComponent({
   blocks,
-  layouts,
   subspaces,
+  whiteboards,
+  layouts,
   onChangeLayout,
   handleBlockChangeName,
   handleBlockDelete,
-  handleLensDelete
+  handleLensDelete,
+  handleWhiteboardDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -58,6 +62,7 @@ export default function IconLayoutComponent({
   const fileTypeIcons = useMemo(() => ({
     pdf: <FaFilePdf size={32} color="#228be6" />,
     note: <FaFileLines size={32} color="#888888" />,
+    whiteboard: <FaChalkboard size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
   }), []);
@@ -69,7 +74,7 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: (Block | Subspace | Lens)[] = useMemo(() => [].concat(blocks, subspaces), [blocks, subspaces])
+  const items: (Block | Subspace | Lens | Whiteboard)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
 
   const breadcrumbs = useMemo(() => {
     let elements = [].concat(
@@ -86,9 +91,9 @@ export default function IconLayoutComponent({
       return elements;
     } else if (selectedItems.length === 1) {
       const selectedItem = items.find(item => {
-        return "lens_id" in item
-          ? item.lens_id === selectedItems[0]
-          : item.block_id === selectedItems[0]
+        if("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
+        if("lens_id" in item) return selectedItems[0] === item.lens_id;
+        if("block_id" in item) return selectedItems[0] === item.block_id;
       });
       if (!selectedItem) return elements;
       elements.push({
@@ -126,17 +131,24 @@ export default function IconLayoutComponent({
     getLensParents()
   }, [])
 
-  const onDoubleClick = (itemType: string, itemId: number) => {
-    if (window.location.pathname === "/") {
-      router.push(`/lens/${itemId}`)
-    } else {
-      const path = itemType === "bl" ? `/block/${itemId}` : `${window.location.pathname}/${itemId}`;
-      router.push(path)
+  const onDoubleClick = (itemType: "bl" | "ss" | "wb", itemId: number) => {
+    if (itemType === "bl") return router.push(`/block/${itemId}`);
+
+    if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
+
+    if (itemType === "ss") {
+      if (window.location.pathname === "/") {
+        return router.push(`/lens/${itemId}`);
+      }
+      return router.push(`${window.location.pathname}/${itemId}`);
     }
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
-    const [itemType, itemId] = newItem.i?.split("_") as ["bl" | "ss", Block["block_id"] | Subspace["lens_id"]];
+    const [itemType, itemId] = newItem.i.split("_") as [
+      "bl" | "ss" | "wb",
+      Block["block_id"] | Subspace["lens_id"] | Whiteboard["whiteboard_id"]
+    ];
 
     const now = Date.now();
     if ($lastClick.current && (now - $lastClick.current) < 300) {
@@ -163,7 +175,7 @@ export default function IconLayoutComponent({
   const sortedItems = useMemo(() => {
     if (sortingOptions.sortBy === null) return items;
 
-    let _sorted_items = items.sort((a, b) => {
+    let _sorted_items = [...items].sort((a, b) => {
       if (sortingOptions.sortBy === "name") {
         let aName = "lens_id" in a ? a.name : a.title;
         let bName = "lens_id" in b ? b.name : b.title;
@@ -183,38 +195,53 @@ export default function IconLayoutComponent({
   }, [items, sortingOptions])
 
   const layoutItems = useMemo(() => sortedItems.map((item, index) => {
-    const isSubspace = "lens_id" in item;
-
-    const key = isSubspace ? `ss_${item.lens_id}` : `bl_${item.block_id}`;
-    const item_id = isSubspace ? item.lens_id : item.block_id;
-
     const defaultDataGrid = {
       x: index % cols[breakpoint],
       y: Math.floor(index / cols[breakpoint]),
       w: 1, h: 1, isResizable: false
     };
-
     const dataGrid = sortingOptions.sortBy === null ? layouts?.[breakpoint]?.[index] || defaultDataGrid : defaultDataGrid;
-    return <div key={key} data-grid={dataGrid} className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
-      {isSubspace
-        ? <SubspaceIconItem
-          selected={selectedItems.includes(item_id)}
-          unselectBlocks={() => setSelectedItems([])}
-          handleLensDelete={handleLensDelete}
-          icon={
-            (item.access_type === "owner" || !item?.access_type)
-              ? fileTypeIcons.subspace
-              : fileTypeIcons.sharedSubspace
-          } subspace={item} />
-        : <BlockIconItem
-          selected={selectedItems.includes(item_id)}
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          unselectBlocks={() => setSelectedItems([])}
-          icon={fileTypeIcons[item.block_type]} block={item} />
-      }
+
+    let key: string;
+    let item_id: number;
+    let content: JSX.Element;
+
+    if ("whiteboard_id" in item) {
+      key = `wb_${item.whiteboard_id}`;
+      item_id = item.whiteboard_id;
+      content = <WhiteboardIconItem
+        handleWhiteboardDelete={handleWhiteboardDelete}
+        selected={selectedItems.includes(item_id)}
+        unselectBlocks={() => setSelectedItems([])}
+        icon={fileTypeIcons.whiteboard} whiteboard={item} />
+    } else if ("lens_id" in item) {
+      key = `ss_${item.lens_id}`;
+      item_id = item.lens_id;
+      content = <SubspaceIconItem
+        selected={selectedItems.includes(item_id)}
+        unselectBlocks={() => setSelectedItems([])}
+        handleLensDelete={handleLensDelete}
+        icon={
+          (item.access_type === "owner" || !item?.access_type)
+            ? fileTypeIcons.subspace
+            : fileTypeIcons.sharedSubspace
+        } subspace={item} />
+    } else {
+      key = `bl_${item.block_id}`;
+      item_id = item.block_id;
+      content = <BlockIconItem
+        selected={selectedItems.includes(item_id)}
+        handleBlockChangeName={handleBlockChangeName}
+        handleBlockDelete={handleBlockDelete}
+        unselectBlocks={() => setSelectedItems([])}
+        icon={fileTypeIcons[item.block_type]} block={item} />
+    }
+
+    return <div key={key} data-grid={dataGrid}
+      className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
+      {content}
     </div>
-  }), [subspaces, breakpoint, blocks, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel])
+  }), [subspaces, breakpoint, blocks, whiteboards, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel])
 
   const onPinLens = async (lens_id: string) => {
     try {
@@ -639,7 +666,76 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
         </Text>
       </Box>
     </Flex>
+  </>
+}
 
+type WhiteboardIconItemProps = {
+  icon: JSX.Element,
+  whiteboard: Whiteboard
+  selected?: boolean;
+  unselectBlocks?: () => void
+  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
+}
+const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
+  const { showContextMenu } = useContextMenu();
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm whiteboard deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this whiteboard? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete Whiteboard', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: onConfirmDelete,
+  });
+
+  const onConfirmDelete = () => {
+    setLoading(true);
+    handleWhiteboardDelete(whiteboard.whiteboard_id).then(res => setLoading(false));
+  }
+
+  const actions: ContextMenuContent = useMemo(() => [{
+    key: 'open',
+    color: "#228be6",
+    icon: <FaLink size={16} />,
+    title: "Open",
+    onClick: () => {
+      router.push(`/whiteboard/${whiteboard.whiteboard_id}`)
+    }
+  }, {
+    key: 'remove',
+    color: "#ff6b6b",
+    icon: <FaRegTrashCan size={16} />,
+    title: "Delete",
+    onClick: openDeleteModal
+  }], []);
+
+  const onContextMenu = showContextMenu(actions);
+
+  return <>
+    <Flex
+      onContextMenu={onContextMenu}
+      mih={100} gap="6px"
+      justify="flex-end" align="center"
+      direction="column" wrap="nowrap">
+      <Box>
+        {loading
+          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+          : <SpaceIconHint>{icon}</SpaceIconHint>
+        }
+      </Box>
+      <Box w={100} h={40} variant="unstyled" className="text-center">
+        <Text inline={true} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+          {whiteboard.name}
+        </Text>
+      </Box>
+    </Flex>
   </>
 }
 

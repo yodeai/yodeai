@@ -35,6 +35,8 @@ export type contextType = {
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
   subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
+  whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
+
   sortingOptions: {
     order: "asc" | "desc",
     sortBy: null | "name" | "createdAt" | "updatedAt"
@@ -74,6 +76,8 @@ const defaultValue: contextType = {
   setDraggingNewBlock: () => { },
 
   subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
     sortBy: null
@@ -115,6 +119,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [zoomLevel, setZoomLevel] = useState(100);
 
   const subspaceModalDisclosure = useDisclosure(false);
+  const whiteboardModelDisclosure = useDisclosure(false);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -251,7 +256,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      subspaceModalDisclosure,
+      subspaceModalDisclosure, whiteboardModelDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,

@@ -27,7 +27,6 @@ export type LensLayout = {
   icon_layout?: Layouts | undefined;
 }
 
-
 export type Subspace = {
   lens_id: number
   name: string
@@ -40,4 +39,14 @@ export type Subspace = {
   root: number
   parents: number[]
   access_type: string;
+}
+
+export type Whiteboard = {
+  whiteboard_id: number;
+  lens_id: number;
+  name: string;
+  data: JSON;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
 }

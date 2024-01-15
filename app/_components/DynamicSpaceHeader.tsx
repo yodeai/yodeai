@@ -16,6 +16,7 @@ import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
+import AddWhiteBoard from "./AddWhiteboard";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -55,7 +56,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const [shareModalState, shareModalController] = shareModalDisclosure;
 
     const {
-        lensId, pinnedLenses, subspaceModalDisclosure,
+        lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
         sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel
     } = useAppContext();
@@ -263,6 +264,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
             ? <Flex justify={"center"} align={"center"}>
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
                     <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
