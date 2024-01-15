@@ -109,6 +109,10 @@ export default function IconLayoutComponent({
   }, [breadcrumbData, items, lensName, lensId, selectedItems])
 
   const getLensParents = () => {
+    if(!lensId){
+      setBreadcrumbLoading(false);
+      return;
+    }
     return fetch(`/api/lens/${lensId}/getParents`)
       .then(res => {
         if (!res.ok) {
@@ -129,7 +133,6 @@ export default function IconLayoutComponent({
   }
 
   useEffect(() => {
-    if(!lensId) return;
     getLensParents()
   }, [lensId]);
 
