@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef, KeyboardEventHandler, ReactEventHandler } from "react";
+import { useState, useRef, } from "react";
 import { Flex, Text, Box, Input, ActionIcon, Menu, UnstyledButton } from "@mantine/core";
 import { FaAngleDown, FaCheck } from "react-icons/fa";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
-import { useDebouncedCallback } from '../../_utils/hooks';
+import { useDebouncedCallback } from '@utils/hooks';
 
 type WhiteboardHeaderProps = {
     title: string

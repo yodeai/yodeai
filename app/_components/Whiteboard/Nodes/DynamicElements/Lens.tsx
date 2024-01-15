@@ -5,12 +5,14 @@ import { Box, Title } from '@mantine/core';
 import { useDebouncedCallback } from '@utils/hooks';
 import Link from 'next/link';
 import { FaFolder } from 'react-icons/fa';
+import { Node } from 'reactflow';
 
 type LensElementProps = {
     lens_id: Tables<"lens">["lens_id"]
+    node: Node;
 }
 
-export const LensElement = ({ lens_id }: LensElementProps) => {
+export const LensElement = ({ lens_id, node }: LensElementProps) => {
     const [data, setData] = useState<Tables<"lens">>();
     const [loading, setLoading] = useState(true);
 
@@ -35,25 +37,24 @@ export const LensElement = ({ lens_id }: LensElementProps) => {
     }, [lens_id]);
 
     return <>
-        {loading && !data && <Box className="h-48 w-64 px-3 py-5 flex flex-col gap-1">
+        {loading && !data && <Box className="px-3 py-5 flex flex-col gap-1">
             <div className="h-6 w-32 mb-4 animate-pulse bg-slate-300 rounded-md"></div>
             <div className="h-4 w-16 animate-pulse bg-slate-300 rounded-md"></div>
             <div className="h-4 w-32 animate-pulse bg-slate-300 rounded-md"></div>
             <div className="h-4 w-18 animate-pulse bg-slate-300 rounded-md"></div>
-            <div className="h-4 w-28 animate-pulse bg-slate-300 rounded-md"></div>
         </Box>}
 
         {!loading && data?.lens_id && data &&
-            <div className={cn("h-48 w-64 flex p-3")}>
-                <Link href={`/lens/${data.lens_id}`} className="text-inherit no-underline" prefetch>
-                    <Box p={0} m={0} className="flex flex-col gap-2 overflow-hidden">
-                        <div className="flex gap-2 items-center">
-                            <FaFolder size={16} color="gray" />
+            <div className={cn("flex p-3")}>
+                <Box p={0} m={0} className="flex flex-col gap-2 overflow-hidden">
+                    <div className="flex gap-2 items-center">
+                        <FaFolder size={16} color="gray" />
+                        <Link href={`/lens/${data.lens_id}`} className="text-inherit no-underline hover:underline" prefetch>
                             <Title order={5} className="text-gray-600 leading-3">{data.name}</Title>
-                        </div>
-                    </Box>
-                </Link>
-            </div>
+                        </Link>
+                    </div>
+                </Box >
+            </div >
         }
     </>
 }

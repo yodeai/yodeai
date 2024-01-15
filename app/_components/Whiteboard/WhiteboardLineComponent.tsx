@@ -1,6 +1,5 @@
 "use client";
 
-import { Whiteboard } from "app/_types/lens";
 import { BiSolidChalkboard } from "react-icons/bi";
 import { Divider, Text, Flex, Grid } from "@mantine/core";
 import { useRouter } from "next/navigation";
