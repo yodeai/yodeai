@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
 import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
 import { RequestBodyType } from '@api/types';
+import axios from 'axios'
 
 
 
@@ -68,6 +69,25 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     updateGoogleDocContent();
   }, []);
 
+
+  const fetchEndIndex = async(documentId) => {
+    try {
+      const response = await fetch(`/api/google/getEndIndex/${documentId}`)
+      if (response.ok) {
+        // Assuming the document content is in plain text
+        const content = await response.json();
+        return content.data
+      } else {
+        console.error("Failed to fetch Google Doc index:", response.statusText);
+        return -1;
+      }
+    } catch (error) {
+      console.error("Error fetching Google Doc index:", error.message);
+      return -1;
+    }
+
+  }
+
   //let controller;
   const saveContent = async (delay = 180) => {
     console.log("delay", delay)
@@ -116,19 +136,26 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
         }
       }
       let oldContent = await fetchGoogleDocContent(google_doc_id);
-      console.log("new content", content, "oldContent", oldContent)
-      
-      const response = await fetch(`/api/google/updateDoc`, {
-      method: "PUT",
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any other necessary headers, such as authorization, if required
-      },
-      body: JSON.stringify({ google_doc_id, content, oldContent, title })})
-      if (!response.ok) {
-        console.error("Error updating google doc")
-      } else {
-        console.log("updated google doc")
+      if (oldContent != content) {
+        let endIndex = await fetchEndIndex(google_doc_id);
+        if (endIndex == -1) {
+          console.error("Error getting end index")
+          return
+        }
+        
+        const response = await fetch(`/api/google/updateDoc`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any other necessary headers, such as authorization, if required
+        },
+        body: JSON.stringify({ google_doc_id, content, oldContent, title, endIndex })})
+        if (!response.ok) {
+          console.error("Error updating google doc")
+          return
+        } else {
+          console.log("updated google doc")
+        }
       }
     }
 

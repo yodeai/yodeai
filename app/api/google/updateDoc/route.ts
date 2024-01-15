@@ -2,39 +2,24 @@ import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'cookie';
 
-async function replaceContent(googleDocId, content, oldContent, accessToken, title, req) {
+async function replaceContent(googleDocId, content, oldContent, accessToken, title, endIndex) {
   try {
     let requests = [];
-    console.log("old content", oldContent, "new content", content)
-
-    if (oldContent != null && oldContent != "") {
-      // Replace existing text
-      if (content != null && content != "") {
+    if (oldContent == content) {
+      return true
+    }
+      if ((oldContent != null && oldContent != "")) {
+        // Delete all text
         requests.push({
-          replaceAllText: {
-            replaceText: content,
-            containsText: {
-              text: oldContent,
-              matchCase: true,
-            },
-          },
-        });
-      } else {
-          // Remove all text
-          console.log("remove")
-          requests.push({
-            'deleteContentRange': {
-                'range': {
-                    'startIndex': 1,
-                    'endIndex': 999999, 
-                }
-            }
-        })
-
-      }
-    } else {
-
-      if (content != null && content != "") {
+          deleteContentRange: {
+              range: {
+                  startIndex: 1,
+                  endIndex: endIndex-1,
+              }
+          }
+      })
+    }
+    if (content != null && content != "") {
         // Insert new text
         requests.push({
           insertText: {
@@ -45,10 +30,7 @@ async function replaceContent(googleDocId, content, oldContent, accessToken, tit
           },
         });
       }
-    else {
-      
-    }
-  }
+  
 
     const batchUpdateRequest = {
       requests: requests,
@@ -93,14 +75,14 @@ async function replaceContent(googleDocId, content, oldContent, accessToken, tit
       return false;
     }
   } catch (error) {
-    console.error('Error replacing/inserting content and updating title of Google Doc:', error.message);
+    console.error('Error replacing/inserting content and updating title of Google Doc:', error.response.data);
     return false;
   }
 }
 
 export async function PUT(req: NextRequest) {
   try {
-    const { google_doc_id, content, oldContent, title } = await req.json();
+    const { google_doc_id, content, oldContent, title, endIndex } = await req.json();
 
     const cookieHeader = req.headers.get('cookie');
     const cookies = parse(cookieHeader || "");
@@ -114,7 +96,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Replace/insert content and update title
-    const success = await replaceContent(google_doc_id, content, oldContent, accessToken, title, req);
+    const success = await replaceContent(google_doc_id, content, oldContent, accessToken, title, endIndex);
 
     if (success) {
       return new NextResponse(JSON.stringify({ success: true }), { status: 200 });
