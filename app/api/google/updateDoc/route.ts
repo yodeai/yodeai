@@ -21,6 +21,7 @@ async function replaceContent(googleDocId, content, oldContent, accessToken, tit
         });
       } else {
           // Remove all text
+          console.log("remove")
           requests.push({
             'deleteContentRange': {
                 'range': {
