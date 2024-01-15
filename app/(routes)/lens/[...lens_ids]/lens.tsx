@@ -2,7 +2,7 @@
 
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
-import { Lens, LensLayout, Subspace } from "app/_types/lens";
+import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
@@ -22,6 +22,7 @@ type LensProps = {
 import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { getUserInfo } from "@utils/googleUtils";
+import { Database, Tables } from "app/_types/supabase";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -30,6 +31,7 @@ export default function Lens(props: LensProps) {
   const [lens, setLens] = useState<Lens | null>(lensData);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
+  const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const [editingLensName, setEditingLensName] = useState("");
@@ -44,7 +46,7 @@ export default function Lens(props: LensProps) {
     accessType, setAccessType, sortingOptions
   } = useAppContext();
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient()
+  const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
     setEditingLensName(lensName);
@@ -63,6 +65,7 @@ export default function Lens(props: LensProps) {
       await Promise.all([
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
+        getLensWhiteboards(lens_id),
         getLensLayout(lens_id)
       ])
         .then(() => {
@@ -118,6 +121,17 @@ export default function Lens(props: LensProps) {
       })
       .catch((error) => {
         console.error('Error fetching subspaces:', error);
+      })
+  }
+
+  const getLensWhiteboards = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getWhiteboards`)
+      .then((response) => response.json())
+      .then((data) => {
+        setWhiteboards(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching whiteboards:', error);
       })
   }
 
@@ -218,6 +232,21 @@ export default function Lens(props: LensProps) {
     setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
   }, []);
 
+  const addWhiteBoard = useCallback((payload) => {
+    let whiteboard_id = payload["new"]["whiteboard_id"]
+    console.log("Added a whiteboard", whiteboard_id);
+    let newWhiteboard = payload["new"]
+    if (!whiteboards.some(item => item.whiteboard_id === whiteboard_id)) {
+      setWhiteboards(prevWhiteboards => [newWhiteboard, ...prevWhiteboards]);
+    }
+  }, []);
+
+  const deleteWhiteboard = useCallback((payload) => {
+    let whiteboard_id = payload["old"]["whiteboard_id"]
+    console.log("Deleting whiteboard", whiteboard_id);
+    setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
+  }, [])
+
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
     const channel = supabase
@@ -229,6 +258,8 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens_id}` }, deleteSubspace)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
       .subscribe();
 
     return () => {
@@ -345,6 +376,15 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleWhiteboardDelete = async (whiteboard_id: number) => {
+    const deletePromise = fetch(`/api/whiteboard/${whiteboard_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting whiteboard...",
+      success: "Whiteboard deleted!",
+      error: "Failed to delete whiteboard.",
+    });
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -393,6 +433,26 @@ export default function Lens(props: LensProps) {
     return _sorted_blocks;
   }, [sortingOptions, blocks])
 
+  const sortedWhiteboards = useMemo(() => {
+    if (sortingOptions.sortBy === null) return whiteboards;
+
+    let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_whiteboards.reverse();
+    }
+
+    return _sorted_whiteboards;
+  }, [sortingOptions, whiteboards])
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <DynamicSpaceHeader
@@ -413,13 +473,16 @@ export default function Lens(props: LensProps) {
       <Box className="flex items-stretch flex-col h-full">
         {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
         {!loading && <LayoutController
-          subspaces={sortedSubspaces}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
           handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
-          blocks={sortedBlocks} layoutView={selectedLayoutType} />}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          layoutView={selectedLayoutType} />}
       </Box>
     </Flex >
   );

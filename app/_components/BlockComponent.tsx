@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
+import { timeAgo } from "@utils/index";
 
 interface BlockProps {
   compact?: boolean;
@@ -65,9 +66,23 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
     setExpanded(!expanded);
   };
 
-  // let updateTime = block.updated_at.toDate();
-  let timeAgo = formatDate(block.updated_at);
-  timeAgo = timeAgo.replace("about ", "");
+  // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
+  // useEffect(()=>{
+  //   const supabase = createClientComponentClient()
+
+  //   let getAccessType = async() => {
+  //     const { data: { user } } = await supabase.auth.getUser();
+
+  //     const { data: accessLevel, error: accessLevelError } = await supabase.rpc('get_access_type_block', { "chosen_block_id": block.block_id, "chosen_user_id": user.id })
+  //     if (accessLevelError) {
+  //       console.log("message", accessLevelError.message)
+  //       throw accessLevelError;
+  //     }
+  //     block.accessLevel = accessLevel ? accessLevel : "owner"; // if the block is not part of a lens, then it is the user's own block
+  //   }
+  //   getAccessType();
+
+  // }, [])
 
   const onClickBlock = () => {
     router.push(`/block/${block.block_id}`)
@@ -79,7 +94,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         <Grid>
           <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
-              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
+              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2 }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
@@ -100,12 +115,17 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </Grid.Col>
           <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.updated_at)}
+              </Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.created_at)}
+              </Text>
             </Flex>
           </Grid.Col>
         </Grid>
 
-        <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
+        <Flex direction="column">
           <InlineSpoiler>
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
@@ -164,7 +184,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null} */}
       </Flex>
-      <Divider style={{ marginLeft: Math.min(26 * hierarchy, 300) }} mt={11} mb={6} variant="dashed" />
+      <Divider mt={11} mb={6} variant="dashed" />
 
     </div >
   );

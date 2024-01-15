@@ -2,11 +2,11 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  
+
   experimental: {
     serverActions: true,
   },
-  
+
   rewrites: async () => {
     return [
       {
@@ -51,5 +51,15 @@ module.exports = {
         ],
       },
     ];
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.vercel.com',
+        port: '',
+        pathname: '/image/upload/front/nextjs/twitter-card.png',
+      },
+    ],
   },
 };

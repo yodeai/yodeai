@@ -349,7 +349,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
           </div>
   
           {isLoadingContent ? (
-            <p>Loading content...</p>
+            <p>Updating google doc content...</p>
           ) : (
             <div className="min-w-full mt-1">
               <div className="prose text-gray-600">

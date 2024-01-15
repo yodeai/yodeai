@@ -1,6 +1,6 @@
 import '@mantine/core/styles.css';
-import 'mantine-contextmenu/styles.css';
 import "./globals.css";
+import 'mantine-contextmenu/styles.css';
 
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
