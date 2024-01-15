@@ -49,19 +49,27 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
   const [isSaved, setIsSaved] = useState(false);
   const [googleDocId, setGoogleDocId] = useState(block?.google_doc_id || null)
   const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || 'global')
-  useEffect(() => {
-    const updateGoogleDocContent = async() => {
-      if (documentType == 'google_doc') {
-        // bring in updated content
-        let content = await fetchGoogleDocContent(block.google_doc_id);
-        setContent(content)
-        setOldContent(content)
-      }
-      if (!block || block.google_user_id == 'global') setGoogleUserId(await getUserInfo());
-    }
-    updateGoogleDocContent();
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
 
-  }, [])
+  useEffect(() => {
+    const updateGoogleDocContent = async () => {
+      if (documentType === 'google_doc' && googleUserId != null) {
+        setIsLoadingContent(true); // Set loading state when fetching content
+        try {
+          // bring in updated content
+          let fetchedContent = await fetchGoogleDocContent(block.google_doc_id);
+          setContent(fetchedContent);
+          setOldContent(fetchedContent);
+        } finally {
+          setIsLoadingContent(false); // Reset loading state after content is fetched
+        }
+      }
+      if (!block || block.google_user_id === 'global') setGoogleUserId(await getUserInfo());
+    };
+
+    updateGoogleDocContent();
+  }, [documentType, block]);
+
   //let controller;
   const saveContent = async (delay = 180) => {
     console.log("delay", delay)
@@ -106,16 +114,29 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
           let data = await response.json()
           google_doc_id = data["google_doc_id"]
           setGoogleDocId(google_doc_id)
-          console.log("created google doc")
+          console.log("created google doc", google_doc_id)
         }
       }
+      let oldContent = ""
+      const contentResponse = await fetch(`/api/google/fetchDocContent/${google_doc_id}`)
+      if (contentResponse.ok) {
+        // Assuming the document content is in plain text
+        const content = await contentResponse.json();
+        console.log("HI", oldContent)
+        oldContent = content.data
+      } else {
+        console.log("RESPONSE", googleDocId, contentResponse)
+        console.error("Failed to fetch Google Doc content:", contentResponse.statusText);
+        return false;
+      }
+      
       const response = await fetch(`/api/google/updateDoc`, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',
         // Add any other necessary headers, such as authorization, if required
       },
-      body: JSON.stringify({ google_doc_id, content, title, oldContent })})
+      body: JSON.stringify({ google_doc_id, content, oldContent, title })})
       if (!response.ok) {
         console.error("Error updating google doc")
       } else {
@@ -260,7 +281,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
               >
                 <FaCheck size={14} />
               </ActionIcon>
-
+  
               {block && (
                 <ActionIcon
                   onClick={handleDelete}
@@ -274,100 +295,86 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
                 </ActionIcon>
               )}
             </Flex>
-
-
           </div>
         </>
-
       ) : (
-        <>
         <div className="flex flex-col w-full">
-
           <div className="flex justify-between items-center w-full">
             <TextInput
-            label="Title"
+              label="Title"
               style={{ flex: 1 }}
               size="xs"
               value={title || ""}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
-                  </div>
-
-
-<div className="flex justify-between items-center w-full">
-        <Select
-        label="Block Type"
-        data={[
-          { label: "Note", value: "note" },
-          { label: "Google Doc", value: "google_doc" },
-          // Add more document types as needed
-        ].filter(option => googleUserId != null || option.value !== "google_doc")}
-        value={documentType}
-        onChange={(value) => setDocumentType(value)}
-      />
-      </div>
-
-            <div className="flex gap-2">
-              {isSaving && (
-                <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                  <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
-                </Flex>
-              )}
-              {isSaved && (
-                <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                  <FaCheckCircle style={{ marginRight: 4 }} /> Saved
-                </Flex>
-              )}
-              {block && (
-                <ActionIcon
-                  onClick={handleDelete}
-                  size="md"
-                  color="red"
-                  variant="gradient"
-                  ml={5}
-                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                >
-                  <FaTrashAlt size={14} />
-                </ActionIcon>
-              )}
-            </div>
           </div>
-
-
-          <div className="min-w-full mt-1">
-            <div className="prose text-gray-600">
-              <DynamicSimpleMDE
-                value={content}
-                onChange={setContent}
-              />
-            </div>
-
-
-            {
-              <div>
-              <Button
-                style={{ flex: 1, width: "100%", height: 30 }}
-                onClick={handleSaveAndNavigate}
+  
+          <div className="flex justify-between items-center w-full">
+            <Select
+              label="Block Type"
+              data={[
+                { label: "Note", value: "note" },
+                { label: "Google Doc", value: "google_doc" },
+                // Add more document types as needed
+              ].filter(option => googleUserId != null || option.value !== "google_doc")}
+              value={documentType}
+              onChange={(value) => setDocumentType(value)}
+            />
+          </div>
+  
+          <div className="flex gap-2">
+            {isSaving && (
+              <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
+              </Flex>
+            )}
+            {isSaved && (
+              <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                <FaCheckCircle style={{ marginRight: 4 }} /> Saved
+              </Flex>
+            )}
+            {block && (
+              <ActionIcon
+                onClick={handleDelete}
+                size="md"
+                color="red"
                 variant="gradient"
-                gradient={{ from: 'green', to: 'lime', deg: 150 }}
-                disabled={isSaving}
+                ml={5}
+                gradient={{ from: 'red', to: 'pink', deg: 255 }}
               >
-                {isSaving ? (
-                  // Display loading indicator while saving
-                  "Saving..."
-                ) : (
-                  // Display "Save" text when not saving
-                  "Save"
-                )}
-              </Button>
-              </div>
-            }
-
+                <FaTrashAlt size={14} />
+              </ActionIcon>
+            )}
           </div>
-        </>
+  
+          {isLoadingContent ? (
+            <p>Loading content...</p>
+          ) : (
+            <div className="min-w-full mt-1">
+              <div className="prose text-gray-600">
+                <DynamicSimpleMDE
+                  value={content}
+                  onChange={setContent}
+                />
+              </div>
+  
+              <div>
+                <Button
+                  style={{ flex: 1, width: "100%", height: 30 }}
+                  onClick={handleSaveAndNavigate}
+                  variant="gradient"
+                  gradient={{ from: 'green', to: 'lime', deg: 150 }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
-
     </div>
   );
+  
 }

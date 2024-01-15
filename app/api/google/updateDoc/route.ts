@@ -2,12 +2,12 @@ import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'cookie';
 
-async function replaceContent(googleDocId, content, oldContent, accessToken, title) {
+async function replaceContent(googleDocId, content, oldContent, accessToken, title, req) {
   try {
-
     let requests = [];
+    console.log("old content", oldContent, "new content", content)
 
-    if (oldContent !== null && oldContent !== "") {
+    if (oldContent != null && oldContent !== "") {
       // Replace existing text
       requests.push({
         replaceAllText: {
@@ -94,7 +94,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Replace/insert content and update title
-    const success = await replaceContent(google_doc_id, content, oldContent, accessToken, title);
+    const success = await replaceContent(google_doc_id, content, oldContent, accessToken, title, req);
 
     if (success) {
       return new NextResponse(JSON.stringify({ success: true }), { status: 200 });
