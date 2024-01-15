@@ -14,7 +14,7 @@ export const Breadcrumb = ({ loading, breadcrumbs }: BreadcrumbProps) => {
         {loading && <LoadingSkeleton boxCount={1} lineHeight={30} w={"300px"} />}
         {!loading && breadcrumbs.length && <>
             <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />
-            <Breadcrumbs separatorMargin={5} className="z-50">{
+            <Breadcrumbs separatorMargin={5} className="z-50 select-none">{
                 breadcrumbs.map(({ title, href }, index) => (
                     <Fragment key={index}>
                         {href
