@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import Whiteboard from '@components/Whiteboard';
 import { Database } from "app/_types/supabase";
 import { ReactFlowProvider, } from 'reactflow';
+import { redirect } from "next/navigation";
 
 type WhiteboardPageProps = {
     params: { whiteboard_id: number }
@@ -23,9 +24,12 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
         .from("whiteboard")
         .select("*")
         .eq("whiteboard_id", whiteboard_id)
+        .eq("owner_id", user.id)
         .single();
 
-    if (error) return <p>Error: {error.message}</p>
+    if (error) {
+        redirect("/notFound");
+    }
 
     return <Whiteboard data={data} />
 }

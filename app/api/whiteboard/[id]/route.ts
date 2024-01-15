@@ -74,6 +74,7 @@ export async function GET(request: NextRequest, { params, }: { params: { id: str
       .from("whiteboard")
       .select("whiteboard_id, name")
       .eq('whiteboard_id', whiteboard_id)
+      .eq('owner_id', user.id)
       .single();
 
     // Check for errors
