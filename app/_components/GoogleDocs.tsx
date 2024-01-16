@@ -7,6 +7,7 @@ import { checkGoogleAccountConnected, getUserInfo, fetchGoogleDocContent } from 
 import toast from "react-hot-toast";
 import load from "@lib/load";
 import { RequestBodyType } from "@api/types";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
@@ -15,13 +16,17 @@ export default function GoogleDocs() {
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const router = useRouter();
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     const fetchAndCheckGoogle = async () => {
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected)
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
     };
-  
+    
     fetchAndCheckGoogle();
     
   }, []);
@@ -56,8 +61,10 @@ export default function GoogleDocs() {
       viewId: "DOCUMENTS",
       customScopes: ['https://www.googleapis.com/auth/drive'],
       callbackFunction: (data) => {
-        if (data.action == "picked")
-        setSelectedGoogleDriveFile(data["docs"][0])
+        if (data.action == "picked") {
+          let selectedFile = data["docs"][0]
+          setSelectedGoogleDriveFile(selectedFile)
+        }
       },
     })
   } catch {
@@ -67,6 +74,24 @@ export default function GoogleDocs() {
 
 
   const saveFile = async() => {
+    // check if selected file was already imported
+    const { data, error } = await supabase
+    .from('block')
+    .select('google_doc_id') // Replace with the actual column you want to check
+    .eq('google_doc_id', selectedGoogleDriveFile.id).eq("owner_id", user?.id);
+
+    if (error) {
+      console.error('Error checking Google Doc ID existence:', error.message);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log('ID exists.');
+      toast.error("You cannot import a google doc that has already been imported into Yodeai")
+      return;
+    } else {
+      console.log('ID does not exist.');
+    }
     // check if still connected
     const connected = await checkGoogleAccountConnected();
     if (!connected){
@@ -128,8 +153,6 @@ export default function GoogleDocs() {
                 {selectedGoogleDriveFile && (
         <div>
           <p>Selected Google Doc: {selectedGoogleDriveFile.name}</p>
-          <Button onClick={saveFile}> Save </Button>
-
         </div>
       )}
       {/* Google Drive file picker button */}
@@ -139,6 +162,12 @@ export default function GoogleDocs() {
 
         </div>
       ) : null}
+      <div className="mt-1">
+      {selectedGoogleDriveFile && (
+                  <Button onClick={saveFile}> Save </Button>
+
+      )}
+      </div>
 
 
     </div>
