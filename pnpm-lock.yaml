@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@catppuccin/highlightjs':
     specifier: ^0.1.2
@@ -103,6 +107,9 @@ dependencies:
   aws-sdk:
     specifier: ^2.1472.0
     version: 2.1507.0
+  axios:
+    specifier: ^1.6.5
+    version: 1.6.5
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
@@ -112,6 +119,9 @@ dependencies:
   concurrently:
     specifier: ^8.2.0
     version: 8.2.2
+  cookie:
+    specifier: ^0.6.0
+    version: 0.6.0
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
@@ -150,7 +160,7 @@ dependencies:
     version: 0.13.0
   langchain:
     specifier: ^0.0.128
-    version: 0.0.128(@huggingface/inference@1.8.0)(@mozilla/readability@0.4.4)(@supabase/supabase-js@2.39.0)(encoding@0.1.13)(jsdom@23.0.0)
+    version: 0.0.128(@huggingface/inference@1.8.0)(@mozilla/readability@0.4.4)(@supabase/supabase-js@2.39.0)(axios@1.6.5)(encoding@0.1.13)(jsdom@23.0.0)
   lowlight:
     specifier: ^2.9.0
     version: 2.9.0
@@ -178,6 +188,12 @@ dependencies:
   react-dropzone:
     specifier: ^14.2.3
     version: 14.2.3(react@18.2.0)
+  react-google-drive-picker:
+    specifier: ^1.2.2
+    version: 1.2.2(react-dom@18.2.0)(react@18.2.0)
+  react-google-picker:
+    specifier: ^0.1.0
+    version: 0.1.0(react@18.2.0)
   react-gravatar:
     specifier: ^2.6.3
     version: 2.6.3(react@18.2.0)
@@ -2501,6 +2517,16 @@ packages:
       - debug
     dev: false
 
+  /axios@1.6.5:
+    resolution: {integrity: sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==}
+    dependencies:
+      follow-redirects: 1.15.4
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /axobject-query@3.2.1:
     resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
     dependencies:
@@ -2912,6 +2938,11 @@ packages:
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 17.7.2
+    dev: false
+
+  /cookie@0.6.0:
+    resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
+    engines: {node: '>= 0.6'}
     dev: false
 
   /copy-descriptor@0.1.1:
@@ -4029,6 +4060,16 @@ packages:
         optional: true
     dev: false
 
+  /follow-redirects@1.15.4:
+    resolution: {integrity: sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
     dependencies:
@@ -5002,7 +5043,7 @@ packages:
     engines: {node: '>= 8'}
     dev: false
 
-  /langchain@0.0.128(@huggingface/inference@1.8.0)(@mozilla/readability@0.4.4)(@supabase/supabase-js@2.39.0)(encoding@0.1.13)(jsdom@23.0.0):
+  /langchain@0.0.128(@huggingface/inference@1.8.0)(@mozilla/readability@0.4.4)(@supabase/supabase-js@2.39.0)(axios@1.6.5)(encoding@0.1.13)(jsdom@23.0.0):
     resolution: {integrity: sha512-HNXF1xOBJAyvVJtIPhiIF/U78qddl7ZXolEHtRurxkSXsrFtFi1KiJJLC0NPN3MwiprckLRHWmW2YLKWjL3sfw==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -5219,6 +5260,7 @@ packages:
       '@mozilla/readability': 0.4.4
       '@supabase/supabase-js': 2.39.0
       ansi-styles: 5.2.0
+      axios: 1.6.5
       binary-extensions: 2.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
@@ -5293,6 +5335,10 @@ packages:
 
   /linkifyjs@4.1.3:
     resolution: {integrity: sha512-auMesunaJ8yfkHvK4gfg1K0SaKX/6Wn9g2Aac/NwX+l5VdmFZzo/hdPGxEOETj+ryRa4/fiOPjeeKURSAJx1sg==}
+    dev: false
+
+  /load-script@1.0.0:
+    resolution: {integrity: sha512-kPEjMFtZvwL9TaZo0uZ2ml+Ye9HUMmPwbYRJ324qF9tqMejwykJ5ggTyvzmrbBeapCAbk98BSbTeovHEEP1uCA==}
     dev: false
 
   /locate-path@6.0.0:
@@ -6701,6 +6747,10 @@ packages:
       long: 4.0.0
     dev: false
 
+  /proxy-from-env@1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+    dev: false
+
   /psl@1.9.0:
     resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
     dev: false
@@ -6808,6 +6858,25 @@ packages:
       attr-accept: 2.2.2
       file-selector: 0.6.0
       prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
+  /react-google-drive-picker@1.2.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-x30mYkt9MIwPCgL+fyK75HZ8E6G5L/WGW0bfMG6kbD4NG2kmdlmV9oH5lPa6P6d46y9hj5Y3btAMrZd4JRRkSA==}
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-google-picker@0.1.0(react@18.2.0):
+    resolution: {integrity: sha512-0y3TtinsdNwEx77Upsmh7Q4bXuBt/d/KntQDNxLOIf2v77UQQi0FBYAtAkjrkP28IOX7gfcXhdY5XXZRGHSODw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      load-script: 1.0.0
       react: 18.2.0
     dev: false
 
@@ -8706,7 +8775,3 @@ packages:
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

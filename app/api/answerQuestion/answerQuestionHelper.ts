@@ -104,13 +104,6 @@ export const getAnswerForQuestion = async (question: string, whatsappDetails?: {
     if (error) {
         console.error("Error inserting into database:", error);
     }
-
-
-    console.log("HERE WE GO:");
-    console.log(insertData.answer_preview);
-    console.log("full: ");
-    console.log(insertData.answer_full);
-    // Return answer_preview, answer_full
     return {
         answer_preview: insertData.answer_preview,
         answer_full: insertData.answer_full,

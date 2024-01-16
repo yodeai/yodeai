@@ -39,4 +39,7 @@ export type Block = {
   preview: string;
   lens_blocks: LensBlock;
   accessLevel?: string;
+  google_doc_id: string;
+  google_user_id: string;
+  current_editor: string;
 }

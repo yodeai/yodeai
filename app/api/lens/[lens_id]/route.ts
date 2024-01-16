@@ -8,7 +8,6 @@ export async function PUT(request: NextRequest, { params,}: {params: { lens_id: 
     const supabase = createServerComponentClient({ cookies });
     const { name } = await request.json();
     const lens_id = Number(params.lens_id);
-    console.log("name: ", name, "lens_id: ", lens_id);
     // Validate the id
     if (isNaN(lens_id)) {
       return notOk("Invalid ID");
