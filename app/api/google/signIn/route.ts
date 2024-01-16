@@ -1,4 +1,4 @@
-import { serialize } from 'cookie';
+import { CookieSerializeOptions, serialize } from 'cookie';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -16,10 +16,10 @@ export async function POST(req) {
     )
     }
     // Set the cookie options, including httpOnly: true
-    const cookieOptions = {
+    const cookieOptions: CookieSerializeOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production', // Set to true in production for secure (HTTPS) connections
-      sameSite: 'Strict', 
+      sameSite: 'strict', 
       maxAge: expire_seconds, 
       path: '/',
 
