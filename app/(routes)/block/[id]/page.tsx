@@ -104,6 +104,10 @@ export default function Block({ params }: { params: { id: string } }) {
 
   const handleEditing = async (startEditing) => {
     try {
+      if (block.block_type == "google_doc") {
+        toast("Do not edit this block on the external Google Docs site while you edit on Yodeai.", {duration: 6000})
+      
+      }
       if (!startEditing) {
           updateCurrentEditor(null)
         
@@ -182,7 +186,7 @@ export default function Block({ params }: { params: { id: string } }) {
     <main className="container">
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
-        <Divider mb={0} size={1.5} label={<Text size={"sm"} c="gray.7">Block Type: {block.block_type} </Text>} labelPosition="center" />
+        <Divider mb={0} variant="dashed"size={1.5} label={<Text size={"sm"} c="gray.7">{block.block_type} </Text>} labelPosition="center" />
         {!isEditing ? (
           <>
             <div className="p-2 pt-0 flex flex-col w-full">

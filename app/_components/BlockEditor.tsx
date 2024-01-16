@@ -314,31 +314,15 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
         </>
       ) : (
         <div className="flex flex-col w-full">
-          <div className="flex justify-between items-center w-full">
-            <TextInput
-              label="Title"
-              style={{ flex: 1 }}
-              size="xs"
-              value={title || ""}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title..."
-            />
-          </div>
-  
-          <div className="flex justify-between items-center w-full">
-            <Select
-              label="Block Type"
-              data={[
-                { label: "Note", value: "note" },
-                { label: "Google Doc", value: "google_doc" },
-                // Add more document types as needed
-              ].filter(option => googleUserId != null || option.value !== "google_doc")}
-              value={documentType}
-              onChange={(value) => setDocumentType(value)}
-            />
-          </div>
-  
-          <div className="flex gap-2">
+            <div className="flex justify-between items-center w-full">
+              <TextInput
+                style={{ flex: 1 }}
+                size="xs"
+                value={title || ""}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter title..."
+              />
+            <div className="flex gap-2">
             {isSaving && (
               <Flex miw={40} ml={10} align={"center"} c={"green"}>
                 <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
@@ -362,6 +346,21 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
               </ActionIcon>
             )}
           </div>
+          </div>
+
+            <div className="flex justify-between items-center w-full mt-1">
+              <Select
+                size="xs"
+                data={[
+                  { label: "Note", value: "note" },
+                  { label: "Google Doc", value: "google_doc" },
+                  // Add more document types as needed
+                ].filter(option => googleUserId != null || option.value !== "google_doc")}
+                value={documentType}
+                onChange={(value) => setDocumentType(value)}
+              />
+            </div>
+
   
           {isLoadingContent ? (
             <p>Updating google doc content...</p>
