@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { parse } from 'cookie';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET(req, { params }: { params: { documentId: string }; }){
   try {
