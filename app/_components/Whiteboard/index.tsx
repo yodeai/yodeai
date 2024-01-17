@@ -16,7 +16,7 @@ import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "@utils/hooks";
 import { ImSpinner8 } from "react-icons/im";
 import { Text } from "@mantine/core";
-import nodeTypes, { defaultValues } from './Nodes';
+import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
 
@@ -57,8 +57,8 @@ function Whiteboard({ data }: WhiteboardProps) {
             id: uuid(),
             type,
             position,
-            height: 200,
-            width: 200,
+            height: defaultNodeProps[type].height || 200,
+            width: defaultNodeProps[type].width || 200,
             data: defaultValues[type]
         };
 
@@ -135,7 +135,7 @@ function Whiteboard({ data }: WhiteboardProps) {
         </div>}
         <ReactFlow
             className="flex-1"
-            minZoom={0.5}
+            minZoom={0.1}
             maxZoom={4}
             ref={$whiteboard}
             fitView

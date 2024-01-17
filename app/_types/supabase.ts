@@ -16,6 +16,7 @@ export interface Database {
           block_type: string
           content: string | null
           created_at: string
+          current_editor: string | null
           file_url: string | null
           google_doc_id: string | null
           google_user_id: string | null
@@ -34,6 +35,7 @@ export interface Database {
           block_type: string
           content?: string | null
           created_at?: string
+          current_editor?: string | null
           file_url?: string | null
           google_doc_id?: string | null
           google_user_id?: string | null
@@ -52,6 +54,7 @@ export interface Database {
           block_type?: string
           content?: string | null
           created_at?: string
+          current_editor?: string | null
           file_url?: string | null
           google_doc_id?: string | null
           google_user_id?: string | null
@@ -65,6 +68,13 @@ export interface Database {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "block_current_editor_fkey"
+            columns: ["current_editor"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["email"]
+          },
           {
             foreignKeyName: "block_owner_id_fkey"
             columns: ["owner_id"]
@@ -1014,6 +1024,7 @@ export interface Database {
           name: string
           nodes: Json | null
           owner_id: string
+          params: Json | null
           updated_at: string
           whiteboard_id: number
         }
@@ -1024,6 +1035,7 @@ export interface Database {
           name: string
           nodes?: Json | null
           owner_id?: string
+          params?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1034,6 +1046,7 @@ export interface Database {
           name?: string
           nodes?: Json | null
           owner_id?: string
+          params?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1167,11 +1180,42 @@ export interface Database {
           similarity: number
         }[]
       }
+      get_top_chunks_for_inbox_google: {
+        Args: {
+          userid: string
+          googleid: string
+          query_embedding: string
+          match_count: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
       get_top_chunks_for_lens: {
         Args: {
           lensid: number
           match_count: number
           query_embedding: string
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      get_top_chunks_for_lens_google: {
+        Args: {
+          user_id: string
+          googleid: string
+          query_embedding: string
+          match_count: number
+          lensid: number
         }
         Returns: {
           chunk_id: number
@@ -1200,6 +1244,21 @@ export interface Database {
           match_count: number
           query_embedding: string
           id: string
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      get_top_chunks_google: {
+        Args: {
+          user_id: string
+          googleid: string
+          query_embedding: string
+          match_count: number
         }
         Returns: {
           chunk_id: number

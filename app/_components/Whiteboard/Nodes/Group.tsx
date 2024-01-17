@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from 'react'
+import React, { memo } from 'react'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
 import { NodeProps } from 'reactflow'
@@ -6,52 +6,26 @@ import { cn } from '@utils/style'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
-export const defaultValues: StickyNoteProps["data"] = {
-    text: "Sticky Note",
-    color: "#ffd43b"
-}
-
+export const defaultValues: StickyNoteProps["data"] = undefined;
 export const defaultNodeProps: { height: number; width: number } = {
     height: 200,
     width: 200
 }
-
 export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
-    const [text, setText] = useState(data.text);
-    const $textarea = useRef(null);
-
-    const handleChange = (event) => {
-        setText(event.target.value);
-    };
-
-    const handleBlur = () => {
-        updateNode({ text });
-    };
-
     return <ResizableNode selected={selected}>
         <ColorPicker
             handleColorChange={(color) => updateNode({ color })}
             value={node.data.color}
             selected={selected}
         />
-        <div className="shadow-md rounded-md"
+        <div
             style={{
                 backgroundColor: node.data.color,
-            }}>
-            <textarea
-                style={{
-                    backgroundColor: "transparent",
-                    height: node.height || 200,
-                    width: node.width || 200,
-                    fontSize: 9
-                }}
-                ref={$textarea}
-                className="border-none m-0 resize-none block w-full"
-                value={text}
-                onChange={handleChange}
-                onBlur={handleBlur}
-            />
-        </div>
+                opacity: 0.1,
+                height: node.height || 200,
+                width: node.width || 200
+            }}
+            className="rounded-lg shadow-md border-gray-500 bg-opacity-40"></div>
     </ResizableNode>
 });
 
@@ -70,7 +44,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
     ]
 
     return <div className={cn(
-        "absolute -top-12 border border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
+        "absolute -top-12 left-0 border border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
         selected ? "flex" : "hidden"
     )}>
         {colors.map(color =>

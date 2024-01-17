@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard} from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaGear, FaUsersGear} from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -9,9 +9,9 @@ import { Layout, Layouts } from "react-grid-layout";
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout, Subspace, Lens, Whiteboard } from "app/_types/lens";
+import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaHome, FaICursor, FaShare } from "react-icons/fa";
+import { FaCog, FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
@@ -66,7 +66,10 @@ export default function IconLayoutComponent({
     whiteboard: <FaChalkboard size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
-    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />
+    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
+    plugins: {
+      userInsight: <FaUsersGear size={32} color="#888888" />
+    }
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
@@ -76,7 +79,7 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: (Block | Subspace | Lens | Whiteboard)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
+  const items: (Block | Subspace | Lens | Tables<"whiteboard">)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -153,7 +156,7 @@ export default function IconLayoutComponent({
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const [itemType, itemId] = newItem.i.split("_") as [
       "bl" | "ss" | "wb",
-      Block["block_id"] | Subspace["lens_id"] | Whiteboard["whiteboard_id"]
+      Block["block_id"] | Subspace["lens_id"] | Tables<"whiteboard">["whiteboard_id"]
     ];
 
     const now = Date.now();
@@ -215,11 +218,12 @@ export default function IconLayoutComponent({
     if ("whiteboard_id" in item) {
       key = `wb_${item.whiteboard_id}`;
       item_id = item.whiteboard_id;
+      const icon = (item.params as any).plugin === "user-insight" ? fileTypeIcons.plugins.userInsight : fileTypeIcons.whiteboard;
       content = <WhiteboardIconItem
         handleWhiteboardDelete={handleWhiteboardDelete}
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
-        icon={fileTypeIcons.whiteboard} whiteboard={item} />
+        icon={icon} whiteboard={item} />
     } else if ("lens_id" in item) {
       key = `ss_${item.lens_id}`;
       item_id = item.lens_id;
@@ -659,7 +663,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
 
 type WhiteboardIconItemProps = {
   icon: JSX.Element,
-  whiteboard: Whiteboard
+  whiteboard: Tables<"whiteboard">
   selected?: boolean;
   unselectBlocks?: () => void
   handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
