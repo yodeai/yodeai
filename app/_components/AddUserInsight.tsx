@@ -1,14 +1,12 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { useState } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Group, Modal, Text, TextInput, LoadingOverlay, Box, Textarea } from '@mantine/core';
+import { Button, Flex, Modal, Text,  LoadingOverlay,  Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import toast from 'react-hot-toast';
 
-import WhiteboardMockData from 'app/_assets/whiteboard.mock.json';
+import WhiteboardMockData from 'app/_assets/whiteboard.mock.raw.json';
 
 type AddUserInsightProps = {
   lensId: number;
@@ -31,9 +29,9 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
           name: "User Insight",
           lens_id: lensId,
           payload: WhiteboardMockData,
-          params: {
-            plugin: "user-insight",
-            viewLock: true
+          plugin: {
+            name: "user-insight",
+            rendered: false
           }
         }),
       });

@@ -1016,6 +1016,71 @@ export interface Database {
         }
         Relationships: []
       }
+      web_content_block: {
+        Row: {
+          block_id: number
+          content: string | null
+          created_at: string
+          parent_url: string | null
+          url: string | null
+        }
+        Insert: {
+          block_id?: number
+          content?: string | null
+          created_at?: string
+          parent_url?: string | null
+          url?: string | null
+        }
+        Update: {
+          block_id?: number
+          content?: string | null
+          created_at?: string
+          parent_url?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
+      web_content_chunk: {
+        Row: {
+          block_id: number | null
+          chunk_id: number
+          chunk_type: string | null
+          content: string | null
+          created_at: string
+          embedding: string | null
+          parent_url: string | null
+          url: string | null
+        }
+        Insert: {
+          block_id?: number | null
+          chunk_id?: number
+          chunk_type?: string | null
+          content?: string | null
+          created_at?: string
+          embedding?: string | null
+          parent_url?: string | null
+          url?: string | null
+        }
+        Update: {
+          block_id?: number | null
+          chunk_id?: number
+          chunk_type?: string | null
+          content?: string | null
+          created_at?: string
+          embedding?: string | null
+          parent_url?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_content_chunk_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "web_content_block"
+            referencedColumns: ["block_id"]
+          }
+        ]
+      }
       whiteboard: {
         Row: {
           created_at: string
@@ -1024,7 +1089,7 @@ export interface Database {
           name: string
           nodes: Json | null
           owner_id: string
-          params: Json | null
+          plugin: Json | null
           updated_at: string
           whiteboard_id: number
         }
@@ -1035,7 +1100,7 @@ export interface Database {
           name: string
           nodes?: Json | null
           owner_id?: string
-          params?: Json | null
+          plugin?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1046,7 +1111,7 @@ export interface Database {
           name?: string
           nodes?: Json | null
           owner_id?: string
-          params?: Json | null
+          plugin?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1177,6 +1242,20 @@ export interface Database {
           block_id: number
           content: string
           metadata: Json
+          similarity: number
+        }[]
+      }
+      get_top_chunks_for_competitive_analysis: {
+        Args: {
+          parenturl: string
+          queryembedding: string
+          matchcount: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          url: string
           similarity: number
         }[]
       }

@@ -1,0 +1,69 @@
+{
+    "insights": [
+        {
+            "user": {
+                "id": "user1",
+                "name": "Alice",
+                "info": ""
+            },
+            "data": [
+                {
+                    "topicKey": "topic1",
+                    "topicName": "Topic 1",
+                    "comments": [
+                        {
+                            "id": "comment1",
+                            "comment": "Comment 1"
+                        },
+                        {
+                            "id": "comment2",
+                            "comment": "Comment 2"
+                        }
+                    ]
+                },
+                {
+                    "topicKey": "topic2",
+                    "topicName": "Topic 2",
+                    "comments": [
+                        {
+                            "id": "comment3",
+                            "comment": "Comment 3"
+                        },
+                        {
+                            "id": "comment4",
+                            "comment": "Comment 4"
+                        }
+                    ]
+                },
+                {
+                    "topicKey": "topic3",
+                    "topicName": "Topic 3",
+                    "comments": [
+                        {
+                            "id": "comment5",
+                            "comment": "Comment 5"
+                        },
+                        {
+                            "id": "comment6",
+                            "comment": "Comment 6"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "summary": {
+        "topics": [{
+            "key": "topic1",
+            "name": "Topic 1"
+        }],
+        "users": [{
+            "id": "user1",
+            "name": "Alice",
+            "topicSummary": {
+                "topicKey": "topic1",
+                "summary": "Comment 1, Comment 2"
+            }
+        }]
+    }
+}

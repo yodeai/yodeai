@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     if (!user.data.user.id) return notOk('User not found');
 
     try {
-        const { name, lens_id, payload, params = {} } = await request.json();
+        const { name, lens_id, payload, plugin } = await request.json();
         if (!name) return notOk('Name is required');
         if (!payload) return notOk('Payload is required');
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
                     name: name,
                     lens_id: lens_id,
                     owner_id: user.data.user.id,
-                    params,
+                    plugin,
                     nodes: payload
                 }
             ]).select();

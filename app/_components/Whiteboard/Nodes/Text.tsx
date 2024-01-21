@@ -13,8 +13,8 @@ export const defaultValues: StickyNoteProps["data"] = {
 
 }
 export const defaultNodeProps: { height: number; width: number } = {
-    height: 5,
-    width: 10
+    height: 40,
+    width: 60
 }
 
 export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
@@ -33,8 +33,8 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
         <div className="rounded-lg">
             <textarea
                 style={{
-                    height: node.height || 5,
-                    width: node.width || 10,
+                    height: node.height || 50,
+                    width: node.width || 100,
                     fontSize: node.data.size
                 }}
                 ref={$textarea}

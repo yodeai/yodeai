@@ -2,7 +2,7 @@
 
 import { uuid } from 'uuidv4';
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { Tables } from "app/_types/supabase"
 import ReactFlow, {
     ReactFlowProvider,
@@ -19,18 +19,28 @@ import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
+import { WhiteboardPluginParams, WhiteboardPlugins } from 'app/_types/whiteboard';
+import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 
 type WhiteboardProps = {
-    data: Tables<"whiteboard">
+    data: Tables<"whiteboard"> & {
+        plugin?: WhiteboardPluginParams
+    }
+}
+
+const getWhiteboardNodes = (whiteboard: WhiteboardProps["data"]) => {
+    if (!whiteboard.plugin || whiteboard.plugin.rendered) return whiteboard.nodes as any || [];
+    return whiteboardPluginRenderers[whiteboard.plugin.name]
+        .render(whiteboard.nodes as any)
 }
 
 function Whiteboard({ data }: WhiteboardProps) {
-    const [nodes, setNodes, onNodesChange] = useNodesState(data.nodes as any || []);
+    const [nodes, setNodes, onNodesChange] = useNodesState(getWhiteboardNodes(data));
     const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges as any || []);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [menu, setMenu] = useState(null);
-    const [whiteboard, setWhiteboard] = useState<Tables<"whiteboard">>(data);
+    const [whiteboard, setWhiteboard] = useState(data);
     const $whiteboard = useRef(null);
     const router = useRouter();
 
@@ -126,6 +136,9 @@ function Whiteboard({ data }: WhiteboardProps) {
     }, [nodes, edges])
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+
+    const renderedNodes = useMemo(() => {
+    }, [whiteboard.whiteboard_id, nodes]);
 
     return <div className="w-full h-full relative flex flex-col">
         <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />

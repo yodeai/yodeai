@@ -218,7 +218,7 @@ export default function IconLayoutComponent({
     if ("whiteboard_id" in item) {
       key = `wb_${item.whiteboard_id}`;
       item_id = item.whiteboard_id;
-      const icon = (item.params as any).plugin === "user-insight" ? fileTypeIcons.plugins.userInsight : fileTypeIcons.whiteboard;
+      const icon = (item.plugin as any)?.name === "user-insight" ? fileTypeIcons.plugins.userInsight : fileTypeIcons.whiteboard;
       content = <WhiteboardIconItem
         handleWhiteboardDelete={handleWhiteboardDelete}
         selected={selectedItems.includes(item_id)}
