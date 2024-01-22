@@ -1,7 +1,7 @@
 // pages/api/googleAuth.js
 import axios from 'axios';
 import { NextResponse, NextRequest } from 'next/server';
-import { serialize } from 'cookie';
+import { CookieSerializeOptions, serialize } from 'cookie';
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,13 +37,12 @@ export async function POST(req: NextRequest) {
             )
         }
         // Set the cookie options, including httpOnly: true
-        const cookieOptions = {
+        const cookieOptions: CookieSerializeOptions = {
           httpOnly: true,
           secure: process.env.NODE_ENV == 'production', // Set to true in production for secure (HTTPS) connections
-          sameSite: 'Strict', 
+          sameSite: 'strict', 
           maxAge: expire_seconds, 
-          path: '/',
-    
+          path: '/'
         };
     
         // Serialize the cookie

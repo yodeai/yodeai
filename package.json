@@ -41,6 +41,8 @@
     "@tiptap/extension-typography": "^2.1.7",
     "@tiptap/react": "^2.1.7",
     "@tiptap/starter-kit": "^2.1.7",
+    "@types/axios": "^0.14.0",
+    "@types/cookie": "^0.6.0",
     "@xenova/transformers": "^2.6.0",
     "aws-sdk": "^2.1472.0",
     "axios": "^1.6.5",
