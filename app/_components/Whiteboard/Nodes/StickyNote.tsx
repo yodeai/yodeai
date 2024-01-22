@@ -6,6 +6,11 @@ import { cn } from '@utils/style'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
+export type StickyNoteValueType = {
+    text: string
+    color: string
+}
+
 export const defaultValues: StickyNoteProps["data"] = {
     text: "Sticky Note",
     color: "#ffd43b"
@@ -74,7 +79,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
         selected ? "flex" : "hidden"
     )}>
         {colors.map(color =>
-            <div onClick={handleColorChange.bind(null, color.value)}
+            <div key={color.value} onClick={handleColorChange.bind(null, color.value)}
                 className={cn("h-5 w-5 rounded-full", color.value === value && "border-2 border-gray-800 outline-2")}
                 style={{ backgroundColor: color.value }}></div>)}
     </div>

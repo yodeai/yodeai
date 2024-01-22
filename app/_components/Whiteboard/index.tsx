@@ -1,9 +1,7 @@
 'use client';
 
-import { uuid } from 'uuidv4';
-
+import { v4 as uuidv4 } from 'uuid';
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { Tables } from "app/_types/supabase"
 import ReactFlow, {
     ReactFlowProvider,
     useNodesState, useEdgesState, addEdge,
@@ -19,22 +17,17 @@ import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
-import { WhiteboardPluginParams, WhiteboardPlugins } from 'app/_types/whiteboard';
+import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 
-type WhiteboardProps = {
-    data: Tables<"whiteboard"> & {
-        plugin?: WhiteboardPluginParams
-    }
-}
 
-const getWhiteboardNodes = (whiteboard: WhiteboardProps["data"]) => {
+const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard.plugin || whiteboard.plugin.rendered) return whiteboard.nodes as any || [];
     return whiteboardPluginRenderers[whiteboard.plugin.name]
         .render(whiteboard.nodes as any)
 }
 
-function Whiteboard({ data }: WhiteboardProps) {
+function Whiteboard({ data }: WhiteboardComponentProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState(getWhiteboardNodes(data));
     const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges as any || []);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -64,7 +57,7 @@ function Whiteboard({ data }: WhiteboardProps) {
         });
 
         const newNode: Node = {
-            id: uuid(),
+            id: uuidv4(),
             type,
             position,
             height: defaultNodeProps[type].height || 200,
@@ -94,7 +87,9 @@ function Whiteboard({ data }: WhiteboardProps) {
         fetch(`/api/whiteboard/${data.whiteboard_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nodes, edges })
+            body: JSON.stringify({
+                nodes, edges, plugin: { ...data.plugin as any, rendered: true }
+            })
         })
             .then(res => res.json())
             .catch(err => console.error(err))
@@ -137,9 +132,6 @@ function Whiteboard({ data }: WhiteboardProps) {
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
-    const renderedNodes = useMemo(() => {
-    }, [whiteboard.whiteboard_id, nodes]);
-
     return <div className="w-full h-full relative flex flex-col">
         <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
         {isSaving && <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
@@ -173,7 +165,7 @@ function Whiteboard({ data }: WhiteboardProps) {
     </div>
 }
 
-export default function WhiteboardContainer(props: WhiteboardProps) {
+export default function WhiteboardContainer(props: WhiteboardComponentProps) {
     return <ReactFlowProvider>
         <Whiteboard {...props} />
     </ReactFlowProvider>

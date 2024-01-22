@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Modal, Text,  LoadingOverlay,  Textarea } from '@mantine/core';
+import { Button, Flex, Modal, Text, LoadingOverlay, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
 
-import WhiteboardMockData from 'app/_assets/whiteboard.mock.raw.json';
+import WhiteboardMockData from 'app/_assets/whiteboard.userinsight.mock.raw.json';
+import { WhiteboardPluginParams } from 'app/_types/whiteboard';
 
 type AddUserInsightProps = {
   lensId: number;
@@ -16,6 +17,7 @@ type AddUserInsightProps = {
 export default function AddUserInsight({ lensId, modalController }: AddUserInsightProps) {
   const [loading, setLoading] = useState(false);
   const [opened, { close }] = modalController;
+  const [text, setText] = useState("");
 
   const handleCreateWhiteBoard = async () => {
     setLoading(true);
@@ -31,8 +33,16 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
           payload: WhiteboardMockData,
           plugin: {
             name: "user-insight",
-            rendered: false
-          }
+            rendered: false,
+            data: {
+              text,
+            },
+            state: {
+              status: "queued",
+              progress: 0,
+              message: "Quequed for rendering",
+            }
+          } as WhiteboardPluginParams
         }),
       });
       if (!response.ok) {
@@ -60,6 +70,8 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
             minRows={4}
             placeholder="Put analysis here, multiple lines are allowed."
             description="" label=""
+            value={text}
+            onChange={(event) => setText(event.currentTarget.value)}
           />
         </Flex>
 

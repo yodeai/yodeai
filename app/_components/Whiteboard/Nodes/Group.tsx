@@ -4,14 +4,20 @@ import ResizableNode from '@components/Whiteboard/Resizer'
 import { NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 
-type StickyNoteProps = WrappedComponentType<NodeProps>
+type GroupNodeProps = WrappedComponentType<NodeProps>;
 
-export const defaultValues: StickyNoteProps["data"] = undefined;
+export type GroupNodeValueType = {
+    color: string
+}
+
+export const defaultValues: GroupNodeProps["data"] = {
+    color: "#ffd43b"
+}
 export const defaultNodeProps: { height: number; width: number } = {
     height: 200,
     width: 200
 }
-export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
+export const Component = memo(({ data, node, selected, updateNode }: GroupNodeProps) => {
     return <ResizableNode selected={selected}>
         <ColorPicker
             handleColorChange={(color) => updateNode({ color })}
@@ -48,7 +54,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
         selected ? "flex" : "hidden"
     )}>
         {colors.map(color =>
-            <div onClick={handleColorChange.bind(null, color.value)}
+            <div key={color.value} onClick={handleColorChange.bind(null, color.value)}
                 className={cn("h-5 w-5 rounded-full", color.value === value && "border-2 border-gray-800 outline-2")}
                 style={{ backgroundColor: color.value }}></div>)}
     </div>

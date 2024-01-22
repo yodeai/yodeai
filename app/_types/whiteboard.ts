@@ -1,8 +1,17 @@
+import { Tables } from "app/_types/supabase"
 
 export type PluginNames = "user-insight"
 export type WhiteboardPluginParams = {
     name: PluginNames;
+    data: {
+        text: string;
+    }
     rendered: boolean;
+    state: {
+        status: "queued" | "processing" | "success" | "error";
+        message?: string;
+        progress?: number;
+    }
 }
 
 type UserInsight = {
@@ -37,6 +46,22 @@ type UserInsight = {
     }
 }
 
+type CompetitiveAnalysis = Array<{
+    company: string;
+    data: Array<{
+        title: string;
+        content: string;
+        sources: Array<string>;
+    }>
+}>
+
 export type WhiteboardPlugins = {
-    "user-insight": UserInsight
+    "user-insight": UserInsight;
+    "competitive-analysis": CompetitiveAnalysis;
+}
+
+export type WhiteboardComponentProps = {
+    data: Tables<"whiteboard"> & {
+        plugin?: WhiteboardPluginParams
+    }
 }

@@ -30,9 +30,9 @@ export default function WhiteboardDock() {
             },
             data: { label: 'Group' },
             style: {
-                padding: 0,
                 width: maxX - minX,
                 height: maxY - minY,
+                padding: 0,
                 borderColor: '#ddd',
             },
         }

@@ -1,0 +1,32 @@
+[
+  {
+    "company": "Craft.io",
+    "data": [
+      {
+        "title": "summary",
+        "content": "Craft.io is an end-to-end product management platform that helps teams build great products with confidence. They provide a range of tools and features, including strategy development, feedback gathering, product backlog management, prioritization, capacity planning, roadmapping, and portfolio management. With integrations and API support, data security measures, and a variety of resources such as templates, guides, and videos, Craft.io aims to empower product teams to make smart decisions and effectively communicate their product story. They have a strong customer base and are trusted by thousands of product teams.",
+        "sources": [
+          "https://craft.io/"
+        ]
+      },
+      {
+        "title": "integrations with third party apps/services",
+        "content": "Craft.io offers integrations and an API to connect with third-party apps and services. These integrations allow users to streamline their workflow and enhance their productivity. With integrations, users can seamlessly connect Craft.io with other tools and platforms they use for tasks and items management, planning, prioritization, roadmap and objectives setting, development and bug tracking, segments analysis, capacity planning, and feedback gathering. Craft.io provides a single source of truth and collaboration hub for product initiatives, making it a valuable tool for CPOs, product managers, product ops, product owners, product portfolio managers, and UX/UI designers. The company also prioritizes data security and offers resources such as a help center, knowledge hub, downloads, guides, videos, events, inspiring quotes, FAQ, and glossary.",
+        "sources": [
+          "https://craft.io/resources/glossary/",
+          "https://craft.io/",
+          "https://craft.io/platform/roadmap/"
+        ]
+      },
+      {
+        "title": "core features",
+        "content": "Craft.io is a company that offers a platform for product management, with core features including the ability to define and prioritize important features, plan capacity, and view and analyze data in various ways. Users can use the platform to align their team's objectives, prioritize development tasks, and seamlessly integrate with Jira for implementation. The platform has received positive feedback from customers, who appreciate the ability to have all product-related information in one place and the comprehensive tools for roadmapping and feedback gathering. Overall, Craft.io aims to help product managers build great products with confidence.",
+        "sources": [
+          "https://craft.io/platform/roadmap/",
+          "https://craft.io/",
+          "https://craft.io/resources/glossary/"
+        ]
+      }
+    ]
+  }
+]

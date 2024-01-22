@@ -1,4 +1,3 @@
-import { UUID } from "crypto";
 export type LensDetail = {
   lens_id: number;
   name: string;

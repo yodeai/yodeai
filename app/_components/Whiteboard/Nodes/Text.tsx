@@ -7,6 +7,11 @@ import { FaA } from 'react-icons/fa6'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
+export type TextValueType = {
+    text: string;
+    size: 12 | 16 | 20 | 24 | 28 | 32
+}
+
 export const defaultValues: StickyNoteProps["data"] = {
     text: "Text",
     size: 16
@@ -67,7 +72,7 @@ export const TextSizer = ({ value, selected, handleTextSizeChange }: TextSizerPr
         selected ? "flex" : "hidden"
     )}>
         {sizes.map(size =>
-            <div onClick={handleTextSizeChange.bind(null, size.value)} className="flex items-center rounded-full">
+            <div key={size.value} onClick={handleTextSizeChange.bind(null, size.value)} className="flex items-center rounded-full">
                 <FaA className={
                     cn(size.value === value ? "fill-blue-500" : "fill-gray-500")
                 } size={size.value} />

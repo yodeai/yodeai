@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
-import { uuid } from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ContextMenu({
     id,
@@ -20,7 +20,7 @@ export default function ContextMenu({
 
         addNodes(nodesToDuplicate.map((node) => ({
             ...node,
-            id: node.type === "group" ? 'group-' + Date.now() : uuid(),
+            id: node.type === "group" ? 'group-' + Date.now() : uuidv4(),
             position: {
                 x: node.position.x + (maxX - minX) + 50,
                 y: node.position.y
