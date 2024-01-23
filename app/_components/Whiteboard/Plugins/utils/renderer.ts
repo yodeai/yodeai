@@ -59,7 +59,7 @@ export const createStickyNote = ({ id = uuidv4(), data, position, width, height 
 
 type CreateGroupNodeType = {
     id?: string;
-    data: GroupNodeValueType;
+    data?: GroupNodeValueType;
     position: Node<undefined>["position"];
     width: number;
     height: number;

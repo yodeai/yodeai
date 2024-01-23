@@ -20,7 +20,6 @@ import { useRouter } from 'next/navigation';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 
-
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard.plugin || whiteboard.plugin.rendered) return whiteboard.nodes as any || [];
     return whiteboardPluginRenderers[whiteboard.plugin.name]
@@ -127,7 +126,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     }, []);
 
     useEffect(() => {
-        syncWhiteboard(nodes, edges);
+        // syncWhiteboard(nodes, edges);
     }, [nodes, edges])
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);

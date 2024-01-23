@@ -9,7 +9,7 @@ type StickyNoteProps = WrappedComponentType<NodeProps>
 
 export type TextValueType = {
     text: string;
-    size: 12 | 16 | 20 | 24 | 28 | 32
+    size: 12 | 16 | 20 | 24 | 28 | 32 | 48 | 64
 }
 
 export const defaultValues: StickyNoteProps["data"] = {
@@ -64,7 +64,9 @@ export const TextSizer = ({ value, selected, handleTextSizeChange }: TextSizerPr
         { value: 20 },
         { value: 24 },
         { value: 28 },
-        { value: 32 }
+        { value: 32 },
+        { value: 48 },
+        { value: 64 },
     ]
 
     return <div className={cn(

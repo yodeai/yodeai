@@ -7,7 +7,7 @@ import { cn } from '@utils/style'
 type GroupNodeProps = WrappedComponentType<NodeProps>;
 
 export type GroupNodeValueType = {
-    color: string
+    color?: string
 }
 
 export const defaultValues: GroupNodeProps["data"] = {
@@ -18,15 +18,16 @@ export const defaultNodeProps: { height: number; width: number } = {
     width: 200
 }
 export const Component = memo(({ data, node, selected, updateNode }: GroupNodeProps) => {
+    const backgroundColor = data?.color || defaultValues.color;
     return <ResizableNode selected={selected}>
         <ColorPicker
             handleColorChange={(color) => updateNode({ color })}
-            value={node.data.color}
+            value={backgroundColor}
             selected={selected}
         />
         <div
             style={{
-                backgroundColor: node.data.color,
+                backgroundColor,
                 opacity: 0.1,
                 height: node.height || 200,
                 width: node.width || 200

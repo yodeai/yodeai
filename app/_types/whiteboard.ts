@@ -36,12 +36,12 @@ type UserInsight = {
             name: string
         }>
         users: Array<{
-            name: string
             id: string;
-            topicSummary: {
+            name: string
+            commentSummary: Array<{
+                content: string;
                 topicKey: string
-                summary: string;
-            }
+            }>
         }>
     }
 }

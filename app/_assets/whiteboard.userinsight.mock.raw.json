@@ -1,216 +1,252 @@
 {
-    "insights": [
+    "summary": {
+      "users": [
         {
-            "user": {
-                "id": "user1",
-                "name": "Alice",
-                "info": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information"
+          "id": "user1",
+          "name": "Alice",
+          "commentSummary": [
+            {
+              "content": "Using Google Drive (people limited by software options -> everyone has google) \n\n“I’m desperately trying to move us out of Google Drive”",
+              "topicKey": "topic1"
             },
-            "data": [
-                {
-                    "comments": [
-                        {
-                            "id": "comment1",
-                            "comment": "Using Google Drive (people limited by software options -> everyone has google)\n\nI’m desperately trying to move us out of Google Drive."
-                        },
-                        {
-                            "id": "comment2",
-                            "comment": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers"
-                        },
-                        {
-                            "id": "comment3",
-                            "comment": "“A small amount of people control the largest volume of information at large agencies”"
-                        },
-                        {
-                            "id": "comment4",
-                            "comment": "“What we've actually found is that sometimes we ask for the same files and get different files back”"
-                        },
-                        {
-                            "id": "comment5",
-                            "comment": "Manual metadata / tagging is easily inconsistent\n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc"
-                        },
-                        {
-                            "id": "comment6",
-                            "comment": "Exercise of treating a dataset like a person where you could ask it anything you wanted."
-                        },
-                        {
-                            "id": "comment7",
-                            "comment": "“The information we need to know to organize the files is also the info that most people want to know”"
-                        },
-                        {
-                            "id": "comment8",
-                            "comment": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”"
-                        },
-                        {
-                            "id": "comment9",
-                            "comment": "“Everybody has different questions because every reporter has a different interest...”"
-                        }
-                    ],
-                    "topicKey": "topic1",
-                    "topicName": "Latency"
-                },
-                {
-                    "comments": [
-                        {
-                            "id": "comment10",
-                            "comment": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”"
-                        },
-                        {
-                            "id": "comment11",
-                            "comment": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names.\n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”"
-                        },
-                        {
-                            "id": "comment12",
-                            "comment": "“Everybody has different questions because every reporter has a different interest...”"
-                        },
-                        {
-                            "id": "comment13",
-                            "comment": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”"
-                        }
-                    ],
-                    "topicKey": "topic2",
-                    "topicName": "Quality"
-                },
-                {
-                    "comments": [
-                        {
-                            "id": "comment14",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        },
-                        {
-                            "id": "comment15",
-                            "comment": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”"
-                        },
-                        {
-                            "id": "comment16",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        }
-                    ],
-                    "topicKey": "topic3",
-                    "topicName": "Painpoints"
-                }
-            ]
+            {
+              "content": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers",
+              "topicKey": "topic2"
+            },
+            {
+              "content": "“A small amount of people control the largest volume of information at large agencies”",
+              "topicKey": "topic3"
+            }
+          ]
         },
         {
-            "user": {
-                "id": "user2",
-                "name": "Bob",
-                "info": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information"
+          "id": "user2",
+          "name": "Bob",
+          "commentSummary": [
+            {
+              "content": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”",
+              "topicKey": "topic1"
             },
-            "data": [
-                {
-                    "comments": [
-                        {
-                            "id": "comment17",
-                            "comment": "Using Google Drive (people limited by software options -> everyone has google)\n\nI’m desperately trying to move us out of Google Drive."
-                        },
-                        {
-                            "id": "comment18",
-                            "comment": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers"
-                        },
-                        {
-                            "id": "comment19",
-                            "comment": "“A small amount of people control the largest volume of information at large agencies”"
-                        },
-                        {
-                            "id": "comment20",
-                            "comment": "“What we've actually found is that sometimes we ask for the same files and get different files back”"
-                        },
-                        {
-                            "id": "comment5",
-                            "comment": "Manual metadata / tagging is easily inconsistent\n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc"
-                        },
-                        {
-                            "id": "comment6",
-                            "comment": "Exercise of treating a dataset like a person where you could ask it anything you wanted."
-                        },
-                        {
-                            "id": "comment7",
-                            "comment": "“The information we need to know to organize the files is also the info that most people want to know”"
-                        },
-                        {
-                            "id": "comment8",
-                            "comment": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”"
-                        },
-                        {
-                            "id": "comment9",
-                            "comment": "“Everybody has different questions because every reporter has a different interest...”"
-                        }
-                    ],
-                    "topicKey": "topic1",
-                    "topicName": "Latency"
-                },
-                {
-                    "comments": [
-                        {
-                            "id": "comment10",
-                            "comment": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”"
-                        },
-                        {
-                            "id": "comment11",
-                            "comment": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names.\n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”"
-                        },
-                        {
-                            "id": "comment12",
-                            "comment": "“Everybody has different questions because every reporter has a different interest...”"
-                        },
-                        {
-                            "id": "comment13",
-                            "comment": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”"
-                        }
-                    ],
-                    "topicKey": "topic2",
-                    "topicName": "Quality"
-                },
-                {
-                    "comments": [
-                        {
-                            "id": "comment14",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        },
-                        {
-                            "id": "comment15",
-                            "comment": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”"
-                        },
-                        {
-                            "id": "comment16",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        },
-                        {
-                            "id": "comment16",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        },
-                        {
-                            "id": "comment16",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        },
-                        {
-                            "id": "comment16",
-                            "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
-                        }
-                    ],
-                    "topicKey": "topic3",
-                    "topicName": "Painpoints"
-                }
-            ]
+            {
+              "content": "“Everybody has different questions because every reporter has a different interest...”",
+              "topicKey": "topic2"
+            },
+            {
+              "content": "“Everybody has different questions because every reporter has a different interest...”",
+              "topicKey": "topic3"
+            }
+          ]
         }
-    ],
-    "summary": {
-        "users": [
-            {
-                "id": "user1",
-                "name": "Alice",
-                "topicSummary": {
-                    "summary": "Comment 1, Comment 2",
-                    "topicKey": "topic1"
-                }
-            }
+      ],
+      "topics": [
+        {
+          "key": "topic1",
+          "name": "Latency"
+        },
+        {
+          "key": "topic2",
+          "name": "Quality"
+        },
+        {
+          "key": "topic3",
+          "name": "Painpoints"
+        }
+      ]
+    },
+    "insights": [
+      {
+        "data": [
+          {
+            "comments": [
+              {
+                "id": "comment1",
+                "comment": "Using Google Drive (people limited by software options -> everyone has google)\n\nI’m desperately trying to move us out of Google Drive."
+              },
+              {
+                "id": "comment2",
+                "comment": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers"
+              },
+              {
+                "id": "comment3",
+                "comment": "“A small amount of people control the largest volume of information at large agencies”"
+              },
+              {
+                "id": "comment4",
+                "comment": "“What we've actually found is that sometimes we ask for the same files and get different files back”"
+              },
+              {
+                "id": "comment5",
+                "comment": "Manual metadata / tagging is easily inconsistent\n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc"
+              },
+              {
+                "id": "comment6",
+                "comment": "Exercise of treating a dataset like a person where you could ask it anything you wanted."
+              },
+              {
+                "id": "comment7",
+                "comment": "“The information we need to know to organize the files is also the info that most people want to know”"
+              },
+              {
+                "id": "comment8",
+                "comment": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”"
+              },
+              {
+                "id": "comment9",
+                "comment": "“Everybody has different questions because every reporter has a different interest...”"
+              }
+            ],
+            "topicKey": "topic1",
+            "topicName": "Latency"
+          },
+          {
+            "comments": [
+              {
+                "id": "comment10",
+                "comment": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”"
+              },
+              {
+                "id": "comment11",
+                "comment": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names.\n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”"
+              },
+              {
+                "id": "comment12",
+                "comment": "“Everybody has different questions because every reporter has a different interest...”"
+              },
+              {
+                "id": "comment13",
+                "comment": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”"
+              }
+            ],
+            "topicKey": "topic2",
+            "topicName": "Quality"
+          },
+          {
+            "comments": [
+              {
+                "id": "comment14",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              },
+              {
+                "id": "comment15",
+                "comment": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”"
+              },
+              {
+                "id": "comment16",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              }
+            ],
+            "topicKey": "topic3",
+            "topicName": "Painpoints"
+          }
         ],
-        "topics": [
-            {
-                "key": "topic1",
-                "name": "Topic 1"
-            }
-        ]
-    }
-}
+        "user": {
+          "id": "user1",
+          "info": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information",
+          "name": "Alice"
+        }
+      },
+      {
+        "data": [
+          {
+            "comments": [
+              {
+                "id": "comment17",
+                "comment": "Using Google Drive (people limited by software options -> everyone has google)\n\nI’m desperately trying to move us out of Google Drive."
+              },
+              {
+                "id": "comment18",
+                "comment": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers"
+              },
+              {
+                "id": "comment19",
+                "comment": "“A small amount of people control the largest volume of information at large agencies”"
+              },
+              {
+                "id": "comment20",
+                "comment": "“What we've actually found is that sometimes we ask for the same files and get different files back”"
+              },
+              {
+                "id": "comment5",
+                "comment": "Manual metadata / tagging is easily inconsistent\n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc"
+              },
+              {
+                "id": "comment6",
+                "comment": "Exercise of treating a dataset like a person where you could ask it anything you wanted."
+              },
+              {
+                "id": "comment7",
+                "comment": "“The information we need to know to organize the files is also the info that most people want to know”"
+              },
+              {
+                "id": "comment8",
+                "comment": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”"
+              },
+              {
+                "id": "comment9",
+                "comment": "“Everybody has different questions because every reporter has a different interest...”"
+              }
+            ],
+            "topicKey": "topic1",
+            "topicName": "Latency"
+          },
+          {
+            "comments": [
+              {
+                "id": "comment10",
+                "comment": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”"
+              },
+              {
+                "id": "comment11",
+                "comment": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names.\n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”"
+              },
+              {
+                "id": "comment12",
+                "comment": "“Everybody has different questions because every reporter has a different interest...”"
+              },
+              {
+                "id": "comment13",
+                "comment": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”"
+              }
+            ],
+            "topicKey": "topic2",
+            "topicName": "Quality"
+          },
+          {
+            "comments": [
+              {
+                "id": "comment14",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              },
+              {
+                "id": "comment15",
+                "comment": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”"
+              },
+              {
+                "id": "comment16",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              },
+              {
+                "id": "comment16",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              },
+              {
+                "id": "comment16",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              },
+              {
+                "id": "comment16",
+                "comment": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”"
+              }
+            ],
+            "topicKey": "topic3",
+            "topicName": "Painpoints"
+          }
+        ],
+        "user": {
+          "id": "user2",
+          "info": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information",
+          "name": "Bob"
+        }
+      }
+    ]
+  }

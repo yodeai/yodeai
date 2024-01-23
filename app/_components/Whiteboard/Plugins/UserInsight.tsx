@@ -2,11 +2,13 @@ import { WhiteboardPlugins } from "app/_types/whiteboard"
 import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
 import { getNodesBounding } from "./utils";
+import { create } from "domain";
 
 export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] => {
     let groupNodes: Node<any>[] = [];
     const colors = ["#ffd43b", "#3e83f8", "#f05152", "#0c9f6e", "#c37801"];
 
+    // rendering insights with title
     for (let [insightIndex, insight] of Object.entries(payload.insights)) {
         const groupBounding = getNodesBounding(groupNodes);
         const groupNodeColor = colors[Number(insightIndex) % colors.length];
@@ -15,7 +17,6 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
         // user title and bio description
         nodes = nodes.concat([
             createText({
-                id: insight.user.id,
                 data: {
                     text: insight.user.name,
                     size: 32
@@ -68,13 +69,21 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
         const groupBoxPaddingTop = 75;
 
         const bounding = getNodesBounding(nodes);
+        const groupTitleText = createText({
+            data: { text: "User Insight", size: 48 },
+            position: {
+                x: groupBounding.right + 100 + bounding.left,
+                y: bounding.top
+            },
+            width: 400, height: 100
+        });
         const groupNode = createGroupNode({
             data: { color: groupNodeColor },
             width: bounding.right - bounding.left + (groupBoxPaddingLeft * 2),
             height: bounding.bottom - bounding.top + (groupBoxPaddingTop * 2),
             position: {
                 x: groupBounding.right + 100 + bounding.left,
-                y: bounding.top
+                y: bounding.top + 120
             }
         });
 
@@ -88,8 +97,82 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             }
         }));
 
-        groupNodes = groupNodes.concat([groupNode, ...nodes])
+        groupNodes = groupNodes.concat([groupTitleText, groupNode, ...nodes])
     }
+
+    // rendering summary of insights
+    const groupBounding = getNodesBounding(groupNodes);
+
+    const summaryNodes: Node<any>[] = [];
+    const summaryTopicNodes: Node<any>[] = [];
+    payload.summary.topics.forEach((topic, topicIndex) => {
+        const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
+
+        summaryTopicNodes.push(createText({
+            id: topic.key,
+            data: { text: topic.name, size: 32 },
+            position: { x: summaryTopicBounding.right + (topicIndex === 0 ? 150 : 50), y: summaryTopicBounding.top },
+            width: 180, height: 50
+        }));
+    })
+
+    payload.summary.users.forEach((user, userIndex) => {
+        const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
+
+        const summaryUserTitle = createText({
+            id: user.id,
+            data: { text: user.name, size: 32 },
+            position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
+            width: 150, height: 50
+        })
+
+        user.commentSummary.forEach((comment, commentIndex) => {
+            summaryTopicNodes.push(createStickyNote({
+                data: { text: comment.content || "―", color: "#ffd43b" },
+                position: {
+                    x: summaryTopicBounding.left + ((summaryTopicNodes[0].width + 60) * Number(commentIndex)) + summaryUserTitle.width,
+                    y: summaryTopicBounding.bottom + 50
+                },
+                width: 180, height: 125
+            }));
+
+        })
+
+        summaryTopicNodes.push(summaryUserTitle)
+    })
+
+    const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
+    const summaryGroupNode = createGroupNode({
+        width: summaryTopicBounding.right - summaryTopicBounding.left + 100,
+        height: summaryTopicBounding.bottom - summaryTopicBounding.top + 100,
+        position: { x: groupBounding.right + 200 + summaryTopicBounding.left, y: summaryTopicBounding.top + 120 }
+    });
+
+    // summary group node title
+    summaryNodes.push(createText({
+        data: { text: "Summary", size: 48 },
+        position: { x: groupBounding.right + 200 + summaryTopicBounding.left, y: summaryTopicBounding.top },
+        width: 400, height: 100
+    }));
+
+    summaryNodes.push(
+        // summary group node
+        summaryGroupNode,
+
+        // summary topic nodes
+        ...summaryTopicNodes.map(node => ({
+            ...node,
+            parentNode: summaryGroupNode.id,
+            position: {
+                x: node.position.x + 50,
+                y: node.position.y + 50
+            }
+        })));
+
+
+
+    groupNodes = groupNodes.concat(summaryNodes);
+
 
     return groupNodes;
 }
