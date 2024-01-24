@@ -126,7 +126,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     }, []);
 
     useEffect(() => {
-        // syncWhiteboard(nodes, edges);
+        syncWhiteboard(nodes, edges);
     }, [nodes, edges])
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
@@ -138,8 +138,11 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             <Text size="sm" c="gray.7">Auto-save...</Text>
         </div>}
         <ReactFlow
+            nodesDraggable={!Boolean(data.plugin)}
+            nodesConnectable={!Boolean(data.plugin)}
+            elementsSelectable={!Boolean(data.plugin)}
             className="flex-1"
-            minZoom={0.1}
+            minZoom={0.05}
             maxZoom={4}
             ref={$whiteboard}
             fitView
@@ -155,7 +158,9 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}>
+
             <Controls />
+
             <Background gap={12} size={1} />
             {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             <MiniMap />

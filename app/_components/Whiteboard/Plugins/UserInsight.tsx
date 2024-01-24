@@ -69,21 +69,31 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
         const groupBoxPaddingTop = 75;
 
         const bounding = getNodesBounding(nodes);
+
+        const groupNodeHeight = bounding.bottom - bounding.top + (groupBoxPaddingTop * 2);
+        const groupNodeWidth = bounding.right - bounding.left + (groupBoxPaddingLeft * 2);
+
+        const sqrtN = Math.ceil(Math.sqrt(payload.insights.length));
+
         const groupTitleText = createText({
             data: { text: "User Insight", size: 48 },
             position: {
-                x: groupBounding.right + 100 + bounding.left,
-                y: bounding.top
+                x: (100 + groupNodeWidth) * (Number(insightIndex) % sqrtN),
+                y: Math.floor(Number(insightIndex) / sqrtN) * (groupNodeHeight + 100)
             },
             width: 400, height: 100
         });
+
+        const nthRow = Math.floor(Number(insightIndex) / sqrtN);
+        const nthCol = Number(insightIndex) % sqrtN;
+
         const groupNode = createGroupNode({
             data: { color: groupNodeColor },
-            width: bounding.right - bounding.left + (groupBoxPaddingLeft * 2),
-            height: bounding.bottom - bounding.top + (groupBoxPaddingTop * 2),
+            width: groupNodeWidth,
+            height: groupNodeHeight,
             position: {
-                x: groupBounding.right + 100 + bounding.left,
-                y: bounding.top + 120
+                x: (100 + groupNodeWidth) * nthCol,
+                y: nthRow * (groupNodeHeight + 100) + 50
             }
         });
 
@@ -97,7 +107,11 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             }
         }));
 
-        groupNodes = groupNodes.concat([groupTitleText, groupNode, ...nodes])
+        groupNodes = groupNodes.concat([
+            // groupTitleText,
+            groupNode,
+            ...nodes
+        ])
     }
 
     // rendering summary of insights
@@ -123,7 +137,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             id: user.id,
             data: { text: user.name, size: 32 },
             position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
-            width: 150, height: 50
+            width: 150, height: 120
         })
 
         user.commentSummary.forEach((comment, commentIndex) => {
@@ -150,7 +164,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
     // summary group node title
     summaryNodes.push(createText({
-        data: { text: "Summary", size: 48 },
+        data: { text: "Summary", size: 64 },
         position: { x: groupBounding.right + 200 + summaryTopicBounding.left, y: summaryTopicBounding.top },
         width: 400, height: 100
     }));
