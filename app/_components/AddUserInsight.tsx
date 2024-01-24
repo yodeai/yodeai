@@ -63,11 +63,12 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
 
         <Flex className="flex-1 w-full">
           <Textarea
-            className="mt-0.5 w-full"
+            className="w-full"
             autosize
             minRows={4}
-            placeholder="Put analysis here, multiple lines are allowed."
-            description="" label=""
+            placeholder=""
+            description=""
+            label="Add insight areas"
             value={text}
             onChange={(event) => setText(event.currentTarget.value)}
           />

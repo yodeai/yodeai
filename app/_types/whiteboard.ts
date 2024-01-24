@@ -3,9 +3,7 @@ import { Tables } from "app/_types/supabase"
 export type PluginNames = "user-insight" | "competitive-analysis";
 export type WhiteboardPluginParams = {
     name: PluginNames;
-    data: {
-        text: string;
-    }
+    data: any;
     rendered: boolean;
     state: {
         status: "waiting" | "queued" | "processing" | "success" | "error";

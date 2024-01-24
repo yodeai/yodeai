@@ -17,7 +17,10 @@ type AddCompetitiveAnalysisProps = {
 export default function AddCompetitiveAnalysis({ lensId, modalController }: AddCompetitiveAnalysisProps) {
   const [loading, setLoading] = useState(false);
   const [opened, { close }] = modalController;
-  const [text, setText] = useState("");
+  const [form, setForm] = useState({
+    companyNameOrURLs: "",
+    aresOfAnalysis: ""
+  });
 
   const handleCreateWhiteBoard = async () => {
     setLoading(true);
@@ -34,7 +37,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
           plugin: {
             name: "competitive-analysis",
             rendered: false,
-            data: { text },
+            data: form,
             state: {
               status: "waiting"
             }
@@ -59,15 +62,29 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
       <Modal.Body p={2} pt={0}>
         <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
 
+        <Flex className="flex-1 w-full mb-5">
+          <Textarea
+            className="mt-0.5 w-full"
+            autosize
+            minRows={4}
+            label="Company Names or URLs"
+            description=""
+            placeholder=""
+            value={form.companyNameOrURLs}
+            onChange={(event) => setForm({ ...form, companyNameOrURLs: event.currentTarget.value })}
+          />
+        </Flex>
+
         <Flex className="flex-1 w-full">
           <Textarea
             className="mt-0.5 w-full"
             autosize
             minRows={4}
-            placeholder="Put analysis here, multiple lines are allowed."
-            description="" label=""
-            value={text}
-            onChange={(event) => setText(event.currentTarget.value)}
+            label="Areas of Analysis"
+            placeholder=""
+            description=""
+            value={form.aresOfAnalysis}
+            onChange={(event) => setForm({ ...form, aresOfAnalysis: event.currentTarget.value })}
           />
         </Flex>
 
