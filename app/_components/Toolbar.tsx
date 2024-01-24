@@ -36,11 +36,12 @@ export default function Toolbar() {
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
-    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, lensId } = useAppContext();
+    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, lensId } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
     const [whiteboardModalState, whiteboardModalController] = whiteboardModelDisclosure;
     const [userInsightsModalState, userInsightsModalController] = userInsightsDisclosure;
+    const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
@@ -137,7 +138,7 @@ export default function Toolbar() {
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
-                                <Menu.Item disabled={true}>Competitive Analysis</Menu.Item>
+                                <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>

@@ -2,11 +2,10 @@ import { WhiteboardPlugins } from "app/_types/whiteboard"
 import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
 import { getNodesBounding } from "./utils";
-import { create } from "domain";
 
 export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] => {
     let groupNodes: Node<any>[] = [];
-    const colors = ["#ffd43b", "#3e83f8", "#f05152", "#0c9f6e", "#c37801"];
+    const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f05152", "#0c9f6e"];
 
     // rendering insights with title
     for (let [insightIndex, insight] of Object.entries(payload.insights)) {

@@ -11,7 +11,7 @@
       },
       {
         "title": "integrations with third party apps/services",
-        "content": "Craft.io offers integrations and an API to connect with third-party apps and services. These integrations allow users to streamline their workflow and enhance their productivity. With integrations, users can seamlessly connect Craft.io with other tools and platforms they use for tasks and items management, planning, prioritization, roadmap and objectives setting, development and bug tracking, segments analysis, capacity planning, and feedback gathering. Craft.io provides a single source of truth and collaboration hub for product initiatives, making it a valuable tool for CPOs, product managers, product ops, product owners, product portfolio managers, and UX/UI designers. The company also prioritizes data security and offers resources such as a help center, knowledge hub, downloads, guides, videos, events, inspiring quotes, FAQ, and glossary.",
+        "content":"Craft.io offers integrations and an API to connect with third-party apps and services. These integrations allow users to streamline their workflow and enhance their productivity. With integrations, users can seamlessly connect Craft.io with other tools and platforms they use for tasks and items management, planning, prioritization, roadmap and objectives setting, development and bug tracking, segments analysis, capacity planning, and feedback gathering. Craft.io provides a single source of truth and collaboration hub for product initiatives, making it a valuable tool for CPOs, product managers, product ops, product owners, product portfolio managers, and UX/UI designers. The company also prioritizes data security and offers resources such as a help center, knowledge hub, downloads, guides, videos, events, inspiring quotes, FAQ, and glossary.",
         "sources": [
           "https://craft.io/resources/glossary/",
           "https://craft.io/",
@@ -19,12 +19,55 @@
         ]
       },
       {
-        "title": "core features",
+        "title":"core features",
         "content": "Craft.io is a company that offers a platform for product management, with core features including the ability to define and prioritize important features, plan capacity, and view and analyze data in various ways. Users can use the platform to align their team's objectives, prioritize development tasks, and seamlessly integrate with Jira for implementation. The platform has received positive feedback from customers, who appreciate the ability to have all product-related information in one place and the comprehensive tools for roadmapping and feedback gathering. Overall, Craft.io aims to help product managers build great products with confidence.",
         "sources": [
           "https://craft.io/platform/roadmap/",
           "https://craft.io/",
           "https://craft.io/resources/glossary/"
+        ]
+      },
+      {
+        "title": "use of artificial intelligence",
+        "content": "This company does not have any information on the use of artificial intelligence.",
+        "sources": [
+        ]
+      }
+    ]
+  },
+  {
+    "company": "Airfocus",
+    "data": [
+      {
+        "title": "summary",
+        "content": "Airfocus is a company that provides a modular product management platform to help teams effectively manage their products. They offer a suite of tools, features, and apps that can be customized and integrated with other tools such as Jira, Trello, and Azure DevOps. Their platform includes AI Assist, which generates first drafts of PRDs and user stories, as well as feedback summaries. They also prioritize security, privacy, and availability, with features like SAML single sign-on, cloud hosting, and data encryption. Overall, airfocus aims to simplify product management and empower teams to build the right products.",
+        "sources": [
+          "https://airfocus.com/"
+        ]
+      },
+      {
+        "title": "integrations with third party apps/services",
+        "content": "This company, Airfocus, offers a complete suite of tools, features, and apps to help teams effectively manage their products. They provide integrations with popular tools such as Jira, Trello, Shortcut (formerly Clubhouse), Azure DevOps, Asana, Zapier, and more. Additionally, they have built-in AI capabilities that allow product managers to generate first drafts of PRDs, problem statements, and user stories, saving valuable editing time. They prioritize security and privacy, with features like SAML single sign-on, cloud security certification, and data encryption. Overall, airfocus aims to provide a comprehensive and efficient product management platform.",
+        "sources": [
+          "https://airfocus.com/product-digest/",
+          "https://airfocus.com/"
+        ]
+      },
+      {
+        "title": "core features",
+        "content": "Airfocus is a company that offers an all-in-one solution for product management. They provide a platform that helps teams identify the right combination of minimum basic features, performance features, and delight features for their products. The company emphasizes the importance of understanding customer value and unlocking it. They also highlight the need to focus on core features and unship unnecessary ones to improve retention, increase NPS, and decrease support tickets. Airfocus encourages teams to consider tradeoffs in terms of quality, importance, satisfaction, and frequency when making product decisions. They provide resources and examples, such as the Kano model and opportunity decision trees, to help teams make informed choices. The company also promotes customer-centricity and the need for a strategy that aligns with changing customer behaviors.",
+        "sources": [
+          "https://airfocus.com/product-digest/",
+          "https://airfocus.com/blog/",
+          "https://airfocus.com/"
+        ]
+      },
+      {
+          "title": "use of artificial intelligence",
+          "content": "This company, Airfocus, has recently launched AI Assist, a tool that uses generative AI to help with product-specific tasks such as drafting problem statements and analyzing feedback sentiment. They believe that AI can greatly improve our lives but also acknowledge the potential dangers it poses. They have gathered a panel of product experts to discuss the integration of AI into the product development process. They also provide insights on the limitations and benefits of using ChatGPT, a freely accessible AI tool, and mention the development of GPT-4, which is currently only accessible to developers. Overall, airfocus is utilizing AI technology to enhance productivity, save time, and generate ideas for product managers.",
+        "sources": [
+            "https://airfocus.com/product-digest/",
+            "https://airfocus.com/product/ai/"
         ]
       }
     ]

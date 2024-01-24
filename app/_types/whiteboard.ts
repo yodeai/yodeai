@@ -1,6 +1,6 @@
 import { Tables } from "app/_types/supabase"
 
-export type PluginNames = "user-insight"
+export type PluginNames = "user-insight" | "competitive-analysis";
 export type WhiteboardPluginParams = {
     name: PluginNames;
     data: {

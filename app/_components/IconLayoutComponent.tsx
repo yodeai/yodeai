@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaGear, FaUsersGear} from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaGear, FaUsersGear, FaMagnifyingGlassChart } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -68,7 +68,8 @@ export default function IconLayoutComponent({
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
     google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
     plugins: {
-      userInsight: <FaUsersGear size={32} color="#888888" />
+      "user-insight": <FaUsersGear size={32} color="#888888" />,
+      "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
     }
   }), []);
 
@@ -113,7 +114,7 @@ export default function IconLayoutComponent({
   }, [breadcrumbData, items, lensName, lensId, selectedItems])
 
   const getLensParents = () => {
-    if(!lensId){
+    if (!lensId) {
       setBreadcrumbLoading(false);
       return;
     }
@@ -218,7 +219,9 @@ export default function IconLayoutComponent({
     if ("whiteboard_id" in item) {
       key = `wb_${item.whiteboard_id}`;
       item_id = item.whiteboard_id;
-      const icon = (item.plugin as any)?.name === "user-insight" ? fileTypeIcons.plugins.userInsight : fileTypeIcons.whiteboard;
+      const icon = (item.plugin as any)?.name && (item.plugin as any)?.name in fileTypeIcons.plugins
+        ? fileTypeIcons.plugins[(item.plugin as any)?.name]
+        : fileTypeIcons.whiteboard;
       content = <WhiteboardIconItem
         handleWhiteboardDelete={handleWhiteboardDelete}
         selected={selectedItems.includes(item_id)}

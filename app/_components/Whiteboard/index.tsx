@@ -158,9 +158,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}>
-
             <Controls />
-
             <Background gap={12} size={1} />
             {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             <MiniMap />

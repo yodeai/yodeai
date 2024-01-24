@@ -9,7 +9,7 @@ type StickyNoteProps = WrappedComponentType<NodeProps>
 
 export type TextValueType = {
     text: string;
-    size: 12 | 16 | 20 | 24 | 28 | 32 | 48 | 64
+    size: 8 | 12 | 16 | 20 | 24 | 28 | 32 | 48 | 64
 }
 
 export const defaultValues: StickyNoteProps["data"] = {
@@ -40,7 +40,8 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
                 style={{
                     height: node.height || 50,
                     width: node.width || 100,
-                    fontSize: node.data.size
+                    fontSize: node.data.size,
+                    lineHeight: 1.2,
                 }}
                 ref={$textarea}
                 className="border-none m-0 resize-none block w-full bg-transparent"
@@ -59,6 +60,7 @@ type TextSizerProps = {
 }
 export const TextSizer = ({ value, selected, handleTextSizeChange }: TextSizerProps) => {
     const sizes = [
+        { value: 8 },
         { value: 12 },
         { value: 16 },
         { value: 20 },
