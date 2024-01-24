@@ -36,9 +36,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
             rendered: false,
             data: { text },
             state: {
-              status: "queued",
-              progress: 0,
-              message: "Quequed for rendering",
+              status: "waiting"
             }
           } as WhiteboardPluginParams
         }),

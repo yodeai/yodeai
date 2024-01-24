@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaGear, FaUsersGear, FaMagnifyingGlassChart } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -15,13 +15,13 @@ import { FaCog, FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
-import Link from "next/link";
-import LoadingSkeleton from "./LoadingSkeleton";
 
 import ShareLensComponent from './ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import { Tables } from "app/_types/supabase";
 import { Breadcrumb } from "./Breadcrumb";
+import { WhiteboardPluginParams } from "app/_types/whiteboard";
+import { cn } from "@utils/style";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -673,8 +673,14 @@ type WhiteboardIconItemProps = {
 }
 const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
   const { showContextMenu } = useContextMenu();
-  const [loading, setLoading] = useState<boolean>(false);
+  const whiteboardPluginState = useMemo(() => (whiteboard.plugin as WhiteboardPluginParams).state, [whiteboard.plugin]);
+
+  const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState.status));
   const router = useRouter();
+
+  useEffect(() => {
+    setLoading(["waiting", "queued", "processing"].includes(whiteboardPluginState.status));
+  }, [whiteboardPluginState.status])
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm whiteboard deletion',
@@ -717,14 +723,21 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
     <Flex
       onContextMenu={onContextMenu}
       mih={100} gap="6px"
+      className="relative"
       justify="flex-end" align="center"
       direction="column" wrap="nowrap">
-      <Box>
+      <Box className="absolute top-1">
         {loading
-          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-          : <SpaceIconHint>{icon}</SpaceIconHint>
+          ? <>
+            {whiteboardPluginState.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              {whiteboardPluginState.progress}%
+            </Text>}
+            <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
+          </>
+          : ""
         }
       </Box>
+      <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
       <Box w={100} h={40} variant="unstyled" className="text-center">
         <Text inline={true} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {whiteboard.name}
@@ -741,7 +754,7 @@ type SpaceIconHintProps = {
 const SpaceIconHint = ({ children, subIcons }: SpaceIconHintProps) => {
   return <>
     {children}
-    <div className="absolute top-1 right-1">
+    <div className={"absolute top-1 right-1"}>
       {subIcons}
     </div>
   </>

@@ -245,7 +245,20 @@ export default function Lens(props: LensProps) {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
     setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
-  }, [])
+  }, []);
+
+  const updateWhiteboard = useCallback((payload) => {
+    let whiteboard_id = payload["new"]["whiteboard_id"]
+    console.log("Updating whiteboard", whiteboard_id);
+    setWhiteboards(prevWhiteboards =>
+      prevWhiteboards.map(item => {
+        if (item.whiteboard_id === whiteboard_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
 
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
@@ -260,6 +273,7 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
       .subscribe();
 
     return () => {

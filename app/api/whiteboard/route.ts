@@ -2,11 +2,60 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from 'next/headers';
 import { notOk, ok } from '@lib/ok';
+import { Database, Tables } from 'app/_types/supabase';
+import { WhiteboardPluginParams } from 'app/_types/whiteboard';
 
 export const dynamic = 'force-dynamic';
 
+const waitFor = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+const imitateWhiteboardProgress = async (data: Tables<"whiteboard">) => {
+    const supabase = createServerComponentClient<Database>({ cookies });
+
+    // status: queued
+    await supabase.from('whiteboard').update({
+        plugin: {
+            ...data.plugin as WhiteboardPluginParams,
+            state: { status: "queued" }
+        } as WhiteboardPluginParams
+    }).match({ whiteboard_id: data.whiteboard_id });
+
+    // console.log("Whiteboard plugin queued.");
+
+    await waitFor(5000);
+
+    // status: processing
+    for (let i = 0; i < 10; i++) {
+        await supabase.from('whiteboard').update({
+            plugin: {
+                ...data.plugin as WhiteboardPluginParams,
+                state: {
+                    status: "processing",
+                    progress: i * 10
+                }
+            } as WhiteboardPluginParams
+        }).match({ whiteboard_id: data.whiteboard_id });
+
+        // console.log("Whiteboard plugin processing.", i);
+
+        await waitFor(100);
+    }
+
+    // status: success
+    await supabase.from('whiteboard').update({
+        plugin: {
+            ...data.plugin as WhiteboardPluginParams,
+            state: {
+                status: "success"
+            }
+        } as WhiteboardPluginParams
+    }).match({ whiteboard_id: data.whiteboard_id });
+
+    // console.log("Whiteboard plugin success.");
+}
+
 export async function POST(request: NextRequest) {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createServerComponentClient<Database>({ cookies });
     const user = await supabase.auth.getUser();
 
     if (!user.data.user.id) return notOk('User not found');
@@ -31,6 +80,10 @@ export async function POST(request: NextRequest) {
         if (error) {
             console.log("error", error.message)
             throw error;
+        }
+
+        if (data.length) {
+            imitateWhiteboardProgress(data[0]);
         }
 
         return ok(data);

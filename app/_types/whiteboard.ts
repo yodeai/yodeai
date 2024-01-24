@@ -8,7 +8,7 @@ export type WhiteboardPluginParams = {
     }
     rendered: boolean;
     state: {
-        status: "queued" | "processing" | "success" | "error";
+        status: "waiting" | "queued" | "processing" | "success" | "error";
         message?: string;
         progress?: number;
     }

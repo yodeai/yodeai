@@ -38,9 +38,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
               text,
             },
             state: {
-              status: "queued",
-              progress: 0,
-              message: "Quequed for rendering",
+              status: "waiting"
             }
           } as WhiteboardPluginParams
         }),
