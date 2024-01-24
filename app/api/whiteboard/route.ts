@@ -22,7 +22,7 @@ const imitateWhiteboardProgress = async (data: Tables<"whiteboard">) => {
 
     // console.log("Whiteboard plugin queued.");
 
-    await waitFor(5000);
+    await waitFor(500);
 
     // status: processing
     for (let i = 0; i < 10; i++) {
