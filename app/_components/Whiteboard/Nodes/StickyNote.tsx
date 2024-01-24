@@ -48,7 +48,8 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
                     backgroundColor: "transparent",
                     height: node.height || 200,
                     width: node.width || 200,
-                    fontSize: 9
+                    fontSize: 9,
+                    lineHeight: 1.5
                 }}
                 ref={$textarea}
                 className="border-none m-0 resize-none block w-full"
