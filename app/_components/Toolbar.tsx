@@ -143,7 +143,7 @@ export default function Toolbar() {
                 <Box>
                     <Button
                         // disabled={activeComponent !== "jira"}
-                        variant={activeComponent === "jira" ? "light" : "subtle"}
+                        variant={activeToolbarComponent === "jira" ? "light" : "subtle"}
                         c="gray.6"
                         onClick={switchComponent.bind(null, "jira")}>
                         <FaJira size={18} />
