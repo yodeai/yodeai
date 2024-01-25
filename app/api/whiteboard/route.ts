@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
             throw error;
         }
 
-        if (data.length) {
+        if (data.length && plugin) {
             imitateWhiteboardProgress(data[0]);
         }
 

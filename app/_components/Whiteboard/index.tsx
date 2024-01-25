@@ -21,7 +21,8 @@ import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
-    if (!whiteboard.plugin || whiteboard.plugin.rendered) return whiteboard.nodes as any || [];
+    if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
+    if(!whiteboardPluginRenderers[whiteboard.plugin.name]) return whiteboard.nodes as any || [];
     return whiteboardPluginRenderers[whiteboard.plugin.name]
         .render(whiteboard.nodes as any)
 }
