@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -21,6 +21,10 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
     companyNameOrURLs: "",
     aresOfAnalysis: ""
   });
+
+  useEffect(() => {
+    setForm({ companyNameOrURLs: "", aresOfAnalysis: "" });
+  }, [opened])
 
   const handleCreateWhiteBoard = async () => {
     setLoading(true);

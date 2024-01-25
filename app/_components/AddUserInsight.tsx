@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -18,6 +18,10 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
   const [loading, setLoading] = useState(false);
   const [opened, { close }] = modalController;
   const [text, setText] = useState("");
+
+  useEffect(() => {
+    setText("");
+  }, [opened])
 
   const handleCreateWhiteBoard = async () => {
     setLoading(true);
