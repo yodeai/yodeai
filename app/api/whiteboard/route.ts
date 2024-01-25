@@ -82,9 +82,9 @@ export async function POST(request: NextRequest) {
             throw error;
         }
 
-        if (data.length && plugin) {
-            imitateWhiteboardProgress(data[0]);
-        }
+        // if (data.length && plugin) {
+        //     imitateWhiteboardProgress(data[0]);
+        // }
 
         return ok(data);
 

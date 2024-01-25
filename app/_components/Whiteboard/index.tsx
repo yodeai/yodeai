@@ -88,7 +88,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                nodes, edges, plugin: { ...data.plugin as any, rendered: true }
+                nodes, edges, plugin: { ...data.plugin as any, rendered: whiteboard?.plugin?.rendered }
             })
         })
             .then(res => res.json())
