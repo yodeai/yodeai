@@ -4,6 +4,8 @@ import { SupabaseClient, createServerComponentClient } from "@supabase/auth-help
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+export const revalidate = 180;
+
 type LensPageProps = {
     params: { lens_ids: string[] }
     searchParams: { [key: string]: string | string[] | undefined }
@@ -19,7 +21,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
         return redirect(`/notFound`)
     }
 
-    if (lens.length === 0){
+    if (lens.length === 0) {
         return redirect(`/notFound`)
     }
 
@@ -44,7 +46,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
     const user = userData.data.user;
 
     const lensData = await getLensData(supabase, lens_id);
-    
+
     if (lensData.parents) {
         // parent control check if lens_ids on the route is different
         const lens_ids_from_route = lens_ids.slice(0, -1).join('/')

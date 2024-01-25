@@ -5,6 +5,8 @@ import { Database } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { WhiteboardComponentProps } from "app/_types/whiteboard";
 
+export const revalidate = 180;
+
 type WhiteboardPageProps = {
     params: { whiteboard_id: number }
     searchParams: { [key: string]: string | string[] | undefined }
