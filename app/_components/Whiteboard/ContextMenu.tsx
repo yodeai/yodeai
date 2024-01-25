@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ContextMenu({
     id,
@@ -9,19 +10,42 @@ export default function ContextMenu({
     bottom,
     ...props
 }) {
-    const { getNode, setNodes, addNodes, setEdges } = useReactFlow();
+    const { getNode, getNodes, setNodes, addNodes, setEdges } = useReactFlow();
     const duplicateNode = useCallback(() => {
-        const node = getNode(id);
-        const position = {
-            x: node.position.x + 50,
-            y: node.position.y + 50,
-        };
+        let selectedNodes = getNodes().filter((node) => node.selected);
+        const nodesToDuplicate = selectedNodes.length ? selectedNodes : [getNode(id)];
 
-        addNodes({ ...node, id: `${node.id}-copy`, position });
+        const minX = Math.min(...selectedNodes.map((node) => node.position.x)) - 50;
+        const maxX = Math.max(...selectedNodes.map((node) => node.position.x + node.width)) + 50;
+
+        addNodes(nodesToDuplicate.map((node) => ({
+            ...node,
+            id: node.type === "group" ? 'group-' + Date.now() : uuidv4(),
+            position: {
+                x: node.position.x + (maxX - minX) + 50,
+                y: node.position.y
+            }
+        })))
     }, [id, getNode, addNodes]);
 
     const deleteNode = useCallback(() => {
-        setNodes((nodes) => nodes.filter((node) => node.id !== id));
+        const currentNode = getNode(id);
+        const childrenNodeIds = currentNode.type === "group"
+            ? getNodes().filter(node => node.parentNode === currentNode.id).map(node => node.id)
+            : [];
+        setNodes((nodes) =>
+            nodes
+                .filter(node => node.id !== id)
+                .map((node) => {
+                    if (childrenNodeIds.includes(node.id)) {
+                        return {
+                            ...node,
+                            parentNode: null
+                        };
+                    }
+                    return node;
+                })
+        );
         setEdges((edges) => edges.filter((edge) => edge.source !== id));
     }, [id, setNodes, setEdges]);
 

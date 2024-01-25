@@ -1,14 +1,24 @@
 import React, { useState, useRef, memo } from 'react'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
-import {  NodeProps } from 'reactflow'
+import { NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
+export type StickyNoteValueType = {
+    text: string
+    color: string
+}
+
 export const defaultValues: StickyNoteProps["data"] = {
     text: "Sticky Note",
     color: "#ffd43b"
+}
+
+export const defaultNodeProps: { height: number; width: number } = {
+    height: 200,
+    width: 200
 }
 
 export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
@@ -29,12 +39,17 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
             value={node.data.color}
             selected={selected}
         />
-        <div className="rounded-md shadow-md">
+        <div className="shadow-md rounded-md"
+            style={{
+                backgroundColor: node.data.color,
+            }}>
             <textarea
                 style={{
-                    backgroundColor: node.data.color,
+                    backgroundColor: "transparent",
                     height: node.height || 200,
-                    width: node.width || 200
+                    width: node.width || 200,
+                    fontSize: 9,
+                    lineHeight: 1.5
                 }}
                 ref={$textarea}
                 className="border-none m-0 resize-none block w-full"
@@ -53,11 +68,11 @@ type ColorPickerProps = {
 }
 export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerProps) => {
     const colors = [
+        { value: "#ffd43b" },
+        { value: "#80caff" },
+        { value: "#d9b8ff" },
         { value: "#f05152" },
-        { value: "#3e83f8" },
-        { value: "#0c9f6e" },
-        { value: "#c37801" },
-        { value: "#ffd43b" }
+        { value: "#0c9f6e"}
     ]
 
     return <div className={cn(
@@ -65,7 +80,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
         selected ? "flex" : "hidden"
     )}>
         {colors.map(color =>
-            <div onClick={handleColorChange.bind(null, color.value)}
+            <div key={color.value} onClick={handleColorChange.bind(null, color.value)}
                 className={cn("h-5 w-5 rounded-full", color.value === value && "border-2 border-gray-800 outline-2")}
                 style={{ backgroundColor: color.value }}></div>)}
     </div>

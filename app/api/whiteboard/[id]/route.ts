@@ -13,8 +13,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (Number.isNaN(Number(params.id))) return notOk('Invalid ID');
 
   try {
-    const { name = null, nodes = null, edges = null } = await request.json();
-    const payload = removeNullValues({ name, nodes, edges });
+    const { name = null, nodes = null, edges = null, plugin = null } = await request.json();
+    const payload = removeNullValues({ name, nodes, edges, plugin });
 
     const { data, error } = await supabase
       .from('whiteboard')

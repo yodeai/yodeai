@@ -6,11 +6,10 @@ import {
     Flex, Button, Text, Tooltip, Box,
     Menu, UnstyledButton, Select, HoverCard, Slider
 } from "@mantine/core";
-import { FaAngleDown } from "react-icons/fa6";
-import Link from "next/link";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
+import AddUserInsight from "./AddUserInsight";
 
 type SpaceHeaderProps = {
     title: string;
@@ -31,7 +30,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         handleChangeLayoutView,
     } = props;
 
-    const { subspaceModalDisclosure, whiteboardModelDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
+    const { subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
 
     return <>
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
@@ -128,6 +127,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
             <Flex justify={"center"} align={"center"} gap={"sm"}>
                 <AddSubspace modalController={subspaceModalDisclosure} lensId={-1} accessType={"owner"} />
                 <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={-1} accessType={"owner"} />
+                <AddUserInsight modalController={userInsightsDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>

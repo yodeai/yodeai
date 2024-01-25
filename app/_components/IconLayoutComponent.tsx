@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard} from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -9,19 +9,19 @@ import { Layout, Layouts } from "react-grid-layout";
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
-import { LensLayout, Subspace, Lens, Whiteboard } from "app/_types/lens";
+import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaHome, FaICursor, FaShare } from "react-icons/fa";
+import { FaCog, FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
-import Link from "next/link";
-import LoadingSkeleton from "./LoadingSkeleton";
 
 import ShareLensComponent from './ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import { Tables } from "app/_types/supabase";
 import { Breadcrumb } from "./Breadcrumb";
+import { WhiteboardPluginParams } from "app/_types/whiteboard";
+import { cn } from "@utils/style";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -66,7 +66,11 @@ export default function IconLayoutComponent({
     whiteboard: <FaChalkboard size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
-    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />
+    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
+    plugins: {
+      "user-insight": <FaUsersGear size={32} color="#888888" />,
+      "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
+    }
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
@@ -76,7 +80,7 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: (Block | Subspace | Lens | Whiteboard)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
+  const items: (Block | Subspace | Lens | Tables<"whiteboard">)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -110,7 +114,7 @@ export default function IconLayoutComponent({
   }, [breadcrumbData, items, lensName, lensId, selectedItems])
 
   const getLensParents = () => {
-    if(!lensId){
+    if (!lensId) {
       setBreadcrumbLoading(false);
       return;
     }
@@ -153,7 +157,7 @@ export default function IconLayoutComponent({
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const [itemType, itemId] = newItem.i.split("_") as [
       "bl" | "ss" | "wb",
-      Block["block_id"] | Subspace["lens_id"] | Whiteboard["whiteboard_id"]
+      Block["block_id"] | Subspace["lens_id"] | Tables<"whiteboard">["whiteboard_id"]
     ];
 
     const now = Date.now();
@@ -215,11 +219,14 @@ export default function IconLayoutComponent({
     if ("whiteboard_id" in item) {
       key = `wb_${item.whiteboard_id}`;
       item_id = item.whiteboard_id;
+      const icon = (item.plugin as any)?.name && (item.plugin as any)?.name in fileTypeIcons.plugins
+        ? fileTypeIcons.plugins[(item.plugin as any)?.name]
+        : fileTypeIcons.whiteboard;
       content = <WhiteboardIconItem
         handleWhiteboardDelete={handleWhiteboardDelete}
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
-        icon={fileTypeIcons.whiteboard} whiteboard={item} />
+        icon={icon} whiteboard={item} />
     } else if ("lens_id" in item) {
       key = `ss_${item.lens_id}`;
       item_id = item.lens_id;
@@ -659,15 +666,22 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
 
 type WhiteboardIconItemProps = {
   icon: JSX.Element,
-  whiteboard: Whiteboard
+  whiteboard: Tables<"whiteboard">
   selected?: boolean;
   unselectBlocks?: () => void
   handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
 }
 const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
   const { showContextMenu } = useContextMenu();
+  const whiteboardPluginState = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams)?.state, [whiteboard?.plugin]);
+
+  // const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+
+  // useEffect(() => {
+  //   setLoading(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
+  // }, [whiteboardPluginState?.status])
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm whiteboard deletion',
@@ -710,14 +724,21 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
     <Flex
       onContextMenu={onContextMenu}
       mih={100} gap="6px"
+      className="relative"
       justify="flex-end" align="center"
       direction="column" wrap="nowrap">
-      <Box>
+      <Box className="absolute top-1">
         {loading
-          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-          : <SpaceIconHint>{icon}</SpaceIconHint>
+          ? <>
+            {/* {whiteboardPluginState?.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              {whiteboardPluginState?.progress}%
+            </Text>} */}
+            <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
+          </>
+          : ""
         }
       </Box>
+      <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
       <Box w={100} h={40} variant="unstyled" className="text-center">
         <Text inline={true} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {whiteboard.name}
@@ -734,7 +755,7 @@ type SpaceIconHintProps = {
 const SpaceIconHint = ({ children, subIcons }: SpaceIconHintProps) => {
   return <>
     {children}
-    <div className="absolute top-1 right-1">
+    <div className={"absolute top-1 right-1"}>
       {subIcons}
     </div>
   </>

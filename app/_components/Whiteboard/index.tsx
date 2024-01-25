@@ -1,9 +1,7 @@
 'use client';
 
-import { uuid } from 'uuidv4';
-
-import { useCallback, useEffect, useState, useRef } from "react";
-import { Tables } from "app/_types/supabase"
+import { v4 as uuidv4 } from 'uuid';
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import ReactFlow, {
     ReactFlowProvider,
     useNodesState, useEdgesState, addEdge,
@@ -16,21 +14,26 @@ import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "@utils/hooks";
 import { ImSpinner8 } from "react-icons/im";
 import { Text } from "@mantine/core";
-import nodeTypes, { defaultValues } from './Nodes';
+import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
+import { WhiteboardComponentProps } from 'app/_types/whiteboard';
+import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 
-type WhiteboardProps = {
-    data: Tables<"whiteboard">
+const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
+    if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
+    if(!whiteboardPluginRenderers[whiteboard.plugin.name]) return whiteboard.nodes as any || [];
+    return whiteboardPluginRenderers[whiteboard.plugin.name]
+        .render(whiteboard.nodes as any)
 }
 
-function Whiteboard({ data }: WhiteboardProps) {
-    const [nodes, setNodes, onNodesChange] = useNodesState(data.nodes as any || []);
+function Whiteboard({ data }: WhiteboardComponentProps) {
+    const [nodes, setNodes, onNodesChange] = useNodesState(getWhiteboardNodes(data));
     const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges as any || []);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [menu, setMenu] = useState(null);
-    const [whiteboard, setWhiteboard] = useState<Tables<"whiteboard">>(data);
+    const [whiteboard, setWhiteboard] = useState(data);
     const $whiteboard = useRef(null);
     const router = useRouter();
 
@@ -54,11 +57,11 @@ function Whiteboard({ data }: WhiteboardProps) {
         });
 
         const newNode: Node = {
-            id: uuid(),
+            id: uuidv4(),
             type,
             position,
-            height: 200,
-            width: 200,
+            height: defaultNodeProps[type].height || 200,
+            width: defaultNodeProps[type].width || 200,
             data: defaultValues[type]
         };
 
@@ -84,7 +87,9 @@ function Whiteboard({ data }: WhiteboardProps) {
         fetch(`/api/whiteboard/${data.whiteboard_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nodes, edges })
+            body: JSON.stringify({
+                nodes, edges, plugin: { ...data.plugin as any, rendered: true }
+            })
         })
             .then(res => res.json())
             .catch(err => console.error(err))
@@ -134,8 +139,11 @@ function Whiteboard({ data }: WhiteboardProps) {
             <Text size="sm" c="gray.7">Auto-save...</Text>
         </div>}
         <ReactFlow
+            nodesDraggable={!Boolean(data.plugin)}
+            nodesConnectable={!Boolean(data.plugin)}
+            elementsSelectable={!Boolean(data.plugin)}
             className="flex-1"
-            minZoom={0.5}
+            minZoom={0.05}
             maxZoom={4}
             ref={$whiteboard}
             fitView
@@ -160,7 +168,7 @@ function Whiteboard({ data }: WhiteboardProps) {
     </div>
 }
 
-export default function WhiteboardContainer(props: WhiteboardProps) {
+export default function WhiteboardContainer(props: WhiteboardComponentProps) {
     return <ReactFlowProvider>
         <Whiteboard {...props} />
     </ReactFlowProvider>

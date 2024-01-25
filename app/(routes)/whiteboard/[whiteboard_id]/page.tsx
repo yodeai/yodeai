@@ -2,8 +2,8 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Whiteboard from '@components/Whiteboard';
 import { Database } from "app/_types/supabase";
-import { ReactFlowProvider, } from 'reactflow';
 import { redirect } from "next/navigation";
+import { WhiteboardComponentProps } from "app/_types/whiteboard";
 
 type WhiteboardPageProps = {
     params: { whiteboard_id: number }
@@ -31,5 +31,5 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
         redirect("/notFound");
     }
 
-    return <Whiteboard data={data} />
+    return <Whiteboard data={data as WhiteboardComponentProps["data"]} />
 }

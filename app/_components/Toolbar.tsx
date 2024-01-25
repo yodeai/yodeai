@@ -3,7 +3,7 @@
 import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu } from '@mantine/core';
-import { FaInfo, FaPlus } from 'react-icons/fa';
+import { FaAngleRight, FaArrowCircleRight, FaInfo, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
@@ -36,10 +36,12 @@ export default function Toolbar() {
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
-    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, lensId } = useAppContext();
+    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, lensId } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
     const [whiteboardModalState, whiteboardModalController] = whiteboardModelDisclosure;
+    const [userInsightsModalState, userInsightsModalController] = userInsightsDisclosure;
+    const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
@@ -128,6 +130,17 @@ export default function Toolbar() {
                         <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
                             <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>Add Whiteboard</Menu.Item>
                         </ConditionalTooltip>
+                        <Menu position="left" shadow="md" width={200} trigger="hover">
+                            <Menu.Target>
+                                <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />}>
+                                    <Button unstyled className="bg-transparent p-0 m-0">Add Plugin</Button>
+                                </Menu.Item>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
+                                <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
                     </Menu.Dropdown>
                 </Menu>
                 <Box>
