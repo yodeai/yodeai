@@ -85,7 +85,7 @@ export default function AddSubspace({ lensId, modalController, accessType }: Add
           </Flex>
         </Group>
         <Flex mt={20}>
-          <Button h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleCreateLens}>
+          <Button loading={loading} h={26} style={{ flex: 1, marginRight: 5 }} size='xs' color="blue" onClick={handleCreateLens}>
             Create
           </Button>
           <Button h={26} style={{ flex: 1, marginLeft: 5 }} size='xs' color="gray" onClick={() => {

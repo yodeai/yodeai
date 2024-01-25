@@ -78,6 +78,12 @@ const teamMembers = [
     imageUrl: '/yash.jpg',
     linkedinUrl: 'https://www.linkedin.com/in/yashdave003/',
   },
+  {
+    group: 'UX',
+    name: 'S. Samet ÜN',
+    imageUrl: '/samet.jpg',
+    linkedinUrl: 'https://www.linkedin.com/in/sametcodes',
+  }
 ];
 
 export default function Landing() {
