@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
+export async function GET(request: NextRequest, { params }: { params: { lens_id: string, googleUserId: string }; }) {
     try {
         const supabase = createServerComponentClient({
             cookies,
@@ -24,6 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                     )
                 ) 
             `)
+            .in('block.google_user_id', [params.googleUserId, 'global'])
             .eq('lens_id', params.lens_id)
             .eq("direct_child", true)
             .eq('block.lens_blocks.direct_child', true); // Use direct_child condition directly here

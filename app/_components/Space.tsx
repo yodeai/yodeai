@@ -13,6 +13,7 @@ import ShareLensComponent from "@components/ShareLensComponent";
 import toast from "react-hot-toast";
 import { FaCheck, FaPlus, FaThLarge, FaTrashAlt } from "react-icons/fa";
 import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+import { getUserInfo } from "@utils/googleUtils";
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -53,12 +54,13 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   const fetchBlocks = async(lensId: string) => {
     let apiurl;
+    let googleUserId = await getUserInfo();
     if (lensId == "allBlocks") {
-      apiurl = '/api/block/getAllBlocks';
+      apiurl = `/api/block/getAllBlocks/${googleUserId}`;
     } else if (lensId == "inbox") {
-      apiurl = '/api/inbox/getBlocks';
+      apiurl = `/api/inbox/getBlocks/${googleUserId}`;
     } else {
-      apiurl = `/api/lens/${lensId}/getBlocks`;
+      apiurl = `/api/lens/${lensId}/getBlocks/${googleUserId}`;
     }
     return fetch(apiurl)
         .then(response => response.json())

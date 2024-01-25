@@ -19,11 +19,12 @@ interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
-  onArchive?: () => void;
+  onArchive?: (googleUserId) => void;
+  hierarchy?: number;
+  googleUserId?: string;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive }: BlockProps) {
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId=""}: BlockProps) {
   const router = useRouter();
-
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
 
@@ -43,7 +44,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       success: "Archived!",
       error: "Failed to archive.",
     });
-    onArchive();
+    onArchive(googleUserId);
   };
 
   const retryProcessBlock = async () => {

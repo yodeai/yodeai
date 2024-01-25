@@ -12,13 +12,31 @@ import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
 import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import toast from "react-hot-toast";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
+  const [user, setUser] = useState(null)
   const router = useRouter();
+  const supabase = createClientComponentClient()
+  
+  useEffect(() => {
+    const getUserData = async() => {
+      // Fetch user data
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching user:", error.message);
+        return null;
+      }
+      setUser(user);
+    }
+    getUserData();
+  }, [])
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -47,6 +65,34 @@ export default function Block({ params }: { params: { id: string } }) {
     fetchPresignedUrl();
   }, [block]);
 
+  useEffect(() => {
+  
+    return () => {
+      if (isEditing && block) {
+        updateCurrentEditor(null);
+      }
+    };
+  }, [isEditing, block, supabase.auth]);
+  
+  const updateCurrentEditor = async (newEditor) => {
+    try {
+      const { data, error } = await supabase
+        .from('block')
+        .update({ current_editor: newEditor })
+        .eq('block_id', block.block_id);
+  
+      if (error) {
+        console.error("Error updating block:", error.message);
+      } else {
+        setIsEditing(false);
+        console.log('Block updated successfully');
+      }
+    } catch (updateError) {
+      console.error('Error updating block:', updateError.message);
+    }
+  };
+  
+
 
   if (loading || !block) {
     return (
@@ -55,6 +101,51 @@ export default function Block({ params }: { params: { id: string } }) {
       </div>
     );
   }
+
+  const handleEditing = async (startEditing) => {
+    try {
+      if (block.block_type == "google_doc") {
+        toast("Do not edit this block on the external Google Docs site while you edit on Yodeai.", {duration: 6000})
+      
+      }
+      if (!startEditing) {
+          updateCurrentEditor(null)
+        
+      } else {
+        const { data: currentUserData, error:currentUserDataError } = await supabase
+          .from('block')
+          .select().eq('block_id', block.block_id);
+        let newBlock: Block = currentUserData[0]
+        if (newBlock?.current_editor != null && newBlock?.current_editor != user?.email) {
+          toast.error(`Sorry, ${newBlock.current_editor} is currently editing the block`)
+          return;
+        }
+        const { data, error } = await supabase
+          .from('block')
+          .update({ current_editor: user?.email })
+          .eq('block_id', block.block_id).select();
+        
+        newBlock = data[0]
+        
+        if (error) {
+          console.error('Error updating block:', error.message);
+        } else {
+          console.log('Block updated successfully');
+        }
+
+        if (newBlock?.current_editor == user?.email) {
+          setIsEditing(startEditing)
+        } else {
+          toast.error(`Sorry, ${newBlock.current_editor} is currently editing the block`)
+        }
+
+
+      }
+    } catch (updateError) {
+      console.error('Error updating block:', updateError.message);
+    }
+  };
+  
 
 
 
@@ -86,8 +177,8 @@ export default function Block({ params }: { params: { id: string } }) {
   }
 
   const onSave = (block: Block) => {
-    console.log(block)
     setIsEditing(false);
+    handleEditing(false)
     setBlock(block);
   }
 
@@ -95,6 +186,7 @@ export default function Block({ params }: { params: { id: string } }) {
     <main className="container">
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
+        <Divider mb={0} variant="dashed"size={1.5} label={<Text size={"sm"} c="gray.7">{block.block_type} </Text>} labelPosition="center" />
         {!isEditing ? (
           <>
             <div className="p-2 pt-0 flex flex-col w-full">
@@ -103,7 +195,6 @@ export default function Block({ params }: { params: { id: string } }) {
                 <Link href={`/block/${block.block_id}`}>
                   <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text>
                 </Link>
-
 
                 {/* <Link href={`/block/${block.block_id}`}> */}
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
@@ -115,7 +206,7 @@ export default function Block({ params }: { params: { id: string } }) {
                         size="xs"
                         variant="subtle"
                         leftSection={<Pencil2Icon />}
-                        onClick={() => setIsEditing(!isEditing)}
+                        onClick={() => handleEditing(true)}
                       >
                         Edit
                       </Button>

@@ -9,6 +9,7 @@ import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } 
 import InfoPopover from './InfoPopover';
 import ToolbarHeader from './ToolbarHeader';
 import LoadingSkeleton from './LoadingSkeleton';
+import { getUserInfo } from '@utils/googleUtils';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
@@ -19,7 +20,7 @@ const QuestionAnswerForm: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
-
+    const [google_user_id, set_google_user_id] = useState(null);
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
     //         try {
@@ -46,6 +47,15 @@ const QuestionAnswerForm: React.FC = () => {
         setIsLoading(false);
         setIsSubmitting(false);
     }
+
+ 
+    useEffect(() => {
+        const fetchUserInfo= async() => {
+          let googleUserId = await getUserInfo();
+          set_google_user_id(googleUserId);
+        }
+        fetchUserInfo();
+      }, []);
 
     useEffect(() => {
         if (!lensId) {
@@ -105,9 +115,9 @@ const QuestionAnswerForm: React.FC = () => {
 
         try {
             const supabase = createClientComponentClient()
-
+            console.log("asking a question")
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId ? lensId : "NONE", activeComponent: activeComponent, userID: user.id, published: false };
+            const dataToPost = { question: inputValue, lensID: lensId ? lensId : "NONE", activeComponent: activeComponent, userID: user.id, published: false, google_user_id: google_user_id ? google_user_id : "NONE" };
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
             let blockTitles: { title: string, blockId: string }[] = [];
             if (response && response.answer) {

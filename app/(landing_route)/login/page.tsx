@@ -1,9 +1,17 @@
+"use client"
 import Link from 'next/link'
 import Messages from '@lib/messages'
 import { Button, Flex, PasswordInput, Text, TextInput } from '@mantine/core'
 import { IconAt } from '@tabler/icons-react';
+import { useEffect } from 'react';
+import { clearCookies } from '@utils/googleUtils';
 
 export default function Login() {
+  useEffect(() => {
+    clearCookies();
+
+  })
+
   return (
     <Flex mt={100} style={{ width: '100%' }} align="center" justify="center" direction={"column"}>
       <Text fw={600} size='lg'>Login to your account</Text>

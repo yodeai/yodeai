@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaChalkboard } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard} from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -66,6 +66,7 @@ export default function IconLayoutComponent({
     whiteboard: <FaChalkboard size={32} color="#888888" />,
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
+    google_doc: <FaGoogleDrive size={32} color="#0F9D58" />
   }), []);
 
   const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
