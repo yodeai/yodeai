@@ -610,7 +610,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
+    disabled: ["owner"].includes(subspace.access_type || accessType) === false,
   },
   {
     key: 'pin',
@@ -672,6 +672,7 @@ type WhiteboardIconItemProps = {
   handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
 }
 const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
+  const { accessType } = useAppContext();
   const { showContextMenu } = useContextMenu();
   const whiteboardPluginState = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams)?.state, [whiteboard?.plugin]);
 
@@ -715,7 +716,8 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
-    onClick: openDeleteModal
+    onClick: openDeleteModal,
+    disabled: ["owner", "editor"].includes(accessType) === false,
   }], []);
 
   const onContextMenu = showContextMenu(actions);
