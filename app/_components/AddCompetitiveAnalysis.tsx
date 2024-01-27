@@ -1,30 +1,55 @@
 'use client';
-
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
+import { TrashIcon } from '@radix-ui/react-icons';
+import { FaTrashAlt } from 'react-icons/fa';
+import { ActionIcon } from '@mantine/core';
 
 import WhiteboardMockData from 'app/_assets/whiteboard.competitiveanalysis.raw.json';
 import { WhiteboardPluginParams } from 'app/_types/whiteboard';
+import apiClient from '@utils/apiClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 type AddCompetitiveAnalysisProps = {
   lensId: number;
   modalController: ReturnType<typeof useDisclosure>
   accessType: string
 }
+
 export default function AddCompetitiveAnalysis({ lensId, modalController }: AddCompetitiveAnalysisProps) {
   const [loading, setLoading] = useState(false);
   const [opened, { close }] = modalController;
-  const [form, setForm] = useState({
-    companyNameOrURLs: "",
-    aresOfAnalysis: ""
-  });
+  const [name, updateName] = useState("Competitive Analysis")
+  const supabase = createClientComponentClient();
 
+  const [form, setForm] = useState({
+    companyInfo: [{ company_url: "", company_name: "" }],
+    areasOfAnalysis: [""],
+  });
+  const startCompetitiveAnalysis = async (whiteboard_id) => {
+    const companyMapping = {}
+    for (const [_, data] of Object.entries(form.companyInfo)) {
+      companyMapping[data["company_url"]] = data["company_name"];
+    }
+    const body = { whiteboard_id: whiteboard_id, company_mapping: companyMapping, areas: form.areasOfAnalysis}
+    let queued = false
+    await apiClient('/competitiveAnalysis', 'POST', body)
+      .then(result => {
+        console.log('Competitive analysis queued successfully', result);
+        queued = true
+      })
+      .catch(error => {
+        console.log('Error doing competitive analysis: ' + error.message);
+      });
+    return queued;
+
+  }
   useEffect(() => {
-    setForm({ companyNameOrURLs: "", aresOfAnalysis: "" });
-  }, [opened])
+    setForm({ companyInfo: [{ company_url: "", company_name: "" }], areasOfAnalysis: [""] });
+  }, [opened]);
 
   const handleCreateWhiteBoard = async () => {
     setLoading(true);
@@ -35,74 +60,174 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: "Competitive Analysis",
+          name: name,
           lens_id: lensId,
-          payload: WhiteboardMockData,
+          payload: [],
           plugin: {
             name: "competitive-analysis",
             rendered: false,
             data: form,
             state: {
-              status: "waiting"
-            }
-          } as WhiteboardPluginParams
+              status: "waiting",
+            },
+          } as WhiteboardPluginParams,
         }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
+      // make a call to backend
+      const whiteboard_id = data["data"][0]["whiteboard_id"]
+      const queued_request = await startCompetitiveAnalysis(whiteboard_id)
+      if (!queued_request){
+        const { error} = await supabase
+        .from('whiteboard')
+        .delete()
+        .eq('whiteboard_id', whiteboard_id)
+        console.log("Error in deleting", error)
+        return
+      }
       close();
       toast.success("Competitive Analysis created successfully.", data);
     } catch (e) {
+      console.log(e, e.message)
       toast.error("Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  return <Container className="max-w-3xl absolute">
-    <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Competitive Analysis</Text>} centered>
-      <Modal.Body p={2} pt={0}>
-        <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+  const addCompanyRow = () => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      companyInfo: [...prevForm.companyInfo, { company_url: "", company_name: "" }],
+    }));
+  };
 
-        <Flex className="flex-1 w-full mb-5">
+  const addAreaOfAnalysis = () => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      areasOfAnalysis: [...prevForm.areasOfAnalysis, ""],
+    }));
+  };
+
+  const updateCompanyInfo = (index: number, field: string, value: string) => {
+    if (field == "company_url") {
+      value = value.replace(/"/g, '');
+    }
+    setForm((prevForm) => {
+      const updatedCompanyInfo = [...prevForm.companyInfo];
+      updatedCompanyInfo[index][field] = value;
+      return { ...prevForm, companyInfo: updatedCompanyInfo };
+    });
+  };
+
+  const updateAreaOfAnalysis = (index: number, value: string) => {
+    setForm((prevForm) => {
+      const updatedAreasOfAnalysis = [...prevForm.areasOfAnalysis];
+      updatedAreasOfAnalysis[index] = value;
+      return { ...prevForm, areasOfAnalysis: updatedAreasOfAnalysis };
+    });
+  };
+  const handleDeleteCompany = (index: number) => {
+    setForm((prevForm) => {
+      const updatedCompanyInfo = [...prevForm.companyInfo];
+      updatedCompanyInfo.splice(index, 1);
+      return { ...prevForm, companyInfo: updatedCompanyInfo };
+    });
+  };
+  
+  const handleDeleteArea = (index: number) => {
+    setForm((prevForm) => {
+      const updatedAreasOfAnalysis = [...prevForm.areasOfAnalysis];
+      updatedAreasOfAnalysis.splice(index, 1);
+      return { ...prevForm, areasOfAnalysis: updatedAreasOfAnalysis };
+    });
+  };
+  
+
+  return (
+<Container className="max-w-3xl absolute">
+  <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Competitive Analysis</Text>} centered>
+    <Modal.Body p={2} pt={0} style={{ position: 'relative' }}>
+      <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2, style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } }} />
+      <Flex key="name" className="flex-1 w-full mb-5">
+        <Textarea
+          id="whiteboardName"
+          className="mt-0.5 w-1/2" // Adjusted width, you can set it to a fixed value if needed
+          placeholder="Enter competitive analysis name"
+          onChange={(event) => updateName(event.currentTarget.value)}
+        />
+      </Flex>
+      {form.companyInfo.map((company, index) => (
+        <Flex key={index} className="flex-1 w-full mb-5">
+          <Textarea
+            className="mt-0.5 w-1/2"
+            placeholder={`Company Name ${index + 1}`}
+            defaultValue={company.company_name}
+            onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
+          />
+          <Textarea
+            className="mt-0.5 w-1/2 ml-3"
+            placeholder={`Company URL ${index + 1}`}
+            defaultValue={company.company_url}
+            onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
+          />
+          {index > 0 && (
+            <ActionIcon
+              onClick={() => handleDeleteCompany(index)}
+              size="md"
+              color="red"
+              variant="gradient"
+              ml={5}
+              gradient={{ from: 'red', to: 'pink', deg: 255 }}
+            >
+              <FaTrashAlt size={14} />
+            </ActionIcon>
+          )}
+        </Flex>
+      ))}
+      <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addCompanyRow}>
+        Add Company
+      </Button>
+      {form.areasOfAnalysis.map((area, index) => (
+        <Flex key={index} className="flex-1 w-full mb-5 mt-5" >
           <Textarea
             className="mt-0.5 w-full"
-            autosize
-            minRows={4}
-            label="Company Names or URLs"
-            description=""
-            placeholder=""
-            value={form.companyNameOrURLs}
-            onChange={(event) => setForm({ ...form, companyNameOrURLs: event.currentTarget.value })}
+            placeholder={`Area of Analysis ${index + 1}`}
+            defaultValue={area}
+            onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
           />
+          {index > 0 && (
+            <ActionIcon
+              onClick={() => handleDeleteArea(index)}
+              size="md"
+              color="red"
+              variant="gradient"
+              ml={5}
+              gradient={{ from: 'red', to: 'pink', deg: 255 }}
+            >
+              <FaTrashAlt size={14} />
+            </ActionIcon>
+          )}
         </Flex>
+      ))}
+      <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addAreaOfAnalysis}>
+        Add Area
+      </Button>
+      <Flex mt={20} gap="xs">
+        <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
+          Create
+        </Button>
+        <Button h={26} style={{ flex: 1 }} size='xs' color="gray" onClick={() => close()}>
+          Cancel
+        </Button>
+      </Flex>
+    </Modal.Body>
+  </Modal>
+</Container>
 
-        <Flex className="flex-1 w-full">
-          <Textarea
-            className="mt-0.5 w-full"
-            autosize
-            minRows={4}
-            label="Areas of Analysis"
-            placeholder=""
-            description=""
-            value={form.aresOfAnalysis}
-            onChange={(event) => setForm({ ...form, aresOfAnalysis: event.currentTarget.value })}
-          />
-        </Flex>
-
-        <Flex mt={20} gap="xs">
-          <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
-            Create
-          </Button>
-          <Button h={26} style={{ flex: 1 }} size='xs' color="gray" onClick={() => {
-            close();
-          }}>
-            Cancel
-          </Button>
-        </Flex>
-      </Modal.Body>
-    </Modal>
-  </Container>
+  );
+  
 }
