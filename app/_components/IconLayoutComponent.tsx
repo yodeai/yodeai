@@ -675,13 +675,13 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
   const { showContextMenu } = useContextMenu();
   const whiteboardPluginState = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams)?.state, [whiteboard?.plugin]);
 
-  // const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
+  // const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   setLoading(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
-  // }, [whiteboardPluginState?.status])
+  useEffect(() => {
+    setLoading(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
+  }, [whiteboardPluginState?.status])
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm whiteboard deletion',
@@ -730,9 +730,9 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
       <Box className="absolute top-1">
         {loading
           ? <>
-            {/* {whiteboardPluginState?.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {whiteboardPluginState?.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               {whiteboardPluginState?.progress}%
-            </Text>} */}
+            </Text>}
             <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
           </>
           : ""

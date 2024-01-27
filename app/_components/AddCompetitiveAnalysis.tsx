@@ -4,6 +4,9 @@ import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
+import { TrashIcon } from '@radix-ui/react-icons';
+import { FaTrashAlt } from 'react-icons/fa';
+import { ActionIcon } from '@mantine/core';
 
 import WhiteboardMockData from 'app/_assets/whiteboard.competitiveanalysis.raw.json';
 import { WhiteboardPluginParams } from 'app/_types/whiteboard';
@@ -127,67 +130,104 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
       return { ...prevForm, areasOfAnalysis: updatedAreasOfAnalysis };
     });
   };
+  const handleDeleteCompany = (index: number) => {
+    setForm((prevForm) => {
+      const updatedCompanyInfo = [...prevForm.companyInfo];
+      updatedCompanyInfo.splice(index, 1);
+      return { ...prevForm, companyInfo: updatedCompanyInfo };
+    });
+  };
+  
+  const handleDeleteArea = (index: number) => {
+    setForm((prevForm) => {
+      const updatedAreasOfAnalysis = [...prevForm.areasOfAnalysis];
+      updatedAreasOfAnalysis.splice(index, 1);
+      return { ...prevForm, areasOfAnalysis: updatedAreasOfAnalysis };
+    });
+  };
+  
 
   return (
-    <Container className="max-w-3xl absolute">
-      <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Competitive Analysis</Text>} centered>
-        <Modal.Body p={2} pt={0}>
-          <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-          <Flex key="name" className="flex-1 w-full mb-5">
-            <input
-              id="whiteboardName"
-              type="text"
-              className="mt-0.5 w-1/2"
-              placeholder= "Enter whiteboard name"
-              onChange={(event) => updateName(event.currentTarget.value)}
-            />
-          </Flex>
-          {form.companyInfo.map((company, index) => (
-            <Flex key={index} className="flex-1 w-full mb-5">
-              <input
-                type="text"
-                className="mt-0.5 w-1/2" // Adjusted width to make it narrower
-                placeholder={`Company Name ${index + 1}`}
-                defaultValue={company.company_name}
-                onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
-              />
-              <input
-                type="text"
-                className="mt-0.5 w-1/2 ml-3" // Adjusted width to make it narrower
-                placeholder={`Company URL ${index + 1}`}
-                defaultValue={company.company_url}
-                onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
-              />
-            </Flex>
-          ))}
-        <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addCompanyRow}>
-          Add Company
+<Container className="max-w-3xl absolute">
+  <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Competitive Analysis</Text>} centered>
+    <Modal.Body p={2} pt={0} style={{ position: 'relative' }}>
+      <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2, style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } }} />
+      <Flex key="name" className="flex-1 w-full mb-5">
+        <Textarea
+          id="whiteboardName"
+          className="mt-0.5 w-1/2" // Adjusted width, you can set it to a fixed value if needed
+          placeholder="Enter competitive analysis name"
+          onChange={(event) => updateName(event.currentTarget.value)}
+        />
+      </Flex>
+      {form.companyInfo.map((company, index) => (
+        <Flex key={index} className="flex-1 w-full mb-5">
+          <Textarea
+            className="mt-0.5 w-1/2"
+            placeholder={`Company Name ${index + 1}`}
+            defaultValue={company.company_name}
+            onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
+          />
+          <Textarea
+            className="mt-0.5 w-1/2 ml-3"
+            placeholder={`Company URL ${index + 1}`}
+            defaultValue={company.company_url}
+            onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
+          />
+          {index > 0 && (
+            <ActionIcon
+              onClick={() => handleDeleteCompany(index)}
+              size="md"
+              color="red"
+              variant="gradient"
+              ml={5}
+              gradient={{ from: 'red', to: 'pink', deg: 255 }}
+            >
+              <FaTrashAlt size={14} />
+            </ActionIcon>
+          )}
+        </Flex>
+      ))}
+      <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addCompanyRow}>
+        Add Company
+      </Button>
+      {form.areasOfAnalysis.map((area, index) => (
+        <Flex key={index} className="flex-1 w-full mb-5 mt-5" >
+          <Textarea
+            className="mt-0.5 w-full"
+            placeholder={`Area of Analysis ${index + 1}`}
+            defaultValue={area}
+            onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
+          />
+          {index > 0 && (
+            <ActionIcon
+              onClick={() => handleDeleteArea(index)}
+              size="md"
+              color="red"
+              variant="gradient"
+              ml={5}
+              gradient={{ from: 'red', to: 'pink', deg: 255 }}
+            >
+              <FaTrashAlt size={14} />
+            </ActionIcon>
+          )}
+        </Flex>
+      ))}
+      <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addAreaOfAnalysis}>
+        Add Area
+      </Button>
+      <Flex mt={20} gap="xs">
+        <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
+          Create
         </Button>
-          {form.areasOfAnalysis.map((area, index) => (
-            <Flex key={index} className="flex-1 w-full mb-5 mt-5" >
-              <input
-                type="text"
-                className="mt-0.5 w-full" // Adjusted width to make it narrower
-                placeholder={`Area of Analysis ${index + 1}`}
-                defaultValue={area}
-                onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
-              />
-            </Flex>
-          ))}
-          <Button h={26} style={{ flex: 1 }} size='xs' color="blue" onClick={addAreaOfAnalysis}>
-            Add Area
-          </Button>
-          <Flex mt={20} gap="xs">
-            <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
-              Create
-            </Button>
-            <Button h={26} style={{ flex: 1 }} size='xs' color="gray" onClick={() => close()}>
-              Cancel
-            </Button>
-          </Flex>
-        </Modal.Body>
-      </Modal>
-    </Container>
+        <Button h={26} style={{ flex: 1 }} size='xs' color="gray" onClick={() => close()}>
+          Cancel
+        </Button>
+      </Flex>
+    </Modal.Body>
+  </Modal>
+</Container>
+
   );
   
 }
