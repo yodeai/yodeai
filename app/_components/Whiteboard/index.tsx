@@ -19,10 +19,11 @@ import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
+import { useAppContext } from '@contexts/context';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
-    if(!whiteboardPluginRenderers[whiteboard.plugin.name]) return whiteboard.nodes as any || [];
+    if (!whiteboardPluginRenderers[whiteboard.plugin.name]) return whiteboard.nodes as any || [];
     return whiteboardPluginRenderers[whiteboard.plugin.name]
         .render(whiteboard.nodes as any)
 }
@@ -34,6 +35,18 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [menu, setMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
+
+    const isLocked = useMemo(() => {
+        if (["owner", "editor"].includes(data.accessType)) return false;
+        if (!data.plugin) return false;
+        return true;
+    }, [data]);
+
+    const canBeUnlocked = useMemo(() => {
+        if (["owner", "editor"].includes(data.accessType)) return true;
+        return false;
+    }, [])
+
     const $whiteboard = useRef(null);
     const router = useRouter();
 
@@ -127,21 +140,25 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     }, []);
 
     useEffect(() => {
+        if (isLocked) return;
         syncWhiteboard(nodes, edges);
     }, [nodes, edges])
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
     return <div className="w-full h-full relative flex flex-col">
-        <WhiteboardHeader title={whiteboard.name} onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
-        {isSaving && <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
-            <ImSpinner8 size={10} className="animate-spin" />
-            <Text size="sm" c="gray.7">Auto-save...</Text>
-        </div>}
+        <WhiteboardHeader
+            title={whiteboard.name} accessType={data.accessType}
+            onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
+        {!isLocked && isSaving &&
+            <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
+                <ImSpinner8 size={10} className="animate-spin" />
+                <Text size="sm" c="gray.7">Auto-save...</Text>
+            </div>}
         <ReactFlow
-            nodesDraggable={!Boolean(data.plugin)}
-            nodesConnectable={!Boolean(data.plugin)}
-            elementsSelectable={!Boolean(data.plugin)}
+            nodesDraggable={isLocked}
+            nodesConnectable={isLocked}
+            elementsSelectable={isLocked}
             className="flex-1"
             minZoom={0.05}
             maxZoom={4}
@@ -159,12 +176,12 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}>
-            <Controls />
+            <Controls showInteractive={canBeUnlocked} />
             <Background gap={12} size={1} />
             {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             <MiniMap />
         </ReactFlow>
-        <WhiteboardDock />
+        {!isLocked && <WhiteboardDock />}
     </div>
 }
 

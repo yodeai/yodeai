@@ -9,12 +9,13 @@ import { useDebouncedCallback } from '@utils/hooks';
 
 type WhiteboardHeaderProps = {
     title: string
+    accessType: "owner" | "editor" | "reader";
     onSave: (title: string) => Promise<Response>
     onDelete: () => Promise<Response>
 }
 
 export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
-    const { title, onSave } = props;
+    const { title, accessType, onSave, onDelete } = props;
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -46,7 +47,7 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
         ),
         labels: { confirm: 'Delete whiteboard', cancel: "Cancel" },
         onCancel: () => console.log('Canceled deletion'),
-        onConfirm: props.onDelete
+        onConfirm: onDelete
     });
 
     return <>
@@ -87,8 +88,8 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
                     </div> || ""}
 
                     <Menu.Dropdown>
-                        <Menu.Item onClick={() => setIsEditing(true)}>Rename</Menu.Item>
-                        <Menu.Item color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={() => setIsEditing(true)}>Rename</Menu.Item>
+                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
             </Box>

@@ -60,31 +60,36 @@ export default function Toolbar() {
         block?: string;
         whiteboard?: string;
         subspace?: string;
+        plugin?: string;
     }>(() => {
         if (lensId && ["owner", "editor"].includes(accessType) === false) {
             return {
                 block: "Your access level does not allow you to add new blocks on this space.",
                 whiteboard: "Your access level does not allow you to add new whiteboards on this space.",
-                subspace: "Your access level does not allow you to add new subspaces on this space."
+                subspace: "Your access level does not allow you to add new subspaces on this space.",
+                plugin: "Your access level does not allow you to add new plugins on this space."
             }
         }
         if (["/"].includes(pathname)) {
             return {
                 block: "It is not allowed to add new blocks on the home page.",
-                whiteboard: "It is not allowed to add new whiteboards on the home page."
+                whiteboard: "It is not allowed to add new whiteboards on the home page.",
+                plugin: "Your access level does not allow you to add new plugins on this space."
             }
         }
         if (["/myblocks"].includes(pathname)) {
             return {
                 subspace: "It is not allowed to add new subspaces on the My Blocks page.",
                 whiteboard: "It is not allowed to add new whiteboards on the My Blocks page.",
+                plugin: "Your access level does not allow you to add new plugins on this space."
             }
         }
         if (["/inbox"].includes(pathname)) {
             return {
                 block: "It is not allowed to add new blocks on the Inbox page.",
                 whiteboard: "It is not allowed to add new whiteboards on the Inbox page.",
-                subspace: "It is not allowed to add new subspaces on the Inbox page."
+                subspace: "It is not allowed to add new subspaces on the Inbox page.",
+                plugin: "Your access level does not allow you to add new plugins on this space."
             }
         }
 
@@ -132,9 +137,11 @@ export default function Toolbar() {
                         </ConditionalTooltip>
                         <Menu position="left" shadow="md" width={200} trigger="hover">
                             <Menu.Target>
-                                <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />}>
-                                    <Button unstyled className="bg-transparent p-0 m-0">Add Plugin</Button>
-                                </Menu.Item>
+                                <ConditionalTooltip visible={"plugin" in disabledItems} label={disabledItems.plugin}>
+                                    <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />}>
+                                        <Button disabled={"plugin" in disabledItems} unstyled className="bg-transparent p-0 m-0">Add Plugin</Button>
+                                    </Menu.Item>
+                                </ConditionalTooltip>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>

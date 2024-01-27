@@ -60,6 +60,7 @@ export type WhiteboardPlugins = {
 
 export type WhiteboardComponentProps = {
     data: Tables<"whiteboard"> & {
-        plugin?: WhiteboardPluginParams
+        plugin?: WhiteboardPluginParams;
+        accessType: "owner" | "editor" | "reader";
     }
 }

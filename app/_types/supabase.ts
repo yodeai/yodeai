@@ -1158,6 +1158,13 @@ export interface Database {
             }
             Returns: string
           }
+      get_access_type_whiteboard: {
+        Args: {
+          chosen_whiteboard_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
       get_editor_lens: {
         Args: Record<PropertyKey, never>
         Returns: {
