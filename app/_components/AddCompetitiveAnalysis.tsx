@@ -164,28 +164,24 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">Company Information</Text>
             <Text className="w-full mb-5 text-gray-300" size="xs">
-              Enter the company name and URL you want to analyze. You can add multiple companies and areas of analysis.
+              Enter the company names and URLs you want to analyze.
             </Text>
           </Box>
 
           {form.companyInfo.map((company, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
-              <Input.Wrapper label="Company" className="w-full">
-                <Input
-                  className="mt-0.5"
-                  placeholder={`Company Name ${index + 1}`}
-                  defaultValue={company.company_name}
-                  onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
-                />
-              </Input.Wrapper>
-              <Input.Wrapper label="Company URL" className="w-full">
-                <Input
-                  className="mt-0.5"
-                  placeholder={`Company URL ${index + 1}`}
-                  defaultValue={company.company_url}
-                  onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
-                />
-              </Input.Wrapper>
+              <Input
+                className="mt-0.5 flex-1"
+                placeholder={`Company Name ${index + 1}`}
+                defaultValue={company.company_name}
+                onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
+              />
+              <Input
+                className="mt-0.5 flex-1"
+                placeholder={`Company URL ${index + 1}`}
+                defaultValue={company.company_url}
+                onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
+              />
               {index > 0 && (
                 <ActionIcon
                   onClick={() => handleDeleteCompany(index)}
@@ -216,21 +212,19 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
             <Title order={4} className="w-full">
               Areas of Analysis
             </Title>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
+            {/* <Text className="w-full mb-5 text-gray-300" size="xs">
               Enter the areas of analysis you want to analyze. You can add multiple companies and areas of analysis.
-            </Text>
+            </Text> */}
           </Box>
 
           {form.areasOfAnalysis.map((area, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
-              <Input.Wrapper className="w-full" label="Analysis Area">
                 <Input
                   className="mt-0.5 w-full"
                   placeholder={`Area of Analysis ${index + 1}`}
                   defaultValue={area}
                   onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
                 />
-              </Input.Wrapper>
               {index > 0 && (
                 <ActionIcon
                   onClick={() => handleDeleteArea(index)}
