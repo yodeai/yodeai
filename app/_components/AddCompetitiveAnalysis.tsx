@@ -23,14 +23,29 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
   const [name, updateName] = useState("Competitive Analysis")
   const supabase = createClientComponentClient();
 
+  function extractCompanyName(url) {
+    try {
+      const parsedUrl = new URL(url);
+  
+      // Extract company name based on your preferred method
+      // For example, extracting from the domain
+      const domainParts = parsedUrl.hostname.split('.');
+      return domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
+    } catch (error) {
+      console.error('Invalid URL:', url);
+      return null;
+    }
+  }
+  
+
   const [form, setForm] = useState({
-    companyInfo: [{ company_url: "", company_name: "" }],
+    companyInfo: [""],
     areasOfAnalysis: [""],
   });
   const startCompetitiveAnalysis = async (whiteboard_id) => {
     const companyMapping = {}
-    for (const [_, data] of Object.entries(form.companyInfo)) {
-      companyMapping[data["company_url"]] = data["company_name"];
+    for (const company_url of form.companyInfo) {
+      companyMapping[company_url] = extractCompanyName(company_url)
     }
     const body = { whiteboard_id: whiteboard_id, company_mapping: companyMapping, areas: form.areasOfAnalysis }
     let queued = false
@@ -46,7 +61,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
 
   }
   useEffect(() => {
-    setForm({ companyInfo: [{ company_url: "", company_name: "" }], areasOfAnalysis: [""] });
+    setForm({ companyInfo: [""], areasOfAnalysis: [""] });
   }, [opened]);
 
   const handleCreateWhiteBoard = async () => {
@@ -99,7 +114,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
   const addCompanyRow = () => {
     setForm((prevForm) => ({
       ...prevForm,
-      companyInfo: [...prevForm.companyInfo, { company_url: "", company_name: "" }],
+      companyInfo: [...prevForm.companyInfo, ""],
     }));
   };
 
@@ -116,7 +131,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
     }
     setForm((prevForm) => {
       const updatedCompanyInfo = [...prevForm.companyInfo];
-      updatedCompanyInfo[index][field] = value;
+      updatedCompanyInfo[index] = value;
       return { ...prevForm, companyInfo: updatedCompanyInfo };
     });
   };
@@ -168,18 +183,12 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
             </Text>
           </Box>
 
-          {form.companyInfo.map((company, index) => (
+          {form.companyInfo.map((company_url, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
               <Input
                 className="mt-0.5 flex-1"
-                placeholder={`Company Name ${index + 1}`}
-                defaultValue={company.company_name}
-                onChange={(event) => updateCompanyInfo(index, 'company_name', event.currentTarget.value)}
-              />
-              <Input
-                className="mt-0.5 flex-1"
                 placeholder={`Company URL ${index + 1}`}
-                defaultValue={company.company_url}
+                defaultValue={company_url}
                 onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
               />
               {index > 0 && (
