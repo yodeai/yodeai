@@ -32,7 +32,7 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
         redirect("/notFound");
     }
     let whiteboard = (data as WhiteboardComponentProps["data"])
-å    if (whiteboard?.plugin?.state && whiteboard?.plugin?.state?.status !== 'success') {
+    if (whiteboard?.plugin?.state && whiteboard?.plugin?.state?.status !== 'success') {
         return <p>Whiteboard is still processing, please check back later.</p>;
     }  
 
