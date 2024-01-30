@@ -46,6 +46,7 @@ type UserInsight = {
 
 type CompetitiveAnalysis = Array<{
     company: string;
+    company_url: string;
     data: Array<{
         title: string;
         content: string;
