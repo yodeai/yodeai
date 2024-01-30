@@ -610,7 +610,7 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner"].includes(subspace.access_type || accessType) === false,
+    disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
   },
   {
     key: 'pin',

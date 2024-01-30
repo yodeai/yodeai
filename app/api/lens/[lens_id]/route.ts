@@ -67,27 +67,31 @@ export async function DELETE(request: NextRequest, { params, }: { params: { lens
   const supabase = createServerComponentClient<Database>({ cookies });
   const lens_id = Number(params.lens_id);
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Validate the id
   if (isNaN(lens_id)) return notOk("Invalid ID");
 
-  // Validate access level
-  const lensUserResponse = await supabase.from('lens_users')
-    .select('access_type').eq('lens_id', lens_id).eq('user_id', user.id)
-  const lensResponse = await supabase.from('lens').select('owner_id').eq('lens_id', lens_id)
+  try {
+    // Validate access level
+    const lensUserResponse = await supabase.from('lens_users')
+      .select('access_type').eq('lens_id', lens_id).eq('user_id', user.id)
+    const lensResponse = await supabase.from('lens').select('owner_id').eq('lens_id', lens_id)
 
-  if (lensUserResponse.error || lensResponse.error.message) {
-    console.log("error", lensUserResponse.error.message || lensResponse.error.message);
-    throw lensUserResponse.error || lensResponse.error.message;
-  }
+    if (lensUserResponse?.error && lensResponse.error.message) {
+      throw new Error(lensUserResponse.error.message);
+    }
 
-  if (lensUserResponse.data.length === 0 && lensResponse.data[0].owner_id !== user.id) {
-    return notOk("You do not have access for this action.");
-  }
+    if (lensUserResponse.data.length === 0 && lensResponse.data[0].owner_id !== user.id) {
+      throw new Error("You do not have access for this action.");
+    }
 
-  if (lensUserResponse.data.length === 1 && lensUserResponse.data[0].access_type === 'reader') {
-    return notOk("You do not have access for this action.");
+    if (lensUserResponse.data.length === 1 && lensUserResponse.data[0].access_type === 'reader') {
+      throw new Error("You do not have access for this action.")
+    }
+
+  } catch (err) {
+    return notOk(err.message, 403);
   }
 
   try {
