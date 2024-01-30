@@ -137,11 +137,9 @@ export default function Toolbar() {
                         </ConditionalTooltip>
                         <Menu position="left" shadow="md" width={200} trigger="hover">
                             <Menu.Target>
-                                <ConditionalTooltip visible={"plugin" in disabledItems} label={disabledItems.plugin}>
-                                    <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />}>
-                                        <Button disabled={"plugin" in disabledItems} unstyled className="bg-transparent p-0 m-0">Add Plugin</Button>
-                                    </Menu.Item>
-                                </ConditionalTooltip>
+                                <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />} disabled={"plugin" in disabledItems}>
+                                    Add Plugin
+                                </Menu.Item>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
