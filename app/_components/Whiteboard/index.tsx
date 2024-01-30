@@ -40,12 +40,12 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         if (["owner", "editor"].includes(data.accessType)) return false;
         if (!data.plugin) return false;
         return true;
-    }, [data]);
+    }, [data.accessType]);
 
     const canBeUnlocked = useMemo(() => {
         if (["owner", "editor"].includes(data.accessType)) return true;
         return false;
-    }, [])
+    }, [data.accessType])
 
     const $whiteboard = useRef(null);
     const router = useRouter();
@@ -156,9 +156,9 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 <Text size="sm" c="gray.7">Auto-save...</Text>
             </div>}
         <ReactFlow
-            nodesDraggable={isLocked}
-            nodesConnectable={isLocked}
-            elementsSelectable={isLocked}
+            nodesDraggable={!isLocked}
+            nodesConnectable={!isLocked}
+            elementsSelectable={!isLocked}
             className="flex-1"
             minZoom={0.05}
             maxZoom={4}

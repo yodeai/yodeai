@@ -37,7 +37,6 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
     }  
 
     const accessTypeResponse = await supabase.rpc('get_access_type_whiteboard', { "chosen_user_id": user.id, "chosen_whiteboard_id": whiteboard_id })
-    console.log(accessTypeResponse)
     if (accessTypeResponse.error) {
         console.log("message", accessTypeResponse.error.message);
         throw accessTypeResponse.error.message;
