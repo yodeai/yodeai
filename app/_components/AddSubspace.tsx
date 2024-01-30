@@ -56,7 +56,7 @@ export default function AddSubspace({ lensId, modalController, accessType }: Add
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents, accessType: accessType }),
+          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents, accessType: 'owner'}),
         });
         if (!response.ok) {
           setLensName("");

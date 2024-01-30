@@ -92,7 +92,6 @@ export const processVectorSearch = async (question: string) => {
 
         docs.push(...ans2);
         for (let doc of ans2) {
-            console.log(doc.metadata);
             metadataList.push(doc.metadata);
         }
         return { documents: docs, metadata: metadataList };;

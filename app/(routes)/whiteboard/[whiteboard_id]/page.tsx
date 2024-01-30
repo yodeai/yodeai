@@ -10,6 +10,7 @@ type WhiteboardPageProps = {
     searchParams: { [key: string]: string | string[] | undefined }
 }
 
+
 export default async function WhiteboardPage({ params, searchParams }: WhiteboardPageProps) {
     const { whiteboard_id } = params;
     const supabase = createServerComponentClient<Database>({ cookies });
@@ -30,6 +31,10 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
     if (error) {
         redirect("/notFound");
     }
+    let whiteboard = (data as WhiteboardComponentProps["data"])
+    if (whiteboard?.plugin?.state && whiteboard?.plugin?.state?.status !== 'success') {
+        return <p>Whiteboard is still processing, please check back later.</p>;
+    }  
 
     return <Whiteboard data={data as WhiteboardComponentProps["data"]} />
 }
