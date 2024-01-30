@@ -25,11 +25,20 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
 
   function extractCompanyName(url) {
     try {
-      const parsedUrl = new URL(url);
+      const correctedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
   
-      // Extract company name based on your preferred method
-      // For example, extracting from the domain
-      const domainParts = parsedUrl.hostname.split('.');
+      const encodedUrl = encodeURI(correctedUrl);
+      const parsedUrl = new URL(encodedUrl);
+  
+      let domainName = parsedUrl.hostname;
+  
+      // Remove "www." if it exists at the beginning of the domain name
+      if (domainName.startsWith('www.')) {
+        domainName = domainName.slice(4);
+      }
+  
+      // Split domain parts and capitalize the first part
+      const domainParts = domainName.split('.');
       return domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
     } catch (error) {
       console.error('Invalid URL:', url);
@@ -38,14 +47,45 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
   }
   
 
+  const extractCompanyUrl = async (company_name) => {
+    try {
+      const response = await fetch(`/api/getCompanyDomain/${company_name}`, {
+        method: "GET",
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        return data["domain"]
+      } else {
+        console.error('Error fetching company URL:', response);
+        return '';
+      }
+    } catch (error) {
+      console.error('Error in fetch:', error);
+      throw error;
+    }
+  };
+  
+
+  
+
   const [form, setForm] = useState({
     companyInfo: [""],
     areasOfAnalysis: [""],
   });
   const startCompetitiveAnalysis = async (whiteboard_id) => {
     const companyMapping = {}
-    for (const company_url of form.companyInfo) {
-      companyMapping[company_url] = extractCompanyName(company_url)
+    for (const company_info of form.companyInfo) {
+      let companyName = company_info
+      let companyUrl = company_info
+      if (company_info.includes("http") || company_info.includes(".")) {
+        companyName = extractCompanyName(company_info)
+      } else {
+        companyUrl = await extractCompanyUrl(company_info)
+      }
+      companyUrl = companyUrl.startsWith('http://') || companyUrl.startsWith('https://') ? companyUrl : 'https://' + companyUrl;
+      companyMapping[companyUrl] = extractCompanyName(companyName)
+
     }
     const body = { whiteboard_id: whiteboard_id, company_mapping: companyMapping, areas: form.areasOfAnalysis }
     let queued = false
@@ -179,15 +219,15 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">Company Information</Text>
             <Text className="w-full mb-5 text-gray-300" size="xs">
-              Enter the company names and URLs you want to analyze.
+              Enter the company names or URLs you want to analyze.
             </Text>
           </Box>
-
+     
           {form.companyInfo.map((company_url, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
               <Input
                 className="mt-0.5 flex-1"
-                placeholder={`Company URL ${index + 1}`}
+                placeholder={`Company URL/Name ${index + 1}`}
                 defaultValue={company_url}
                 onChange={(event) => updateCompanyInfo(index, 'company_url', event.currentTarget.value)}
               />

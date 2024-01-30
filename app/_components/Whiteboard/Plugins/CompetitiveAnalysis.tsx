@@ -59,7 +59,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         )
     })
 
-    // Summary: Grouping
+
     summaryBoxBounding = getNodesBounding(summaryBoxNodes);
     let companyGroup = createGroupNode({
         position: { x: 0, y: 70 },
@@ -67,7 +67,6 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         height: summaryBoxBounding.bottom - summaryBoxBounding.top + 60,
     });
 
-    // ANALYSıS
     let analysisNodes: Node<any>[] = [];
 
     analysisNodes.push(createText({
@@ -76,7 +75,6 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
     }));
     let analysisBoxBounding = getNodesBounding(analysisNodes);
 
-    // Analysis: sources
     payload.forEach((company, index) => {
         let companyColor = colors[index % colors.length];
         let companyNodes: Node<any>[] = [];
@@ -171,12 +169,9 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
             }))
         );
 
-        // Analysis: contents
-
         analysisNodes.push(...companyNodes);
     })
 
-    // Analysis: contents
 
 
 
