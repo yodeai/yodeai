@@ -88,7 +88,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                 }, width: 200, height: 60
             }),
             createText({
-                data: { text: company.data[0].sources[0], size: 16 },
+                data: { text: company.company_url, size: 16 },
                 position: {
                     x: 0,
                     y: 70,
