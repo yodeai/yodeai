@@ -36,11 +36,18 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         summaryBoxBounding = getNodesBounding(summaryBoxNodes);
         summaryBoxNodes.push(
             createText({
-                data: { text: "C" + (index + 1), size: 16 },
+                data: { text: "" + (index + 1), size: 16 },
                 position: {
                     x: 0,
                     y: summaryBoxBounding.bottom + 10,
                 }, width: 50, height: 60
+            }),
+            createText({
+                data: { text: company.company_url, size: 16 },
+                position: {
+                    x: 0,
+                    y: summaryBoxBounding.bottom + 50,
+                }, width: 250, height: 60
             }),
             createText({
                 data: { text: company.company, size: 20 },
