@@ -1158,6 +1158,13 @@ export interface Database {
             }
             Returns: string
           }
+      get_access_type_whiteboard: {
+        Args: {
+          chosen_whiteboard_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
       get_editor_lens: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1412,6 +1419,16 @@ export interface Database {
           question: string
           answer: string
           similarity: number
+        }[]
+      }
+      update_plugin_progress: {
+        Args: {
+          id: number
+          new_progress: number
+        }
+        Returns: {
+          success: boolean
+          message: string
         }[]
       }
       vector_avg: {
