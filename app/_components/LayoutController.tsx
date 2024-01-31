@@ -16,7 +16,7 @@ type LayoutControllerProps = {
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
     handleLensDelete: (lens_id: number) => Promise<any>
-    handleLensChangeName: (lens_id: number, newLensName: string) => Promise<any>
+    handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
     onChangeLayout: (
