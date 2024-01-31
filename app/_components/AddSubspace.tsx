@@ -31,14 +31,14 @@ export default function AddSubspace({ lensId, modalController, accessType }: Add
   
           if (error) {
               console.error(`Error fetching space data: ${error.message}`);
-              return { rootId: null, parents }; // or handle the error accordingly
+              return { rootId: null, parents}; // or handle the error accordingly
           }
   
           const parent_id = data[0]?.parent_id;
           parents.push(parent_id);
   
           if (parent_id === -1) {
-              return { rootId: currentLensId, parents }; // Found the root lens
+              return { rootId: currentLensId, parents}; // Found the root lens
           }
   
           currentLensId = parent_id;
@@ -46,17 +46,31 @@ export default function AddSubspace({ lensId, modalController, accessType }: Add
   
       return { rootId: null, parents }; // No root lens found, handle accordingly
   }
+
+  async function findSharedStatus(lensId) {
+    const { data, error } = await supabase
+    .from('lens')
+    .select('shared')
+    .eq('lens_id', lensId);
+
+    if (error) {
+        console.error(`Error fetching space data: ${error.message}`);
+        return false// or handle the error accordingly
+    }
+    return data[0]?.shared;
+  }
   
     const handleCreateLens = async () => {
       setLoading(true);
         let {rootId, parents} = await findRoot(lensId)
+        let shared = await findSharedStatus(lensId)
         if (!parents.includes(-1)) parents.push(-1)
         const response = await fetch("/api/lens", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents, accessType: 'owner'}),
+          body: JSON.stringify({ text: lensName, parentId: lensId, root: rootId, parents: parents, accessType: 'owner', shared: shared}),
         });
         if (!response.ok) {
           setLensName("");
