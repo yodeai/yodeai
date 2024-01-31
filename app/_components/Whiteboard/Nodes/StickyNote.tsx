@@ -1,7 +1,7 @@
 import React, { useState, useRef, memo } from 'react'
+import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
-import { NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
@@ -39,6 +39,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
             value={node.data.color}
             selected={selected}
         />
+        <Handle type="target" position={Position.Left} />
         <div className="shadow-md rounded-md"
             style={{
                 backgroundColor: node.data.color,
@@ -58,6 +59,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
                 onBlur={handleBlur}
             />
         </div>
+        <Handle type="source" position={Position.Right} />
     </ResizableNode>
 });
 
@@ -72,7 +74,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
         { value: "#80caff" },
         { value: "#d9b8ff" },
         { value: "#f05152" },
-        { value: "#0c9f6e"}
+        { value: "#0c9f6e" }
     ]
 
     return <div className={cn(

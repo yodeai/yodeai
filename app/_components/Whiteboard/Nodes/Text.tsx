@@ -1,7 +1,7 @@
 import React, { memo, useState, useRef } from 'react'
+import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
-import { NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 import { FaA } from 'react-icons/fa6'
 
@@ -35,6 +35,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
     };
     return <ResizableNode selected={selected}>
         <TextSizer value={node.data.size} selected={selected} handleTextSizeChange={(size) => updateNode({ size })} />
+        {/* <Handle type="target" position={Position.Left} /> */}
         <div className="rounded-lg">
             <textarea
                 style={{
@@ -50,6 +51,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
                 onBlur={handleBlur}
             />
         </div>
+        {/* <Handle type="source" position={Position.Right} /> */}
     </ResizableNode>
 });
 

@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
+import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
-import { NodeProps } from 'reactflow'
 import { cn } from '@utils/style'
 
 type GroupNodeProps = WrappedComponentType<NodeProps>;
@@ -25,6 +25,7 @@ export const Component = memo(({ data, node, selected, updateNode }: GroupNodePr
             value={backgroundColor}
             selected={selected}
         />
+        <Handle type="target" position={Position.Left} />
         <div
             style={{
                 backgroundColor,
@@ -33,6 +34,7 @@ export const Component = memo(({ data, node, selected, updateNode }: GroupNodePr
                 width: node.width || 200
             }}
             className="rounded-lg shadow-md border-gray-500 bg-opacity-40"></div>
+        <Handle type="source" position={Position.Right} />
     </ResizableNode>
 });
 
