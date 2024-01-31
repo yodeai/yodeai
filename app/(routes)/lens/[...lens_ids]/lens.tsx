@@ -390,12 +390,38 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleLensChangeName = async (lens_id: number, newLensName: string) => {
+    const updatePromise = fetch(`/api/lens/${lens_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newLensName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating lens name...",
+      success: "Lens name updated!",
+      error: "Failed to update lens name.",
+    });
+  }
+
   const handleWhiteboardDelete = async (whiteboard_id: number) => {
     const deletePromise = fetch(`/api/whiteboard/${whiteboard_id}`, { method: "DELETE" });
     return load(deletePromise, {
       loading: "Deleting whiteboard...",
       success: "Whiteboard deleted!",
       error: "Failed to delete whiteboard.",
+    });
+  }
+
+  const handleWhiteboardChangeName = async (whiteboard_id: number, newWhiteboardName: string) => {
+    const updatePromise = fetch(`/api/whiteboard/${whiteboard_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newWhiteboardName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating whiteboard name...",
+      success: "Whiteboard name updated!",
+      error: "Failed to update whiteboard name.",
     });
   }
 
@@ -489,8 +515,10 @@ export default function Lens(props: LensProps) {
         {!loading && <LayoutController
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
           handleLensDelete={handleLensDelete}
           handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
           blocks={sortedBlocks}
