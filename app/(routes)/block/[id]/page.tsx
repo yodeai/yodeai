@@ -14,29 +14,17 @@ import { useRouter } from "next/navigation";
 import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
+import { useAppContext } from "@contexts/context";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-  const [user, setUser] = useState(null)
   const router = useRouter();
   const supabase = createClientComponentClient()
-  
-  useEffect(() => {
-    const getUserData = async() => {
-      // Fetch user data
-      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching user:", error.message);
-        return null;
-      }
-      setUser(user);
-    }
-    getUserData();
-  }, [])
+  const { user } = useAppContext();
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -66,21 +54,21 @@ export default function Block({ params }: { params: { id: string } }) {
   }, [block]);
 
   useEffect(() => {
-  
+
     return () => {
       if (isEditing && block) {
         updateCurrentEditor(null);
       }
     };
   }, [isEditing, block, supabase.auth]);
-  
+
   const updateCurrentEditor = async (newEditor) => {
     try {
       const { data, error } = await supabase
         .from('block')
         .update({ current_editor: newEditor })
         .eq('block_id', block.block_id);
-  
+
       if (error) {
         console.error("Error updating block:", error.message);
       } else {
@@ -91,7 +79,7 @@ export default function Block({ params }: { params: { id: string } }) {
       console.error('Error updating block:', updateError.message);
     }
   };
-  
+
 
 
   if (loading || !block) {
@@ -105,14 +93,14 @@ export default function Block({ params }: { params: { id: string } }) {
   const handleEditing = async (startEditing) => {
     try {
       if (block.block_type == "google_doc") {
-        toast("Do not edit this block on the external Google Docs site while you edit on Yodeai.", {duration: 6000})
-      
+        toast("Do not edit this block on the external Google Docs site while you edit on Yodeai.", { duration: 6000 })
+
       }
       if (!startEditing) {
-          updateCurrentEditor(null)
-        
+        updateCurrentEditor(null)
+
       } else {
-        const { data: currentUserData, error:currentUserDataError } = await supabase
+        const { data: currentUserData, error: currentUserDataError } = await supabase
           .from('block')
           .select().eq('block_id', block.block_id);
         let newBlock: Block = currentUserData[0]
@@ -124,9 +112,9 @@ export default function Block({ params }: { params: { id: string } }) {
           .from('block')
           .update({ current_editor: user?.email })
           .eq('block_id', block.block_id).select();
-        
+
         newBlock = data[0]
-        
+
         if (error) {
           console.error('Error updating block:', error.message);
         } else {
@@ -145,7 +133,7 @@ export default function Block({ params }: { params: { id: string } }) {
       console.error('Error updating block:', updateError.message);
     }
   };
-  
+
 
 
 
@@ -186,7 +174,7 @@ export default function Block({ params }: { params: { id: string } }) {
     <main className="container">
       <Flex direction="column" p={16} pt={0}>
         <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
-        <Divider mb={0} variant="dashed"size={1.5} label={<Text size={"sm"} c="gray.7">{block.block_type} </Text>} labelPosition="center" />
+        <Divider mb={0} variant="dashed" size={1.5} label={<Text size={"sm"} c="gray.7">{block.block_type} </Text>} labelPosition="center" />
         {!isEditing ? (
           <>
             <div className="p-2 pt-0 flex flex-col w-full">
@@ -200,7 +188,7 @@ export default function Block({ params }: { params: { id: string } }) {
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
                 {/* </Link> */}
                 <div className="flex gap-2">
-                {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
+                  {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
                     <Tooltip color="blue" label="Edit this block's title/content">
                       <Button
                         size="xs"
