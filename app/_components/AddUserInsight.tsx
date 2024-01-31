@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 
 import WhiteboardMockData from 'app/_assets/whiteboard.userinsight.mock.raw.json';
 import { WhiteboardPluginParams } from 'app/_types/whiteboard';
+import apiClient from '@utils/apiClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 type AddUserInsightProps = {
   lensId: number;
@@ -18,11 +20,25 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
   const [loading, setLoading] = useState(false);
   const [opened, { close }] = modalController;
   const [text, setText] = useState("");
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     setText("");
   }, [opened])
 
+  const startUserAnalysis = async(whiteboard_id, lensId) => {
+    const body = { whiteboard_id: whiteboard_id, lens_id: lensId, topics: text.split(",")}
+    let queued = false
+    await apiClient('/userAnalysis', 'POST', body)
+      .then(result => {
+        console.log('Competitive analysis queued successfully', result);
+        queued = true
+      })
+      .catch(error => {
+        console.log('Error doing competitive analysis: ' + error.message);
+      });
+    return queued;
+  }
   const handleCreateWhiteBoard = async () => {
     setLoading(true);
     try {
@@ -51,6 +67,17 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
+      // make a call to backend
+      const whiteboard_id = data["data"][0]["whiteboard_id"]
+      const queued_request = await startUserAnalysis(whiteboard_id, lensId)
+      if (!queued_request) {
+        const { error } = await supabase
+          .from('whiteboard')
+          .delete()
+          .eq('whiteboard_id', whiteboard_id)
+        console.log("Error in deleting", error)
+        return
+      }
       close();
       toast.success("User analysis created successfully.", data);
     } catch (e) {
@@ -72,7 +99,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
             minRows={4}
             placeholder=""
             description=""
-            label="Add insight areas"
+            label="Add insight areas, separating each area by a comma."
             value={text}
             onChange={(event) => setText(event.currentTarget.value)}
           />
