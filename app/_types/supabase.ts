@@ -1421,6 +1421,16 @@ export interface Database {
           similarity: number
         }[]
       }
+      update_plugin_progress: {
+        Args: {
+          id: number
+          new_progress: number
+        }
+        Returns: {
+          success: boolean
+          message: string
+        }[]
+      }
       vector_avg: {
         Args: {
           "": number[]
