@@ -152,7 +152,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
         user.commentSummary.forEach((comment, commentIndex) => {
             summaryTopicNodes.push(createStickyNote({
-                data: { text: comment.content || "―", color: colors[userIndex] },
+                data: { text: comment.content || "―", color: colors[userIndex % colors.length] },
                 position: {
                     x: summaryTopicBounding.left + ((summaryTopicNodes[0].width + 60) * Number(commentIndex)) + summaryUserTitle.width,
                     y: summaryTopicBounding.bottom + 50

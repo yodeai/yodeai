@@ -72,8 +72,8 @@ export default function IconLayoutComponent({
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
     google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
     plugins: {
-      "user-insight": <FaPuzzlePiece size={28} color="#888888" />,
-      "competitive-analysis": <FaPuzzlePiece size={28} color="#888888" />,
+      "user-insight": <FaUsersGear size={32} color="#888888" />,
+      "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
       "default": <FaPuzzlePiece size={28} color="#888888" />,
     }
   }), []);
@@ -867,12 +867,13 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete, handleWh
           : ""
         }
       </Box>
-      <Box className={cn("flex flex-col items-center align-bottom", loading && "opacity-10" || "")}>
+      <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
+      {/* <Box className={cn("flex flex-col items-center align-bottom", loading && "opacity-10" || "")}>
         <div className="mt-2">
           {icon}
         </div>
         <Text size="8" p={0} lh="xs" c="dimmed" className="select-none">{whiteboardPlugin?.name?.replace(/-/g, " ")}</Text>
-      </Box>
+      </Box> */}
       <Box w={100} h={40} variant="unstyled" className="text-center">
         {editMode
           ? <Textarea
