@@ -28,7 +28,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                     size: 32
                 },
                 position: { x: 0, y: 0 },
-                width: 400, height: 160
+                width: 400, height: 260
             }),
             createStickyNote({
                 data: { text: insight.user.info, color: groupNodeColor },
@@ -134,7 +134,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
         summaryTopicNodes.push(createText({
             id: `topic_${topicIndex}`,
-            data: { text: topic.name, size: 32 },
+            data: { text: topic.name, size: 24 },
             position: { x: summaryTopicBounding.right + (topicIndex === 0 ? 400 : 50), y: summaryTopicBounding.top },
             width: 430, height: 100
         }));
@@ -145,7 +145,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
         const summaryUserTitle = createText({
             id: `user_${userIndex}`,
-            data: { text: user.name, size: 32 },
+            data: { text: user.name, size: 24 },
             position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
             width: 400, height: 120
         })
