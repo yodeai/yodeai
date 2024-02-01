@@ -3,7 +3,7 @@
 import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu } from '@mantine/core';
-import { FaAngleRight, FaArrowCircleRight, FaInfo, FaPlus } from 'react-icons/fa';
+import { FaAngleRight, FaInfo, FaPlus, FaJira } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
