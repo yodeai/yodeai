@@ -1,7 +1,7 @@
 import { WhiteboardPlugins } from "app/_types/whiteboard"
 import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
-import { getNodesBounding } from "./utils";
+import { calculateStickyNoteBoxHeight, getNodesBounding } from "./utils";
 
 export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node<any>[] => {
     let nodes: Node<any>[] = [];
@@ -66,7 +66,6 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         )
     })
 
-
     summaryBoxBounding = getNodesBounding(summaryBoxNodes);
     let companyGroup = createGroupNode({
         position: { x: 0, y: 70 },
@@ -80,12 +79,12 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         data: { text: "Analysis", size: 32 },
         position: { x: summaryBoxBounding.right + 200, y: 0, }, width: 500, height: 60
     }));
-    let analysisBoxBounding = getNodesBounding(analysisNodes);
 
     payload.forEach((company, index) => {
         let companyColor = colors[index % colors.length];
         let companyNodes: Node<any>[] = [];
 
+        // appending user info
         let companyTitleAndSources = [
             createText({
                 data: { text: company.company, size: 24 },
@@ -103,17 +102,19 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
             })
         ];
 
-        let companyTitleAndSourcesBounding = getNodesBounding(companyTitleAndSources);
+        let companyNodesBounding = getNodesBounding(analysisNodes);
 
         const analysisGroup = createGroupNode({
+            id: `analysis_group_${index}`,
             data: { color: companyColor },
             position: {
                 x: summaryBoxBounding.right + 200,
-                y: index * (companyTitleAndSourcesBounding.bottom - companyTitleAndSourcesBounding.top + 170) + 70
+                y: companyNodesBounding.bottom - 20
             },
             width: 300,
             height: 280
         });
+
         companyNodes.push(
             analysisGroup,
             ...companyTitleAndSources.map(node => ({
@@ -127,11 +128,13 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
 
             }))
         );
-        const companyNodesBounding = getNodesBounding(companyNodes);
 
+        companyNodesBounding = getNodesBounding(analysisNodes);
+        
+        // appending analysis content
         let companyContentNodes: Node<any>[] = [];
-
         company.data.slice(1).forEach((content, index) => {
+            const stickyNoteBoxHeight = calculateStickyNoteBoxHeight(content.content, 150);
             companyContentNodes.push(
                 createText({
                     data: { text: content.title, size: 12 },
@@ -145,21 +148,33 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                     position: {
                         x: (200 * index),
                         y: 50,
-                    }, width: 150, height: 150
+                    }, width: 150, height: stickyNoteBoxHeight
                 })
             )
         });
-
 
         const companyContentNodesBounding = getNodesBounding(companyContentNodes);
         const companyContentGroup = createGroupNode({
             data: { color: companyColor },
             position: {
-                x: companyNodesBounding.right + 20,
-                y: index * (companyTitleAndSourcesBounding.bottom - companyTitleAndSourcesBounding.top + 170) + 70
+                x: summaryBoxBounding.right + 200 + analysisGroup.width,
+                y: companyNodesBounding.bottom
             },
             width: companyContentNodesBounding.right - companyContentNodesBounding.left + 80,
             height: companyContentNodesBounding.bottom - companyContentNodesBounding.top + 80,
+        });
+
+        companyNodes = companyNodes.map(node => node.id !== `analysis_group_${index}` ? node : {
+            ...node,
+            height: companyContentGroup.height,
+            position: {
+                ...node.position,
+                y: node.position.y + 20,
+            },
+            style: {
+                ...node.style,
+                height: companyContentGroup.height
+            }
         });
 
         companyNodes.push(
@@ -178,8 +193,6 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
 
         analysisNodes.push(...companyNodes);
     })
-
-
 
 
     nodes.push(
