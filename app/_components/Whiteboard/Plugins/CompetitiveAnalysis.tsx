@@ -8,7 +8,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
 
     // Summary
     let summaryBoxNodes: Node<any>[] = [];
-    const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f05152", "#0c9f6e"];
+    const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f07576", "#55e0b2"];
 
     nodes.push(createText({
         data: { text: "Companies", size: 32 },

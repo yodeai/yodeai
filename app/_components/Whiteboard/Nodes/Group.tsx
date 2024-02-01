@@ -45,9 +45,9 @@ type ColorPickerProps = {
 }
 export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerProps) => {
     const colors = [
-        { value: "#f05152" },
+        { value: "#f07576" },
         { value: "#3e83f8" },
-        { value: "#0c9f6e" },
+        { value: "#55e0b2" },
         { value: "#c37801" },
         { value: "#ffd43b" }
     ]
