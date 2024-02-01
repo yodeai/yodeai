@@ -181,7 +181,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             <MiniMap />
         </ReactFlow>
-        {!isLocked && <WhiteboardDock />}
+        {!isLocked && canBeUnlocked && <WhiteboardDock />}
     </div>
 }
 

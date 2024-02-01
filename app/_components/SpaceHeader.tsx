@@ -18,7 +18,8 @@ type SpaceHeaderProps = {
     staticSortBy?: boolean;
     staticZoomLevel?: boolean;
     selectedLayoutType: "block" | "icon",
-    handleChangeLayoutView?: any
+    handleChangeLayoutView?: any,
+    rightItem?: JSX.Element
 }
 
 export default function SpaceHeader(props: SpaceHeaderProps) {
@@ -29,6 +30,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         staticZoomLevel = true,
         selectedLayoutType,
         handleChangeLayoutView,
+        rightItem
     } = props;
 
     const { subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
@@ -119,8 +121,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                             ]}
                         />
                     </HoverCard.Dropdown>
-                </HoverCard>
-                }
+                </HoverCard>}
+                {rightItem}
             </Box>
         </Flex>
 

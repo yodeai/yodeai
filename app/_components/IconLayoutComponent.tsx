@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart } from "react-icons/fa6";
+import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
@@ -34,7 +34,9 @@ interface IconLayoutComponentProps {
   handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
   handleBlockDelete: (block_id: number) => Promise<any>
   handleLensDelete: (lens_id: number) => Promise<any>
+  handleLensChangeName: (lens_id: number, newLensName: string) => Promise<any>
   handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
+  handleWhiteboardChangeName: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
 }
 export default function IconLayoutComponent({
   blocks,
@@ -45,7 +47,9 @@ export default function IconLayoutComponent({
   handleBlockChangeName,
   handleBlockDelete,
   handleLensDelete,
-  handleWhiteboardDelete
+  handleLensChangeName,
+  handleWhiteboardDelete,
+  handleWhiteboardChangeName
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -70,6 +74,7 @@ export default function IconLayoutComponent({
     plugins: {
       "user-insight": <FaUsersGear size={32} color="#888888" />,
       "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
+      "default": <FaPuzzlePiece size={28} color="#888888" />,
     }
   }), []);
 
@@ -224,6 +229,7 @@ export default function IconLayoutComponent({
         : fileTypeIcons.whiteboard;
       content = <WhiteboardIconItem
         handleWhiteboardDelete={handleWhiteboardDelete}
+        handleWhiteboardChangeName={handleWhiteboardChangeName}
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
         icon={icon} whiteboard={item} />
@@ -234,6 +240,7 @@ export default function IconLayoutComponent({
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
         handleLensDelete={handleLensDelete}
+        handleLensChangeName={handleLensChangeName}
         icon={
           (item.access_type === "owner" || !item?.access_type)
             ? fileTypeIcons.subspace
@@ -537,13 +544,18 @@ type SubspaceIconItemProps = {
   selected?: boolean;
   unselectBlocks?: () => void
   handleLensDelete: (lens_id: number) => Promise<any>
+  handleLensChangeName: (lens_id: number, newLensName: string) => Promise<any>
 }
-const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: SubspaceIconItemProps) => {
+const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeName, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
   const { pinnedLenses, accessType, zoomLevel } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const $textarea = useRef<HTMLTextAreaElement>(null);
+  const [titleText, setTitleText] = useState<string>(subspace.name);
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   const shareModalDisclosure = useDisclosure(false);
   const [shareModalState, shareModalController] = shareModalDisclosure;
@@ -605,22 +617,69 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
     onClick: () => shareModalController.open()
   },
   {
+    key: 'pin',
+    color: "#228be6",
+    icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
+    title: isPinned ? "Unpin" : "Pin",
+    onClick: isPinned ? onUnpinLens : onPinLens
+  },
+  {
+    key: 'rename',
+    color: "#228be6",
+    icon: <FaICursor size={16} />,
+    title: 'Rename',
+    onClick: () => setEditMode(true),
+  },
+  {
     key: 'remove',
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
     disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
-  },
-  {
-    key: 'pin',
-    color: "#228be6",
-    icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
-    title: isPinned ? "Unpin" : "Pin",
-    onClick: isPinned ? onUnpinLens : onPinLens
-  }], [isPinned, accessType]);
+  }
+
+  ], [isPinned, accessType]);
 
   const onContextMenu = showContextMenu(actions);
+
+  const onChangeTitle = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitleText(event.target.value);
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      setEditMode(false);
+      return;
+    }
+    if (event.key === "Enter") {
+      setEditMode(false)
+      setLoading(true)
+      handleLensChangeName(subspace.lens_id, (event.target as HTMLTextAreaElement).value.trim())
+        .then(res => setLoading(false))
+      return;
+    }
+  }
+
+  useEffect(() => {
+    if (editMode) {
+      $textarea.current?.focus();
+      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).classList.contains("mantine-ScrollArea-viewport")) {
+        setEditMode(false);
+        unselectBlocks();
+      }
+    }
+
+    window.addEventListener("click", onClick);
+
+    return () => {
+      window.removeEventListener("click", onClick);
+    }
+  }, [$textarea, editMode])
 
   const subIcons = useMemo(() => {
     let subIcons: JSX.Element[] = [];
@@ -656,9 +715,23 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, unselectBlocks }: 
         }
       </Box>
       <Box w={100} h={40} variant="unstyled" className="text-center">
-        <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+        {editMode
+          ? <Textarea
+            rows={1}
+            className="z-50 block-input leading-4 w-full"
+            maxRows={2}
+            ref={$textarea}
+            variant="unstyled" ta="center" c="dimmed"
+            onKeyDown={onKeyDown}
+            size={`${7 * 200 / zoomLevel}px`}
+            p={0} m={0}
+            h={20}
+            onChange={onChangeTitle} placeholder="Title" value={titleText} />
+          : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+        }
+        {/* <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
-        </Text>
+        </Text> */}
       </Box>
     </Flex>
   </>
@@ -669,14 +742,21 @@ type WhiteboardIconItemProps = {
   whiteboard: Tables<"whiteboard">
   selected?: boolean;
   unselectBlocks?: () => void
-  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
+  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>,
+  handleWhiteboardChangeName: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
 }
-const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: WhiteboardIconItemProps) => {
-  const { accessType } = useAppContext();
+const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete, handleWhiteboardChangeName, unselectBlocks }: WhiteboardIconItemProps) => {
+  const { accessType, zoomLevel } = useAppContext();
   const { showContextMenu } = useContextMenu();
-  const whiteboardPluginState = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams)?.state, [whiteboard?.plugin]);
 
+  const whiteboardPlugin = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams), [whiteboard]);
+  const whiteboardPluginState = useMemo(() => whiteboardPlugin?.state, [whiteboardPlugin]);
+
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
+  const [titleText, setTitleText] = useState<string>(whiteboard.name);
+  const $textarea = useRef<HTMLTextAreaElement>(null);
+
   // const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -712,6 +792,14 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
       router.push(`/whiteboard/${whiteboard.whiteboard_id}`)
     }
   }, {
+    key: 'rename',
+    color: "#228be6",
+    icon: <FaICursor size={16} />,
+    title: 'Rename',
+    onClick: () => {
+      setEditMode(true);
+    }
+  }, {
     key: 'remove',
     color: "#ff6b6b",
     icon: <FaRegTrashCan size={16} />,
@@ -719,6 +807,45 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
     onClick: openDeleteModal,
     disabled: ["owner", "editor"].includes(accessType) === false,
   }], []);
+
+  const onChangeTitle = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitleText(event.target.value);
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      setEditMode(false);
+      return;
+    }
+    if (event.key === "Enter") {
+      setEditMode(false)
+      setLoading(true)
+      handleWhiteboardChangeName(whiteboard.whiteboard_id, (event.target as HTMLTextAreaElement).value.trim())
+        .then(res => setLoading(false))
+      return;
+    }
+  }
+
+  useEffect(() => {
+    if (editMode) {
+      $textarea.current?.focus();
+      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).classList.contains("mantine-ScrollArea-viewport")) {
+        setEditMode(false);
+        unselectBlocks();
+      }
+    }
+
+    window.addEventListener("click", onClick);
+
+    return () => {
+      window.removeEventListener("click", onClick);
+    }
+  }, [$textarea, editMode])
+
 
   const onContextMenu = showContextMenu(actions);
 
@@ -733,7 +860,7 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
         {loading
           ? <>
             {whiteboardPluginState?.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            {(whiteboardPluginState?.progress * 100).toFixed(1)}%
+              {(whiteboardPluginState?.progress * 100).toFixed(1)}%
             </Text>}
             <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
           </>
@@ -741,10 +868,27 @@ const WhiteboardIconItem = ({ whiteboard, icon, handleWhiteboardDelete }: Whiteb
         }
       </Box>
       <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
+      {/* <Box className={cn("flex flex-col items-center align-bottom", loading && "opacity-10" || "")}>
+        <div className="mt-2">
+          {icon}
+        </div>
+        <Text size="8" p={0} lh="xs" c="dimmed" className="select-none">{whiteboardPlugin?.name?.replace(/-/g, " ")}</Text>
+      </Box> */}
       <Box w={100} h={40} variant="unstyled" className="text-center">
-        <Text inline={true} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
-          {whiteboard.name}
-        </Text>
+        {editMode
+          ? <Textarea
+            rows={1}
+            className="z-50 block-input leading-4 w-full"
+            maxRows={2}
+            ref={$textarea}
+            variant="unstyled" ta="center" c="dimmed"
+            onKeyDown={onKeyDown}
+            size={`${7 * 200 / zoomLevel}px`}
+            p={0} m={0}
+            h={20}
+            onChange={onChangeTitle} placeholder="Title" value={titleText} />
+          : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+        }
       </Box>
     </Flex>
   </>
