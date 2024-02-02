@@ -53,6 +53,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
         <div className="shadow-md rounded-md"
             style={{
                 backgroundColor: node.data.color,
+                opacity: text.length === 0 ? 0.25 : 1
             }}>
             <textarea
                 style={{
