@@ -61,7 +61,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                 position: {
                     x: companySummaryTitle.position.x,
                     y: summaryBoxBounding.bottom + 10,
-                }, width: 660, height: 200
+                }, width: 660, height: "auto"
             })
         )
     })
