@@ -27,7 +27,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                     size: 32
                 },
                 position: { x: 0, y: 0 },
-                width: 400, height: 260
+                width: 400, height: "auto"
             }),
             createStickyNote({
                 data: { text: insight.user.info, color: groupNodeColor },
@@ -43,9 +43,9 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             // topic title
             nodes = nodes.concat([
                 createText({
-                    data: { text: topic.topicName.replace(/\n/g, " / "), size: 24 },
+                    data: { text: topic.topicName, size: 24 },
                     position: { x: -10, y: bounding.bottom + 80 },
-                    width: 900, height: 70
+                    width: 900, height: "auto"
                 })
             ]);
 
@@ -139,7 +139,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             id: `topic_${topicIndex}`,
             data: { text: topic.name, size: 24 },
             position: { x: summaryTopicBounding.right + (topicIndex === 0 ? summaryTopicWidth : summaryTopicPadding), y: summaryTopicBounding.top },
-            width: summaryTopicWidth - summaryTopicPadding, height: 100
+            width: summaryTopicWidth - summaryTopicPadding, height: "auto"
         }));
     })
 
@@ -150,7 +150,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             id: `user_${userIndex}`,
             data: { text: user.name, size: 24 },
             position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
-            width: summaryTopicWidth, height: 120
+            width: summaryTopicWidth, height: "auto"
         })
 
         user.commentSummary.forEach((comment, commentIndex) => {
