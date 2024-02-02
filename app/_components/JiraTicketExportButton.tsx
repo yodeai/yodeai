@@ -13,7 +13,18 @@ const JiraTicketExportButton: React.FC<BlockProps> = ({ block }) => {
   const handleJiraTicketExport = async () => {
     setIsLoading(true);
     try {
-        const response = await fetch(`/api/jira/createIssue`);
+        const response = await fetch(`/api/jira/createIssue`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              fields: {
+                summary: block.title,
+                description: block.content,
+              }
+          }),
+        });
         if (!response.ok) {
             throw new Error('/api/jira/createIssue failed to create Jira issue');
         }

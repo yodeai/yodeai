@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: request.body // TODO: may need to JSON.stringify(request.body)
+            body: JSON.stringify(request.body)
         });
 
         // Check for errors in response
