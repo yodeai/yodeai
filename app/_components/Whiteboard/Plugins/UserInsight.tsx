@@ -7,7 +7,6 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
     let groupNodes: Node<any>[] = [];
     const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f07576", "#55e0b2"];
 
-
     let insightBoxes: Node<any>[] = [];
     insightBoxes.push(createText({
         data: { text: "User Insights", size: 64 },
@@ -44,9 +43,9 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             // topic title
             nodes = nodes.concat([
                 createText({
-                    data: { text: topic.topicName, size: 24 },
-                    position: { x: -10, y: bounding.bottom + 50 },
-                    width: 500, height: 50
+                    data: { text: topic.topicName.replace(/\n/g, " / "), size: 24 },
+                    position: { x: -10, y: bounding.bottom + 80 },
+                    width: 900, height: 70
                 })
             ]);
 
@@ -129,14 +128,18 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
     const summaryNodes: Node<any>[] = [];
     const summaryTopicNodes: Node<any>[] = [];
+
+    const summaryTopicWidth = 300;
+    const summaryTopicPadding = 50;
+
     payload.summary.topics.forEach((topic, topicIndex) => {
         const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
 
         summaryTopicNodes.push(createText({
             id: `topic_${topicIndex}`,
             data: { text: topic.name, size: 24 },
-            position: { x: summaryTopicBounding.right + (topicIndex === 0 ? 400 : 50), y: summaryTopicBounding.top },
-            width: 430, height: 100
+            position: { x: summaryTopicBounding.right + (topicIndex === 0 ? summaryTopicWidth : summaryTopicPadding), y: summaryTopicBounding.top },
+            width: summaryTopicWidth - summaryTopicPadding, height: 100
         }));
     })
 
@@ -147,17 +150,17 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             id: `user_${userIndex}`,
             data: { text: user.name, size: 24 },
             position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
-            width: 400, height: 120
+            width: summaryTopicWidth, height: 120
         })
 
         user.commentSummary.forEach((comment, commentIndex) => {
+            const topicIndex = payload.summary.topics.findIndex(topic => topic.key === comment.topicKey);
+            const positionX = summaryTopicBounding.left + ((summaryTopicNodes[0].width + summaryTopicPadding) * topicIndex) + summaryUserTitle.width;
+            const positionY = summaryTopicBounding.bottom + 50;
             summaryTopicNodes.push(createStickyNote({
                 data: { text: comment.content || "―", color: colors[userIndex % colors.length] },
-                position: {
-                    x: summaryTopicBounding.left + ((summaryTopicNodes[0].width + 60) * Number(commentIndex)) + summaryUserTitle.width,
-                    y: summaryTopicBounding.bottom + 50
-                },
-                width: 400, height: "auto"
+                position: { x: positionX, y: positionY },
+                width: summaryTopicWidth - summaryTopicPadding, height: "auto"
             }));
 
         })
