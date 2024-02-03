@@ -36,16 +36,18 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [menu, setMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
 
-    const isLocked = useMemo(() => {
-        if (["owner", "editor"].includes(data.accessType)) return false;
-        if (!data.plugin) return false;
-        return true;
-    }, [data.accessType]);
-
+    const getInitialLockState = () => {
+        if (data.plugin) return true;
+        if (["owner", "editor"].includes(data.accessType) === false) return true;
+        return false;
+    }
     const canBeUnlocked = useMemo(() => {
         if (["owner", "editor"].includes(data.accessType)) return true;
         return false;
-    }, [data.accessType])
+    }, [data.accessType]);
+    const [isLocked, setIsLocked] = useState(getInitialLockState());
+
+    console.log({ isLocked, canBeUnlocked })
 
     const $whiteboard = useRef(null);
     const router = useRouter();
@@ -101,7 +103,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                nodes, edges, plugin: { ...data.plugin as any, rendered: true }
+                nodes, edges, plugin: data.plugin ? { ...data.plugin as any, rendered: true } : null
             })
         })
             .then(res => res.json())
@@ -176,12 +178,12 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}>
-            <Controls showInteractive={canBeUnlocked} />
+            <Controls onInteractiveChange={() => setIsLocked(!isLocked)} showInteractive={canBeUnlocked} />
             <Background gap={12} size={1} />
             {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             <MiniMap />
         </ReactFlow>
-        {!isLocked && canBeUnlocked && <WhiteboardDock />}
+        {!isLocked && <WhiteboardDock />}
     </div>
 }
 
