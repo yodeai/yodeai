@@ -268,6 +268,7 @@ export default function IconLayoutComponent({
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "PUT" });
       if (pinResponse.ok) {
         const subspace = subspaces.find(subspace => subspace.lens_id === Number(lens_id));
+        
         if (subspace) {
           setPinnedLenses((pinnedLenses) => [...pinnedLenses, subspace as Lens])
         }
@@ -549,7 +550,7 @@ type SubspaceIconItemProps = {
 const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeName, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useRouter();
-  const { pinnedLenses, accessType, zoomLevel } = useAppContext();
+  const { pinnedLenses, accessType, zoomLevel, setPinnedLenses } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -582,7 +583,9 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeNa
   const onPinLens = async () => {
     try {
       const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "PUT" });
-      if (pinResponse.ok) console.log("Lens pinned");
+      if (pinResponse.ok) {
+        setPinnedLenses((pinnedLenses) => [...pinnedLenses, subspace as Lens])
+      }
       if (!pinResponse.ok) console.error("Failed to pin lens");
     } catch (error) {
       console.error("Error pinning lens:", error);
@@ -592,7 +595,9 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeNa
   const onUnpinLens = async () => {
     try {
       const pinResponse = await fetch(`/api/lens/${subspace.lens_id}/pin`, { method: "DELETE" });
-      if (pinResponse.ok) console.log("Lens unpinned");
+      if (pinResponse.ok) {
+        setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id !== subspace.lens_id));
+      }
       if (!pinResponse.ok) console.error("Failed to unpin lens");
     } catch (error) {
       console.error("Error pinning lens:", error);
