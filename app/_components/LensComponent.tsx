@@ -43,7 +43,7 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
             <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
             {lens.shared && (
               <Text c="blue" size="xs">
-                Collaborative: {lens.user_to_access_type[user?.id] ?? ''}
+                Collaborative: {lens?.user_to_access_type?.[user?.id] ?? ''}
               </Text>
             )}
             <Text c={'green'} size="xs">

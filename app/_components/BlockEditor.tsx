@@ -3,23 +3,17 @@
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
-import { useRef, useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
-import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
-import PDFViewerIframe from "@components/PDFViewer";
-import toast from "react-hot-toast";
 import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
 import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
 import { RequestBodyType } from '@api/types';
-import axios from 'axios'
-
-
 
 
 const DynamicSimpleMDE = dynamic(
@@ -274,6 +268,12 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     return onSave({ ...block, title: title, content: content });
   };
 
+  const editorOptions = useMemo(() => {
+    return {
+      spellChecker: false
+    };
+  }, [])
+
   return (
     <div className="flex flex-col gap-1 w-full">
       {block && block.block_type === 'pdf' ? (
@@ -368,6 +368,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
             <div className="min-w-full mt-1">
               <div className="prose text-gray-600">
                 <DynamicSimpleMDE
+                  options={editorOptions}
                   value={content}
                   onChange={setContent}
                 />

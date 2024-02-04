@@ -61,7 +61,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
         userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
-        zoomLevel, setZoomLevel
+        zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
 
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
@@ -83,7 +83,10 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const onPinLens = async () => {
         try {
             const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
-            if (pinResponse.ok) console.log("Lens pinned");
+            if (pinResponse.ok) {
+                console.log("Pinned lens", lens.lens_id)
+                setPinnedLenses(pinnedLenses => [...pinnedLenses, lens])
+            }
             if (!pinResponse.ok) console.error("Failed to pin lens");
         } catch (error) {
             console.error("Error pinning lens:", error);
@@ -93,7 +96,10 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const onUnpinLens = async () => {
         try {
             const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "DELETE" });
-            if (pinResponse.ok) console.log("Lens unpinned");
+            if (pinResponse.ok) {
+                console.log("Unpinned lens", lens.lens_id)
+                setPinnedLenses(pinnedLenses => pinnedLenses.filter(pinnedLens => pinnedLens.lens_id !== lens.lens_id))
+            }
             if (!pinResponse.ok) console.error("Failed to unpin lens");
         } catch (error) {
             console.error("Error unpinning lens:", error);

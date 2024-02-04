@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { IoMdClose } from "react-icons/io";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
@@ -12,14 +14,33 @@ import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollAre
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
+import { Database } from "app/_types/supabase";
+const supabase = createClientComponentClient<Database>()
+
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, setActiveComponent,
-    pinnedLenses, setPinnedLenses, pinnedLensesLoading, draggingNewBlock, layoutRefs
+    lensId, setLensId, reloadLenses, setActiveComponent, user,
+    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
+  const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
+
+  const getPinnedLenses = async () => {
+    fetch(`/api/lens/pinneds`)
+      .then((response) => response.json())
+      .then((data) => {
+        setPinnedLenses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching lens:", error);
+        // notFound();
+      })
+      .finally(() => {
+        setPinnedLensesLoading(false);
+      })
+  }
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -56,7 +77,7 @@ export default function Navbar() {
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "DELETE" });
       if (pinResponse.ok) {
-        setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id != lens_id));
+        setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id !== lens_id));
         setStateOfLenses({ ...stateOfLenses, [lens_id]: false });
         console.log("Lens unpinned");
       }
@@ -65,6 +86,10 @@ export default function Navbar() {
       console.error("Error pinning lens:", error);
     }
   }
+
+  useEffect(() => {
+    getPinnedLenses();
+  }, [])
 
   const [opened, setOpened] = useState(false);
 
