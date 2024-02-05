@@ -7,11 +7,11 @@ const ResizableNodeSelected = ({ children, selected }) => {
             <NodeResizer
                 color="#3e83f8"
                 isVisible={selected}
-                minWidth={100}
-                minHeight={100}
+                minWidth={10}
+                minHeight={20}
                 lineStyle={{
                     padding: 12,
-                    borderColor: "transparent",
+                    borderColor: "red",
                     borderWidth: 0
                 }}
                 handleStyle={{

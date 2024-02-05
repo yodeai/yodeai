@@ -16,7 +16,10 @@ import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
+
 import AddWhiteBoard from "./AddWhiteboard";
+import AddUserInsight from "./AddUserInsight";
+import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -57,7 +60,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        sortingOptions, setSortingOptions,
+        userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel
     } = useAppContext();
 
@@ -265,6 +268,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 <Flex justify={"center"} align={"center"} gap={"sm"}>
                     <AddSubspace modalController={subspaceModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>

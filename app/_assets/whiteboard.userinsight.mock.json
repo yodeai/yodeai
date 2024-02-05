@@ -1,0 +1,1512 @@
+[
+    {
+        "id": "group-1705510367910",
+        "data": {
+            "color": "#3e83f8",
+            "label": "Group"
+        },
+        "type": "group",
+        "style": {
+            "width": 925.1278335113523,
+            "height": 1080.6469896996066,
+            "padding": 0,
+            "borderColor": "#ddd"
+        },
+        "width": 925,
+        "height": 1081,
+        "dragging": false,
+        "position": {
+            "x": 907.8461541431072,
+            "y": 20.34934227021489
+        },
+        "selected": false,
+        "positionAbsolute": {
+            "x": 907.8461541431072,
+            "y": 20.34934227021489
+        }
+    },
+    {
+        "id": "group-1705510336292",
+        "data": {
+            "color": "#ffd43b",
+            "label": "Group"
+        },
+        "type": "group",
+        "style": {
+            "width": 924.7311406389299,
+            "height": 1098.8360337578104,
+            "padding": 0,
+            "borderColor": "#ddd"
+        },
+        "width": 925,
+        "height": 1099,
+        "dragging": false,
+        "position": {
+            "x": -119.57180488919545,
+            "y": 4.03051027716387
+        },
+        "selected": false,
+        "positionAbsolute": {
+            "x": -119.57180488919545,
+            "y": 4.03051027716387
+        }
+    },
+    {
+        "id": "634e0329-98b2-4847-a516-660f0966c50e",
+        "data": {
+            "text": "Manual metadata / tagging is easily inconsistent \n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 146,
+            "height": 115
+        },
+        "width": 146,
+        "extent": "parent",
+        "height": 115,
+        "dragging": false,
+        "position": {
+            "x": 728.876719123999,
+            "y": 192.33893547410707
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1636.7228732671063,
+            "y": 212.68827774432197
+        }
+    },
+    {
+        "id": "123a80df-1a95-4494-815d-3fa1d814bb1b",
+        "data": {
+            "text": "“What we've actually found is that sometimes we ask for the same files and get different files back”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 148,
+            "height": 115
+        },
+        "width": 148,
+        "extent": "parent",
+        "height": 115,
+        "dragging": false,
+        "position": {
+            "x": 563.6293139859599,
+            "y": 191.08734476977872
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1471.4754681290672,
+            "y": 211.43668703999361
+        }
+    },
+    {
+        "id": "3ad1e2c9-62e1-4565-90cc-b0f2cbcd34be",
+        "data": {
+            "text": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 253,
+            "height": 46
+        },
+        "width": 253,
+        "extent": "parent",
+        "height": 46,
+        "dragging": false,
+        "position": {
+            "x": 622.1278335113523,
+            "y": 55.47922369926766
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1529.9739876544595,
+            "y": 75.82856596948255
+        }
+    },
+    {
+        "id": "ccef1cfe-d9f8-41f3-8381-ca11c74d572e",
+        "data": {
+            "size": 24,
+            "text": "Quality"
+        },
+        "type": "text",
+        "style": {
+            "width": 163,
+            "height": 59
+        },
+        "width": 163,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 53.63664610211754,
+            "y": 489.2143163990083
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 961.4828002452248,
+            "y": 509.5636586692232
+        }
+    },
+    {
+        "id": "12fd9643-cb0e-4734-b52c-55baae62a228",
+        "data": {
+            "text": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 406.2553417502472,
+            "y": 827.3334440373355
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1314.1014958933545,
+            "y": 847.6827863075505
+        }
+    },
+    {
+        "id": "c5266085-8f5e-41f7-bb41-d9c071248b58",
+        "data": {
+            "text": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 157,
+            "height": 204
+        },
+        "width": 157,
+        "extent": "parent",
+        "height": 204,
+        "dragging": false,
+        "position": {
+            "x": 232.9844913394129,
+            "y": 826.6469896996065
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1140.8306454825201,
+            "y": 846.9963319698213
+        }
+    },
+    {
+        "id": "220c0f00-ab5f-4e84-8286-e615c5684f36",
+        "data": {
+            "text": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 227.95034139275617,
+            "y": 187.33420467575593
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1135.7964955358634,
+            "y": 207.68354694597082
+        }
+    },
+    {
+        "id": "4b2b48fb-a340-49ee-a157-6b995d10084f",
+        "data": {
+            "text": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 570.928513937457,
+            "y": 543.4811305621995
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1478.7746680805642,
+            "y": 563.8304728324144
+        }
+    },
+    {
+        "id": "9f33a8f6-4243-4f85-948a-ec253df26ad4",
+        "data": {
+            "text": "“Everybody has different questions because every reporter has a different interest...”\n",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 145,
+            "height": 118
+        },
+        "width": 145,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 408.55792778434375,
+            "y": 543.3131756291482
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1316.404081927451,
+            "y": 563.6625178993631
+        }
+    },
+    {
+        "id": "8e2daf17-68d5-422d-99ef-f186d14aa860",
+        "data": {
+            "text": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names. \n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 162,
+            "height": 187
+        },
+        "width": 162,
+        "extent": "parent",
+        "height": 187,
+        "dragging": false,
+        "position": {
+            "x": 230.04115101936168,
+            "y": 543.4811305621995
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1137.887305162469,
+            "y": 563.8304728324144
+        }
+    },
+    {
+        "id": "8da21f20-f604-402b-a2e0-1ac32c5f1a96",
+        "data": {
+            "text": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 150,
+            "height": 118
+        },
+        "width": 150,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 65.03930029459843,
+            "y": 827.1704707445729
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 972.8854544377057,
+            "y": 847.5198130147878
+        }
+    },
+    {
+        "id": "5067b7da-1461-4819-bdb2-0da2ce36c6c4",
+        "data": {
+            "text": "“Everybody has different questions because every reporter has a different interest...”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 562.2270671782362,
+            "y": 326.20156344249153
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1470.0732213213435,
+            "y": 346.5509057127064
+        }
+    },
+    {
+        "id": "b933d812-7a21-44ed-ab40-e4f4d7695f78",
+        "data": {
+            "text": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 394.4096365845844,
+            "y": 326.20156344249153
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1302.2557907276916,
+            "y": 346.5509057127064
+        }
+    },
+    {
+        "id": "92bf5322-2880-47d4-8172-f04f26f044dd",
+        "data": {
+            "text": "“The information we need to know to organize the files is also the info that most people want to know”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 224.26834073540067,
+            "y": 326.20156344249153
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1132.114494878508,
+            "y": 346.5509057127064
+        }
+    },
+    {
+        "id": "acad38a1-d1cd-41d1-9c0e-07b33a021d2e",
+        "data": {
+            "text": "Exercise of treating a dataset like a person where you could ask it anything you wanted",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 50.48869698410522,
+            "y": 326.2315844681842
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 958.3348511272125,
+            "y": 346.5809267383991
+        }
+    },
+    {
+        "id": "a2b2eaae-8235-4a32-90dd-53e526ffea27",
+        "data": {
+            "text": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 56.662875235688716,
+            "y": 546.9930726490343
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 964.509029378796,
+            "y": 567.3424149192492
+        }
+    },
+    {
+        "id": "f9cafc4b-c0be-498a-8c28-14995ad175d0",
+        "data": {
+            "text": "“A small amount of people control the largest volume of information at large agencies”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 147,
+            "height": 118
+        },
+        "width": 147,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 397.75633785744253,
+            "y": 187.34921518860233
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 1305.6024920005498,
+            "y": 207.69855745881722
+        }
+    },
+    {
+        "id": "e7321ff2-367a-46cd-99be-252aff514466",
+        "data": {
+            "size": 24,
+            "text": "Painpoints"
+        },
+        "type": "text",
+        "style": {
+            "width": 163,
+            "height": 59
+        },
+        "width": 163,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 57.68403023251199,
+            "y": 769.9798121654519
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 965.5301843756192,
+            "y": 790.3291544356669
+        }
+    },
+    {
+        "id": "0c4bee7d-f5a6-4cad-82c6-68101b7fab94",
+        "data": {
+            "text": "Using Google Drive (people limited by software options -> everyone has google) \n\n“I’m desperately trying to move us out of Google Drive”",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 125
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 125,
+        "dragging": false,
+        "position": {
+            "x": 56.779950180896776,
+            "y": 182.70458258611734
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 964.626104324004,
+            "y": 203.05392485633223
+        }
+    },
+    {
+        "id": "bc9adfc5-9477-407e-a6d4-8bc4da56fae9",
+        "data": {
+            "size": 32,
+            "text": "Bob"
+        },
+        "type": "text",
+        "style": {
+            "width": 94,
+            "height": 59
+        },
+        "width": 94,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 51.02931917162641,
+            "y": 50
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 958.8754733147337,
+            "y": 70.34934227021489
+        }
+    },
+    {
+        "id": "group-1705502056908",
+        "data": {
+            "color": "#0c9f6e",
+            "label": "Group"
+        },
+        "type": "group",
+        "style": {
+            "width": 996,
+            "height": 503,
+            "padding": 0,
+            "borderColor": "#ddd"
+        },
+        "width": 996,
+        "height": 503,
+        "dragging": false,
+        "position": {
+            "x": 2061.5725268021542,
+            "y": 239.31018487930862
+        },
+        "resizing": false,
+        "selected": false,
+        "positionAbsolute": {
+            "x": 2061.5725268021542,
+            "y": 239.31018487930862
+        }
+    },
+    {
+        "id": "0cd0c597-04f4-434c-bf4b-b30a07fb79f4",
+        "data": {
+            "text": "Summary for painpoints",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 682.9188150057082,
+            "y": 300.6302133116102
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2744.491341807862,
+            "y": 539.9403981909188
+        }
+    },
+    {
+        "id": "e6735b05-2660-4ef5-9138-14ddd7598951",
+        "data": {
+            "text": "Summary for quality",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 418.8752713927404,
+            "y": 304.7389053331119
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2480.447798194895,
+            "y": 544.0490902124205
+        }
+    },
+    {
+        "id": "eebba4d5-e3a1-4c61-a19b-3bf22471c820",
+        "data": {
+            "text": "Summary for latency",
+            "color": "#3e83f8"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 158.94041980127463,
+            "y": 304.707095512024
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2220.5129466034286,
+            "y": 544.0172803913326
+        }
+    },
+    {
+        "id": "608f4c5f-cc80-4ce3-9ddf-29ed2480152a",
+        "data": {
+            "text": "Summary for painpoints",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 680.8043877634805,
+            "y": 120.87493737090617
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2742.3769145656347,
+            "y": 360.1851222502148
+        }
+    },
+    {
+        "id": "2f2cdef7-f359-44d6-8d00-13dd6ca4b2a7",
+        "data": {
+            "text": "Summary for quality",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 419.8423631666392,
+            "y": 120.23558676607018
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2481.4148899687934,
+            "y": 359.5457716453788
+        }
+    },
+    {
+        "id": "23fa5629-a148-4972-b478-2f70ec05f467",
+        "data": {
+            "size": 24,
+            "text": "Painpoints"
+        },
+        "type": "text",
+        "style": {
+            "width": 149,
+            "height": 55
+        },
+        "width": 149,
+        "extent": "parent",
+        "height": 55,
+        "dragging": false,
+        "position": {
+            "x": 665.0327412151842,
+            "y": 50
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2726.6052680173384,
+            "y": 289.3101848793086
+        }
+    },
+    {
+        "id": "68975599-e2d8-4877-8800-fdd442ca28f0",
+        "data": {
+            "size": 24,
+            "text": "Quality"
+        },
+        "type": "text",
+        "style": {
+            "width": 105,
+            "height": 55
+        },
+        "width": 105,
+        "extent": "parent",
+        "height": 55,
+        "dragging": false,
+        "position": {
+            "x": 412.50186642897097,
+            "y": 50
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2474.074393231125,
+            "y": 289.3101848793086
+        }
+    },
+    {
+        "id": "c196952e-2ff8-4291-b998-484b43a54ada",
+        "data": {
+            "size": 24,
+            "text": "Latency"
+        },
+        "type": "text",
+        "style": {
+            "width": 143,
+            "height": 55
+        },
+        "width": 143,
+        "extent": "parent",
+        "height": 55,
+        "dragging": false,
+        "position": {
+            "x": 155.03274121518416,
+            "y": 51.02717300537546
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2216.6052680173384,
+            "y": 290.3373578846841
+        }
+    },
+    {
+        "id": "b8ec4949-470d-4822-b2fd-b3eec7879937",
+        "data": {
+            "size": 28,
+            "text": "Bob"
+        },
+        "type": "text",
+        "style": {
+            "width": 105,
+            "height": 55
+        },
+        "width": 105,
+        "extent": "parent",
+        "height": 55,
+        "dragging": false,
+        "position": {
+            "x": 58.125229640011185,
+            "y": 292.4128292686064
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2119.6977564421654,
+            "y": 531.723014147915
+        }
+    },
+    {
+        "id": "ce2f8d08-7425-417e-a2f1-7a66bb974bb7",
+        "data": {
+            "text": "Manual metadata / tagging is easily inconsistent \n\n-> Ex: Contra Costa Sheriff’s Department vs. Contra Costa County Sherriff vs. etc etc",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 146,
+            "height": 115
+        },
+        "width": 146,
+        "extent": "parent",
+        "height": 115,
+        "dragging": false,
+        "position": {
+            "x": 728.7311406389299,
+            "y": 208.8616436960395
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 609.1593357497345,
+            "y": 212.89215397320336
+        }
+    },
+    {
+        "id": "65d9dadb-ed30-4ec7-a6b0-781106e89dad",
+        "data": {
+            "text": "“What we've actually found is that sometimes we ask for the same files and get different files back”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 148,
+            "height": 115
+        },
+        "width": 148,
+        "extent": "parent",
+        "height": 115,
+        "dragging": false,
+        "position": {
+            "x": 563.4837355008908,
+            "y": 207.6100529917111
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 443.91193061169537,
+            "y": 211.64056326887496
+        }
+    },
+    {
+        "id": "d498be1d-aa65-4e11-ab56-a1a7570dcd6d",
+        "data": {
+            "text": "BACKGROUND: Journalist, working with large datasets from police plus unstructured information",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 253,
+            "height": 46
+        },
+        "width": 253,
+        "extent": "parent",
+        "height": 46,
+        "dragging": false,
+        "position": {
+            "x": 620.6387516005618,
+            "y": 72.00193192120003
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 501.06694671136637,
+            "y": 76.0324421983639
+        }
+    },
+    {
+        "id": "9c5348ed-d572-4225-8a2a-1bbbe773be49-copy-copy-copy",
+        "data": {
+            "size": 24,
+            "text": "Quality"
+        },
+        "type": "text",
+        "style": {
+            "width": 163,
+            "height": 59
+        },
+        "width": 163,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 54.834571042769824,
+            "y": 505.73702462094064
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -64.73723384642562,
+            "y": 509.7675348981045
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 410.1402735423421,
+            "y": 843.8561522592679
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 290.5684686531466,
+            "y": 847.8866625364318
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“[During the Trump indictments] NYT and WaPo have now essentially built their own versions of document cloud. But there’s this whole idea that people want to be able to know what the authenticity of the document is and have freedom of information. There’s a lot of people who want to share what their records are.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 157,
+            "height": 204
+        },
+        "width": 157,
+        "extent": "parent",
+        "height": 204,
+        "dragging": false,
+        "position": {
+            "x": 235.52591970578652,
+            "y": 844.8360337578104
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 115.95411481659107,
+            "y": 848.8665440349743
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy",
+        "data": {
+            "text": "Interfacing with other people with varying degrees of pleasantness and cooperation; bureaucratic barriers",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 226.46125948196573,
+            "y": 203.85691289768835
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 106.88945459277028,
+            "y": 207.88742317485222
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“Academics, activists are very interested in looking up specific incidents by officer name or incident date, which is different from what our reporters are interested in.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 573.4699423038304,
+            "y": 560.0038387841319
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 453.89813741463496,
+            "y": 564.0343490612958
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“Everybody has different questions because every reporter has a different interest...”\n",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 145,
+            "height": 118
+        },
+        "width": 145,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 412.2390759600141,
+            "y": 560.9756036603774
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 292.66727107081863,
+            "y": 565.0061139375413
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "About an older tool: “one of the big things that reporters loved about it is it allowed you to see co-pairings of names. \n\nSo it extracts out all the names for you and then you’d be able to see how often they were correlated.. and do exploratory work that was sharable that way.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 162,
+            "height": 187
+        },
+        "width": 162,
+        "extent": "parent",
+        "height": 187,
+        "dragging": false,
+        "position": {
+            "x": 231.23907596001402,
+            "y": 560.0038387841319
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 111.66727107081857,
+            "y": 564.0343490612958
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy",
+        "data": {
+            "text": "“The challenge is taking unstructured data that you have and basically structing it into something like a spreadsheet.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 150,
+            "height": 118
+        },
+        "width": 150,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 67.58072866097206,
+            "y": 843.6931789665052
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -51.99107622822339,
+            "y": 847.7236892436691
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“Everybody has different questions because every reporter has a different interest...”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 563.4249921188886,
+            "y": 342.7242716644239
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 443.8531872296931,
+            "y": 346.7547819415878
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "Metaphor for information flow: “like we have 100 puzzles going on and then people mail us pieces of the puzzle over time, but we don’t even know always what puzzle it goes to.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 394.46784171593987,
+            "y": 342.7242716644239
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 274.8960368267444,
+            "y": 346.7547819415878
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“The information we need to know to organize the files is also the info that most people want to know”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 225.46626567605284,
+            "y": 342.7242716644239
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 105.8944607868574,
+            "y": 346.7547819415878
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "Exercise of treating a dataset like a person where you could ask it anything you wanted",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 52.82634173405421,
+            "y": 342.7542926901166
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -66.74546315514124,
+            "y": 346.7848029672805
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy",
+        "data": {
+            "text": "“[Yodeai] would be super useful. I think the challenge that we’ve had with our files, frankly, is extracting usable data.”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 118
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 57.86080017634106,
+            "y": 563.5157808709666
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -61.71100471285439,
+            "y": 567.5462911481305
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy-copy-copy-copy-copy",
+        "data": {
+            "text": "“A small amount of people control the largest volume of information at large agencies”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 147,
+            "height": 118
+        },
+        "width": 147,
+        "extent": "parent",
+        "height": 118,
+        "dragging": false,
+        "position": {
+            "x": 396.4710395630766,
+            "y": 203.8719234105347
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": 276.89923467388115,
+            "y": 207.90243368769856
+        }
+    },
+    {
+        "id": "9c5348ed-d572-4225-8a2a-1bbbe773be49-copy-copy",
+        "data": {
+            "size": 24,
+            "text": "Painpoints"
+        },
+        "type": "text",
+        "style": {
+            "width": 163,
+            "height": 59
+        },
+        "width": 163,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 60.225458598885496,
+            "y": 786.5025203873843
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -59.34634629030995,
+            "y": 790.5330306645482
+        }
+    },
+    {
+        "id": "1d80f1e3-750d-4d26-b2e7-cc4cd32915fc-copy",
+        "data": {
+            "text": "Using Google Drive (people limited by software options -> everyone has google) \n\n“I’m desperately trying to move us out of Google Drive”",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 151,
+            "height": 125
+        },
+        "width": 151,
+        "extent": "parent",
+        "height": 125,
+        "dragging": false,
+        "position": {
+            "x": 55.29086827010633,
+            "y": 200.3670106173464
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -64.28093661908912,
+            "y": 204.39752089451028
+        }
+    },
+    {
+        "id": "9c5348ed-d572-4225-8a2a-1bbbe773be49",
+        "data": {
+            "size": 32,
+            "text": "Alice"
+        },
+        "type": "text",
+        "style": {
+            "width": 94,
+            "height": 59
+        },
+        "width": 94,
+        "extent": "parent",
+        "height": 59,
+        "dragging": false,
+        "position": {
+            "x": 50,
+            "y": 50
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -69.57180488919545,
+            "y": 54.03051027716387
+        }
+    },
+    {
+        "id": "ea73955b-4277-4b0c-b11d-8228259fa3dc",
+        "data": {
+            "text": "Summary for latency",
+            "color": "#ffd43b"
+        },
+        "type": "stickyNote",
+        "style": {
+            "width": 188,
+            "height": 114
+        },
+        "width": 188,
+        "extent": "parent",
+        "height": 114,
+        "dragging": false,
+        "position": {
+            "x": 157.8531655644224,
+            "y": 122.92928338165711
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2219.4256923665766,
+            "y": 362.23946826096574
+        }
+    },
+    {
+        "id": "a8d6276d-a051-4b2b-82e6-73d0d2388e11",
+        "data": {
+            "size": 28,
+            "text": "Alice"
+        },
+        "type": "text",
+        "style": {
+            "width": 105,
+            "height": 55
+        },
+        "width": 105,
+        "extent": "parent",
+        "height": 55,
+        "dragging": false,
+        "position": {
+            "x": 50,
+            "y": 110.60320731715163
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705502056908",
+        "positionAbsolute": {
+            "x": 2111.5725268021542,
+            "y": 349.9133921964602
+        }
+    },
+    {
+        "id": "c71f0914-f6bd-4300-a515-98da223db8f3",
+        "data": {
+            "size": 24,
+            "text": "Latency"
+        },
+        "type": "text",
+        "style": {
+            "width": 123,
+            "height": 49
+        },
+        "width": 123,
+        "extent": "parent",
+        "height": 49,
+        "dragging": false,
+        "position": {
+            "x": 52.938723741397524,
+            "y": 136.31806786941038
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510336292",
+        "positionAbsolute": {
+            "x": -66.63308114779792,
+            "y": 140.34857814657425
+        }
+    },
+    {
+        "id": "6eb2ca15-0c66-495c-b2e9-a0bc5e372b93",
+        "data": {
+            "size": 24,
+            "text": "Latency"
+        },
+        "type": "text",
+        "style": {
+            "width": 127,
+            "height": 64
+        },
+        "width": 127,
+        "extent": "parent",
+        "height": 64,
+        "dragging": false,
+        "position": {
+            "x": 50,
+            "y": 127.41572001824693
+        },
+        "resizing": false,
+        "selected": false,
+        "parentNode": "group-1705510367910",
+        "positionAbsolute": {
+            "x": 957.8461541431072,
+            "y": 147.76506228846182
+        }
+    }
+]

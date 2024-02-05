@@ -13,8 +13,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (Number.isNaN(Number(params.id))) return notOk('Invalid ID');
 
   try {
-    const { name = null, nodes = null, edges = null } = await request.json();
-    const payload = removeNullValues({ name, nodes, edges });
+    const { name = null, nodes = null, edges = null, plugin = null } = await request.json();
+    const payload = removeNullValues({ name, nodes, edges, plugin });
 
     const { data, error } = await supabase
       .from('whiteboard')
@@ -36,7 +36,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params, }: { params: { id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
   const whiteboard_id = Number(params.id);
-  const { data: { user } } = await supabase.auth.getUser()
 
   // Validate the id
   if (isNaN(whiteboard_id)) {
@@ -47,8 +46,7 @@ export async function DELETE(request: NextRequest, { params, }: { params: { id: 
     const { error } = await supabase
       .from('whiteboard')
       .delete()
-      .eq('whiteboard_id', whiteboard_id)
-      .eq('owner_id', user.id);
+      .eq('whiteboard_id', whiteboard_id);
 
     if (error) {
       throw error;

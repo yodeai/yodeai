@@ -16,7 +16,9 @@ type LayoutControllerProps = {
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
     handleLensDelete: (lens_id: number) => Promise<any>
+    handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
+    handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
     onChangeLayout: (
         layoutName: keyof LensLayout,
         layoutData: LensLayout[keyof LensLayout]
@@ -27,11 +29,11 @@ export default function LayoutController(props: LayoutControllerProps) {
     const {
         blocks, layout, layoutView, subspaces, whiteboards,
         onChangeLayout, handleBlockChangeName,
-        handleBlockDelete, handleLensDelete,
-        handleWhiteboardDelete
+        handleBlockDelete, handleLensDelete, handleLensChangeName,
+        handleWhiteboardDelete, handleWhiteboardChangeName
     } = props;
 
-    if (blocks?.length === 0 && subspaces?.length === 0) return (
+    if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0) return (
         <Flex
             align="center"
             justify="center"
@@ -61,7 +63,9 @@ export default function LayoutController(props: LayoutControllerProps) {
                     handleBlockChangeName={handleBlockChangeName}
                     handleBlockDelete={handleBlockDelete}
                     handleLensDelete={handleLensDelete}
+                    handleLensChangeName={handleLensChangeName}
                     handleWhiteboardDelete={handleWhiteboardDelete}
+                    handleWhiteboardChangeName={handleWhiteboardChangeName}
                     layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
                     subspaces={subspaces}
                     blocks={blocks || []}

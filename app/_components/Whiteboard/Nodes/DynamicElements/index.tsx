@@ -17,7 +17,12 @@ type DynamicElementProps = WrappedComponentType<NodeProps<{
     type: "block" | "lens" | "whiteboard"
 }>>
 
+
 export const defaultValues: DynamicElementProps["data"] = undefined;
+export const defaultNodeProps: { height: number; width: number } = {
+    height: 200,
+    width: 200
+}
 export const Component = memo(({ data, node, selected, updateNode }: DynamicElementProps) => {
     const $nodeRef = useRef<string>(node.id);
     const { modal, selectedItems } = useExplorer();
@@ -29,18 +34,22 @@ export const Component = memo(({ data, node, selected, updateNode }: DynamicElem
         }
     }, [modal.opened]);
 
-    const openExlorer = () => modal.openWithConfiguration({ multiple: false, sourceRef: $nodeRef });
+    const openExlorer = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (event.shiftKey || event.ctrlKey || event.metaKey) return;
+
+        modal.openWithConfiguration({ multiple: false, sourceRef: $nodeRef });
+    }
 
     return <ResizableNode selected={selected}>
         <div
-        style={{
-            height: node.height || 200,
-            width: node.width || 300
-        }}
-        className={
-            cn("border border-gray-200 rounded-md shadow-sm overflow-hidden bg-white hover:cursor-pointer hover:bg-gray-100",
-                selected && "border-blue-500" || "")
-        }>
+            style={{
+                height: node.height || 200,
+                width: node.width || 300
+            }}
+            className={
+                cn("border border-gray-200 rounded-md shadow-sm overflow-hidden bg-white hover:cursor-pointer hover:bg-gray-100 z-50",
+                    selected && "border-blue-500" || "")
+            }>
             <Handle type="target" position={Position.Left} />
 
             {data?.type === "block" && <BlockElement node={node} block_id={data.item_id} />}

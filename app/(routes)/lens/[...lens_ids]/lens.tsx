@@ -21,6 +21,7 @@ type LensProps = {
 
 import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
+import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
 
 export default function Lens(props: LensProps) {
@@ -135,7 +136,8 @@ export default function Lens(props: LensProps) {
   }
 
   const getLensBlocks = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getBlocks`)
+    let googleUserId = await getUserInfo();
+    return fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -243,7 +245,20 @@ export default function Lens(props: LensProps) {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
     setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
-  }, [])
+  }, []);
+
+  const updateWhiteboard = useCallback((payload) => {
+    let whiteboard_id = payload["new"]["whiteboard_id"]
+    console.log("Updating whiteboard", whiteboard_id);
+    setWhiteboards(prevWhiteboards =>
+      prevWhiteboards.map(item => {
+        if (item.whiteboard_id === whiteboard_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
 
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
@@ -258,6 +273,7 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
       .subscribe();
 
     return () => {
@@ -374,12 +390,38 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleLensChangeName = async (lens_id: number, newLensName: string) => {
+    const updatePromise = fetch(`/api/lens/${lens_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newLensName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating lens name...",
+      success: "Lens name updated!",
+      error: "Failed to update lens name.",
+    });
+  }
+
   const handleWhiteboardDelete = async (whiteboard_id: number) => {
     const deletePromise = fetch(`/api/whiteboard/${whiteboard_id}`, { method: "DELETE" });
     return load(deletePromise, {
       loading: "Deleting whiteboard...",
       success: "Whiteboard deleted!",
       error: "Failed to delete whiteboard.",
+    });
+  }
+
+  const handleWhiteboardChangeName = async (whiteboard_id: number, newWhiteboardName: string) => {
+    const updatePromise = fetch(`/api/whiteboard/${whiteboard_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newWhiteboardName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating whiteboard name...",
+      success: "Whiteboard name updated!",
+      error: "Failed to update whiteboard name.",
     });
   }
 
@@ -473,8 +515,10 @@ export default function Lens(props: LensProps) {
         {!loading && <LayoutController
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
           handleLensDelete={handleLensDelete}
           handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
           blocks={sortedBlocks}

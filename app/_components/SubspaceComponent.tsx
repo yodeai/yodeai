@@ -4,6 +4,7 @@ import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
 import LoadingSkeleton from './LoadingSkeleton';
 import { useRouter } from 'next/navigation';
+import { getUserInfo } from '@utils/googleUtils';
 import { Lens, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 
@@ -29,7 +30,8 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
 
       if (isExpanded) {
         try {
-          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks`);
+          let googleUserId = await getUserInfo();
+          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks/${googleUserId}`);
           const blocksData = await blocksResponse.json();
           setBlocks(blocksData?.data);
 

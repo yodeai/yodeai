@@ -16,6 +16,7 @@ export interface Database {
           block_type: string
           content: string | null
           created_at: string
+          current_editor: string | null
           file_url: string | null
           google_doc_id: string | null
           google_user_id: string | null
@@ -34,6 +35,7 @@ export interface Database {
           block_type: string
           content?: string | null
           created_at?: string
+          current_editor?: string | null
           file_url?: string | null
           google_doc_id?: string | null
           google_user_id?: string | null
@@ -52,6 +54,7 @@ export interface Database {
           block_type?: string
           content?: string | null
           created_at?: string
+          current_editor?: string | null
           file_url?: string | null
           google_doc_id?: string | null
           google_user_id?: string | null
@@ -65,6 +68,13 @@ export interface Database {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "block_current_editor_fkey"
+            columns: ["current_editor"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["email"]
+          },
           {
             foreignKeyName: "block_owner_id_fkey"
             columns: ["owner_id"]
@@ -1006,6 +1016,71 @@ export interface Database {
         }
         Relationships: []
       }
+      web_content_block: {
+        Row: {
+          block_id: number
+          content: string | null
+          created_at: string
+          parent_url: string | null
+          url: string | null
+        }
+        Insert: {
+          block_id?: number
+          content?: string | null
+          created_at?: string
+          parent_url?: string | null
+          url?: string | null
+        }
+        Update: {
+          block_id?: number
+          content?: string | null
+          created_at?: string
+          parent_url?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
+      web_content_chunk: {
+        Row: {
+          block_id: number | null
+          chunk_id: number
+          chunk_type: string | null
+          content: string | null
+          created_at: string
+          embedding: string | null
+          parent_url: string | null
+          url: string | null
+        }
+        Insert: {
+          block_id?: number | null
+          chunk_id?: number
+          chunk_type?: string | null
+          content?: string | null
+          created_at?: string
+          embedding?: string | null
+          parent_url?: string | null
+          url?: string | null
+        }
+        Update: {
+          block_id?: number | null
+          chunk_id?: number
+          chunk_type?: string | null
+          content?: string | null
+          created_at?: string
+          embedding?: string | null
+          parent_url?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_content_chunk_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "web_content_block"
+            referencedColumns: ["block_id"]
+          }
+        ]
+      }
       whiteboard: {
         Row: {
           created_at: string
@@ -1014,6 +1089,7 @@ export interface Database {
           name: string
           nodes: Json | null
           owner_id: string
+          plugin: Json | null
           updated_at: string
           whiteboard_id: number
         }
@@ -1024,6 +1100,7 @@ export interface Database {
           name: string
           nodes?: Json | null
           owner_id?: string
+          plugin?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1034,6 +1111,7 @@ export interface Database {
           name?: string
           nodes?: Json | null
           owner_id?: string
+          plugin?: Json | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1080,6 +1158,13 @@ export interface Database {
             }
             Returns: string
           }
+      get_access_type_whiteboard: {
+        Args: {
+          chosen_whiteboard_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
       get_editor_lens: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1167,11 +1252,56 @@ export interface Database {
           similarity: number
         }[]
       }
+      get_top_chunks_for_competitive_analysis: {
+        Args: {
+          parenturl: string
+          queryembedding: string
+          matchcount: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          url: string
+          similarity: number
+        }[]
+      }
+      get_top_chunks_for_inbox_google: {
+        Args: {
+          userid: string
+          googleid: string
+          query_embedding: string
+          match_count: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
       get_top_chunks_for_lens: {
         Args: {
           lensid: number
           match_count: number
           query_embedding: string
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      get_top_chunks_for_lens_google: {
+        Args: {
+          user_id: string
+          googleid: string
+          query_embedding: string
+          match_count: number
+          lensid: number
         }
         Returns: {
           chunk_id: number
@@ -1200,6 +1330,21 @@ export interface Database {
           match_count: number
           query_embedding: string
           id: string
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      get_top_chunks_google: {
+        Args: {
+          user_id: string
+          googleid: string
+          query_embedding: string
+          match_count: number
         }
         Returns: {
           chunk_id: number
@@ -1274,6 +1419,16 @@ export interface Database {
           question: string
           answer: string
           similarity: number
+        }[]
+      }
+      update_plugin_progress: {
+        Args: {
+          id: number
+          new_progress: number
+        }
+        Returns: {
+          success: boolean
+          message: string
         }[]
       }
       vector_avg: {
