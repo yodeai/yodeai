@@ -151,7 +151,6 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
                   >
                     <FaTrashAlt size={14} />
                   </ActionIcon>
-            
               </Flex>
             ))}
           </Flex>
