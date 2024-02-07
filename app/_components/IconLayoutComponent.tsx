@@ -78,8 +78,8 @@ export default function IconLayoutComponent({
     }
   }), []);
 
-  const cols = useMemo(() => ({ lg: 12, md: 8, sm: 6, xs: 4, xxs: 3 }), []);
-  const breakpoints = useMemo(() => ({ lg: 996, md: 768, sm: 576, xs: 480, xxs: 240 }), []);
+  const cols = useMemo(() => ({ xlg: 12, lg: 12, md: 8, sm: 6, xs: 4, xxs: 3, xxxs: 1 }), []);
+  const breakpoints = useMemo(() => ({ xlg: 1200, lg: 996, md: 768, sm: 576, xs: 480, xxs: 240, xxxs: 120 }), []);
   const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
 
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
