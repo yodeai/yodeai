@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
       console.log("CloudID:", cloudID);
 
       if (firstSite) {
+        const cookieLife = 60 * 60 * 1000; // 1 hour
+
         const jiraAuthCookieExists = cookie.serialize('jiraAuthExists', JSON.stringify({
           accessTokenExists: true,
           siteId: firstSite.id,
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
         }), {
           path: '/',
           httpOnly: false,
-          expires: new Date(Date.now() + 60 * 60),
+          expires: new Date(Date.now() + cookieLife),
           sameSite: 'strict'
         });
 
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
         }), {
           path: '/',
           httpOnly: true,
-          expires: new Date(Date.now() + 60 * 60),
+          expires: new Date(Date.now() + cookieLife),
           sameSite: 'strict'
         });
 

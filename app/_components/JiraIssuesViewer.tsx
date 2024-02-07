@@ -17,7 +17,7 @@ const JiraIssuesViewer: React.FC = () => {
         window.location.href = `/api/jira`;
     };
 
-    function getCookie(name) {
+    function getCookie(name: string) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
@@ -46,7 +46,6 @@ const JiraIssuesViewer: React.FC = () => {
     async function fetchIssues() {
         setIsLoading(true);
         try {
-            // const response = await fetch(`/api/jira/fetchIssues?accessToken=${encodeURIComponent(token)}&siteId=${encodeURIComponent(siteId)}`);
             const response = await fetch(`/api/jira/fetchIssues`);
             if (!response.ok) {
                 throw new Error('Failed to fetch Jira issues');
