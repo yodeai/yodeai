@@ -85,7 +85,9 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: (Block | Subspace | Lens | Tables<"whiteboard">)[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
+  const items: (Block | Subspace | Lens | Tables<"whiteboard"> & {
+    plugin?: WhiteboardPluginParams
+  })[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -159,15 +161,30 @@ export default function IconLayoutComponent({
     }
   }
 
+  const checkIfClickable = (itemType: "bl" | "ss" | "wb", itemId: number, item: Block | Subspace | Lens | Tables<"whiteboard"> & { plugin?: WhiteboardPluginParams }) => {
+    if ("whiteboard_id" in item && item?.plugin && item?.plugin?.state?.status !== "success") {
+      return false;
+    }
+
+    return true;
+  }
+
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const [itemType, itemId] = newItem.i.split("_") as [
       "bl" | "ss" | "wb",
       Block["block_id"] | Subspace["lens_id"] | Tables<"whiteboard">["whiteboard_id"]
     ];
 
+    const item = items.find(item => {
+      if ("whiteboard_id" in item) return Number(itemId) === item.whiteboard_id;
+      if ("lens_id" in item) return Number(itemId) === item.lens_id;
+      if ("block_id" in item) return Number(itemId) === item.block_id;
+    })
+
     const now = Date.now();
     if ($lastClick.current && (now - $lastClick.current) < 300) {
-      onDoubleClick(itemType, itemId)
+      const ifClickable = checkIfClickable(itemType, itemId, item);
+      if (ifClickable) onDoubleClick(itemType, itemId)
       return;
     }
     $lastClick.current = now;
@@ -179,7 +196,7 @@ export default function IconLayoutComponent({
           : [...selectedItems, Number(itemId)]
         : [Number(itemId)]
     ))
-  }, [])
+  }, [items])
 
   const onWidthChange = (width: number, margin: [number, number], cols: number) => {
     const breakpoint = Object.entries(breakpoints).find(([key, value]) => value <= width + margin.reduce((a, b) => a + b, 0) + cols);
@@ -268,7 +285,7 @@ export default function IconLayoutComponent({
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "PUT" });
       if (pinResponse.ok) {
         const subspace = subspaces.find(subspace => subspace.lens_id === Number(lens_id));
-        
+
         if (subspace) {
           setPinnedLenses((pinnedLenses) => [...pinnedLenses, subspace as Lens])
         }
