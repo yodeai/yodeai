@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from 'react'
+import React, { memo, useState, useRef, useEffect } from 'react'
 import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Resizer'
@@ -22,9 +22,8 @@ export const defaultNodeProps: { height: number; width: number } = {
     width: 60
 }
 
-export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
+export const Component = memo(({ data, node, selected, updateNode, updateNodeSelf }: StickyNoteProps) => {
     const [text, setText] = useState(data.text);
-    const $textarea = useRef(null);
 
     const handleChange = (event) => {
         setText(event.target.value);
@@ -33,25 +32,24 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
     const handleBlur = () => {
         updateNode({ text });
     };
+
     return <ResizableNode selected={selected}>
         <TextSizer value={node.data.size} selected={selected} handleTextSizeChange={(size) => updateNode({ size })} />
-        {/* <Handle type="target" position={Position.Left} /> */}
-        <div className="rounded-lg">
+        <Handle type="target" position={Position.Left} />
+        <div className="rounded-lg border border-gray-200">
             <textarea
                 style={{
                     height: node.height || 50,
                     width: node.width || 100,
-                    fontSize: node.data.size,
-                    lineHeight: 1.2,
+                    fontSize: node.data.size
                 }}
-                ref={$textarea}
                 className="border-none m-0 resize-none block w-full bg-transparent"
                 value={text}
                 onChange={handleChange}
                 onBlur={handleBlur}
             />
         </div>
-        {/* <Handle type="source" position={Position.Right} /> */}
+        <Handle type="source" position={Position.Right} />
     </ResizableNode>
 });
 

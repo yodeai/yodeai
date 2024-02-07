@@ -47,8 +47,6 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     }, [data.accessType]);
     const [isLocked, setIsLocked] = useState(getInitialLockState());
 
-    console.log({ isLocked, canBeUnlocked })
-
     const $whiteboard = useRef(null);
     const router = useRouter();
 
