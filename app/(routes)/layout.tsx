@@ -35,7 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </Box>
 
             {/* QuestionAnswerForm with a left border */}
-            <Box h='100%'>
+            <Box h="100%" className="z-50">
               <Toolbar />
             </Box>
           </Flex>
