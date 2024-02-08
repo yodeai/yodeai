@@ -52,7 +52,6 @@ const JiraIssuesViewer: React.FC = () => {
             }
             const data = await response.json();
             setJiraIssues(data.issues || []);
-            console.log(data.issues);
         } catch (error) {
             console.error('Error fetching issues:', error);
         } finally {

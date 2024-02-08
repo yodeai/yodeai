@@ -13,25 +13,31 @@ const JiraTicketExportButton: React.FC<BlockProps> = ({ block }) => {
   const handleJiraTicketExport = async () => {
     setIsLoading(true);
     try {
-        const response = await fetch(`/api/jira/createIssue`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+      const issueBody = JSON.stringify({
+        fields: {
+          summary: block.title,
+          description: block.preview, // todo: fetching block using block.id and replace this with block.content to get actual content
+          project: {
+              key: "YL" // todo: this is hard coded. change to be dynamic
           },
-          body: JSON.stringify({
-              fields: {
-                summary: block.title,
-                description: block.content,
-              }
-          }),
-        });
-        if (!response.ok) {
-            throw new Error('/api/jira/createIssue failed to create Jira issue');
+          issuetype: {
+              id: 10001 // todo: 10001 is "Task" type. see documentation for issue types. https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html
+          },
         }
-        const data = await response.json();
-        console.log(data);
+      });
+
+      const response = await fetch(`/api/jira/createIssue`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: issueBody,
+      });
+      if (!response.ok) {
+          throw new Error(response.statusText);
+      }
     } catch (error) {
-        console.error('Exporting block as Jira ticket:', error);
+        console.error("Failed to create Jira issue:", error);
     } finally {
         setIsLoading(false);
     }
