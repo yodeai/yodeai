@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       console.log("CloudID:", cloudID);
 
       if (firstSite) {
-        const cookieLife = 60 * 60 * 1000; // 1 hour
+        const cookieLife = 60 * 60 * 24000 * 30; // 30 days
 
         const jiraAuthCookieExists = cookie.serialize('jiraAuthExists', JSON.stringify({
           accessTokenExists: true,
