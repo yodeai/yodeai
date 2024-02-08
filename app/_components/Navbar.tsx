@@ -194,7 +194,7 @@ export default function Navbar() {
         {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
-            <Box key={lens.lens_id} pos="relative">
+            <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
               <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}
