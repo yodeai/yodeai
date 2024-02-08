@@ -6,7 +6,7 @@ import { Text, Flex, Box, Textarea } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaICursor, FaIcons } from "react-icons/fa";
+import { FaCog, FaICursor, FaIcons } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 
@@ -88,7 +88,7 @@ export const WhiteboardIconItem = ({
   {
     key: 'changeIcon',
     color: "#228be6",
-    icon: <FaIcons size={16} />,
+    icon: <FaCog size={16} />,
     title: "Settings",
     onClick: () => {
       handleItemSettings(whiteboard);
