@@ -20,6 +20,7 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import IconItemSettings from "./IconView/IconSettings";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -60,7 +61,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
+        userInsightsDisclosure, competitiveAnalysisDisclosure, iconItemDisclosure,
+        sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
 
@@ -277,6 +279,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
+                    <IconItemSettings modalController={iconItemDisclosure} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">

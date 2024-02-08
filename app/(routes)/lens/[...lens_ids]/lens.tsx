@@ -1,7 +1,7 @@
 "use client";
 
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
@@ -12,6 +12,7 @@ import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { Box, Flex } from "@mantine/core";
+import IconItemSettings from "app/_components/IconView/IconSettings";
 
 type LensProps = {
   lens_id: number;
@@ -33,17 +34,23 @@ export default function Lens(props: LensProps) {
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
+  const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
+  const $settingsItem = useRef<
+    Lens | Subspace | Tables<"block"> | Tables<"whiteboard">
+  >(null);
+
   const router = useRouter();
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
-    accessType, setAccessType, sortingOptions
+    accessType, setAccessType, sortingOptions,
+    iconItemDisclosure
   } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
@@ -56,7 +63,6 @@ export default function Lens(props: LensProps) {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
       setLayoutViewToLocalStorage("default_layout", "block")
     }
-
   }, [])
 
   useEffect(() => {
@@ -161,7 +167,8 @@ export default function Lens(props: LensProps) {
           block_layout: res?.data?.block_layout,
           icon_layout: res?.data?.icon_layout,
           list_layout: res?.data?.list_layout
-        })
+        });
+        setItemIcons(res?.data?.item_icons || {});
       })
   }
 
@@ -241,6 +248,7 @@ export default function Lens(props: LensProps) {
     }
   }, []);
 
+
   const deleteWhiteboard = useCallback((payload) => {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
@@ -260,6 +268,12 @@ export default function Lens(props: LensProps) {
     );
   }, []);
 
+  const updateLensLayout = useCallback((payload) => {
+    setItemIcons(payload["new"]?.item_icons || {});
+  }, []);
+
+  console.log(itemIcons)
+
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
     const channel = supabase
@@ -274,6 +288,7 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_layout', filter: `lens_id=eq.${lens_id}`, }, updateLensLayout)
       .subscribe();
 
     return () => {
@@ -425,6 +440,15 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
+    $settingsItem.current = item;
+    iconItemDisclosure[1].open();
+  }
+
+  const handleItemIconChange = async (item_id: number, newIcon: string) => {
+    // console.log("Icon change");
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -520,12 +544,20 @@ export default function Lens(props: LensProps) {
           handleWhiteboardDelete={handleWhiteboardDelete}
           handleWhiteboardChangeName={handleWhiteboardChangeName}
           onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          handleItemIconChange={handleItemIconChange}
           layout={layoutData}
           blocks={sortedBlocks}
           subspaces={sortedSubspaces}
           whiteboards={sortedWhiteboards}
+          itemIcons={itemIcons}
           layoutView={selectedLayoutType} />}
       </Box>
-    </Flex >
+      <IconItemSettings
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
+    </Flex>
   );
 }
