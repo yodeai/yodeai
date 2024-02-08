@@ -170,6 +170,7 @@ export default function Home() {
           <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
         </div>}
         <LayoutController
+          itemIcons={{}}
           subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}

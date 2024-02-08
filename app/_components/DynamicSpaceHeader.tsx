@@ -279,7 +279,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
-                    <IconItemSettings modalController={iconItemDisclosure} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">
