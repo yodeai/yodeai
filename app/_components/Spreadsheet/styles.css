@@ -1,0 +1,47 @@
+@import url(https://cdn.syncfusion.com/ej2/24.2.3/material3.css);
+@import url(https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css);
+
+.control-section.spreadsheet-control {
+    height: 550px;
+}
+
+#sb-content .e-spreadsheet .e-tab .e-tab-text {
+    display: inherit;
+}
+
+.e-spreadsheet .e-cell .e-radio-wrapper {
+    margin: 5px;
+}
+
+.e-spreadsheet .e-cell .e-radio-wrapper:first-child {
+    margin-left: 0;
+}
+
+.e-spreadsheet .e-cell .e-radio+label .e-label {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-input-group.e-control-wrapper {
+    background-color: rgb(56, 56, 56);
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio+label .e-label {
+    color: #000;
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio+label::before {
+    background-color: #fff;
+    border-color: #757575;
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio:checked+label::before {
+    border-color: #00b0ff;
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio-wrapper {
+    padding-right: 10px;
+}
+
+.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-btn.e-flat {
+    color: #000;
+}
