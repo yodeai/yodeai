@@ -2,8 +2,8 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Spreadsheet from '@components/Spreadsheet';
-import { Database, Tables } from "app/_types/supabase";
-import { redirect } from "next/navigation";
+import Data from '@components/Spreadsheet/chart.json';
+import { Database } from "app/_types/supabase";
 
 type SpreadsheetProps = {
     params: { spreadsheet_id: number }
@@ -43,5 +43,5 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
     // const whiteboardWithAccessType = data as Tables<"whiteboard"> & { accessType: string };
     // whiteboardWithAccessType.accessType = accessTypeResponse.data ?? "owner"; // if the whiteboard is not part of a lens, then it is the user's own whiteboard.
 
-    return <Spreadsheet />
+    return <Spreadsheet columns={Data.Columns} dataSource={Data.DataSource} />
 }

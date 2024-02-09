@@ -32,6 +32,7 @@ export default function Lens(props: LensProps) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
+  const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
 
   const [editingLensName, setEditingLensName] = useState("");
@@ -66,7 +67,8 @@ export default function Lens(props: LensProps) {
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
         getLensWhiteboards(lens_id),
-        getLensLayout(lens_id)
+        getLensLayout(lens_id),
+        getLensSpreadsheets(lens_id)
       ])
         .then(() => {
           setLoading(false);
@@ -132,6 +134,17 @@ export default function Lens(props: LensProps) {
       })
       .catch((error) => {
         console.error('Error fetching whiteboards:', error);
+      })
+  }
+
+  const getLensSpreadsheets = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getSpreadsheets`)
+      .then((response) => response.json())
+      .then((data) => {
+        setSpreadsheets(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching spreadsheets:', error);
       })
   }
 
@@ -524,6 +537,7 @@ export default function Lens(props: LensProps) {
           blocks={sortedBlocks}
           subspaces={sortedSubspaces}
           whiteboards={sortedWhiteboards}
+          spreadsheets={spreadsheets}
           layoutView={selectedLayoutType} />}
       </Box>
     </Flex >

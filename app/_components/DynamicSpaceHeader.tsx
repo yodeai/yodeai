@@ -9,11 +9,11 @@ import {
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
 import AddSubspace from "@components/AddSubspace";
+import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheetModal";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
-import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
 
@@ -60,7 +60,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
+        userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
+        sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
 
@@ -277,6 +278,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
+                    <AddSpreadsheet modalController={spreadsheetModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">

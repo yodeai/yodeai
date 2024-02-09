@@ -7,27 +7,30 @@ import { Flex, Text } from "@mantine/core";
 import ListLayoutComponent from "./ListLayoutComponent";
 import { Tables } from "app/_types/supabase";
 
-type LayoutControllerProps = {
+export type ViewController = {
     blocks?: Block[]
     subspaces?: (Subspace | Lens)[]
     whiteboards?: Tables<"whiteboard">[]
-    layout: LensLayout,
-    layoutView: "block" | "icon",
+    spreadsheets?: Tables<"spreadsheet">[]
+
+    onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
     handleLensDelete: (lens_id: number) => Promise<any>
     handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
-    onChangeLayout: (
-        layoutName: keyof LensLayout,
-        layoutData: LensLayout[keyof LensLayout]
-    ) => void
+}
+
+export type LayoutControllerProps = ViewController & {
+    layout: LensLayout,
+    layoutView: "block" | "icon",
 }
 
 export default function LayoutController(props: LayoutControllerProps) {
     const {
         blocks, layout, layoutView, subspaces, whiteboards,
+        spreadsheets,
         onChangeLayout, handleBlockChangeName,
         handleBlockDelete, handleLensDelete, handleLensChangeName,
         handleWhiteboardDelete, handleWhiteboardChangeName
@@ -66,10 +69,13 @@ export default function LayoutController(props: LayoutControllerProps) {
                     handleLensChangeName={handleLensChangeName}
                     handleWhiteboardDelete={handleWhiteboardDelete}
                     handleWhiteboardChangeName={handleWhiteboardChangeName}
-                    layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
+                    layouts={layout.icon_layout}
+                    onChangeLayout={onChangeLayout}
                     subspaces={subspaces}
                     blocks={blocks || []}
-                    whiteboards={whiteboards || []} />
+                    whiteboards={whiteboards || []}
+                    spreadsheets={spreadsheets || []}
+                />
             </div>
     }
 }

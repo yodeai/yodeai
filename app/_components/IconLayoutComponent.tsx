@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "rea
 import { Block } from "app/_types/block";
 import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
+import { SiMicrosoftexcel } from "react-icons/si";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
@@ -24,24 +25,23 @@ import { WhiteboardPluginParams } from "app/_types/whiteboard";
 import { cn } from "@utils/style";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
+import { ViewController } from "./LayoutController";
 
-interface IconLayoutComponentProps {
-  blocks: Block[];
-  subspaces: (Subspace | Lens)[];
-  whiteboards: Tables<"whiteboard">[]
+interface IconLayoutComponentProps extends ViewController {
   layouts: LensLayout["icon_layout"]
-  onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void,
-  handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
-  handleBlockDelete: (block_id: number) => Promise<any>
-  handleLensDelete: (lens_id: number) => Promise<any>
-  handleLensChangeName: (lens_id: number, newLensName: string) => Promise<any>
-  handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>
-  handleWhiteboardChangeName: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
 }
+
+type IconViewItemType = Block | Subspace | Lens | Tables<"whiteboard"> & {
+  plugin?: WhiteboardPluginParams
+} | Tables<"spreadsheet">;
+
+type IconViewItemChars = "bl" | "ss" | "wb" | "sp";
+
 export default function IconLayoutComponent({
   blocks,
   subspaces,
   whiteboards,
+  spreadsheets,
   layouts,
   onChangeLayout,
   handleBlockChangeName,
@@ -71,6 +71,7 @@ export default function IconLayoutComponent({
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
     google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
+    spreadsheet: <SiMicrosoftexcel size={32} color="#1a73e8" />,
     plugins: {
       "user-insight": <FaUsersGear size={32} color="#888888" />,
       "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
@@ -80,14 +81,12 @@ export default function IconLayoutComponent({
 
   const cols = useMemo(() => ({ xlg: 12, lg: 12, md: 8, sm: 6, xs: 4, xxs: 3, xxxs: 1 }), []);
   const breakpoints = useMemo(() => ({ xlg: 1200, lg: 996, md: 768, sm: 576, xs: 480, xxs: 240, xxxs: 120 }), []);
-  const [selectedItems, setSelectedItems] = useState<(Block["block_id"] | Subspace["lens_id"])[]>([]);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: (Block | Subspace | Lens | Tables<"whiteboard"> & {
-    plugin?: WhiteboardPluginParams
-  })[] = useMemo(() => [].concat(blocks, subspaces, whiteboards), [blocks, subspaces, whiteboards])
+  const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets), [blocks, subspaces, whiteboards, spreadsheets])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -105,8 +104,9 @@ export default function IconLayoutComponent({
     } else if (selectedItems.length === 1) {
       const selectedItem = items.find(item => {
         if ("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
-        if ("lens_id" in item) return selectedItems[0] === item.lens_id;
         if ("block_id" in item) return selectedItems[0] === item.block_id;
+        if ("spreadsheet_id" in item) return selectedItems[0] === item.spreadsheet_id;
+        if ("lens_id" in item) return selectedItems[0] === item.lens_id;
       });
       if (!selectedItem) return elements;
       elements.push({
@@ -148,7 +148,7 @@ export default function IconLayoutComponent({
     getLensParents()
   }, [lensId]);
 
-  const onDoubleClick = (itemType: "bl" | "ss" | "wb", itemId: number) => {
+  const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
     if (itemType === "bl") return router.push(`/block/${itemId}`);
 
     if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
@@ -159,9 +159,12 @@ export default function IconLayoutComponent({
       }
       return router.push(`${window.location.pathname}/${itemId}`);
     }
+
+    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
+
   }
 
-  const checkIfClickable = (itemType: "bl" | "ss" | "wb", itemId: number, item: Block | Subspace | Lens | Tables<"whiteboard"> & { plugin?: WhiteboardPluginParams }) => {
+  const checkIfClickable = (itemType: IconViewItemChars, itemId: number, item: IconViewItemType) => {
     if ("whiteboard_id" in item && item?.plugin && item?.plugin?.state?.status !== "success") {
       return false;
     }
@@ -170,15 +173,13 @@ export default function IconLayoutComponent({
   }
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
-    const [itemType, itemId] = newItem.i.split("_") as [
-      "bl" | "ss" | "wb",
-      Block["block_id"] | Subspace["lens_id"] | Tables<"whiteboard">["whiteboard_id"]
-    ];
+    const [itemType, itemId] = newItem.i.split("_") as [IconViewItemChars, number];
 
     const item = items.find(item => {
       if ("whiteboard_id" in item) return Number(itemId) === item.whiteboard_id;
-      if ("lens_id" in item) return Number(itemId) === item.lens_id;
+      if ("spreadsheet_id" in item) return Number(itemId) === item.spreadsheet_id;
       if ("block_id" in item) return Number(itemId) === item.block_id;
+      if ("lens_id" in item) return Number(itemId) === item.lens_id;
     })
 
     const now = Date.now();
@@ -250,7 +251,31 @@ export default function IconLayoutComponent({
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
         icon={icon} whiteboard={item} />
-    } else if ("lens_id" in item) {
+    }
+
+    if ("block_id" in item) {
+      key = `bl_${item.block_id}`;
+      item_id = item.block_id;
+      content = <BlockIconItem
+        selected={selectedItems.includes(item_id)}
+        handleBlockChangeName={handleBlockChangeName}
+        handleBlockDelete={handleBlockDelete}
+        unselectBlocks={() => setSelectedItems([])}
+        icon={fileTypeIcons[item.block_type]} block={item} />
+    }
+
+    if ("spreadsheet_id" in item) {
+      key = `sp_${item.spreadsheet_id}`;
+      item_id = item.spreadsheet_id
+      content = <SpreadsheetIconItem
+        selected={selectedItems.includes(item_id)}
+        handleBlockChangeName={handleBlockChangeName}
+        handleBlockDelete={handleBlockDelete}
+        unselectBlocks={() => setSelectedItems([])}
+        icon={fileTypeIcons.spreadsheet} spreadsheet={item} />
+    }
+
+    if ("lens_id" in item && "access_type" in item) {
       key = `ss_${item.lens_id}`;
       item_id = item.lens_id;
       content = <SubspaceIconItem
@@ -263,15 +288,6 @@ export default function IconLayoutComponent({
             ? fileTypeIcons.subspace
             : fileTypeIcons.sharedSubspace
         } subspace={item} />
-    } else {
-      key = `bl_${item.block_id}`;
-      item_id = item.block_id;
-      content = <BlockIconItem
-        selected={selectedItems.includes(item_id)}
-        handleBlockChangeName={handleBlockChangeName}
-        handleBlockDelete={handleBlockDelete}
-        unselectBlocks={() => setSelectedItems([])}
-        icon={fileTypeIcons[item.block_type]} block={item} />
     }
 
     return <div key={key} data-grid={dataGrid}
@@ -703,26 +719,6 @@ const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeNa
     }
   }, [$textarea, editMode])
 
-  const subIcons = useMemo(() => {
-    let subIcons: JSX.Element[] = [];
-    if (isPinned) subIcons.push(
-      <Tooltip label="Pinned Item" events={{ hover: true, focus: true, touch: false }}>
-        <div>
-          <AiOutlinePushpin size={18} stroke="2" color="#eeeeee" className="bg-slate-500 rounded-full p-1 opacity-60 hover:opacity-100" />
-        </div>
-      </Tooltip>
-    );
-
-    if (subspace.access_type === "editor") subIcons.push(
-      <Tooltip label="Shared" events={{ hover: true, focus: true, touch: false }}>
-        <div>
-          <FaICursor size={16} stroke="2" color="#eeeeee" className="bg-slate-700 rounded-full opacity-60 hover:opacity-100" />
-        </div>
-      </Tooltip>
-    );
-    return subIcons;
-  }, [isPinned, zoomLevel]);
-
   return <>
     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
     <Flex
@@ -927,4 +923,143 @@ const SpaceIconHint = ({ children, subIcons }: SpaceIconHintProps) => {
       {subIcons}
     </div>
   </>
+}
+
+type SpreadsheetProps = {
+  icon: JSX.Element,
+  spreadsheet: Tables<"spreadsheet">
+  selected?: boolean;
+  handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
+  handleBlockDelete?: (block_id: number) => Promise<any>
+  unselectBlocks?: () => void
+}
+const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: SpreadsheetProps) => {
+  const { showContextMenu } = useContextMenu();
+  const $textarea = useRef<HTMLTextAreaElement>(null);
+  const { accessType, zoomLevel } = useAppContext();
+  const router = useRouter();
+
+  const [titleText, setTitleText] = useState<string>(spreadsheet.name);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTitleText(spreadsheet.name);
+  }, [spreadsheet])
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm spreadsheet deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this spreadsheet? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete spreadsheet', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: onConfirmDelete,
+  });
+
+  const onChangeTitle = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitleText(event.target.value);
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      setEditMode(false);
+      return;
+    }
+    if (event.key === "Enter") {
+      setEditMode(false)
+      setLoading(true)
+      handleBlockChangeName(spreadsheet.spreadsheet_id, (event.target as HTMLTextAreaElement).value.trim())
+        .then(res => setLoading(false))
+      return;
+    }
+  }
+
+  const onConfirmDelete = () => {
+    setLoading(true);
+    handleBlockDelete(spreadsheet.spreadsheet_id).then(res => setLoading(false));
+  }
+
+  useEffect(() => {
+    if (editMode) {
+      $textarea.current?.focus();
+      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).classList.contains("mantine-ScrollArea-viewport")) {
+        setEditMode(false);
+        unselectBlocks();
+      }
+    }
+
+    window.addEventListener("click", onClick);
+
+    return () => {
+      window.removeEventListener("click", onClick);
+    }
+  }, [$textarea, editMode])
+
+  const actions: ContextMenuContent = useMemo(() => [{
+    key: 'open',
+    color: "#228be6",
+    icon: <FaLink size={16} />,
+    title: "Open",
+    onClick: () => {
+      router.push(`/spreadsheet/${spreadsheet.spreadsheet_id}`)
+    }
+  }, {
+    key: 'rename',
+    color: "#228be6",
+    icon: <FaICursor size={16} />,
+    title: 'Rename',
+    disabled: ["owner", "editor"].includes(accessType) === false,
+    onClick: () => {
+      setEditMode(true);
+    }
+  },
+  {
+    key: 'remove',
+    color: "#ff6b6b",
+    icon: <FaRegTrashCan size={16} />,
+    title: "Delete",
+    disabled: ["owner", "editor"].includes(accessType) === false,
+    onClick: () => openDeleteModal()
+  }], [accessType]);
+
+  const onContextMenu = showContextMenu(actions);
+
+  return <Flex
+    onContextMenu={onContextMenu}
+    mih={100} gap="6px"
+    align="center" justify="flex-end"
+    direction="column" wrap="nowrap">
+    <Box className="absolute top-1">
+      {loading
+        ? <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
+        : <>{icon}</>
+      }
+    </Box>
+    <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
+    <Box w={70} h={40} variant="unstyled" className="text-center">
+      {editMode
+        ? <Textarea
+          rows={1}
+          className="z-50 block-input leading-4 w-full"
+          maxRows={2}
+          ref={$textarea}
+          variant="unstyled" ta="center" c="dimmed"
+          onKeyDown={onKeyDown}
+          size={`${7 * 200 / zoomLevel}px`}
+          p={0} m={0}
+          h={20}
+          onChange={onChangeTitle} placeholder="Title" value={titleText} />
+        : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+      }
+    </Box>
+  </Flex>
 }
