@@ -40,13 +40,3 @@ const icons: {
 }
 
 export default icons;
-
-//     pdf: ({ color, ...props }) => <FaFilePdf size={32} color="#228be6" {...props} />,
-//     note: ({ color, ...props }) => <FaFileLines size={32} color="#888888" {...props} />,
-//     whiteboard: ({ color, ...props }) => <FaChalkboard size={32} color="#888888" {...props} />,
-//     subspace: ({ color, ...props }) => <FaCube size={32} {...props} />,
-//     google_doc: ({ color, ...props }) => <FaGoogleDrive size={32} color="#0F9D58" {...props} />,
-//     "plugin_user-insight": ({ color, ...props }) => <FaUsersGear size={32} color="#888888" {...props} />,
-//     "plugin_competitive-analysis": ({ color, ...props }) => <FaMagnifyingGlassChart size={32} color="#888888" {...props} />,
-//     "plugin_default": ({ color, ...props }) => <FaPuzzlePiece size={28} color="#888888" {...props} />
-// }
