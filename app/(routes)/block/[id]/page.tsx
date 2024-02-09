@@ -1,6 +1,5 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import formatDate from "@lib/format-date";
 import { Pencil2Icon } from "@radix-ui/react-icons";
@@ -8,6 +7,7 @@ import { useState } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/BlockEditor';
+import JiraTicketExportButton from '@components/JiraTicketExportButton';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
@@ -188,6 +188,7 @@ export default function Block({ params }: { params: { id: string } }) {
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
                 {/* </Link> */}
                 <div className="flex gap-2">
+                  <JiraTicketExportButton block_id={block.block_id} />
                   {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
                     <Tooltip color="blue" label="Edit this block's title/content">
                       <Button
@@ -213,7 +214,7 @@ export default function Block({ params }: { params: { id: string } }) {
             </div>
           </>
         ) : (
-          <BlockEditor block={block} onSave={onSave} /> // this recreates the entire block view but allows for editing            
+          <BlockEditor block={block} onSave={onSave} /> // this recreates the entire block view but allows for editing
           // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
         )}
       </Flex>

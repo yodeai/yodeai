@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaTicketAlt } from "react-icons/fa";
 import { Button } from "@mantine/core";
 import { Block } from "app/_types/block";
 
 interface BlockProps {
-  block: Block;
+  block_id: number;
 }
 
-const JiraTicketExportButton: React.FC<BlockProps> = ({ block }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const JiraTicketExportButton: React.FC<BlockProps> = ({ block_id }) => {
+  const [block, setBlock] = useState<Block | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleJiraTicketExport = async () => {
     setIsLoading(true);
@@ -16,7 +17,7 @@ const JiraTicketExportButton: React.FC<BlockProps> = ({ block }) => {
       const issueBody = JSON.stringify({
         fields: {
           summary: block.title,
-          description: block.preview, // todo: fetching block using block.id and replace this with block.content to get actual content
+          description: block.content,
           project: {
               key: "YL" // todo: this is hard coded. change to be dynamic
           },
@@ -42,6 +43,21 @@ const JiraTicketExportButton: React.FC<BlockProps> = ({ block }) => {
         setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetch(`/api/block/${block_id}`)
+      .then((response) => {
+        if (!response.ok) {
+          setIsLoading(false);
+          console.error("JiraTicketExportButton: Error fetching block_id");
+        } else {
+          response.json().then((data) => {
+            setBlock(data.data);
+            setIsLoading(false);
+          })
+        }
+      })
+  }, [block_id]);
 
   return (
     <div className="flex gap-2 mt-1 flex-wrap">

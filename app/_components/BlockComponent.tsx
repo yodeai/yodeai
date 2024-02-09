@@ -173,7 +173,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           {block.inLenses && (
             <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
           )}
-          <JiraTicketExportButton block={block} />
+          <JiraTicketExportButton block_id={block.block_id} />
         </Flex>
 
         {/* {!compact && firstTwoLines && false ? (
