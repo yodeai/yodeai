@@ -1,8 +1,5 @@
-@import url(https://cdn.syncfusion.com/ej2/24.2.3/material3.css);
-@import url(https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css);
-
 .control-section.spreadsheet-control {
-    height: 550px;
+    height: 850px;
 }
 
 #sb-content .e-spreadsheet .e-tab .e-tab-text {
@@ -44,4 +41,8 @@
 
 .material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-btn.e-flat {
     color: #000;
+}
+
+.e-sheet-panel{
+    height: 100%;
 }
