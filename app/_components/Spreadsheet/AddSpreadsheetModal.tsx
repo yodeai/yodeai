@@ -81,20 +81,20 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                 <Modal.Body p={2} pt={0}>
                     <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                     <Flex key="name" className="w-full mb-5">
-                        <Input.Wrapper label="Analysis Name" className="w-full">
+                        <Input.Wrapper label="Output name" className="w-full">
                             <Input
                                 id="whiteboardName"
                                 className="mt-0.5 w-full"
-                                placeholder="Enter user analysis name"
+                                placeholder="Enter name of the spreadsheet"
                                 onChange={(event) => updateName(event.currentTarget.value)}
                             />
                         </Input.Wrapper>
                     </Flex>
 
                     <Box className="w-full flex flex-col items-center gap-2 mb-2">
-                        <Text className="w-full" size="18px" fw="bold">Spreadsheet Areas</Text>
+                        <Text className="w-full" size="18px" fw="bold">Painpoints</Text>
                         <Text className="w-full mb-5 text-gray-300" size="xs">
-                            Enter the topics you wish to extract from these user interviews. If left blank, then topics will be auto extracted.
+                        Enter the painpoints you wish to extract from reviews.
                         </Text>
                     </Box>
 
@@ -103,7 +103,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
                                 <Input
                                     className="mt-0.5 flex-1"
-                                    placeholder={`Topic ${index + 1}`}
+                                    placeholder={`Painpoint ${index + 1}`}
                                     value={area}
                                     onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
                                 />
