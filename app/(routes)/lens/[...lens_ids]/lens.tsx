@@ -311,6 +311,7 @@ export default function Lens(props: LensProps) {
   }, []);
 
   const updateLensLayout = useCallback((payload) => {
+    console.log(payload)
     setItemIcons(payload["new"]?.item_icons || {});
   }, []);
 
@@ -504,148 +505,144 @@ export default function Lens(props: LensProps) {
       success: "Spreadsheet deleted!",
       error: "Failed to delete spreadsheet.",
     });
+  }
 
-    const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
-      $settingsItem.current = item;
-      iconItemDisclosure[1].open();
-    }
+  const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
+    $settingsItem.current = item;
+    iconItemDisclosure[1].open();
+  }
 
-    const handleItemIconChange = async (item_id: number, newIcon: string) => {
-      // console.log("Icon change");
-    }
-
-    if (!lens && !loading) {
-      return (
-        <div className="flex flex-col p-4 flex-grow">
-          <p>Error fetching space data.</p>
-        </div>
-      );
-    }
-
-    const sortedSubspaces = useMemo(() => {
-      if (sortingOptions.sortBy === null) return subspaces;
-
-      let _sorted_subspaces = [...subspaces].sort((a, b) => {
-        if (sortingOptions.sortBy === "name") {
-          return a.name.localeCompare(b.name);
-        } else if (sortingOptions.sortBy === "createdAt") {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        } else if (sortingOptions.sortBy === "updatedAt") {
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        }
-      })
-
-      if (sortingOptions.order === "desc") {
-        return _sorted_subspaces.reverse();
-      }
-
-      return _sorted_subspaces;
-    }, [sortingOptions, subspaces])
-
-    const sortedBlocks = useMemo(() => {
-      if (sortingOptions.sortBy === null) return blocks;
-
-      let _sorted_blocks = [...blocks].sort((a, b) => {
-        if (sortingOptions.sortBy === "name") {
-          return a.title.localeCompare(b.title);
-        } else if (sortingOptions.sortBy === "createdAt") {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        } else if (sortingOptions.sortBy === "updatedAt") {
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        }
-      })
-
-      if (sortingOptions.order === "desc") {
-        return _sorted_blocks.reverse();
-      }
-
-      return _sorted_blocks;
-    }, [sortingOptions, blocks])
-
-    const sortedWhiteboards = useMemo(() => {
-      if (sortingOptions.sortBy === null) return whiteboards;
-
-      let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
-        if (sortingOptions.sortBy === "name") {
-          return a.name.localeCompare(b.name);
-        } else if (sortingOptions.sortBy === "createdAt") {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        } else if (sortingOptions.sortBy === "updatedAt") {
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        }
-      })
-
-      if (sortingOptions.order === "desc") {
-        return _sorted_whiteboards.reverse();
-      }
-
-      return _sorted_whiteboards;
-    }, [sortingOptions, whiteboards])
-
-    const sortedSpreadsheets = useMemo(() => {
-      if (sortingOptions.sortBy === null) return spreadsheets;
-
-      let _sorted_spreadsheets = [...spreadsheets].sort((a, b) => {
-        if (sortingOptions.sortBy === "name") {
-          return a.name.localeCompare(b.name);
-        } else if (sortingOptions.sortBy === "createdAt") {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        } else if (sortingOptions.sortBy === "updatedAt") {
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        }
-      })
-
-      if (sortingOptions.order === "desc") {
-        return _sorted_spreadsheets.reverse();
-      }
-
-      return _sorted_spreadsheets;
-    }, [sortingOptions, spreadsheets])
-
+  if (!lens && !loading) {
     return (
-      <Flex direction="column" pt={0} h="100%">
-        <DynamicSpaceHeader
-          loading={loading}
-          lens={lens}
-          lensName={lensName}
-          editingLensName={editingLensName}
-          isEditingLensName={isEditingLensName}
-          setIsEditingLensName={setIsEditingLensName}
-          handleNameChange={handleNameChange}
-          handleKeyPress={handleKeyPress}
-          saveNewLensName={saveNewLensName}
-          handleDeleteLens={handleDeleteLens}
-          accessType={accessType}
-          selectedLayoutType={selectedLayoutType}
-          handleChangeLayoutView={handleChangeLayoutView}
-        />
-        <Box className="flex items-stretch flex-col h-full">
-          {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-          {!loading && <LayoutController
-            handleBlockChangeName={handleBlockChangeName}
-            handleBlockDelete={handleBlockDelete}
-            handleLensChangeName={handleLensChangeName}
-            handleLensDelete={handleLensDelete}
-            handleWhiteboardDelete={handleWhiteboardDelete}
-            handleWhiteboardChangeName={handleWhiteboardChangeName}
-            handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-            handleSpreadsheetDelete={handleSpreadsheetDelete}
-            onChangeLayout={onChangeLensLayout}
-            handleItemSettings={handleItemSettings}
-            handleItemIconChange={handleItemIconChange}
-            layout={layoutData}
-            blocks={sortedBlocks}
-            subspaces={sortedSubspaces}
-            whiteboards={sortedWhiteboards}
-            spreadsheets={sortedSpreadsheets}
-            itemIcons={itemIcons}
-            layoutView={selectedLayoutType} />}
-        </Box>
-        <IconItemSettings
-          item_icons={itemIcons}
-          item={$settingsItem.current}
-          lens_id={lens_id}
-          modalController={iconItemDisclosure} />
-      </Flex>
+      <div className="flex flex-col p-4 flex-grow">
+        <p>Error fetching space data.</p>
+      </div>
     );
   }
+
+  const sortedSubspaces = useMemo(() => {
+    if (sortingOptions.sortBy === null) return subspaces;
+
+    let _sorted_subspaces = [...subspaces].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_subspaces.reverse();
+    }
+
+    return _sorted_subspaces;
+  }, [sortingOptions, subspaces])
+
+  const sortedBlocks = useMemo(() => {
+    if (sortingOptions.sortBy === null) return blocks;
+
+    let _sorted_blocks = [...blocks].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.title.localeCompare(b.title);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_blocks.reverse();
+    }
+
+    return _sorted_blocks;
+  }, [sortingOptions, blocks])
+
+  const sortedWhiteboards = useMemo(() => {
+    if (sortingOptions.sortBy === null) return whiteboards;
+
+    let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_whiteboards.reverse();
+    }
+
+    return _sorted_whiteboards;
+  }, [sortingOptions, whiteboards])
+
+  const sortedSpreadsheets = useMemo(() => {
+    if (sortingOptions.sortBy === null) return spreadsheets;
+
+    let _sorted_spreadsheets = [...spreadsheets].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_spreadsheets.reverse();
+    }
+
+    return _sorted_spreadsheets;
+  }, [sortingOptions, spreadsheets])
+
+  return (
+    <Flex direction="column" pt={0} h="100%">
+      <DynamicSpaceHeader
+        loading={loading}
+        lens={lens}
+        lensName={lensName}
+        editingLensName={editingLensName}
+        isEditingLensName={isEditingLensName}
+        setIsEditingLensName={setIsEditingLensName}
+        handleNameChange={handleNameChange}
+        handleKeyPress={handleKeyPress}
+        saveNewLensName={saveNewLensName}
+        handleDeleteLens={handleDeleteLens}
+        accessType={accessType}
+        selectedLayoutType={selectedLayoutType}
+        handleChangeLayoutView={handleChangeLayoutView}
+      />
+      <Box className="flex items-stretch flex-col h-full">
+        {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
+        {!loading && <LayoutController
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
+          handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
+          onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          layout={layoutData}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          spreadsheets={sortedSpreadsheets}
+          itemIcons={itemIcons}
+          layoutView={selectedLayoutType} />}
+      </Box>
+      <IconItemSettings
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
+    </Flex>
+  );
+}

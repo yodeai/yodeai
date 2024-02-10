@@ -26,7 +26,6 @@ export type ViewController = {
     handleSpreadsheetChangeName?: (spreadsheet_id: number, newSpreadsheetName: string) => Promise<any>
     handleSpreadsheetDelete?: (spreadsheet_id: number) => Promise<any>
     handleItemSettings?: (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => void
-    handleItemIconChange?: (item_id: number, newIcon: string) => Promise<any>
 }
 
 export type LayoutControllerProps = ViewController & {
@@ -41,6 +40,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         layoutView,
         subspaces,
         whiteboards,
+        spreadsheets,
         onChangeLayout
     } = props;
 
@@ -76,6 +76,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                     onChangeLayout={onChangeLayout}
                     blocks={blocks || []}
                     whiteboards={whiteboards || []}
+                    spreadsheets={spreadsheets || []}
                     {...props}
                 />
             </div>

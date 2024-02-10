@@ -23,7 +23,6 @@ type WhiteboardIconItemProps = {
   unselectBlocks?: () => void
   handleWhiteboardDelete: (whiteboard_id: number) => Promise<any>,
   handleWhiteboardChangeName: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
-  handleItemIconChange?: (item_id: number, newIcon: string) => Promise<any>
   handleItemSettings?: (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => void
 }
 export const WhiteboardIconItem = ({
