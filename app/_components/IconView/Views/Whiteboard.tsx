@@ -81,6 +81,7 @@ export const WhiteboardIconItem = ({
     color: "#228be6",
     icon: <FaICursor size={16} />,
     title: 'Rename',
+    disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => {
       setEditMode(true);
     }
@@ -90,6 +91,7 @@ export const WhiteboardIconItem = ({
     color: "#228be6",
     icon: <FaCog size={16} />,
     title: "Settings",
+    disabled: ["owner", "editor"].includes(accessType) === false,
     onClick: () => {
       handleItemSettings(whiteboard);
     }
