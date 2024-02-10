@@ -12,6 +12,7 @@ import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheetModal";
+import IconItemSettings from "./IconView/IconSettings";
 
 type SpaceHeaderProps = {
     title: string;
@@ -35,7 +36,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     } = props;
 
     const {
-        subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
+        subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
+        spreadsheetModalDisclosure, competitiveAnalysisDisclosure, iconItemDisclosure,
         sortingOptions, setSortingOptions, zoomLevel, setZoomLevel
     } = useAppContext();
 

@@ -20,6 +20,7 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import IconItemSettings from "./IconView/IconSettings";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -60,7 +61,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
+        spreadsheetModalDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure,
+        iconItemDisclosure,
         sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
