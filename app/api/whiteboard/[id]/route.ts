@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return ok(data);
 
   } catch (error) {
-    return notOk("Error inserting lens", error.message);
+    return notOk("Error inserting whiteboard", error.message);
   }
 }
 

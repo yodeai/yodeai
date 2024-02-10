@@ -20,6 +20,8 @@ export type ViewController = {
     handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
+    handleSpreadsheetChangeName?: (spreadsheet_id: number, newSpreadsheetName: string) => Promise<any>
+    handleSpreadsheetDelete?: (spreadsheet_id: number) => Promise<any>
 }
 
 export type LayoutControllerProps = ViewController & {
@@ -33,7 +35,8 @@ export default function LayoutController(props: LayoutControllerProps) {
         spreadsheets,
         onChangeLayout, handleBlockChangeName,
         handleBlockDelete, handleLensDelete, handleLensChangeName,
-        handleWhiteboardDelete, handleWhiteboardChangeName
+        handleWhiteboardDelete, handleWhiteboardChangeName,
+        handleSpreadsheetChangeName, handleSpreadsheetDelete
     } = props;
 
     if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0) return (
@@ -69,6 +72,8 @@ export default function LayoutController(props: LayoutControllerProps) {
                     handleLensChangeName={handleLensChangeName}
                     handleWhiteboardDelete={handleWhiteboardDelete}
                     handleWhiteboardChangeName={handleWhiteboardChangeName}
+                    handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+                    handleSpreadsheetDelete={handleSpreadsheetDelete}
                     layouts={layout.icon_layout}
                     onChangeLayout={onChangeLayout}
                     subspaces={subspaces}

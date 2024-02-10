@@ -77,7 +77,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
     };
     return (
         <Container className="max-w-3xl absolute">
-            <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New User Analysis</Text>} centered>
+            <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Spreadsheet</Text>} centered>
                 <Modal.Body p={2} pt={0}>
                     <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                     <Flex key="name" className="w-full mb-5">

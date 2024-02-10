@@ -2,7 +2,6 @@ import { useState, useMemo, useRef, useCallback, useEffect, Fragment } from "rea
 import { Block } from "app/_types/block";
 import { FaCube, FaFileLines, FaFilePdf, FaRegTrashCan, FaLink, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece } from "react-icons/fa6";
 import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
-import { SiMicrosoftexcel } from "react-icons/si";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
 import { Layout, Layouts } from "react-grid-layout";
@@ -12,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaCog, FaHome, FaICursor, FaShare } from "react-icons/fa";
+import { FaCog, FaFileExcel, FaHome, FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
@@ -49,7 +48,9 @@ export default function IconLayoutComponent({
   handleLensDelete,
   handleLensChangeName,
   handleWhiteboardDelete,
-  handleWhiteboardChangeName
+  handleWhiteboardChangeName,
+  handleSpreadsheetChangeName,
+  handleSpreadsheetDelete
 }: IconLayoutComponentProps) {
   const router = useRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
@@ -71,7 +72,7 @@ export default function IconLayoutComponent({
     subspace: <FaCube size={32} color="#fd7e14" />,
     sharedSubspace: <FaCube size={32} color="#d92e02" />,
     google_doc: <FaGoogleDrive size={32} color="#0F9D58" />,
-    spreadsheet: <SiMicrosoftexcel size={32} color="#1a73e8" />,
+    spreadsheet: <FaFileExcel size={32} color="#1a73e8" />,
     plugins: {
       "user-insight": <FaUsersGear size={32} color="#888888" />,
       "competitive-analysis": <FaMagnifyingGlassChart size={32} color="#888888" />,
@@ -86,7 +87,8 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets), [blocks, subspaces, whiteboards, spreadsheets])
+  const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets),
+    [blocks, subspaces, whiteboards, spreadsheets])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -251,9 +253,7 @@ export default function IconLayoutComponent({
         selected={selectedItems.includes(item_id)}
         unselectBlocks={() => setSelectedItems([])}
         icon={icon} whiteboard={item} />
-    }
-
-    if ("block_id" in item) {
+    } else if ("block_id" in item) {
       key = `bl_${item.block_id}`;
       item_id = item.block_id;
       content = <BlockIconItem
@@ -262,20 +262,17 @@ export default function IconLayoutComponent({
         handleBlockDelete={handleBlockDelete}
         unselectBlocks={() => setSelectedItems([])}
         icon={fileTypeIcons[item.block_type]} block={item} />
-    }
-
-    if ("spreadsheet_id" in item) {
+    } else if ("spreadsheet_id" in item) {
       key = `sp_${item.spreadsheet_id}`;
       item_id = item.spreadsheet_id
       content = <SpreadsheetIconItem
         selected={selectedItems.includes(item_id)}
-        handleBlockChangeName={handleBlockChangeName}
-        handleBlockDelete={handleBlockDelete}
+        handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+        handleSpreadsheetDelete={handleSpreadsheetDelete}
         unselectBlocks={() => setSelectedItems([])}
-        icon={fileTypeIcons.spreadsheet} spreadsheet={item} />
-    }
-
-    if ("lens_id" in item && "access_type" in item) {
+        icon={fileTypeIcons.spreadsheet}
+        spreadsheet={item} />
+    } else {
       key = `ss_${item.lens_id}`;
       item_id = item.lens_id;
       content = <SubspaceIconItem
@@ -294,7 +291,7 @@ export default function IconLayoutComponent({
       className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {content}
     </div>
-  }), [subspaces, breakpoint, blocks, whiteboards, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel])
+  }), [subspaces, breakpoint, blocks, whiteboards, spreadsheets, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel])
 
   const onPinLens = async (lens_id: string) => {
     try {
@@ -929,11 +926,11 @@ type SpreadsheetProps = {
   icon: JSX.Element,
   spreadsheet: Tables<"spreadsheet">
   selected?: boolean;
-  handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
-  handleBlockDelete?: (block_id: number) => Promise<any>
+  handleSpreadsheetChangeName: (spreadsheet_id: number, newSpreadsheetName: string) => Promise<any>
+  handleSpreadsheetDelete: (spreadsheet_id: number) => Promise<any>
   unselectBlocks?: () => void
 }
-const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: SpreadsheetProps) => {
+const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleSpreadsheetChangeName, handleSpreadsheetDelete, unselectBlocks }: SpreadsheetProps) => {
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
   const { accessType, zoomLevel } = useAppContext();
@@ -973,7 +970,7 @@ const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleBlockChangeNam
     if (event.key === "Enter") {
       setEditMode(false)
       setLoading(true)
-      handleBlockChangeName(spreadsheet.spreadsheet_id, (event.target as HTMLTextAreaElement).value.trim())
+      handleSpreadsheetChangeName(spreadsheet.spreadsheet_id, (event.target as HTMLTextAreaElement).value.trim())
         .then(res => setLoading(false))
       return;
     }
@@ -981,7 +978,7 @@ const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleBlockChangeNam
 
   const onConfirmDelete = () => {
     setLoading(true);
-    handleBlockDelete(spreadsheet.spreadsheet_id).then(res => setLoading(false));
+    handleSpreadsheetDelete(spreadsheet.spreadsheet_id).then(res => setLoading(false));
   }
 
   useEffect(() => {
@@ -1038,13 +1035,12 @@ const SpreadsheetIconItem = ({ spreadsheet, icon, selected, handleBlockChangeNam
     mih={100} gap="6px"
     align="center" justify="flex-end"
     direction="column" wrap="nowrap">
-    <Box className="absolute top-1">
+    <Box>
       {loading
-        ? <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
-        : <>{icon}</>
+        ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+        : <SpaceIconHint>{icon}</SpaceIconHint>
       }
     </Box>
-    <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
     <Box w={70} h={40} variant="unstyled" className="text-center">
       {editMode
         ? <Textarea

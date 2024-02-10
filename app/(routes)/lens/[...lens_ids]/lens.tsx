@@ -23,6 +23,7 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
+import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheetModal';
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -273,6 +274,34 @@ export default function Lens(props: LensProps) {
     );
   }, []);
 
+  const addSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["new"]["spreadsheet_id"]
+    console.log("Added a spreadsheet", spreadsheet_id);
+    let newSpreadsheet = payload["new"]
+    if (!spreadsheets.some(item => item.spreadsheet_id === spreadsheet_id)) {
+      setSpreadsheets(prevSpreadsheets => [newSpreadsheet, ...prevSpreadsheets]);
+    }
+  }, []);
+
+  const deleteSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["old"]["spreadsheet_id"]
+    console.log("Deleting spreadsheet", spreadsheet_id);
+    setSpreadsheets((prevSpreadsheets) => prevSpreadsheets.filter((spreadsheet) => spreadsheet.spreadsheet_id !== spreadsheet_id))
+  }, []);
+
+  const updateSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["new"]["spreadsheet_id"]
+    console.log("Updating spreadsheet", spreadsheet_id);
+    setSpreadsheets(prevSpreadsheets =>
+      prevSpreadsheets.map(item => {
+        if (item.spreadsheet_id === spreadsheet_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
+
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
     const channel = supabase
@@ -287,6 +316,9 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}` }, addSpreadsheet)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}` }, deleteSpreadsheet)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}`, }, updateSpreadsheet)
       .subscribe();
 
     return () => {
@@ -438,6 +470,28 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleSpreadsheetChangeName = async (spreadsheet_id: number, newSpreadsheetName: string) => {
+    const updatePromise = fetch(`/api/spreadsheet/${spreadsheet_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newSpreadsheetName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating spreadsheet name...",
+      success: "Spreadsheet name updated!",
+      error: "Failed to update spreadsheet name.",
+    });
+  }
+
+  const handleSpreadsheetDelete = async (spreadsheet_id: number) => {
+    const deletePromise = fetch(`/api/spreadsheet/${spreadsheet_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting spreadsheet...",
+      success: "Spreadsheet deleted!",
+      error: "Failed to delete spreadsheet.",
+    });
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -506,6 +560,26 @@ export default function Lens(props: LensProps) {
     return _sorted_whiteboards;
   }, [sortingOptions, whiteboards])
 
+  const sortedSpreadsheets = useMemo(() => {
+    if (sortingOptions.sortBy === null) return spreadsheets;
+
+    let _sorted_spreadsheets = [...spreadsheets].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_spreadsheets.reverse();
+    }
+
+    return _sorted_spreadsheets;
+  }, [sortingOptions, spreadsheets])
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <DynamicSpaceHeader
@@ -532,12 +606,14 @@ export default function Lens(props: LensProps) {
           handleLensDelete={handleLensDelete}
           handleWhiteboardDelete={handleWhiteboardDelete}
           handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
           onChangeLayout={onChangeLensLayout}
           layout={layoutData}
           blocks={sortedBlocks}
           subspaces={sortedSubspaces}
           whiteboards={sortedWhiteboards}
-          spreadsheets={spreadsheets}
+          spreadsheets={sortedSpreadsheets}
           layoutView={selectedLayoutType} />}
       </Box>
     </Flex >
