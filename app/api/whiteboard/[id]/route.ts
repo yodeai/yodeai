@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { data, error } = await supabase
       .from('whiteboard')
       .update(payload)
-      .match({ whiteboard_id: params.id, owner_id: user.data.user.id });
+      .match({ whiteboard_id: params.id });
 
     if (error) {
       console.log("error", error.message)
