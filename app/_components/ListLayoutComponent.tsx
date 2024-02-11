@@ -3,7 +3,7 @@ import { Block } from "app/_types/block";
 import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
 
 import WhiteboardComponent from "./Whiteboard";
-import BlockHeader from "./BlockHeader";
+import BlockColumnHeader from "./Block/BlockColumnHeader";
 import BlockComponent from "./BlockComponent";
 import SubspaceComponent from "./SubspaceComponent";
 import { Tables } from "app/_types/supabase";
@@ -49,7 +49,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
     return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
         {(blocks || whiteboards) && (sortedItems.length > 0
             ? <>
-                <BlockHeader />
+                <BlockColumnHeader />
                 {sortedItems.map((item) => {
                     return "whiteboard_id" in item
                         ? <WhiteboardLineComponent key={item.whiteboard_id} whiteboard={item} />
