@@ -1,7 +1,7 @@
 
 import { Block } from "app/_types/block";
 import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
-import IconLayoutComponent from "./IconLayoutComponent";
+import IconLayoutComponent from "./IconView/IconLayoutComponent";
 import React from "react";
 import { Flex, Text } from "@mantine/core";
 import ListLayoutComponent from "./ListLayoutComponent";
@@ -12,6 +12,7 @@ type LayoutControllerProps = {
     subspaces?: (Subspace | Lens)[]
     whiteboards?: Tables<"whiteboard">[]
     layout: LensLayout,
+    itemIcons: Lens["item_icons"];
     layoutView: "block" | "icon",
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
@@ -23,14 +24,18 @@ type LayoutControllerProps = {
         layoutName: keyof LensLayout,
         layoutData: LensLayout[keyof LensLayout]
     ) => void
+    handleItemSettings?: (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => void
+    handleItemIconChange?: (item_id: number, newIcon: string) => Promise<any>
 }
 
 export default function LayoutController(props: LayoutControllerProps) {
     const {
-        blocks, layout, layoutView, subspaces, whiteboards,
-        onChangeLayout, handleBlockChangeName,
-        handleBlockDelete, handleLensDelete, handleLensChangeName,
-        handleWhiteboardDelete, handleWhiteboardChangeName
+        blocks,
+        layout,
+        layoutView,
+        subspaces,
+        whiteboards,
+        onChangeLayout
     } = props;
 
     if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0) return (
@@ -60,16 +65,13 @@ export default function LayoutController(props: LayoutControllerProps) {
         case "icon":
             return <div className="w-full h-full overflow-scroll">
                 <IconLayoutComponent
-                    handleBlockChangeName={handleBlockChangeName}
-                    handleBlockDelete={handleBlockDelete}
-                    handleLensDelete={handleLensDelete}
-                    handleLensChangeName={handleLensChangeName}
-                    handleWhiteboardDelete={handleWhiteboardDelete}
-                    handleWhiteboardChangeName={handleWhiteboardChangeName}
-                    layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
                     subspaces={subspaces}
+                    layouts={layout.icon_layout}
+                    onChangeLayout={onChangeLayout}
                     blocks={blocks || []}
-                    whiteboards={whiteboards || []} />
+                    whiteboards={whiteboards || []}
+                    {...props}
+                />
             </div>
     }
 }
