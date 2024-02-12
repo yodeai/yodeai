@@ -3,7 +3,7 @@
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, MutableRefObject } from "react";
 import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
@@ -22,11 +22,15 @@ const DynamicSimpleMDE = dynamic(
 );
 
 type BlockEditorProps = {
+  refs?: {
+    saveButton?: MutableRefObject<HTMLButtonElement>
+  }
   block?: Block;
-  onSave?: (block: Block) => void;
+  onSave?: (block: Block) => void
+  onDelete?: () => void;
 }
 
-export default function BlockEditor({ block: initialBlock, onSave }: BlockEditorProps) {
+export default function BlockEditor({ refs, block: initialBlock, onSave }: BlockEditorProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -47,7 +51,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
 
   useEffect(() => {
     const updateGoogleDocContent = async () => {
-      if (documentType === 'google_doc' && block?.google_doc_id!= null) {
+      if (documentType === 'google_doc' && block?.google_doc_id != null) {
         setIsLoadingContent(true); // Set loading state when fetching content
         try {
           // bring in updated content
@@ -64,7 +68,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
   }, []);
 
 
-  const fetchEndIndex = async(documentId) => {
+  const fetchEndIndex = async (documentId) => {
     try {
       const response = await fetch(`/api/google/getEndIndex/${documentId}`)
       if (response.ok) {
@@ -114,12 +118,13 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     if (documentType == "google_doc") {
       if (google_doc_id == null) {
         // write to google docs
-        const response = await fetch(`/api/google/createDoc`,{ 
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title })})
+        const response = await fetch(`/api/google/createDoc`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title })
+        })
         if (!response.ok) {
           console.error("Error creating google doc")
         } else {
@@ -136,14 +141,15 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
           console.error("Error getting end index")
           return
         }
-        
+
         const response = await fetch(`/api/google/updateDoc`, {
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json',
-          // Add any other necessary headers, such as authorization, if required
-        },
-        body: JSON.stringify({ google_doc_id, content, oldContent, title, endIndex })})
+          method: "PUT",
+          headers: {
+            'Content-Type': 'application/json',
+            // Add any other necessary headers, such as authorization, if required
+          },
+          body: JSON.stringify({ google_doc_id, content, oldContent, title, endIndex })
+        })
         if (!response.ok) {
           console.error("Error updating google doc")
           return
@@ -260,7 +266,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     // Save one last time
     await saveContent(0);
 
-    if(pathname === "/new"){
+    if (pathname === "/new") {
       router.push(`/block/${block.block_id}`);
       return;
     }
@@ -278,7 +284,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
     <div className="flex flex-col gap-1 w-full">
       {block && block.block_type === 'pdf' ? (
         <>
-          <div className="flex justify-between items-center w-full">
+          {/* <div className="flex justify-between items-center w-full">
             <input
               className="text-gray-600 line-clamp-1 text-xl flex-grow"
               value={title}
@@ -296,7 +302,7 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
               >
                 <FaCheck size={14} />
               </ActionIcon>
-  
+
               {block && (
                 <ActionIcon
                   onClick={handleDelete}
@@ -310,72 +316,76 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
                 </ActionIcon>
               )}
             </Flex>
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="flex flex-col w-full">
-            <div className="flex justify-between items-center w-full">
-              <TextInput
-                style={{ flex: 1 }}
-                size="xs"
-                value={title || ""}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter title..."
-              />
+          <div className="flex justify-between items-center w-full">
+            {/* <TextInput
+              style={{ flex: 1 }}
+              size="xs"
+              value={title || ""}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter title..."
+            />
             <div className="flex gap-2">
-            {isSaving && (
-              <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
-              </Flex>
-            )}
-            {isSaved && (
-              <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                <FaCheckCircle style={{ marginRight: 4 }} /> Saved
-              </Flex>
-            )}
-            {block && (
-              <ActionIcon
-                onClick={handleDelete}
-                size="md"
-                color="red"
-                variant="gradient"
-                ml={5}
-                gradient={{ from: 'red', to: 'pink', deg: 255 }}
-              >
-                <FaTrashAlt size={14} />
-              </ActionIcon>
-            )}
-          </div>
+              {isSaving && (
+                <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                  <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
+                </Flex>
+              )}
+              {isSaved && (
+                <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                  <FaCheckCircle style={{ marginRight: 4 }} /> Saved
+                </Flex>
+              )}
+              {block && (
+                <ActionIcon
+                  onClick={handleDelete}
+                  size="md"
+                  color="red"
+                  variant="gradient"
+                  ml={5}
+                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                >
+                  <FaTrashAlt size={14} />
+                </ActionIcon>
+              )}
+            </div> */}
           </div>
 
-            <div className="flex justify-between items-center w-full mt-1">
-              <Select
-                size="xs"
-                data={[
-                  { label: "Note", value: "note" },
-                  { label: "Google Doc", value: "google_doc" },
-                  // Add more document types as needed
-                ].filter(option => googleUserId != null || option.value !== "google_doc")}
-                value={documentType}
-                onChange={(value) => setDocumentType(value)}
-              />
-            </div>
+          <div className="flex justify-between items-center w-full mt-1">
+            <Select
+              size="xs"
+              data={[
+                { label: "Note", value: "note" },
+                { label: "Google Doc", value: "google_doc" },
+                // Add more document types as needed
+              ].filter(option => googleUserId != null || option.value !== "google_doc")}
+              value={documentType}
+              onChange={(value) => setDocumentType(value)}
+            />
+          </div>
 
-  
+
           {isLoadingContent ? (
             <p>Updating google doc content...</p>
           ) : (
             <div className="min-w-full mt-1">
-              <div className="prose text-gray-600">
+              <div className="text-gray-600">
                 <DynamicSimpleMDE
+                  style={{
+                    width: "100%",
+                  }}
                   options={editorOptions}
                   value={content}
                   onChange={setContent}
                 />
               </div>
-  
+
               <div>
                 <Button
+                  ref={refs?.saveButton}
                   style={{ flex: 1, width: "100%", height: 30 }}
                   onClick={handleSaveAndNavigate}
                   variant="gradient"
@@ -391,5 +401,5 @@ export default function BlockEditor({ block: initialBlock, onSave }: BlockEditor
       )}
     </div>
   );
-  
+
 }

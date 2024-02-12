@@ -1,6 +1,6 @@
 import { Flex, Grid, Text } from "@mantine/core";
 
-export default function BlockHeader() {
+export default function BlockColumnHeader() {
     return (
         <Grid>
             <Grid.Col span={9}>
