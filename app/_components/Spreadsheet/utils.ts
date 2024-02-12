@@ -1,7 +1,8 @@
-import { SpreadsheetColumns, SpreadsheetDataSource } from 'app/_types/spreadsheet';
+import { SpreadsheetDataSource } from 'app/_types/spreadsheet';
 
-export const buildDataSource = (columns: SpreadsheetColumns, dataSource: SpreadsheetDataSource) => {
-    return dataSource.reduce<Array<{ [key: string]: string }>>((arr, row, rowIndex) => {
+export const buildDataSource = (dataSource: SpreadsheetDataSource) => {
+    const columns = dataSource[0];
+    return dataSource.slice(1).reduce<Array<{ [key: string]: string }>>((arr, row, rowIndex) => {
         let newRow = row.reduce<{ [key: string]: string }>((acc, cell, cellIndex) => {
             acc[columns[cellIndex]] = cell;
             return acc;
@@ -9,6 +10,7 @@ export const buildDataSource = (columns: SpreadsheetColumns, dataSource: Spreads
         arr.push(newRow);
         return arr;
     }, []);
+
 }
 
 export const convertIndexToColumnAlphabet = (index: number) => {

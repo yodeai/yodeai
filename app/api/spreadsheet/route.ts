@@ -13,10 +13,9 @@ export async function POST(request: NextRequest) {
     if (!user.data.user.id) return notOk('User not found');
 
     try {
-        const { name, plugin, dataSource, columns, lens_id } = await request.json();
+        const { name, plugin, dataSource, lens_id } = await request.json();
         if (!name) return notOk('Name is required');
         if(!dataSource) return notOk('DataSource is required');
-        if(!columns) return notOk('Columns is required');
 
         const { data, error } = await supabase
             .from('spreadsheet')
@@ -26,7 +25,6 @@ export async function POST(request: NextRequest) {
                     lens_id,
                     owner_id: user.data.user.id,
                     dataSource,
-                    columns,
                     plugin,
                 }
             ]).select();

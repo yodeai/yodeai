@@ -5,7 +5,7 @@ import Spreadsheet from '@components/Spreadsheet';
 import Data from '@components/Spreadsheet/chart.json';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
-import { SpreadsheetColumns, SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
+import { SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
 
 type SpreadsheetProps = {
     params: { spreadsheet_id: number }
@@ -20,19 +20,18 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
 
     const userData = await supabase.auth.getUser();
     if (userData.error || userData.data === null) return <p>Not logged in.</p>
-    const user = userData.data.user;
 
     const { data, error } = await supabase
         .from("spreadsheet")
         .select("*")
         .eq("spreadsheet_id", spreadsheet_id)
         .single<Tables<"spreadsheet"> & {
-            columns: SpreadsheetColumns;
             dataSource: SpreadsheetDataSource;
             plugin: SpreadsheetPluginParams;
         }>();
 
     if (error) {
+        console.log(error)
         redirect("/notFound");
     }
     if (data?.plugin?.state && data?.plugin?.state?.status !== 'success') {
@@ -48,12 +47,12 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
     // const whiteboardWithAccessType = data as Tables<"spreadsheet"> & { accessType: string };
     // whiteboardWithAccessType.accessType = accessTypeResponse.data ?? "owner"; // if the whiteboard is not part of a lens, then it is the user's own whiteboard.
 
-    if (!Array.isArray(data.columns) || !Array.isArray(data.dataSource)) {
+    if (!Array.isArray(data.dataSource)) {
         return <p>Spreadsheet data not found.</p>
     }
 
     return <Spreadsheet
-        columns={data.columns} dataSource={data.dataSource}
+        dataSource={data.dataSource}
         plugin={data.plugin}
     />
 }

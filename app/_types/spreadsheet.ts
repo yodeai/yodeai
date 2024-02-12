@@ -1,4 +1,3 @@
-export type SpreadsheetColumns = Array<string>;
 export type SpreadsheetDataSource = Array<Array<string>>;
 
 export type PluginNames = "user-insight" | "competitive-analysis";

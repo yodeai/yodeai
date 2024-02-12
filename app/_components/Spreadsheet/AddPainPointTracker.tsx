@@ -20,10 +20,11 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     const [loading, setLoading] = useState(false);
     const [opened, { close }] = modalController;
     const supabase = createClientComponentClient();
-    const [name, updateName] = useState("Spreadsheet")
+    const [name, updateName] = useState("")
     const [insightAreas, setInsightAreas] = useState<string[]>([]);
 
     useEffect(() => {
+        updateName("");
         setInsightAreas([]);
     }, [opened])
 
@@ -38,8 +39,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 body: JSON.stringify({
                     name,
                     lens_id: lensId,
-                    dataSource: SpreadsheetData.DataSource,
-                    columns: SpreadsheetData.Columns,
+                    dataSource: SpreadsheetData,
                     plugin: {
                         name: "pain-point-tracker",
                         data: {},
@@ -90,6 +90,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                                 id="whiteboardName"
                                 className="mt-0.5 w-full"
                                 placeholder="Enter name of the spreadsheet"
+                                value={name}
                                 onChange={(event) => updateName(event.currentTarget.value)}
                             />
                         </Input.Wrapper>

@@ -20,7 +20,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
     const [name, updateName] = useState("")
 
     useEffect(() => {
-        
+        updateName("");
     }, [opened])
 
     const handleCreateSpreadsheet = async () => {
@@ -35,7 +35,6 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                     name: name,
                     lens_id: lensId,
                     dataSource: [],
-                    columns: [],
                     plugin: {}
                 }),
             });
