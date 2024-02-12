@@ -21,6 +21,7 @@ export type Database = {
           google_doc_id: string | null
           google_user_id: string | null
           is_file: boolean
+          original_date: string | null
           owner_id: string
           parent_id: number | null
           preview: string | null
@@ -40,6 +41,7 @@ export type Database = {
           google_doc_id?: string | null
           google_user_id?: string | null
           is_file?: boolean
+          original_date?: string | null
           owner_id?: string
           parent_id?: number | null
           preview?: string | null
@@ -59,6 +61,7 @@ export type Database = {
           google_doc_id?: string | null
           google_user_id?: string | null
           is_file?: boolean
+          original_date?: string | null
           owner_id?: string
           parent_id?: number | null
           preview?: string | null
@@ -1012,7 +1015,7 @@ export type Database = {
           lens_id: number | null
           name: string | null
           owner_id: string | null
-          payload: Json | null
+          plugin: Json | null
           spreadsheet_id: number
           updated_at: string | null
         }
@@ -1023,7 +1026,7 @@ export type Database = {
           lens_id?: number | null
           name?: string | null
           owner_id?: string | null
-          payload?: Json | null
+          plugin?: Json | null
           spreadsheet_id?: number
           updated_at?: string | null
         }
@@ -1034,7 +1037,7 @@ export type Database = {
           lens_id?: number | null
           name?: string | null
           owner_id?: string | null
-          payload?: Json | null
+          plugin?: Json | null
           spreadsheet_id?: number
           updated_at?: string | null
         }
@@ -1177,6 +1180,7 @@ export type Database = {
           nodes: Json | null
           owner_id: string
           plugin: Json | null
+          task_id: string | null
           updated_at: string
           whiteboard_id: number
         }
@@ -1188,6 +1192,7 @@ export type Database = {
           nodes?: Json | null
           owner_id?: string
           plugin?: Json | null
+          task_id?: string | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1199,6 +1204,7 @@ export type Database = {
           nodes?: Json | null
           owner_id?: string
           plugin?: Json | null
+          task_id?: string | null
           updated_at?: string
           whiteboard_id?: number
         }

@@ -25,6 +25,7 @@ import {
 
 import { ViewController } from "../LayoutController";
 import fileTypeIcons from "./icons";
+import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -32,9 +33,13 @@ interface IconLayoutComponentProps extends ViewController {
   layouts: LensLayout["icon_layout"]
 }
 
-type IconViewItemType = Block | Subspace | Lens | Tables<"whiteboard"> & {
-  plugin?: WhiteboardPluginParams
-} | Tables<"spreadsheet">;
+type IconViewItemType = Block | Subspace | Lens
+  | Tables<"whiteboard"> & {
+    plugin?: WhiteboardPluginParams
+  }
+  | Tables<"spreadsheet"> & {
+    plugin?: SpreadsheetPluginParams
+  };
 
 type IconViewItemChars = "bl" | "ss" | "wb" | "sp";
 
