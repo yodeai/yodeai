@@ -11,12 +11,12 @@ import { ActionIcon } from '@mantine/core';
 import { FaTrashAlt, FaPlus } from 'react-icons/fa';
 import SpreadsheetData from '@components/Spreadsheet/chart.json'
 
-type AddSpreadsheetModalProps = {
+type AddPainPointTrackerProps = {
     lensId: number;
     modalController: ReturnType<typeof useDisclosure>
     accessType: string
 }
-export default function AddSpreadsheetModal({ lensId, modalController }: AddSpreadsheetModalProps) {
+export default function AddPainPointTracker({ lensId, modalController }: AddPainPointTrackerProps) {
     const [loading, setLoading] = useState(false);
     const [opened, { close }] = modalController;
     const supabase = createClientComponentClient();
@@ -27,7 +27,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
         setInsightAreas([]);
     }, [opened])
 
-    const handleCreateWhiteBoard = async () => {
+    const handleCreateSpreadsheet = async () => {
         setLoading(true);
         try {
             const response = await fetch("/api/spreadsheet", {
@@ -36,11 +36,15 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    name: name,
+                    name,
                     lens_id: lensId,
                     dataSource: SpreadsheetData.DataSource,
                     columns: SpreadsheetData.Columns,
-                    payload: insightAreas
+                    plugin: {
+                        name: "pain-point-tracker",
+                        data: {},
+                        state: { status: "success" }
+                    }
                 }),
             });
             if (!response.ok) {
@@ -77,11 +81,11 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
     };
     return (
         <Container className="max-w-3xl absolute">
-            <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Spreadsheet</Text>} centered>
+            <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New Pain Point Tracker</Text>} centered>
                 <Modal.Body p={2} pt={0}>
                     <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                     <Flex key="name" className="w-full mb-5">
-                        <Input.Wrapper label="Output name" className="w-full">
+                        <Input.Wrapper label="Spreadsheet name" className="w-full">
                             <Input
                                 id="whiteboardName"
                                 className="mt-0.5 w-full"
@@ -92,9 +96,9 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                     </Flex>
 
                     <Box className="w-full flex flex-col items-center gap-2 mb-2">
-                        <Text className="w-full" size="18px" fw="bold">Painpoints</Text>
+                        <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
                         <Text className="w-full mb-5 text-gray-300" size="xs">
-                        Enter the painpoints you wish to extract from reviews.
+                            Enter the painpoints you wish to extract from reviews.
                         </Text>
                     </Box>
 
@@ -137,7 +141,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                     </Flex>
 
                     <Flex mt={20} gap="xs">
-                        <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
+                        <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateSpreadsheet}>
                             Create
                         </Button>
                         <Button h={26} style={{ flex: 1 }} size='xs' color="gray" onClick={() => close()}>

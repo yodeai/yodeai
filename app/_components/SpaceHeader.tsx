@@ -11,7 +11,7 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
-import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheetModal";
+import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
 import IconItemSettings from "./IconView/IconSettings";
 
 type SpaceHeaderProps = {

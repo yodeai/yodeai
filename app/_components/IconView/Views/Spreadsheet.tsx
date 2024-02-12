@@ -9,14 +9,16 @@ import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
+import { cn } from "@utils/style";
 
-import ShareLensComponent from '../../ShareLensComponent';
-import { useDisclosure } from "@mantine/hooks";
 import { FaRegTrashCan, FaLink } from "react-icons/fa6";
+import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 
 type SpreadsheetProps = {
     icon: JSX.Element,
-    spreadsheet: Tables<"spreadsheet">
+    spreadsheet: Tables<"spreadsheet"> & {
+        plugin: SpreadsheetPluginParams
+    }
     selected?: boolean;
     handleSpreadsheetChangeName: (spreadsheet_id: number, newSpreadsheetName: string) => Promise<any>
     handleSpreadsheetDelete: (spreadsheet_id: number) => Promise<any>
@@ -30,6 +32,13 @@ export const SpreadsheetIconItem = ({
     const $textarea = useRef<HTMLTextAreaElement>(null);
     const { accessType, zoomLevel } = useAppContext();
     const router = useRouter();
+
+    const spreadsheetPlugin = useMemo(() => (spreadsheet?.plugin), [spreadsheet]);
+    const spreadsheetPluginState = useMemo(() => spreadsheetPlugin?.state, [spreadsheetPlugin]);
+
+    useEffect(() => {
+        setLoading(["waiting", "queued", "processing"].includes(spreadsheetPluginState?.status));
+    }, [spreadsheetPluginState?.status])
 
     const [titleText, setTitleText] = useState<string>(spreadsheet.name);
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -130,12 +139,20 @@ export const SpreadsheetIconItem = ({
         mih={100} gap="6px"
         align="center" justify="flex-end"
         direction="column" wrap="nowrap">
-        <Box>
+        <Box className="absolute top-1">
             {loading
-                ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-                : <>{icon}</>
+                ? <>
+                    {spreadsheetPluginState?.status && ["waiting", "queued", "processing"]
+                        .includes(spreadsheetPluginState?.status) &&
+                        <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            {(spreadsheetPluginState?.progress * 100).toFixed(1)}%
+                        </Text>}
+                    <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
+                </>
+                : ""
             }
         </Box>
+        <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
         <Box w={70} h={40} variant="unstyled" className="text-center">
             {editMode
                 ? <Textarea

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!user.data.user.id) return notOk('User not found');
 
     try {
-        const { name, payload, dataSource, columns, lens_id } = await request.json();
+        const { name, plugin, dataSource, columns, lens_id } = await request.json();
         if (!name) return notOk('Name is required');
         if(!dataSource) return notOk('DataSource is required');
         if(!columns) return notOk('Columns is required');
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
                     owner_id: user.data.user.id,
                     dataSource,
                     columns,
-                    payload,
+                    plugin,
                 }
             ]).select();
 

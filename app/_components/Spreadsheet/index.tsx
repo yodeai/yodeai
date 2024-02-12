@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useMemo, useRef, useCallback } from 'react';
+import { registerLicense } from '@syncfusion/ej2-base';
+
+registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
+
 import {
     SpreadsheetComponent, SheetsDirective, SheetDirective, ColumnsDirective,
     getFormatFromType, ChartModel, CellSaveEventArgs
@@ -16,16 +20,17 @@ import './styles.css';
 import './styles/bootstrap.css';
 import './styles/material3.css';
 
-import { SpreadsheetColumns, SpreadsheetDataSource } from 'app/_types/spreadsheet';
-import { buildDataSource } from './utils'
+import { SpreadsheetColumns, SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
+import { buildDataSource, convertIndexToColumnAlphabet } from './utils'
 
 type SpreadsheetProps = {
-    columns: SpreadsheetColumns
+    columns: SpreadsheetColumns;
     dataSource: SpreadsheetDataSource;
+    plugin: SpreadsheetPluginParams;
 }
 
-const Spreadsheet = (props: SpreadsheetProps) => {
-    const [dataSource, setDataSource] = useState(buildDataSource(props.columns, props.dataSource));
+const Spreadsheet = ({ columns, dataSource: _dataSource, plugin }: SpreadsheetProps) => {
+    const [dataSource, setDataSource] = useState(buildDataSource(columns, _dataSource));
 
     const $spreadsheet = useRef<SpreadsheetComponent>()
     const chart: ChartModel[] = useMemo(() => {
@@ -33,46 +38,46 @@ const Spreadsheet = (props: SpreadsheetProps) => {
     }, []);
 
     const onCreated = useCallback(() => {
-        $spreadsheet.current.cellFormat({ backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center' }, 'A1:E1');
+        $spreadsheet.current.cellFormat({
+            backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center'
+        }, `A1:${convertIndexToColumnAlphabet(columns.length - 1)}1`);
         $spreadsheet.current.numberFormat(getFormatFromType('Currency'), 'B1:E8');
-        $spreadsheet.current.merge('A1:E1');
-    }, [])
+    }, [columns])
 
     const onCellSave = useCallback((saveEventArg: CellSaveEventArgs) => {
         console.log(saveEventArg);
-    }, [])
+    }, []);
 
     return (
         <div className='root-spreadsheet control-pane'>
             <div className='control-section spreadsheet-control'>
                 <SpreadsheetComponent
                     saveComplete={onCellSave}
-                    ref={$spreadsheet}
-                    created={onCreated.bind(this)}>
+                    created={onCreated.bind(this)}
+                    ref={$spreadsheet}>
                     <SheetsDirective>
                         <SheetDirective name='GDP'>
-                            <RowsDirective>
-                                <RowDirective index={2}>
-                                    <CellsDirective>
-                                        <CellDirective index={6} chart={chart}></CellDirective>
-                                    </CellsDirective>
-                                </RowDirective>
-                            </RowsDirective>
                             <RangesDirective>
                                 <RangeDirective dataSource={dataSource} startCell='A1'></RangeDirective>
                             </RangesDirective>
-                            <ColumnsDirective>
-                                <ColumnDirective width={80}></ColumnDirective>
-                                <ColumnDirective width={75}></ColumnDirective>
-                                <ColumnDirective width={75}></ColumnDirective>
-                                <ColumnDirective width={75}></ColumnDirective>
-                                <ColumnDirective width={75}></ColumnDirective>
-                            </ColumnsDirective>
+                            {plugin.state.status === "success" &&
+                                <RowsDirective>
+                                    <RowDirective index={2}>
+                                        <CellsDirective>
+                                            <CellDirective index={columns.length + 1} chart={chart}></CellDirective>
+                                        </CellsDirective>
+                                    </RowDirective>
+                                </RowsDirective>
+                            }
+                            {plugin.state.status === "success" &&
+                                <ColumnsDirective>
+                                    {Array.from({ length: columns.length }, (_, i) => <ColumnDirective width={75} key={i} />)}
+                                </ColumnsDirective>}
                         </SheetDirective>
                     </SheetsDirective>
                 </SpreadsheetComponent>
             </div>
-        </div>
+        </div >
     )
 }
 

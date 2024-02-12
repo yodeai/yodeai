@@ -155,7 +155,7 @@ export const WhiteboardIconItem = ({
       <Box className="absolute top-1">
         {loading
           ? <>
-            {whiteboardPluginState?.status === "processing" && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {whiteboardPluginState?.status && ["waiting", "queued", "processing"].includes(whiteboardPluginState?.status) && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               {(whiteboardPluginState?.progress * 100).toFixed(1)}%
             </Text>}
             <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
@@ -164,12 +164,6 @@ export const WhiteboardIconItem = ({
         }
       </Box>
       <Box className={cn(loading && "opacity-10" || "")}>{icon}</Box>
-      {/* <Box className={cn("flex flex-col items-center align-bottom", loading && "opacity-10" || "")}>
-        <div className="mt-2">
-          {icon}
-        </div>
-        <Text size="8" p={0} lh="xs" c="dimmed" className="select-none">{whiteboardPlugin?.name?.replace(/-/g, " ")}</Text>
-      </Box> */}
       <Box w={100} h={40} variant="unstyled" className="text-center">
         {editMode
           ? <Textarea

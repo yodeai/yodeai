@@ -13,13 +13,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (Number.isNaN(Number(params.id))) return notOk('Invalid ID');
 
     try {
-        const { name = null, columns = null, dataSource = null, payload = null } = await request.json();
-        const requestPayload = removeNullValues({ name, columns, dataSource, payload });
+        const { name = null, columns = null, dataSource = null, plugin = null } = await request.json();
+        const requestPayload = removeNullValues({ name, columns, dataSource, plugin });
 
         const { data, error } = await supabase
             .from('spreadsheet')
             .update(requestPayload)
-            .match({ spreadsheet_id: params.id, owner_id: user.data.user.id });
+            .match({ spreadsheet_id: params.id });
 
         if (error) {
             console.log("error", error.message)

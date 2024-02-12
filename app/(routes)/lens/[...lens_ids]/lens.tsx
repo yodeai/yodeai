@@ -24,7 +24,7 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
-import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheetModal';
+import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheet';
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;

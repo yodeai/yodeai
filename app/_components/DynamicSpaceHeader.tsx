@@ -8,8 +8,6 @@ import {
     Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
-import AddSubspace from "@components/AddSubspace";
-import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheetModal";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
@@ -20,7 +18,10 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
-import IconItemSettings from "./IconView/IconSettings";
+
+import AddSubspace from "@components/AddSubspace";
+import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheet";
+import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -61,8 +62,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        spreadsheetModalDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure,
-        iconItemDisclosure,
+        spreadsheetModalDisclosure, painPointTrackerModalDisclosure,
+        userInsightsDisclosure, competitiveAnalysisDisclosure,
         sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
@@ -281,6 +282,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                     <AddSpreadsheet modalController={spreadsheetModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">

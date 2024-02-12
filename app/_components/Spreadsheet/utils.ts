@@ -10,3 +10,13 @@ export const buildDataSource = (columns: SpreadsheetColumns, dataSource: Spreads
         return arr;
     }, []);
 }
+
+export const convertIndexToColumnAlphabet = (index: number) => {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let result = "";
+    while (index >= 0) {
+        result = alphabet[index % 26] + result;
+        index = Math.floor(index / 26) - 1;
+    }
+    return result;
+}

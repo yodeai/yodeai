@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
 
         const { data: subspaces, error } = await supabase
             .from('spreadsheet')
-            .select('spreadsheet_id, created_at, owner_id, lens_id, name')
+            .select('spreadsheet_id, created_at, owner_id, lens_id, name, plugin')
             .eq('lens_id', params.lens_id);
 
         if (error) {
