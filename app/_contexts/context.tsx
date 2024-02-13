@@ -50,6 +50,11 @@ export type contextType = {
 
   zoomLevel: number;
   setZoomLevel: (zoomLevel: number, lensIdOrTitle: string) => void;
+  onboardingStep: number;
+  onboardingIsComplete: boolean;
+  goToNextOnboardingStep: () => void;
+  completeOnboarding: () => void;
+  resetOnboarding: () => void;
 };
 
 
@@ -93,6 +98,12 @@ const defaultValue: contextType = {
 
   zoomLevel: 100,
   setZoomLevel: () => { }
+
+  onboardingStep: 0,
+  onboardingIsComplete: false,
+  goToNextOnboardingStep: () => { },
+  completeOnboarding: () => { },
+  resetOnboarding: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -129,6 +140,26 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const userInsightsDisclosure = useDisclosure(false);
   const competitiveAnalysisDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
+
+  // Onboarding Context Data
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(false);
+
+  const goToNextOnboardingStep = () => {
+    setOnboardingStep((currentStep) => currentStep + 1);
+    console.log("going to next step");
+  };
+
+  const resetOnboarding = () => {
+    setOnboardingStep(0);
+    console.log("resetting onboarding step");
+  };
+
+  const completeOnboarding = () => {
+    setOnboardingIsComplete(true);
+    // Update the database to indicate the user has completed onboarding
+    // (This function needs to be implemented based on your Supabase setup)
+  };
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -243,7 +274,10 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,
-      setZoomLevel: setIconViewZoomLevel
+      setZoomLevel: setIconViewZoomLevel,
+        
+      sortingOptions, setSortingOptions,
+      onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
       {children}
     </context.Provider>

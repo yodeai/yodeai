@@ -10,7 +10,7 @@ import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
 import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
 import { FaHouse } from "react-icons/fa6";
-import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
+import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
@@ -20,8 +20,9 @@ const supabase = createClientComponentClient<Database>()
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, setActiveComponent, user,
-    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs
+    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
+    pinnedLenses, setPinnedLenses, pinnedLensesLoading, draggingNewBlock, layoutRefs,
+    resetOnboarding, onboardingStep
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -170,6 +171,7 @@ export default function Navbar() {
           active
         />
       </Link>
+      <Anchor onClick={resetOnboarding}>{onboardingStep}</Anchor>
     </Flex>
 
     <Divider
