@@ -44,7 +44,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         onChangeLayout
     } = props;
 
-    if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0) return (
+    if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0 && spreadsheets?.length === 0) return (
         <Flex
             align="center"
             justify="center"
