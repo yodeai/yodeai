@@ -47,6 +47,7 @@ const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: Sp
     const onCreated = useCallback(() => {
         if (columns.length === 0) { return; }
         $spreadsheet.current.protectSheet();
+        $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas']);
         
         $spreadsheet.current.cellFormat({
             backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center'
