@@ -30,7 +30,7 @@ type SpreadsheetProps = {
 
 const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
     const [cells, setDataSource] = useState(buildDataSource(dataSource));
-    const columns = useMemo(() => dataSource[0], [cells]);
+    const columns = useMemo(() => dataSource?.[0] || [], [cells]);
 
     const $spreadsheet = useRef<SpreadsheetComponent>()
     const chart: ChartModel[] = useMemo(() => {
@@ -38,6 +38,7 @@ const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
     }, [cells, columns]);
 
     const onCreated = useCallback(() => {
+        if(columns.length === 0) { return; }
         $spreadsheet.current.cellFormat({
             backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center'
         }, `A1:${convertIndexToColumnAlphabet(columns.length - 1)}1`);
@@ -49,8 +50,15 @@ const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
         // const newCells = [...cells];
         // cells[rowIndex][colIndex] = value;
         // setDataSource(newCells);
-        console.log({ rowIndex, colIndex, value })
+        // console.log({ rowIndex, colIndex, value })
     }, []);
+
+    const memoizedCells = useMemo(() => {
+        if(Array.isArray(cells) && cells.length === 0) {
+            return null;
+        }
+        return cells;
+    }, [cells]);
 
     return (
         <div className='root-spreadsheet control-pane'>
@@ -62,9 +70,9 @@ const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
                     <SheetsDirective>
                         <SheetDirective name='GDP'>
                             <RangesDirective>
-                                <RangeDirective dataSource={cells} startCell='A1'></RangeDirective>
+                                <RangeDirective dataSource={memoizedCells} startCell='A1'></RangeDirective>
                             </RangesDirective>
-                            {plugin.state.status === "success" &&
+                            {plugin?.state?.status === "success" &&
                                 <RowsDirective>
                                     <RowDirective index={2}>
                                         <CellsDirective>
@@ -73,7 +81,7 @@ const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
                                     </RowDirective>
                                 </RowsDirective>
                             }
-                            {plugin.state.status === "success" &&
+                            {plugin?.state?.status === "success" &&
                                 <ColumnsDirective>
                                     {Array.from({ length: columns.length }, (_, i) => <ColumnDirective width={75} key={i} />)}
                                 </ColumnsDirective>}
