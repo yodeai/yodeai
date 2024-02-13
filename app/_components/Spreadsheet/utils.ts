@@ -1,17 +1,26 @@
 import { SpreadsheetDataSource } from 'app/_types/spreadsheet';
 
-export const buildDataSource = (dataSource: SpreadsheetDataSource) => {
-    const columns = dataSource[0];
-    return dataSource.slice(1).reduce<Array<{ [key: string]: string }>>((arr, row, rowIndex) => {
-        let newRow = row.reduce<{ [key: string]: string }>((acc, cell, cellIndex) => {
-            acc[columns[cellIndex]] = cell;
-            return acc;
-        }, {});
-        arr.push(newRow);
-        return arr;
-    }, []);
+export const buildDataTable = (dataSource: SpreadsheetDataSource): {
+    columns: string[],
+    records: Array<{ [key: string]: string; }>
+} => {
+    const columns = dataSource.filter((cell, index) => cell[0] === 0).map(cell => cell[2]);
 
+    const records = dataSource.reduce((acc, cell) => {
+        const [rowIndex, colIndex, value] = cell;
+        if (!acc[rowIndex]) {
+            acc[rowIndex] = {};
+        }
+        acc[rowIndex][columns[colIndex]] = value;
+        return acc;
+    }, []).slice(1);
+
+    return {
+        columns,
+        records
+    };
 }
+
 
 export const convertIndexToColumnAlphabet = (index: number) => {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

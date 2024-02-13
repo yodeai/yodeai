@@ -1,76 +1,112 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback, use } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+
 import { EmitType, registerLicense } from '@syncfusion/ej2-base';
-
-registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
-
 import {
     SpreadsheetComponent, SheetsDirective, SheetDirective, ColumnsDirective,
-    getFormatFromType, ChartModel, CellSaveEventArgs, SpreadsheetModel, BeforeCellUpdateArgs
-} from '@syncfusion/ej2-react-spreadsheet';
-import {
+    getFormatFromType, ChartModel, BeforeCellUpdateArgs,
     ColumnDirective, RowDirective, RowsDirective,
-    CellsDirective, CellDirective
+    CellsDirective, CellDirective, RangesDirective, RangeDirective
 } from '@syncfusion/ej2-react-spreadsheet';
-import { RangeDirective } from '@syncfusion/ej2-react-spreadsheet';
-import { RangesDirective } from '@syncfusion/ej2-react-spreadsheet';
-
 import './styles.css';
 import './styles/bootstrap.css';
 import './styles/material3.css';
 
-import { SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
-import { buildDataSource, convertIndexToColumnAlphabet } from './utils'
+registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
+
+
+import { ImSpinner8 } from "react-icons/im";
+import { Tables } from 'app/_types/supabase';
+import { Text } from '@mantine/core';
+
+import { SpreadsheetCell, SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
+import { buildDataTable, convertIndexToColumnAlphabet } from './utils'
+import { useDebouncedCallback } from '@utils/hooks';
 
 type SpreadsheetProps = {
-    dataSource: SpreadsheetDataSource;
-    plugin: SpreadsheetPluginParams;
+    spreadsheet: Tables<"spreadsheet"> & {
+        dataSource: SpreadsheetDataSource;
+        plugin: SpreadsheetPluginParams
+    }
 }
 
-const Spreadsheet = ({ plugin, dataSource }: SpreadsheetProps) => {
-    const [cells, setDataSource] = useState(buildDataSource(dataSource));
-    const columns = useMemo(() => dataSource?.[0] || [], [cells]);
-
+const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: SpreadsheetProps) => {
+    const [cells, setCells] = useState(dataSource);
     const $spreadsheet = useRef<SpreadsheetComponent>()
+    const $mounted = useRef<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     const chart: ChartModel[] = useMemo(() => {
         return [{ type: 'Column', range: 'A1:E8' }]
-    }, [cells, columns]);
+    }, [cells]);
+
+    const { columns, records } = useMemo(() => buildDataTable(cells), [cells]);
+    const isProtected = Boolean(plugin?.name);
+
+    const updateSpreadsheet = useDebouncedCallback((newCells: SpreadsheetDataSource) => {
+        setIsLoading(true);
+        fetch(`/api/spreadsheet/${spreadsheet_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ dataSource: newCells }),
+        }).catch(error => {
+            console.log('Error:', error);
+        }).finally(() => {
+            setIsLoading(false);
+        })
+    }, 500, []);
+
+    useEffect(() => {
+        if(isProtected) return;
+
+        if ($mounted.current) updateSpreadsheet(cells);
+    }, [cells, isProtected])
+
+    const onCellUpdate: EmitType<BeforeCellUpdateArgs> = useDebouncedCallback((saveEventArg: BeforeCellUpdateArgs) => {
+        if(isProtected) return;
+
+        const { cell: { value }, rowIndex, colIndex } = saveEventArg;
+        setCells(prevCells => {
+            const newCells = prevCells.map(cell => {
+                if (cell[0] === rowIndex && cell[1] === colIndex) {
+                    return [rowIndex, colIndex, value] as SpreadsheetCell;
+                }
+                return cell;
+            });
+            return newCells;
+        });
+    }, 100, []);
 
     const onCreated = useCallback(() => {
-        if(columns.length === 0) { return; }
+        if (columns.length === 0) { return; }
+        $spreadsheet.current.protectSheet();
+        
         $spreadsheet.current.cellFormat({
             backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center'
         }, `A1:${convertIndexToColumnAlphabet(columns.length - 1)}1`);
-        $spreadsheet.current.numberFormat(getFormatFromType('Currency'), 'B1:E8');
-    }, [columns]);
+        $spreadsheet.current.numberFormat(getFormatFromType('Currency'), `B1:E8`);
+        $mounted.current = true;
+    }, [columns, plugin, isProtected]);
 
-    const onCellSave: EmitType<BeforeCellUpdateArgs> = useCallback((saveEventArg: BeforeCellUpdateArgs) => {
-        const { cell: { value }, rowIndex, colIndex } = saveEventArg;
-        // const newCells = [...cells];
-        // cells[rowIndex][colIndex] = value;
-        // setDataSource(newCells);
-        // console.log({ rowIndex, colIndex, value })
-    }, []);
-
-    const memoizedCells = useMemo(() => {
-        if(Array.isArray(cells) && cells.length === 0) {
-            return null;
-        }
-        return cells;
-    }, [cells]);
+    console.log({isProtected})
 
     return (
         <div className='root-spreadsheet control-pane'>
             <div className='control-section spreadsheet-control'>
+                {isLoading &&
+                    <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
+                        <ImSpinner8 size={10} className="animate-spin" />
+                        <Text size="sm" c="gray.7">Auto-save...</Text>
+                    </div>}
                 <SpreadsheetComponent
-                    beforeCellUpdate={onCellSave}
+                    isProtected={true}
+                    beforeCellUpdate={onCellUpdate}
                     created={onCreated.bind(this)}
                     ref={$spreadsheet}>
                     <SheetsDirective>
                         <SheetDirective name='GDP'>
                             <RangesDirective>
-                                <RangeDirective dataSource={memoizedCells} startCell='A1'></RangeDirective>
+                                <RangeDirective dataSource={records} startCell='A1'></RangeDirective>
                             </RangesDirective>
                             {plugin?.state?.status === "success" &&
                                 <RowsDirective>

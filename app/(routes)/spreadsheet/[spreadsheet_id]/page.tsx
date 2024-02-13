@@ -52,7 +52,6 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
     }
 
     return <Spreadsheet
-        dataSource={data.dataSource}
-        plugin={data.plugin}
+        spreadsheet={data}
     />
 }
