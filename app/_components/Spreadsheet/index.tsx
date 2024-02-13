@@ -44,39 +44,6 @@ const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: Sp
     const { columns, records } = useMemo(() => buildDataTable(cells), [cells]);
     const isProtected = Boolean(plugin?.name);
 
-    const updateSpreadsheet = useDebouncedCallback((newCells: SpreadsheetDataSource) => {
-        setIsLoading(true);
-        fetch(`/api/spreadsheet/${spreadsheet_id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ dataSource: newCells }),
-        }).catch(error => {
-            console.log('Error:', error);
-        }).finally(() => {
-            setIsLoading(false);
-        })
-    }, 500, []);
-
-    useEffect(() => {
-        if(isProtected) return;
-
-        if ($mounted.current) updateSpreadsheet(cells);
-    }, [cells, isProtected])
-
-    const onCellUpdate: EmitType<BeforeCellUpdateArgs> = useDebouncedCallback((saveEventArg: BeforeCellUpdateArgs) => {
-        if(isProtected) return;
-
-        const { cell: { value }, rowIndex, colIndex } = saveEventArg;
-        setCells(prevCells => {
-            const newCells = prevCells.map(cell => {
-                if (cell[0] === rowIndex && cell[1] === colIndex) {
-                    return [rowIndex, colIndex, value] as SpreadsheetCell;
-                }
-                return cell;
-            });
-            return newCells;
-        });
-    }, 100, []);
-
     const onCreated = useCallback(() => {
         if (columns.length === 0) { return; }
         $spreadsheet.current.protectSheet();
@@ -87,9 +54,6 @@ const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: Sp
         $spreadsheet.current.numberFormat(getFormatFromType('Currency'), `B1:E8`);
         $mounted.current = true;
     }, [columns, plugin, isProtected]);
-
-    console.log({isProtected})
-
     return (
         <div className='root-spreadsheet control-pane'>
             <div className='control-section spreadsheet-control'>
@@ -100,7 +64,6 @@ const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: Sp
                     </div>}
                 <SpreadsheetComponent
                     isProtected={true}
-                    beforeCellUpdate={onCellUpdate}
                     created={onCreated.bind(this)}
                     ref={$spreadsheet}>
                     <SheetsDirective>
