@@ -10,13 +10,15 @@ import InfoPopover from './InfoPopover';
 import ToolbarHeader from './ToolbarHeader';
 import LoadingSkeleton from './LoadingSkeleton';
 import { getUserInfo } from '@utils/googleUtils';
+import OnboardingPopover from './Onboarding/OnboardingPopover';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
 const QuestionAnswerForm: React.FC = () => {
+
     const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName, activeComponent, user } = useAppContext();
+    const { lensId, lensName, activeComponent, user, onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
@@ -48,14 +50,14 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(false);
     }
 
- 
+
     useEffect(() => {
-        const fetchUserInfo= async() => {
-          let googleUserId = await getUserInfo();
-          set_google_user_id(googleUserId);
+        const fetchUserInfo = async () => {
+            let googleUserId = await getUserInfo();
+            set_google_user_id(googleUserId);
         }
         fetchUserInfo();
-      }, []);
+    }, []);
 
     useEffect(() => {
         if (!lensId) {
@@ -113,6 +115,8 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(true);
         const startTime = performance.now();
 
+        if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
+
         try {
             const supabase = createClientComponentClient()
             console.log("asking a question")
@@ -144,7 +148,7 @@ const QuestionAnswerForm: React.FC = () => {
                     const newQA = { question: inputValue, answer: response.answer, sources: blockTitles, created_at: new Date().toISOString() };
                     return [newQA, ...prevQuestionHistory]
                 } else {
-                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString()  };
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString() };
                     return [newQA, ...prevQuestionHistory]
                 }
             });
@@ -215,12 +219,34 @@ const QuestionAnswerForm: React.FC = () => {
                     <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                                <Textarea
-                                    disabled={isSubmitting}
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Enter your question"
-                                />
+                                {(onboardingStep === 3 && !onboardingIsComplete)
+                                    ?
+                                    <OnboardingPopover
+                                        width={400}
+                                        stepToShow={3}
+                                        position="left-start"
+                                        popoverContent={
+                                            <>
+                                                <Text size="sm" mb={10}>The Yodeai agent can answer questions, generate summaries, and more.</Text>
+                                                <Text size="sm">Ask a question, like <b>"What is Yodeai?"</b></Text>
+                                            </>
+                                        }
+                                    >
+                                        <Textarea
+                                            disabled={isSubmitting}
+                                            value={inputValue}
+                                            onChange={(e) => setInputValue(e.target.value)}
+                                            placeholder="Enter your question"
+                                        />
+                                    </OnboardingPopover>
+                                    :
+                                    <Textarea
+                                        disabled={isSubmitting}
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        placeholder="Enter your question"
+                                    />
+                                }
                                 <Group justify="flex-end" mt="xs">
                                     <Button style={{ height: 24, width: '100%' }} size='xs' type="submit" variant='gradient' gradient={{ from: 'orange', to: '#FF9D02', deg: 250 }} disabled={isSubmitting}>
                                         <Image color='blue' src="../../yodebird.png" alt="Icon" style={{ height: '1em', marginRight: '0.5em' }} />

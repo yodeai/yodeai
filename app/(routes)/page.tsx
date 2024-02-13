@@ -14,6 +14,7 @@ import { useAppContext } from "@contexts/context";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 import { Database } from "app/_types/supabase";
+import FinishedOnboardingPopover from "@components/Onboarding/FinishedOnboardingPopover";
 const supabase = createClientComponentClient<Database>()
 
 export default function Home() {
@@ -181,6 +182,7 @@ export default function Home() {
           onChangeLayout={onChangeLensLayout}
         />
       </Box>
+      <FinishedOnboardingPopover />
     </Flex >
   );
 }

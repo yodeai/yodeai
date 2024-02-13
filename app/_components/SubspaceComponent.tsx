@@ -8,7 +8,7 @@ import { getUserInfo } from '@utils/googleUtils';
 import { Lens, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 import { useAppContext } from "@contexts/context";
-import OnboardingPopover from './OnboardingPopover';
+import OnboardingPopover from './Onboarding/OnboardingPopover';
 
 type SubspaceComponentProps = {
   subspace: Subspace | Lens;

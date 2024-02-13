@@ -18,6 +18,7 @@ import { useAppContext } from "@contexts/context";
 import BlockHeader from "@components/Block/BlockHeader";
 import { FaCheck } from "react-icons/fa";
 import { timeAgo } from "@utils/index";
+import FinishedOnboardingPopover from "@components/Onboarding/FinishedOnboardingPopover";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -245,6 +246,7 @@ export default function Block({ params }: { params: { id: string } }) {
           }
         </Box>
       </Flex>
+      <FinishedOnboardingPopover />
     </main >
 
   );

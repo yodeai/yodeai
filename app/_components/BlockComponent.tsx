@@ -15,7 +15,7 @@ import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";
-import OnboardingPopover from "./OnboardingPopover";
+import OnboardingPopover from "./Onboarding/OnboardingPopover";
 
 interface BlockProps {
   compact?: boolean;
@@ -91,7 +91,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
   const onClickBlock = () => {
     if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
-
     router.push(`/block/${block.block_id}`)
   }
 
@@ -107,6 +106,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 underline="never"
                 onClick={onClickBlock}
               >
+                
                 {(block.title === "About Blocks and Spaces" && onboardingStep === 1 && !onboardingIsComplete)
                   ?
                   <OnboardingPopover

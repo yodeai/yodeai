@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu } from '@mantine/core';
+import { Box, Flex, Button, Menu, Text } from '@mantine/core';
 import { FaAngleRight, FaArrowCircleRight, FaInfo, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
@@ -14,6 +14,7 @@ import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname } from 'next/navigation';
+import OnboardingPopover from './Onboarding/OnboardingPopover';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -33,6 +34,8 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
+
+    const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
@@ -105,11 +108,40 @@ export default function Toolbar() {
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
-                    <Button
-                        variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
-                        onClick={switchComponent.bind(null, "questionform")} c="gray.6">
-                        <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
-                    </Button>
+                    {(onboardingStep === 2 && !onboardingIsComplete)
+                        ?
+                        <OnboardingPopover
+                            width={300}
+                            stepToShow={2}
+                            position="left-start"
+                            popoverContent={
+                                <>
+                                    <Text size="sm" mb={10}>Within a block or space, you can talk to the Yodeai agent.</Text>
+                                    <Text size="sm">Click the <b>Yodeai icon.</b></Text>
+                                </>
+                            }
+                        >
+                            <Button
+                                variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
+                                onClick={() => {
+                                    switchComponent("questionform");
+                                    if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                                }}
+                                c="gray.6">
+                                <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
+                            </Button>
+                        </OnboardingPopover>
+                        :
+                        <Button
+                            variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
+                            onClick={() => {
+                                switchComponent("questionform");
+                                if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                            }}
+                            c="gray.6">
+                            <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
+                        </Button>
+                    }
                 </Box>
                 <Menu position="left">
                     <Box>

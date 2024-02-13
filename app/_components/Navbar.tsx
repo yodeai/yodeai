@@ -15,6 +15,7 @@ import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
 import { Database } from "app/_types/supabase";
+import OnboardingPopover from "./Onboarding/OnboardingPopover";
 const supabase = createClientComponentClient<Database>()
 
 export default function Navbar() {
@@ -22,7 +23,7 @@ export default function Navbar() {
   const {
     lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
     pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
-    resetOnboarding, onboardingStep
+    resetOnboarding, onboardingStep, onboardingIsComplete, goToNextOnboardingStep
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -94,20 +95,55 @@ export default function Navbar() {
 
   const [opened, setOpened] = useState(false);
 
+  const togglePopover = () => {
+    const newState = !opened;
+    setOpened(newState);
+
+    if (newState && onboardingStep === 4 && !onboardingIsComplete) {
+      goToNextOnboardingStep();
+    }
+  };
+
   return <>
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
-          <Button
-            onClick={() => setOpened(!opened)}
-            style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
-            leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-            color="gray"
-            variant="gradient"
-            opacity={0.9}
-          >
-            New
-          </Button>
+          {(onboardingStep === 4 && !onboardingIsComplete)
+            ?
+            <OnboardingPopover
+              width={430}
+              stepToShow={4}
+              position="right-start"
+              popoverContent={
+                <>
+                  <Text size="sm" mb={10}>The Yodeai agent answers questions based on the blocks within a particular <b>space.</b></Text>
+                  <Text size="sm">To create a space, click <b>+ New</b> then <b>+ New Space</b></Text>
+                </>
+              }
+            >
+              <Button
+                onClick={togglePopover}
+                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+                leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+                color="gray"
+                variant="gradient"
+                opacity={0.9}
+              >
+                New
+              </Button>
+            </OnboardingPopover>
+            :
+            <Button
+              onClick={togglePopover}
+              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+              leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+              color="gray"
+              variant="gradient"
+              opacity={0.9}
+            >
+              New
+            </Button>
+          }
         </Flex>
       </Popover.Target>
       <Popover.Dropdown p={0}>
