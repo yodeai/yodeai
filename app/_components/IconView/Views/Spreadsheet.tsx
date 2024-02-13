@@ -145,7 +145,7 @@ export const SpreadsheetIconItem = ({
                     {spreadsheetPluginState?.status && ["waiting", "queued", "processing"]
                         .includes(spreadsheetPluginState?.status) &&
                         <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            {(spreadsheetPluginState?.progress * 100).toFixed(1)}%
+                            {`${(spreadsheetPluginState.progress * 100).toFixed(1)}%`}
                         </Text>}
                     <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
                 </>

@@ -10,7 +10,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon } from '@mantine/core';
 import { FaTrashAlt, FaPlus } from 'react-icons/fa';
 import SpreadsheetData from '@components/Spreadsheet/chart.json'
-
+import apiClient from '@utils/apiClient';
 type AddPainPointTrackerProps = {
     lensId: number;
     modalController: ReturnType<typeof useDisclosure>
@@ -22,6 +22,26 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     const supabase = createClientComponentClient();
     const [name, updateName] = useState("")
     const [insightAreas, setInsightAreas] = useState<string[]>([]);
+    const [numberOfPainPoints, setNumberOfPainPoints] = useState<number>(0); // New state for the number of pain points
+    const handleNumberOfPainPointsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseInt(event.target.value);
+        setNumberOfPainPoints(value);
+    };
+    const startPainpointAnalysis = async(spreadsheet_id) => {
+        const body = { spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints }
+        let queued = false
+        await apiClient('/painpointAnalysis', 'POST', body)
+          .then(result => {
+            console.log('Painpoint analysis queued successfully', result);
+            queued = true
+          })
+          .catch(error => {
+            console.log('Error doing painpoint analysis: ' + error.message);
+          });
+        return queued;
+
+    }
+
 
     useEffect(() => {
         updateName("");
@@ -51,6 +71,17 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            // make a call to backend
+            const spreadsheet_id = data["data"][0]["spreadsheet_id"]
+            const queued_request = await startPainpointAnalysis(spreadsheet_id)
+            if (!queued_request) {
+                const { error } = await supabase
+                .from('spreadsheet')
+                .delete()
+                .eq('spreadsheet_id', spreadsheet_id)
+                console.log("Error in deleting", error)
+                return
+            }
             close();
             toast.success("Spreadsheet created successfully.", data);
         } catch (e) {
@@ -95,11 +126,27 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                             />
                         </Input.Wrapper>
                     </Flex>
-
                     <Box className="w-full flex flex-col items-center gap-2 mb-2">
                         <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
                         <Text className="w-full mb-5 text-gray-300" size="xs">
-                            Enter the painpoints you wish to extract from reviews.
+                            If you would like to autogenerate painpoints from the reviews, enter the number of painpoints you wish to extract.
+                        </Text>
+                    </Box>
+                    <Flex mt={10} className = "flex-1 w-full flex-col">
+                        <Input
+                            type="number"
+                            min={1}
+                            max={9}
+                            value={numberOfPainPoints.toString()}
+                            onChange={handleNumberOfPainPointsChange}
+                            className="w-full"
+                        />
+                    </Flex>
+
+                    <Box mt={10} className="w-full flex flex-col items-center gap-2 mb-2">
+                        <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
+                        <Text className="w-full mb-5 text-gray-300" size="xs">
+                            If you would like to provide your own painpoints, enter the painpoints you wish to extract from reviews.
                         </Text>
                     </Box>
 
