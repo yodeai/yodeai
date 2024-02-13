@@ -14,6 +14,8 @@ import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid
 import { formatDistanceToNow } from "date-fns";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "@contexts/context";
+import OnboardingPopover from "./OnboardingPopover";
 
 interface BlockProps {
   compact?: boolean;
@@ -24,6 +26,8 @@ interface BlockProps {
 }
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
   const router = useRouter();
+
+  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -89,6 +93,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   // }, [])
 
   const onClickBlock = () => {
+    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
+
     router.push(`/block/${block.block_id}`)
   }
 
@@ -104,7 +110,25 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 underline="never"
                 onClick={onClickBlock}
               >
-                <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                {(block.title === "About Blocks and Spaces" && onboardingStep === 1 && !onboardingIsComplete)
+                  ?
+                  <OnboardingPopover
+                    width={400}
+                    stepToShow={1}
+                    position="right-start"
+                    popoverContent={
+                      <>
+                        <Text size="sm" mb={10}>This is a <b>block</b>, a unit of information in Yodeai.</Text>
+                        <Text size="sm">Click <b>About blocks and spaces.</b></Text>
+                      </>
+                    }
+                  >
+                    <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                  </OnboardingPopover>
+                  :
+                  <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                }
+
               </Anchor>
               {hasArchiveButton && (
                 <Flex ml={2}>

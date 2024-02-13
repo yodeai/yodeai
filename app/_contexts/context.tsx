@@ -36,6 +36,12 @@ export type contextType = {
     sortBy: null | "name" | "createdAt" | "updatedAt"
   },
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
+
+  onboardingStep: number;
+  onboardingIsComplete: boolean;
+  goToNextOnboardingStep: () => void;
+  completeOnboarding: () => void;
+  resetOnboarding: () => void;
 };
 
 
@@ -68,7 +74,13 @@ const defaultValue: contextType = {
     order: "asc",
     sortBy: null
   },
-  setSortingOptions: () => { }
+  setSortingOptions: () => { },
+
+  onboardingStep: 0,
+  onboardingIsComplete: false,
+  goToNextOnboardingStep: () => { },
+  completeOnboarding: () => { },
+  resetOnboarding: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -96,6 +108,26 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
+
+  // Onboarding Context Data
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(false);
+
+  const goToNextOnboardingStep = () => {
+    setOnboardingStep((currentStep) => currentStep + 1);
+    console.log("going to next step");
+  };
+
+  const resetOnboarding = () => {
+    setOnboardingStep(0);
+    console.log("resetting onboarding step");
+  };
+
+  const completeOnboarding = () => {
+    setOnboardingIsComplete(true);
+    // Update the database to indicate the user has completed onboarding
+    // (This function needs to be implemented based on your Supabase setup)
+  };
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -211,7 +243,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      sortingOptions, setSortingOptions
+      sortingOptions, setSortingOptions,
+      onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
       {children}
     </context.Provider>

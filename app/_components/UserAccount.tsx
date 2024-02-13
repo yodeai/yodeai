@@ -33,7 +33,6 @@ const UserAccountHandler = () => {
     fetchData();
   }, []);
 
-
   return (
     <nav className="w-full">
       <Flex justify={"flex-end"}>
