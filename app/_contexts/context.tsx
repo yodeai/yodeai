@@ -97,7 +97,7 @@ const defaultValue: contextType = {
   user: undefined,
 
   zoomLevel: 100,
-  setZoomLevel: () => { }
+  setZoomLevel: () => { },
 
   onboardingStep: 0,
   onboardingIsComplete: false,
@@ -275,8 +275,6 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       user,
       zoomLevel: memoizedZoomLevel,
       setZoomLevel: setIconViewZoomLevel,
-        
-      sortingOptions, setSortingOptions,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
       {children}

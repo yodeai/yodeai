@@ -21,7 +21,7 @@ export default function Navbar() {
   const router = useRouter();
   const {
     lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
-    pinnedLenses, setPinnedLenses, pinnedLensesLoading, draggingNewBlock, layoutRefs,
+    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
     resetOnboarding, onboardingStep
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
