@@ -5,12 +5,13 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block, LensInvite } from "app/_types/block";
 import { FaArchive } from "react-icons/fa";
-import BlockLenses from "@components/BlockLenses";
+import BlockLenses from "@components/Block/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Button, Paper, Text } from "@mantine/core";
+import Link from "next/link";
 
 interface LensProps {
   compact?: boolean;
@@ -18,10 +19,6 @@ interface LensProps {
 }
 
 export default function LensInviteComponent({ compact, invite }: LensProps) {
-  const acceptInvite = () => {
-    window.location.href = `acceptInvite/${invite.token}`;
-  };
-
   return (
     <Paper withBorder p={8}>
       <div className="flex flex-col gap-1">
@@ -33,14 +30,15 @@ export default function LensInviteComponent({ compact, invite }: LensProps) {
           </Text>
         </div>
         <div className="flex items-center justify-between flex-1">
-          <Button
-            style={{ width: '100%', height: 24 }}
-            size="xs"
-            variant="light"
-            onClick={acceptInvite}
-          >
-            View invitation
-          </Button>
+          <Link href={`acceptInvite/${invite.token}`}>
+            <Button
+              style={{ width: '100%', height: 24 }}
+              size="xs"
+              variant="light"
+            >
+              View invitation
+            </Button>
+          </Link>
         </div>
       </div>
     </Paper>

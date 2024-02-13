@@ -1,8 +1,8 @@
 "use client";
 
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
-import { Lens, LensLayout, Subspace } from "app/_types/lens";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
+import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
@@ -12,6 +12,7 @@ import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { Box, Flex } from "@mantine/core";
+import IconItemSettings from "app/_components/IconView/IconSettings";
 
 type LensProps = {
   lens_id: number;
@@ -21,6 +22,8 @@ type LensProps = {
 
 import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
+import { getUserInfo } from "@utils/googleUtils";
+import { Database, Tables } from "app/_types/supabase";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -29,21 +32,28 @@ export default function Lens(props: LensProps) {
   const [lens, setLens] = useState<Lens | null>(lensData);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
+  const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
+  const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
+  const $settingsItem = useRef<
+    Lens | Subspace | Tables<"block"> | Tables<"whiteboard">
+  >(null);
+
   const router = useRouter();
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
-    accessType, setAccessType, sortingOptions
+    accessType, setAccessType, sortingOptions,
+    iconItemDisclosure
   } = useAppContext();
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient()
+  const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
     setEditingLensName(lensName);
@@ -53,7 +63,6 @@ export default function Lens(props: LensProps) {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
       setLayoutViewToLocalStorage("default_layout", "block")
     }
-
   }, [])
 
   useEffect(() => {
@@ -62,6 +71,7 @@ export default function Lens(props: LensProps) {
       await Promise.all([
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
+        getLensWhiteboards(lens_id),
         getLensLayout(lens_id)
       ])
         .then(() => {
@@ -120,8 +130,20 @@ export default function Lens(props: LensProps) {
       })
   }
 
+  const getLensWhiteboards = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getWhiteboards`)
+      .then((response) => response.json())
+      .then((data) => {
+        setWhiteboards(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching whiteboards:', error);
+      })
+  }
+
   const getLensBlocks = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getBlocks`)
+    let googleUserId = await getUserInfo();
+    return fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -145,7 +167,8 @@ export default function Lens(props: LensProps) {
           block_layout: res?.data?.block_layout,
           icon_layout: res?.data?.icon_layout,
           list_layout: res?.data?.list_layout
-        })
+        });
+        setItemIcons(res?.data?.item_icons || {});
       })
   }
 
@@ -216,6 +239,41 @@ export default function Lens(props: LensProps) {
     setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
   }, []);
 
+  const addWhiteBoard = useCallback((payload) => {
+    let whiteboard_id = payload["new"]["whiteboard_id"]
+    console.log("Added a whiteboard", whiteboard_id);
+    let newWhiteboard = payload["new"]
+    if (!whiteboards.some(item => item.whiteboard_id === whiteboard_id)) {
+      setWhiteboards(prevWhiteboards => [newWhiteboard, ...prevWhiteboards]);
+    }
+  }, []);
+
+
+  const deleteWhiteboard = useCallback((payload) => {
+    let whiteboard_id = payload["old"]["whiteboard_id"]
+    console.log("Deleting whiteboard", whiteboard_id);
+    setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
+  }, []);
+
+  const updateWhiteboard = useCallback((payload) => {
+    let whiteboard_id = payload["new"]["whiteboard_id"]
+    console.log("Updating whiteboard", whiteboard_id);
+    setWhiteboards(prevWhiteboards =>
+      prevWhiteboards.map(item => {
+        if (item.whiteboard_id === whiteboard_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
+
+  const updateLensLayout = useCallback((payload) => {
+    setItemIcons(payload["new"]?.item_icons || {});
+  }, []);
+
+  console.log(itemIcons)
+
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
     const channel = supabase
@@ -227,6 +285,10 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${lens_id}` }, deleteSubspace)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lens_id}` }, () => getLensData(lens_id))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_layout', filter: `lens_id=eq.${lens_id}`, }, updateLensLayout)
       .subscribe();
 
     return () => {
@@ -343,6 +405,50 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleLensChangeName = async (lens_id: number, newLensName: string) => {
+    const updatePromise = fetch(`/api/lens/${lens_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newLensName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating lens name...",
+      success: "Lens name updated!",
+      error: "Failed to update lens name.",
+    });
+  }
+
+  const handleWhiteboardDelete = async (whiteboard_id: number) => {
+    const deletePromise = fetch(`/api/whiteboard/${whiteboard_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting whiteboard...",
+      success: "Whiteboard deleted!",
+      error: "Failed to delete whiteboard.",
+    });
+  }
+
+  const handleWhiteboardChangeName = async (whiteboard_id: number, newWhiteboardName: string) => {
+    const updatePromise = fetch(`/api/whiteboard/${whiteboard_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newWhiteboardName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating whiteboard name...",
+      success: "Whiteboard name updated!",
+      error: "Failed to update whiteboard name.",
+    });
+  }
+
+  const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
+    $settingsItem.current = item;
+    iconItemDisclosure[1].open();
+  }
+
+  const handleItemIconChange = async (item_id: number, newIcon: string) => {
+    // console.log("Icon change");
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -391,6 +497,26 @@ export default function Lens(props: LensProps) {
     return _sorted_blocks;
   }, [sortingOptions, blocks])
 
+  const sortedWhiteboards = useMemo(() => {
+    if (sortingOptions.sortBy === null) return whiteboards;
+
+    let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_whiteboards.reverse();
+    }
+
+    return _sorted_whiteboards;
+  }, [sortingOptions, whiteboards])
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <DynamicSpaceHeader
@@ -411,14 +537,27 @@ export default function Lens(props: LensProps) {
       <Box className="flex items-stretch flex-col h-full">
         {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
         {!loading && <LayoutController
-          subspaces={sortedSubspaces}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
           handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
           onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          handleItemIconChange={handleItemIconChange}
           layout={layoutData}
-          blocks={sortedBlocks} layoutView={selectedLayoutType} />}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          itemIcons={itemIcons}
+          layoutView={selectedLayoutType} />}
       </Box>
-    </Flex >
+      <IconItemSettings
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
+    </Flex>
   );
 }

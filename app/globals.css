@@ -17,15 +17,20 @@
   }
 } */
 
-*, ::before, ::after {
+*,
+::before,
+::after {
   border-width: 0;
   border-style: solid;
-  border-color: currentColor /* or gray-DEFAULT / gray-400 */;
+  border-color: currentColor
+    /* or gray-DEFAULT / gray-400 */
+  ;
 }
 
 ::-webkit-scrollbar {
   width: 0px;
-  background: transparent; /* make scrollbar transparent */
+  background: transparent;
+  /* make scrollbar transparent */
 }
 
 .animate-in {
@@ -163,7 +168,7 @@
   font-size: 90%;
 }
 
-.grid-layout-container{
+.grid-layout-container {
   width: calc(100% - 230px - 25vw)
 }
 
@@ -172,12 +177,34 @@
   border-radius: 10px;
 }
 
-.react-grid-item{
+.react-grid-item {
   cursor: pointer;
   padding: 8px;
   border-radius: 10px;
 }
 
-.react-grid-item:active, .react-grid-item:focus{
+.react-grid-item:active,
+.react-grid-item:focus {
   background-color: transparent;
+}
+
+
+.block-input .mantine-Textarea-input {
+  padding: 0px;
+}
+
+.react-flow__handle {
+  border-radius: 3px !important;
+  background-color: #e5e7eb !important;
+  border: none !important;
+}
+
+.react-flow__handle.react-flow__handle-left, .react-flow__handle.react-flow__handle-right{
+  width: 5px;
+  height: 30px;
+}
+
+.react-flow__handle.react-flow__handle-top, .react-flow__handle.react-flow__handle-bottom{
+  width: 30px;
+  height: 5px;
 }

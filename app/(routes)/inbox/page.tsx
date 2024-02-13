@@ -3,21 +3,22 @@
 import { notFound } from "next/navigation";
 import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext } from "react";
+import { useState, useEffect } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Link from 'next/link';
 
-import { Button, Divider, Flex, Grid, Paper, Text } from "@mantine/core";
-import { FaPlus } from "react-icons/fa";
+import { Flex, Box, Paper, Text } from "@mantine/core";
 import LensInviteComponent from "@components/LensInviteComponent";
-import BlockHeader from "@components/BlockHeader";
+import BlockColumnHeader from "@components/Block/BlockColumnHeader";
+import SpaceHeader from "@components/SpaceHeader";
+import { getUserInfo } from "@utils/googleUtils";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+  const [googleUserId, setGoogleUserId] = useState("")
 
   const { setLensId } = useAppContext();
   const supabase = createClientComponentClient()
@@ -64,8 +65,8 @@ export default function Inbox() {
   }, [blocks]);
 
 
-  const fetchBlocks = () => {
-    fetch(`/api/inbox/getBlocks`)
+  const fetchBlocks = (googleUserId) => {
+    fetch(`/api/inbox/getBlocks/${googleUserId}`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -90,67 +91,68 @@ export default function Inbox() {
   }
 
   useEffect(() => {
-    fetchBlocks();
-    fetchInvites();
-    setLensId(null);
+    const fetchBlocksAndInfo = async () => {
+      fetchInvites();
+      setLensId(null);
+      const googleUserId = await getUserInfo();
+      setGoogleUserId(googleUserId)
+      fetchBlocks(googleUserId);
+    }
+    fetchBlocksAndInfo();
+
   }, []);
 
   return (
-    <Flex direction="column" p={16} pt={0}>
-      <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Inbox</Text>} labelPosition="center" />
-      <Flex justify={"center"} align={"center"}>
-        <Flex justify={"center"} align={"center"}>
-          <Link href="/new">
-            <Button
-              size="xs"
-              variant="subtle"
-              leftSection={<FaPlus />}
-            // onClick={() => setIsEditingLensName(true)}
-            >
-              Add Block
-            </Button>
-          </Link>
-        </Flex>
-      </Flex>
+    <Flex direction="column" pt={0}>
+      <SpaceHeader
+        title="Inbox"
+        selectedLayoutType="block"
+        handleChangeLayoutView={() => { }}
+        staticLayout={true}
+        staticSortBy={true}
+      />
+      <Box p={16}>
+        <Paper mb={10}>
+          <Text size="lg" fw={600} c={"gray.7"}>Invitations</Text>
+          {
+            unacceptedInvites?.length > 0 ? (
+              unacceptedInvites.map((invite) => (
+                <div key={invite.lens_id} >
+                  <LensInviteComponent invite={invite}></LensInviteComponent>
+                </div>
+              ))
+            ) : (
+              <Text c={"gray.6"} mt={5} size="md">
+                No unaccepted invites!
+              </Text>
+            )
+          }
+        </Paper>
 
-      <Paper mb={10}>
-        <Text size="md" fw={600} c={"gray.7"}>Invitations</Text>
+        <BlockColumnHeader />
+
+        <Text size="lg" fw={600} c={"gray.7"}>Latest Blocks</Text>
+
         {
-          unacceptedInvites?.length > 0 ? (
-            unacceptedInvites.map((invite) => (
-              <div key={invite.lens_id} >
-                <LensInviteComponent invite={invite}></LensInviteComponent>
-              </div>
+          loading ? (
+            <div className="mt-2">
+              <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
+            </div>
+          ) : blocks?.length > 0 && googleUserId != "" ? (
+            blocks.map((block) => (
+              <BlockComponent googleUserId={googleUserId} key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
             ))
           ) : (
-            <Text ta={"center"} c={"gray.6"} size="sm">
-              No unaccepted invites!
+            <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+              Nothing to show here. As you add blocks they will initially show up in your Inbox.
             </Text>
           )
         }
-      </Paper>
 
-      <BlockHeader />
-
-      {
-        loading ? (
-          <div className="mt-2">
-            <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-          </div>
-        ) : blocks?.length > 0 ? (
-          blocks.map((block) => (
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
-          ))
-        ) : (
-          <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-            Nothing to show here. As you add blocks they will initially show up in your Inbox.
-          </Text>
-        )
-      }
-
-      {/* <Flex direction={"column"} justify={"flex-end"}>
+        {/* <Flex direction={"column"} justify={"flex-end"}>
         <QuestionAnswerForm />
       </Flex> */}
+      </Box>
     </Flex >
   );
 }

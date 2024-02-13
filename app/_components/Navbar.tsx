@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { IoMdClose } from "react-icons/io";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
@@ -12,6 +14,9 @@ import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, S
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
+import { Database } from "app/_types/supabase";
+const supabase = createClientComponentClient<Database>()
+
 export default function Navbar() {
   const router = useRouter();
   const {
@@ -21,6 +26,22 @@ export default function Navbar() {
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
+  const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
+
+  const getPinnedLenses = async () => {
+    fetch(`/api/lens/pinneds`)
+      .then((response) => response.json())
+      .then((data) => {
+        setPinnedLenses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching lens:", error);
+        // notFound();
+      })
+      .finally(() => {
+        setPinnedLensesLoading(false);
+      })
+  }
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {
@@ -52,13 +73,13 @@ export default function Navbar() {
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
     event.preventDefault();
-
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
       const pinResponse = await fetch(`/api/lens/${lens_id}/pin`, { method: "DELETE" });
       if (pinResponse.ok) {
         setPinnedLenses(pinnedLenses.filter((lens) => lens.lens_id !== lens_id));
+        setStateOfLenses({ ...stateOfLenses, [lens_id]: false });
         console.log("Lens unpinned");
       }
       if (!pinResponse.ok) console.error("Failed to unpin lens");
@@ -66,6 +87,10 @@ export default function Navbar() {
       console.error("Error pinning lens:", error);
     }
   }
+
+  useEffect(() => {
+    getPinnedLenses();
+  }, [])
 
   const [opened, setOpened] = useState(false);
 
@@ -118,6 +143,7 @@ export default function Navbar() {
     <Flex direction="column" gap={5} mt={10}>
       <Link href="/" className="no-underline">
         <NavLink
+          component="div"
           label="Home"
           leftSection={<FaHouse size={18} />}
           color={pathname === "/" ? "blue" : "#888"}
@@ -127,6 +153,7 @@ export default function Navbar() {
       </Link>
       <Link href="/myblocks" className="no-underline">
         <NavLink
+          component="div"
           label="My Blocks"
           leftSection={<FaThLarge size={18} />}
           color={pathname === "/myblocks" ? "blue" : "#888"}
@@ -136,6 +163,7 @@ export default function Navbar() {
       </Link>
       <Link href="/inbox" className="no-underline">
         <NavLink
+          component="div"
           label="Inbox"
           leftSection={<FaInbox size={18} />}
           color={pathname === "/inbox" ? "blue" : "#888"}
@@ -168,7 +196,7 @@ export default function Navbar() {
         {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
-            <Box key={lens.lens_id} pos="relative">
+            <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
               <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}

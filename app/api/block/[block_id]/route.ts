@@ -3,6 +3,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest } from "next/server";
 import { cookies } from 'next/headers';
 import apiClient from '@utils/apiClient';
+import { getUserID } from "utils/getUserID";
 
 export const dynamic = 'force-dynamic';
 
@@ -57,7 +58,6 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
   const lensId = data.lens_id;
   delete data.lens_id;
 
-  console.log("data: ", data, "block_id: ", block_id);
   let delay = data["delay"]
   delete data["delay"]
   try {
@@ -88,7 +88,6 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
 
 export async function GET(request: NextRequest, { params, }: { params: { block_id: string }; }) {
   const supabase = createServerComponentClient({ cookies });
-
   const block_id = Number(params.block_id);
   const { data: { user } } = await supabase.auth.getUser()
 

@@ -6,39 +6,42 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest) {
-    
+export async function GET(request: NextRequest, { params }: { params: { lens_id: string, googleUserId: string }; }) {
     try {
         const supabase = createServerComponentClient({
             cookies,
         });
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
-        const { data: inboxBlocks, error } = await supabase
-        .from('inbox')
-        .select(`
-            *,
-            block!inbox_block_id_fkey (
+        const { data: lensBlocks, error } = await supabase
+            .from('lens_blocks')
+            .select(`
                 *,
-                lens_blocks!fk_block (
-                    lens: lens!fk_lens (lens_id, name)
+                block!fk_block (
+                    block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
+                    lens_blocks!fk_block (
+                        lens: lens!fk_lens (lens_id, name)
+                    )
                 ) 
-            )
-        `).eq("block.lens_blocks.direct_child", true)
-    if (error) {
-        throw error;
-    }
-    
-    
+            `)
+            .in('block.google_user_id', [params.googleUserId, 'global'])
+            .eq('lens_id', params.lens_id)
+            .eq("direct_child", true)
+            .eq('block.lens_blocks.direct_child', true); // Use direct_child condition directly here
+
+        if (error) {
+            throw error;
+        }
+
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
-        const blocksForLens = inboxBlocks
-            ? inboxBlocks
-                .map((inboxBlock) => {
-                    if (inboxBlock.block && inboxBlock.block.lens_blocks) {
+        const blocksForLens = lensBlocks
+            ? lensBlocks
+                .map((lensBlock) => {
+                    if (lensBlock.block && lensBlock.block.lens_blocks) {
                         return {
-                            ...inboxBlock.block,
-                            inLenses: inboxBlock.block.lens_blocks.map((lb: any) => ({
+                            ...lensBlock.block,
+                            inLenses: lensBlock.block.lens_blocks.map((lb: any) => ({
                                 lens_id: lb.lens.lens_id,
                                 name: lb.lens.name,
                             }))
@@ -48,8 +51,6 @@ export async function GET(request: NextRequest) {
                 })
                 .filter(block => block !== null)
             : [];
-
-        
 
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;

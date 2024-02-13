@@ -23,7 +23,6 @@ export default function Block({ params }: { params: { id: string } }) {
     fetch(`/api/publishedBlocks/${params.id}`)
     .then((response) => {
       if (!response.ok) {
-        console.log("Error fetching url dana")
         setLoading(false);
         router.push("/notFound")
       } else {

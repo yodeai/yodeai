@@ -1,36 +1,44 @@
 
-import BlockComponent from "./BlockComponent";
 import { Block } from "app/_types/block";
-import { Subspace, LensLayout, Lens } from "app/_types/lens";
-import IconLayoutComponent from "./IconLayoutComponent";
+import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
+import IconLayoutComponent from "./IconView/IconLayoutComponent";
 import React from "react";
-import { Flex, Grid, ScrollArea } from "@mantine/core";
-import { Divider, Text } from "@mantine/core";
-import SubspaceComponent from "@components/SubspaceComponent"
-import BlockHeader from "./BlockHeader";
+import { Flex, Text } from "@mantine/core";
+import ListLayoutComponent from "./ListLayoutComponent";
+import { Tables } from "app/_types/supabase";
 
 type LayoutControllerProps = {
-    blocks: Block[]
-    subspaces: (Subspace | Lens)[]
+    blocks?: Block[]
+    subspaces?: (Subspace | Lens)[]
+    whiteboards?: Tables<"whiteboard">[]
     layout: LensLayout,
+    itemIcons: Lens["item_icons"];
     layoutView: "block" | "icon",
     handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
     handleBlockDelete: (block_id: number) => Promise<any>
     handleLensDelete: (lens_id: number) => Promise<any>
+    handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
+    handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
+    handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
     onChangeLayout: (
         layoutName: keyof LensLayout,
         layoutData: LensLayout[keyof LensLayout]
     ) => void
+    handleItemSettings?: (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => void
+    handleItemIconChange?: (item_id: number, newIcon: string) => Promise<any>
 }
 
 export default function LayoutController(props: LayoutControllerProps) {
     const {
-        blocks, layout, layoutView, subspaces,
-        onChangeLayout, handleBlockChangeName,
-        handleBlockDelete, handleLensDelete
+        blocks,
+        layout,
+        layoutView,
+        subspaces,
+        whiteboards,
+        onChangeLayout
     } = props;
 
-    if (blocks.length === 0 && subspaces.length === 0) return (
+    if (blocks?.length === 0 && subspaces?.length === 0 && whiteboards?.length === 0) return (
         <Flex
             align="center"
             justify="center"
@@ -49,32 +57,21 @@ export default function LayoutController(props: LayoutControllerProps) {
 
     switch (layoutView) {
         case "block":
-            return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8}
-                className="h-[calc(100vh-120px)]">
-                {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Blocks</Text>} labelPosition="center" /> */}
-                {blocks && blocks.length > 0
-                    && <React.Fragment>
-                        <BlockHeader />
-                        {blocks.map((block) => (
-                            <BlockComponent key={block.block_id} block={block} />
-                        ))}</React.Fragment>
-                    || ""}
-
-                {/* <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" /> */}
-                {subspaces && subspaces.length > 0
-                    ? subspaces.map((childLens) => (
-                        <SubspaceComponent key={childLens.lens_id} subspace={childLens}></SubspaceComponent>
-                    )) : null}
-            </ScrollArea>
+            return <ListLayoutComponent
+                blocks={blocks}
+                subspaces={subspaces}
+                whiteboards={whiteboards}
+            />
         case "icon":
-            return <ScrollArea type={"scroll"} w={'100%'} p={0} scrollbarSize={8}>
+            return <div className="w-full h-full overflow-scroll">
                 <IconLayoutComponent
-                    handleBlockChangeName={handleBlockChangeName}
-                    handleBlockDelete={handleBlockDelete}
-                    handleLensDelete={handleLensDelete}
-                    layouts={layout.icon_layout} onChangeLayout={onChangeLayout}
                     subspaces={subspaces}
-                    blocks={blocks} />
-            </ScrollArea>
+                    layouts={layout.icon_layout}
+                    onChangeLayout={onChangeLayout}
+                    blocks={blocks || []}
+                    whiteboards={whiteboards || []}
+                    {...props}
+                />
+            </div>
     }
 }

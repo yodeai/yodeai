@@ -3,19 +3,17 @@
 import 'easymde/dist/easymde.min.css';
 
 import { Block } from "app/_types/block";
-import { useRef, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, MutableRefObject } from "react";
 import { useDebounce } from "usehooks-ts";
 import load from "@lib/load";
 import { useCallback } from "react";
-import { TrashIcon, CheckIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
-import PDFViewerIframe from "@components/PDFViewer";
-import toast from "react-hot-toast";
-import { ActionIcon, Button, Flex, Text, TextInput } from '@mantine/core';
-
+import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
+import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
+import { RequestBodyType } from '@api/types';
 
 
 const DynamicSimpleMDE = dynamic(
@@ -23,18 +21,70 @@ const DynamicSimpleMDE = dynamic(
   { ssr: false, loading: () => <p>Loading editor...</p> }
 );
 
+type BlockEditorProps = {
+  refs?: {
+    saveButton?: MutableRefObject<HTMLButtonElement>
+  }
+  block?: Block;
+  onSave?: (block: Block) => void
+  onDelete?: () => void;
+}
 
-export default function BlockEditor({ block: initialBlock }: { block?: Block }) {
+export default function BlockEditor({ refs, block: initialBlock, onSave }: BlockEditorProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
   const { lensId } = useAppContext();
+  const [documentType, setDocumentType] = useState(block?.block_type || 'note');
+
   const [content, setContent] = useState(block?.content || "");
+
   const [title, setTitle] = useState(block?.title || "");
   const debouncedContent = useDebounce(content, 500);
   const debouncedTitle = useDebounce(title, 1000);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [googleDocId, setGoogleDocId] = useState(block?.google_doc_id || null)
+  const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || 'global')
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
 
+  useEffect(() => {
+    const updateGoogleDocContent = async () => {
+      if (documentType === 'google_doc' && block?.google_doc_id != null) {
+        setIsLoadingContent(true); // Set loading state when fetching content
+        try {
+          // bring in updated content
+          let fetchedContent = await fetchGoogleDocContent(block.google_doc_id);
+          setContent(fetchedContent);
+        } finally {
+          setIsLoadingContent(false); // Reset loading state after content is fetched
+        }
+      }
+      if (!block || block.google_user_id === 'global') setGoogleUserId(await getUserInfo());
+    };
+
+    updateGoogleDocContent();
+  }, []);
+
+
+  const fetchEndIndex = async (documentId) => {
+    try {
+      const response = await fetch(`/api/google/getEndIndex/${documentId}`)
+      if (response.ok) {
+        // Assuming the document content is in plain text
+        const content = await response.json();
+        return content.data
+      } else {
+        console.error("Failed to fetch Google Doc index:", response.statusText);
+        return -1;
+      }
+    } catch (error) {
+      console.error("Error fetching Google Doc index:", error.message);
+      return -1;
+    }
+
+  }
 
   //let controller;
   const saveContent = async (delay = 180) => {
@@ -64,23 +114,59 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
       return true;
     }
     setIsSaving(true);
+    let google_doc_id = googleDocId
+    if (documentType == "google_doc") {
+      if (google_doc_id == null) {
+        // write to google docs
+        const response = await fetch(`/api/google/createDoc`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title })
+        })
+        if (!response.ok) {
+          console.error("Error creating google doc")
+        } else {
+          let data = await response.json()
+          google_doc_id = data["google_doc_id"]
+          setGoogleDocId(google_doc_id)
+          console.log("created google doc", google_doc_id)
+        }
+      }
+      let oldContent = await fetchGoogleDocContent(google_doc_id);
+      if (oldContent != content) {
+        let endIndex = await fetchEndIndex(google_doc_id);
+        if (endIndex == -1) {
+          console.error("Error getting end index")
+          return
+        }
 
-    type RequestBodyType = {
-      block_type: string;
-      content: string;
-      title: string;
-      lens_id?: string;
-      delay: number;
-    };
+        const response = await fetch(`/api/google/updateDoc`, {
+          method: "PUT",
+          headers: {
+            'Content-Type': 'application/json',
+            // Add any other necessary headers, such as authorization, if required
+          },
+          body: JSON.stringify({ google_doc_id, content, oldContent, title, endIndex })
+        })
+        if (!response.ok) {
+          console.error("Error updating google doc")
+          return
+        } else {
+          console.log("updated google doc")
+        }
+      }
+    }
 
     const requestBody: RequestBodyType = {
-      block_type: "note",
+      block_type: documentType,
       content: content,
       title: (title ? title : "Untitled"),
-      delay: delay
+      delay: delay,
+      google_doc_id: google_doc_id,
+      google_user_id: documentType == "google_doc" ? googleUserId : 'global'
     };
-
-    console.log("saved", requestBody)
 
     if (lensId) {
       requestBody.lens_id = lensId;
@@ -104,6 +190,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
         const newBlock = responseData.data[0];
         setBlock(newBlock);
       }
+
     } catch (error) {
       setIsSaved(false);
       setIsSaving(false);
@@ -168,6 +255,7 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
   const handleSaveAndNavigate = async () => {
     // remove the "saved" sign
     setIsSaved(false);
+
     if (isSaving) {
       // If isSaving is true, wait for it to become false
       while (isSaving) {
@@ -178,29 +266,25 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
     // Save one last time
     await saveContent(0);
 
-    // Navigate back using the router
-    if (lensId) {
-      router.back();
-    } else {
-      router.push(`/myblocks`);
+    if (pathname === "/new") {
+      router.push(`/block/${block.block_id}`);
+      return;
     }
-    // router.back();
+
+    return onSave({ ...block, title: title, content: content });
   };
 
-
-  // useEffect(() => {
-  //   return () => {
-  //     saveContent(0); // save content one last time
-  //   };
-  // }, []);
-
-
+  const editorOptions = useMemo(() => {
+    return {
+      spellChecker: false
+    };
+  }, [])
 
   return (
     <div className="flex flex-col gap-1 w-full">
       {block && block.block_type === 'pdf' ? (
         <>
-          <div className="flex justify-between items-center w-full">
+          {/* <div className="flex justify-between items-center w-full">
             <input
               className="text-gray-600 line-clamp-1 text-xl flex-grow"
               value={title}
@@ -232,22 +316,18 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
                 </ActionIcon>
               )}
             </Flex>
-
-
-          </div>
+          </div> */}
         </>
-
       ) : (
-        <>
+        <div className="flex flex-col w-full">
           <div className="flex justify-between items-center w-full">
-            <TextInput
+            {/* <TextInput
               style={{ flex: 1 }}
               size="xs"
               value={title || ""}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
-
             <div className="flex gap-2">
               {isSaving && (
                 <Flex miw={40} ml={10} align={"center"} c={"green"}>
@@ -271,41 +351,55 @@ export default function BlockEditor({ block: initialBlock }: { block?: Block }) 
                   <FaTrashAlt size={14} />
                 </ActionIcon>
               )}
-            </div>
+            </div> */}
+          </div>
+
+          <div className="flex justify-between items-center w-full mt-1">
+            <Select
+              size="xs"
+              data={[
+                { label: "Note", value: "note" },
+                { label: "Google Doc", value: "google_doc" },
+                // Add more document types as needed
+              ].filter(option => googleUserId != null || option.value !== "google_doc")}
+              value={documentType}
+              onChange={(value) => setDocumentType(value)}
+            />
           </div>
 
 
-          <div className="min-w-full mt-1">
-            <div className="prose text-gray-600">
-              <DynamicSimpleMDE
-                value={content}
-                onChange={setContent}
-              />
+          {isLoadingContent ? (
+            <p>Updating google doc content...</p>
+          ) : (
+            <div className="min-w-full mt-1">
+              <div className="text-gray-600">
+                <DynamicSimpleMDE
+                  style={{
+                    width: "100%",
+                  }}
+                  options={editorOptions}
+                  value={content}
+                  onChange={setContent}
+                />
+              </div>
+
+              <div>
+                <Button
+                  ref={refs?.saveButton}
+                  style={{ flex: 1, width: "100%", height: 30 }}
+                  onClick={handleSaveAndNavigate}
+                  variant="gradient"
+                  gradient={{ from: 'green', to: 'lime', deg: 150 }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+              </div>
             </div>
-
-
-            {
-              <Button
-                style={{ flex: 1, width: "100%", height: 30 }}
-                onClick={handleSaveAndNavigate}
-                variant="gradient"
-                gradient={{ from: 'green', to: 'lime', deg: 150 }}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  // Display loading indicator while saving
-                  "Saving..."
-                ) : (
-                  // Display "Save" text when not saving
-                  "Save"
-                )}
-              </Button>
-            }
-
-          </div>
-        </>
+          )}
+        </div>
       )}
-
     </div>
   );
+
 }

@@ -1,44 +1,22 @@
 "use client";
 import { notFound } from "next/navigation";
 import { Lens } from "app/_types/lens";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import SpaceHeader from "@components/SpaceHeader";
 import { Flex, Box } from "@mantine/core";
+
+import SpaceHeader from "@components/SpaceHeader";
 import LoadingSkeleton from "@components/LoadingSkeleton";
-import LayoutController from '../_components/LayoutController';
+import LayoutController from 'app/_components/LayoutController';
 import { LensLayout } from "app/_types/lens";
-import { RealtimeChannel } from "@supabase/supabase-js";
 import { useAppContext } from "@contexts/context";
+import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
-function getLayoutViewFromLocalStorage(lens_id: string): "block" | "icon" {
-  let layout = null;
-  if (global.localStorage) {
-    try {
-      layout = JSON.parse(global.localStorage.getItem("layoutView")) || null;
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return layout ? layout[lens_id] : null;
-}
-
-function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "icon") {
-  if (global.localStorage) {
-    const layout = JSON.parse(global.localStorage.getItem("layoutView") || "{}");
-    global.localStorage.setItem(
-      "layoutView",
-      JSON.stringify({
-        ...layout,
-        [lens_id]: value
-      })
-    );
-  }
-}
+import { Database } from "app/_types/supabase";
+const supabase = createClientComponentClient<Database>()
 
 export default function Home() {
-  const supabase = createClientComponentClient()
 
   const [lenses, setLenses] = useState<(Lens)[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +24,7 @@ export default function Home() {
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
-  const { sortingOptions, setLensId } = useAppContext();
+  const { lensId, sortingOptions, setLensId, user } = useAppContext();
 
   const getLenses = async () => {
     return fetch(`/api/lens/getAll`)
@@ -113,29 +91,49 @@ export default function Home() {
     setSelectedLayoutType(newLayoutView)
   }
 
+  const addSubspaces = useCallback((payload) => {
+    let lens_id = payload["new"]["lens_id"]
+    console.log("Added a subspace", lens_id)
+    let newSubspace = payload["new"]
+    if (!lenses.some(item => item.lens_id === lens_id)) {
+      setLenses(prevSubspaces => [newSubspace, ...prevSubspaces]);
+    }
+  }, [lenses]);
+
+  const deleteSubspace = useCallback((payload) => {
+    let lens_id = payload["old"]["lens_id"]
+    console.log("Deleting lens", payload);
+    setLenses((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
+  }, []);
+
+  const handleLensChangeName = async (lens_id: number, newLensName: string) => {
+    const updatePromise = fetch(`/api/lens/${lens_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newLensName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating lens name...",
+      success: "Lens name updated!",
+      error: "Failed to update lens name.",
+    });
+  }
+
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
       setLayoutViewToLocalStorage("default_layout", "block")
     }
 
-    console.log("Subscribing to lens changes")
-    let channel: RealtimeChannel;
-    (async () => {
-      const user_id = (await supabase.auth?.getUser())?.data?.user?.id;
-      if (!user_id) return;
-
-      channel = supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', {
-          event: '*', schema: 'public', table: 'lens_users',
-          filter: `user_id=eq.${user_id}`
-        }, getLenses)
-        .subscribe();
-    })();
+    const channel = supabase.channel('schema_changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lens', filter: `parent_id=eq.${-1}` }, addSubspaces)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'lens', filter: `parent_id=eq.${-1}` }, deleteSubspace)
+      .subscribe();
 
     return () => {
       console.log("Unsubscribing from lens changes")
-      if (channel) channel.unsubscribe();
+      if (channel) {
+        channel.unsubscribe();
+      }
     }
   }, [])
 
@@ -162,6 +160,7 @@ export default function Home() {
   return (
     <Flex direction="column" pt={0} h="100%">
       <SpaceHeader
+        staticZoomLevel={false}
         title="Home"
         selectedLayoutType={selectedLayoutType}
         handleChangeLayoutView={handleChangeLayoutView}
@@ -171,13 +170,14 @@ export default function Home() {
           <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
         </div>}
         <LayoutController
-          blocks={[]}
+          itemIcons={{}}
           subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
           handleLensDelete={handleLensDelete}
+          handleLensChangeName={handleLensChangeName}
           onChangeLayout={onChangeLensLayout}
         />
       </Box>

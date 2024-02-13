@@ -5,15 +5,15 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
-import BlockLenses from "@components/BlockLenses";
+import BlockLenses from "@components/Block/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
-import { formatDistanceToNow } from "date-fns";
 import InlineSpoiler from "./InlineSpoiler";
 import { useRouter } from "next/navigation";
+import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";
 import OnboardingPopover from "./OnboardingPopover";
 
@@ -21,10 +21,11 @@ interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
-  onArchive?: () => void;
+  onArchive?: (googleUserId) => void;
   hierarchy?: number;
+  googleUserId?: string;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId=""}: BlockProps) {
   const router = useRouter();
 
   const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
@@ -48,7 +49,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       success: "Archived!",
       error: "Failed to archive.",
     });
-    onArchive();
+    onArchive(googleUserId);
   };
 
   const retryProcessBlock = async () => {
@@ -69,10 +70,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
-
-  // let updateTime = block.updated_at.toDate();
-  let timeAgo = formatDistanceToNow(new Date(block.updated_at), { addSuffix: true });
-  timeAgo = timeAgo.replace("about ", "");
 
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
   // useEffect(()=>{
@@ -104,7 +101,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
         <Grid>
           <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
-              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2, marginLeft: Math.min(26 * hierarchy, 300) }} color="gray" />
+              <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2 }} color="gray" />
               <Anchor
                 size={"xs"}
                 underline="never"
@@ -143,19 +140,24 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </Grid.Col>
           <Grid.Col span={2}>
             <Flex mt={5} justify={"end"} align={"center"} direction={"row"}>
-              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">{timeAgo}</Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.updated_at)}
+              </Text>
+              <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 88.5, fontSize: 13 }} size={"sm"} fw={400} c="gray">
+                {timeAgo(block.created_at)}
+              </Text>
             </Flex>
           </Grid.Col>
         </Grid>
 
-        <Flex direction="column" ml={Math.min(26 * hierarchy, 300)}>
+        <Flex direction="column">
           <InlineSpoiler>
             <Text size={"sm"} c="gray.7">{block.preview}</Text>
             {(block.block_type === "pdf") ? (
               <>
                 <div className="flex text-gray-600 ">
                   <img src="/pdf-icon.png" alt="Space Icon" className="mr-1 w-5" />
-                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url.split('/').pop()}</Text>
+                  <Text size={"sm"} mt={2} c="gray.7">{block.file_url?.split('/').pop()}</Text>
                 </div>
               </>
             ) : null}
@@ -207,7 +209,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           </>
         ) : null} */}
       </Flex>
-      <Divider style={{ marginLeft: Math.min(26 * hierarchy, 300) }} mt={11} mb={6} variant="dashed" />
+      <Divider mt={11} mb={6} variant="dashed" />
 
     </div >
   );

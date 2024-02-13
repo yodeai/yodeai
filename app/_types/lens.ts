@@ -19,6 +19,7 @@ export type Lens = {
   user_to_access_type: UserToAccessType
   parent_id: number;
   access_type: string;
+  item_icons: ItemIcons;
 }
 
 export type LensLayout = {
@@ -26,7 +27,6 @@ export type LensLayout = {
   list_layout?: JSON | undefined;
   icon_layout?: Layouts | undefined;
 }
-
 
 export type Subspace = {
   lens_id: number
@@ -40,4 +40,18 @@ export type Subspace = {
   root: number
   parents: number[]
   access_type: string;
+}
+
+export type Whiteboard = {
+  whiteboard_id: number;
+  lens_id: number;
+  name: string;
+  data: JSON;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ItemIcons = {
+  [key: string]: string;
 }

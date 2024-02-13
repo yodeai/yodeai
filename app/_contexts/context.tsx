@@ -1,9 +1,12 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, setSortingOptionsToLocalStorage } from '@utils/localStorage';
+import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
+import { User } from '@supabase/auth-helpers-nextjs';
+import { useDisclosure } from "@mantine/hooks";
+import { usePathname } from 'next/navigation';
 
 // Update the type for the context value
 export type contextType = {
@@ -15,7 +18,7 @@ export type contextType = {
   reloadLenses: () => void;
   allLenses: { lens_id: number, name: string, access_type: string }[];
   // activeComponent can be "global", "lens", or "inbox"
-  activeComponent: string;
+  activeComponent: "global" | "lens" | "myblocks" | "inbox";
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
 
   pinnedLensesLoading: boolean;
@@ -31,12 +34,22 @@ export type contextType = {
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
+  subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
+  whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
+  userInsightsDisclosure: ReturnType<typeof useDisclosure>;
+  competitiveAnalysisDisclosure: ReturnType<typeof useDisclosure>;
+  iconItemDisclosure: ReturnType<typeof useDisclosure>;
+
   sortingOptions: {
     order: "asc" | "desc",
     sortBy: null | "name" | "createdAt" | "updatedAt"
   },
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
 
+  user?: User;
+
+  zoomLevel: number;
+  setZoomLevel: (zoomLevel: number, lensIdOrTitle: string) => void;
   onboardingStep: number;
   onboardingIsComplete: boolean;
   goToNextOnboardingStep: () => void;
@@ -70,11 +83,21 @@ const defaultValue: contextType = {
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
+  subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  competitiveAnalysisDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
     sortBy: null
   },
   setSortingOptions: () => { },
+  user: undefined,
+
+  zoomLevel: 100,
+  setZoomLevel: () => { }
 
   onboardingStep: 0,
   onboardingIsComplete: false,
@@ -95,6 +118,7 @@ export const useAppContext = () => {
 };
 
 export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+  const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -104,10 +128,18 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [allLenses, setAllLenses] = useState<{ lens_id: number, name: string, access_type: string; pinned: true }[]>([]);
   const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
   const [pinnedLenses, setPinnedLenses] = useState<Lens[]>([]);
-  const [activeComponent, setActiveComponent] = useState<"global" | "lens" | "myblocks" | "inbox">("global");
+  const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
+  const [user, setUser] = useState<User>();
+  const [zoomLevel, setZoomLevel] = useState(100);
+
+  const subspaceModalDisclosure = useDisclosure(false);
+  const whiteboardModelDisclosure = useDisclosure(false);
+  const userInsightsDisclosure = useDisclosure(false);
+  const competitiveAnalysisDisclosure = useDisclosure(false);
+  const iconItemDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(0);
@@ -156,54 +188,39 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       })
   }
 
+  const getUserId = async () => {
+    supabase.auth.getUser().then((user) => {
+      if (!user?.data?.user) return;
+      setUser(user.data.user);
+    })
+  }
+
   useEffect(() => {
     // Get the lensId from the URL
-    const path = window.location.pathname;
-    const parts = path.split('/');
-    // Check if the URL is '/inbox' and set isInbox to true
-    if (path === '/inbox') {
+    const parts = pathname.split('/');
+
+    if (pathname === '/') {
+      setActiveComponent("global");
+    }
+
+    if (pathname === '/inbox') {
       setActiveComponent("inbox");
     }
-    if (path === '/myblocks') {
+    if (pathname === '/myblocks') {
       setActiveComponent("myblocks");
     }
 
     else if (parts[1] === 'lens') {
       console.log("setting app context to be ", parts[parts.length - 1])
       setLensId(parts[parts.length - 1]);  // Set the lensId based on the URL
+      setActiveComponent("lens");
     }
 
     // Get all the lenses that this user has
     getAllLenses();
     getPinnedLenses();
-  }, []);
-
-  useEffect(() => {
-    let channel: RealtimeChannel;
-
-    (async () => {
-      const user_id = (await supabase.auth?.getUser())?.data?.user?.id;
-      if (!user_id) return;
-
-      console.log("Subscribing to pinned_lens changes...")
-
-      channel = supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_users', filter: `user_id=eq.${user_id}` }, getPinnedLenses)
-      if (lensId) channel = channel
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lens_published', filter: `lens_id=eq.${lensId}` }, getPinnedLenses)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens', filter: `lens_id=eq.${lensId}` }, getPinnedLenses)
-
-      channel.subscribe();
-    })();
-
-    return () => {
-      if (channel) {
-        channel.unsubscribe();
-        console.log("Unsubscribed from pinned_lens changes")
-      }
-    };
-  }, [lensId])
+    getUserId();
+  }, [pathname]);
 
   // This useEffect will run whenever lensId changes
   useEffect(() => {
@@ -233,6 +250,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     setReloadKey(prevKey => prevKey + 1);
   };
 
+  const setIconViewZoomLevel = (zoomLevel: number, lensIdOrTitle: string = "default") => {
+    setZoomLevel(zoomLevel);
+    setZoomLevelToLocalStorage(lensIdOrTitle, zoomLevel);
+  }
+
+  const memoizedZoomLevel = useMemo(() => {
+    return getZoomLevelFromLocalStorage(lensId || "default") || 100;
+  }, [zoomLevel, lensId])
+
   return (
     <context.Provider value={{
       draggingNewBlock, setDraggingNewBlock,
@@ -243,6 +269,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
+      subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
+      competitiveAnalysisDisclosure, iconItemDisclosure,
+      sortingOptions, setSortingOptions,
+      user,
+      zoomLevel: memoizedZoomLevel,
+      setZoomLevel: setIconViewZoomLevel,
+        
       sortingOptions, setSortingOptions,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
