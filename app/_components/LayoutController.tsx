@@ -4,7 +4,7 @@ import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
 import IconLayoutComponent from "./IconView/IconLayoutComponent";
 import React from "react";
 import { Flex, Text } from "@mantine/core";
-import ListLayoutComponent from "./ListLayoutComponent";
+import ListLayoutComponent from "./ListView/ListLayoutComponent";
 import { Tables } from "app/_types/supabase";
 
 export type ViewController = {
@@ -67,6 +67,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                 blocks={blocks}
                 subspaces={subspaces}
                 whiteboards={whiteboards}
+                spreadsheets={spreadsheets}
             />
         case "icon":
             return <div className="w-full h-full overflow-scroll">

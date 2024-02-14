@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Anchor, Text, Button, Flex } from '@mantine/core';
 import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold, PiCaretRightBold } from "react-icons/pi";
-import LoadingSkeleton from './LoadingSkeleton';
+import LoadingSkeleton from '../../LoadingSkeleton';
 import { useRouter } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
 import { Lens, Subspace } from 'app/_types/lens';

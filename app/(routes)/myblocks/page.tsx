@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/BlockComponent";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
-import BlockHeader from "@components/BlockHeader";
+import BlockHeader from "@components/ListView/Views/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 

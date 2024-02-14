@@ -1,7 +1,7 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/BlockComponent";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { Button, Flex, Box, Paper, Text } from "@mantine/core";
 import { FaPlus } from "react-icons/fa";
 import LensInviteComponent from "@components/LensInviteComponent";
-import BlockHeader from "@components/BlockHeader";
+import BlockHeader from "@components/ListView/Views/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 
