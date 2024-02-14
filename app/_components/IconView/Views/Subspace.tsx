@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef, useEffect }  from "react";
-import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { AiOutlineLoading } from "react-icons/ai";
 
-import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
+import { Text, Flex, Box, Textarea } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { Subspace, Lens } from "app/_types/lens";
@@ -13,6 +13,7 @@ import { useAppContext } from "@contexts/context";
 import ShareLensComponent from '../../ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import { FaRegTrashCan, FaLink } from "react-icons/fa6";
+import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
 
 type SubspaceIconItemProps = {
   icon: JSX.Element
@@ -99,7 +100,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
   {
     key: 'pin',
     color: "#228be6",
-    icon: isPinned ? <AiOutlinePushpin size={16} /> : <FaLink size={16} />,
+    icon: isPinned ? <RiUnpinFill size={16} /> : <RiPushpinFill size={16} />,
     title: isPinned ? "Unpin" : "Pin",
     onClick: isPinned ? onUnpinLens : onPinLens
   },
