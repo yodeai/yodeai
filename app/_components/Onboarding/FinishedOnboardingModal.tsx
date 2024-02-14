@@ -7,7 +7,7 @@ import { useDisclosure } from '@mantine/hooks';
 // Assuming you have your Supabase credentials set up
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-export default function FinishedOnboardingPopover() {
+export default function FinishedOnboardingModal() {
     const { user, onboardingStep, completeOnboarding } = useAppContext();
 
     const [opened, { open, close }] = useDisclosure(true);
@@ -18,19 +18,8 @@ export default function FinishedOnboardingPopover() {
         }
     }, [onboardingStep]);
 
-    const dismissOnboarding = async () => {
-        const { error } = await supabase
-            .from('onboarding_status')
-            .delete()
-            .match({ email: user.email });
-
-        if (!error) {
-            completeOnboarding(); // Update context to reflect that onboarding is completed
-        } else {
-            console.error('Failed to update onboarding status:', error.message);
-        }
-
-        close();
+    const dismissOnboarding = () => {
+        completeOnboarding();
     };
 
     return (

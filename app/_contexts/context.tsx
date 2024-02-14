@@ -142,8 +142,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const iconItemDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
-  const [onboardingStep, setOnboardingStep] = useState(0);
-  const [onboardingIsComplete, setOnboardingIsComplete] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(-1);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(true);
 
   const goToNextOnboardingStep = () => {
     setOnboardingStep((currentStep) => currentStep + 1);
@@ -155,11 +155,56 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     console.log("resetting onboarding step");
   };
 
-  const completeOnboarding = () => {
+  const completeOnboarding = async () => {
+    setOnboardingStep(-1);
     setOnboardingIsComplete(true);
-    // Update the database to indicate the user has completed onboarding
-    // (This function needs to be implemented based on your Supabase setup)
+    
+    const { error } = await supabase
+      .from('onboarding_list')
+      .delete()
+      .match({ uid: user.id });
+
+    if (!error) {
+      completeOnboarding();
+    } else {
+      console.error('Failed to update onboarding status:', error.message);
+    }
+
+    console.log("onboarding done!");
+
+    close();
   };
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('onboarding_list')
+          .select('*')
+          .eq('uid', user.id)
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          if (onboardingStep === -1) {
+            setOnboardingStep(0);
+            setOnboardingIsComplete(false);
+          }
+        } else {
+          setOnboardingStep(-1);
+          setOnboardingIsComplete(true);
+        }
+
+      } catch (error) {
+        console.error('Failed to check onboarding status:', error.message);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [user]);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),

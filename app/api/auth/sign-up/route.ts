@@ -11,17 +11,17 @@ async function isValidSignupCode(signupCode, supabase) {
     .select('id, used')
     .eq('code', signupCode)
     .single();
-  
+
   if (error) {
     console.error('Error fetching signup code:', error);
     return false;
   }
-  
+
   if (data && !data.used) {
     console.log("marking as used");
     console.log(data);
     // Mark code as used
-   await supabase
+    await supabase
       .from('signup_code')
       .update({ used: true })
       .eq('id', data.id);
@@ -31,6 +31,16 @@ async function isValidSignupCode(signupCode, supabase) {
   return false;
 }
 
+async function addToOnboardingList(uid, supabase) {
+  const { error } = await supabase
+    .from('onboarding_list')
+    .insert([{ uid: uid }]);
+
+  if (error) {
+    console.error('Error adding to onboarding list:', error);
+    throw new Error('Failed to add to onboarding list');
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = createServerComponentClient({ cookies });
@@ -51,7 +61,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -66,6 +76,13 @@ export async function POST(request: Request) {
         status: 301,
       }
     )
+  }
+
+  try {
+    // console.log(data);
+    await addToOnboardingList(data.user.id, supabase);
+  } catch (error) {
+    console.error('Signup succeeded, but failed to add to onboarding list:', error);
   }
 
   return NextResponse.redirect(

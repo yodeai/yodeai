@@ -13,7 +13,7 @@ import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
-import FinishedOnboardingPopover from "@components/Onboarding/FinishedOnboardingPopover";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -154,7 +154,7 @@ export default function Inbox() {
         <QuestionAnswerForm />
       </Flex> */}
       </Box>
-      <FinishedOnboardingPopover />
+      <FinishedOnboardingModal />
     </Flex >
   );
 }
