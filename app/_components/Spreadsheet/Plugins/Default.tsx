@@ -1,30 +1,21 @@
 
 
-import { useCallback, MutableRefObject, useMemo } from 'react';
-import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
-import { Tables } from 'app/_types/supabase';
-import { SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
+import { useCallback, useMemo } from 'react';
 import { buildDataTable } from '../utils'
+import { PluginInput, PluginOutput } from './index';
+import { SheetsDirective, SheetDirective } from '@syncfusion/ej2-react-spreadsheet';
 
-type PluginParams = {
-    $spreadsheet: MutableRefObject<SpreadsheetComponent>;
-    spreadsheet: Tables<"spreadsheet"> & {
-        dataSource: SpreadsheetDataSource;
-        plugin: SpreadsheetPluginParams
-    };
-}
-
-export default ({ $spreadsheet, spreadsheet }: PluginParams) => {
+export default ({ $spreadsheet, spreadsheet }: PluginInput): PluginOutput => {
     const { dataSource, plugin } = spreadsheet;
 
     const dataTable = useMemo(() => buildDataTable(dataSource), [dataSource]);
-    const onCreated = useCallback(() => {
-
-    }, []);
+    const document = <SheetsDirective>
+        <SheetDirective name='Default'>
+        </SheetDirective>
+    </SheetsDirective>
 
     return {
-        onCreated,
         dataTable,
-        isProtected: false
+        document
     };
 };

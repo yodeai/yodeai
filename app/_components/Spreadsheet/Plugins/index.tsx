@@ -1,6 +1,4 @@
-import {
-    MutableRefObject
-} from 'react';
+import { MutableRefObject } from 'react';
 
 import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
 import { SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
@@ -9,22 +7,27 @@ import { SpreadsheetDataTable } from 'app/_types/spreadsheet';
 import Default from './Default';
 import UserPainPointTracker from './UserPainPointTracker';
 
-export type PluginFunction = (
-    {
-        $spreadsheet,
-        spreadsheet,
-    }: {
-        $spreadsheet: MutableRefObject<SpreadsheetComponent>;
-        spreadsheet: Tables<"spreadsheet"> & {
-            dataSource: SpreadsheetDataSource;
-            plugin: SpreadsheetPluginParams;
-        };
-    }
-) => {
-    onCreated: () => void;
+export type PluginInput = {
+    $spreadsheet: MutableRefObject<SpreadsheetComponent>;
+    spreadsheet: Tables<"spreadsheet"> & {
+        dataSource: SpreadsheetDataSource;
+        plugin: SpreadsheetPluginParams
+    };
+}
+
+export type PluginOutput = {
+    document: JSX.Element;
     dataTable: SpreadsheetDataTable;
-    isProtected: boolean;
-};
+    onCreated?: () => void;
+    onSheetChanged?: () => void;
+    isProtected?: boolean;
+}
+
+export type PluginFunction = ({
+    $spreadsheet,
+    spreadsheet,
+}: PluginInput
+) => PluginOutput;
 
 const PluginMap: {
     [key: string]: PluginFunction

@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, useMemo, useRef } from 'react';
-
+import { useRef } from 'react';
 import { registerLicense } from '@syncfusion/ej2-base';
-import {
-    SpreadsheetComponent, SheetsDirective, SheetDirective, ColumnsDirective,
-    ColumnDirective, RangesDirective, RangeDirective
-} from '@syncfusion/ej2-react-spreadsheet';
+import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
 import './styles/styles.css';
 import './styles/bootstrap.css';
 import './styles/material3.css';
@@ -27,26 +23,23 @@ type SpreadsheetProps = {
 const Spreadsheet = ({ spreadsheet }: SpreadsheetProps) => {
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
-    const { onCreated, dataTable } = useSpreadsheetPlugin({ $spreadsheet, spreadsheet });
+
+    const {
+        onCreated = () => { },
+        onSheetChanged = () => { },
+        document,
+        isProtected = false
+    } = useSpreadsheetPlugin({ $spreadsheet, spreadsheet });
 
     return (
         <div className='root-spreadsheet control-pane'>
             <div className='control-section spreadsheet-control'>
                 <SpreadsheetComponent
-                    isProtected={true}
+                    beforeDataBound={onSheetChanged}
+                    isProtected={isProtected}
                     created={onCreated.bind(this)}
                     ref={$spreadsheet}>
-                    <SheetsDirective>
-                        <SheetDirective name='GDP'>
-                            <RangesDirective>
-                                <RangeDirective dataSource={dataTable.records} startCell='A1'></RangeDirective>
-                            </RangesDirective>
-                            {spreadsheet.plugin?.state?.status === "success" &&
-                                <ColumnsDirective>
-                                    {Array.from({ length: dataTable.columns.length }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 100} key={i} />)}
-                                </ColumnsDirective>}
-                        </SheetDirective>
-                    </SheetsDirective>
+                    {document}
                 </SpreadsheetComponent>
             </div>
         </div >
