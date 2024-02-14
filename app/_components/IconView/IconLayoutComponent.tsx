@@ -275,12 +275,18 @@ export default function IconLayoutComponent({
       // spreadsheet item
       key = `sp_${item.spreadsheet_id}`;
       item_id = item.spreadsheet_id
+      let icon = <fileTypeIcons.spreadsheet />;
+      if ((item.plugin as any)?.name && `plugin_${(item.plugin as any)?.name}` in fileTypeIcons) {
+        const spreadsheetPluginName = `plugin_${(item.plugin as any)?.name}`;
+        const fileTypeIcon = fileTypeIcons[spreadsheetPluginName];
+        icon = fileTypeIcon({})
+      }
       content = <SpreadsheetIconItem
         selected={selectedItems.includes(item_id)}
         handleSpreadsheetChangeName={handleSpreadsheetChangeName}
         handleSpreadsheetDelete={handleSpreadsheetDelete}
         unselectBlocks={() => setSelectedItems([])}
-        icon={<fileTypeIcons.spreadsheet />}
+        icon={icon}
         spreadsheet={item} />
     } else {
       // subspace item
