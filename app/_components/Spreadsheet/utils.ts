@@ -1,9 +1,6 @@
-import { SpreadsheetDataSource } from 'app/_types/spreadsheet';
+import { SpreadsheetDataSource, SpreadsheetDataTable } from 'app/_types/spreadsheet';
 
-export const buildDataTable = (dataSource: SpreadsheetDataSource): {
-    columns: string[],
-    records: Array<{ [key: string]: string; }>
-} => {
+export const buildDataTable = (dataSource: SpreadsheetDataSource): SpreadsheetDataTable => {
     const columns = dataSource.filter((cell, index) => cell[0] === 0).map(cell => cell[2]);
 
     const records = dataSource.reduce((acc, cell) => {
@@ -15,12 +12,8 @@ export const buildDataTable = (dataSource: SpreadsheetDataSource): {
         return acc;
     }, []).slice(1);
 
-    return {
-        columns,
-        records
-    };
+    return { columns, records };
 }
-
 
 export const convertIndexToColumnAlphabet = (index: number) => {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

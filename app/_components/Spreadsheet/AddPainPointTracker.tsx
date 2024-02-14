@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon } from '@mantine/core';
 import { FaTrashAlt, FaPlus } from 'react-icons/fa';
-import SpreadsheetData from '@components/Spreadsheet/chart.json'
 import apiClient from '@utils/apiClient';
 type AddPainPointTrackerProps = {
     lensId: number;
@@ -60,7 +59,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 body: JSON.stringify({
                     name,
                     lens_id: lensId,
-                    dataSource: SpreadsheetData,
+                    dataSource: [],
                     plugin: {
                         name: "pain-point-tracker",
                         data: {},

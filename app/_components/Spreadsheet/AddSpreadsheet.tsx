@@ -6,9 +6,6 @@ import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box } from '@mantine/
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
 
-import { SpreadsheetPluginParams } from 'app/_types/spreadsheet';
-import SpreadsheetData from '@components/Spreadsheet/chart.json'
-
 type AddSpreadsheetModalProps = {
     lensId: number;
     modalController: ReturnType<typeof useDisclosure>
