@@ -161,7 +161,7 @@ export default function Toolbar() {
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
-                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Points Tracker</Menu.Item>
+                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>

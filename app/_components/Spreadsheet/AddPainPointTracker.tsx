@@ -23,6 +23,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     const [name, updateName] = useState("")
     const [insightAreas, setInsightAreas] = useState<string[]>([]);
     const [numberOfPainPoints, setNumberOfPainPoints] = useState<number>(0); // New state for the number of pain points
+
     const handleNumberOfPainPointsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(event.target.value);
         setNumberOfPainPoints(value);
