@@ -38,6 +38,7 @@ export type contextType = {
   whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
   userInsightsDisclosure: ReturnType<typeof useDisclosure>;
   competitiveAnalysisDisclosure: ReturnType<typeof useDisclosure>;
+  jiraTicketExportDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -81,6 +82,7 @@ const defaultValue: contextType = {
   whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   competitiveAnalysisDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  jiraTicketExportDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -126,6 +128,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const whiteboardModelDisclosure = useDisclosure(false);
   const userInsightsDisclosure = useDisclosure(false);
   const competitiveAnalysisDisclosure = useDisclosure(false);
+  const jiraTicketExportDisclosure = useDisclosure(false);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -235,7 +238,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure,
+      subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,

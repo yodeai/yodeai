@@ -37,12 +37,13 @@ export default function Toolbar() {
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
-    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, lensId } = useAppContext();
+    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure, lensId } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
     const [whiteboardModalState, whiteboardModalController] = whiteboardModelDisclosure;
     const [userInsightsModalState, userInsightsModalController] = userInsightsDisclosure;
     const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
+    const [jiraTicketExportModalState, jiraTicketExportModalController] = jiraTicketExportDisclosure;
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
@@ -145,6 +146,7 @@ export default function Toolbar() {
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
+                                <Menu.Item onClick={jiraTicketExportModalController.open}>Export PRD to Jira</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>
