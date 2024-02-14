@@ -59,11 +59,18 @@ const Spreadsheet = ({ spreadsheet: { dataSource, plugin, spreadsheet_id } }: Sp
         $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
 
         $spreadsheet.current.cellFormat({
-            backgroundColor: '#e56590', color: '#fff', fontWeight: 'bold', textAlign: 'center'
+            backgroundColor: '#e56590',
+            color: '#fff',
+            textAlign: 'center',
+            fontFamily: 'Arial'
         }, `A1:${convertIndexToColumnAlphabet(columns.length - 1)}1`);
         $spreadsheet.current.cellFormat({
-            backgroundColor: '#ddd', color: '#000', fontWeight: 'bold', textAlign: 'center'
+            backgroundColor: '#ddd',
+            color: '#000',
+            fontWeight: 'bold',
+            fontFamily: 'Arial'
         }, `A2':A${table.records.length + 1}`);
+
         $spreadsheet.current.insertChart(chart);
         $spreadsheet.current.deselectChart();
 
