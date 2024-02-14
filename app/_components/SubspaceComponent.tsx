@@ -21,7 +21,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   const [childSubspaces, setChildSubspaces] = useState([]);
   const router = useRouter();
 
-  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
+  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding } = useAppContext();
 
   const handleSubspaceClick = () => {
     if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
@@ -80,7 +80,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
                   <>
                     <Text size="sm" mb={10}>Welcome to Yodeai! Here are a few <b>tips</b> to help you get familiar with your Yodeai workspace.</Text>
                     <Text size="sm" mb={10}>Click the <b>Getting Started</b> space to begin.</Text>
-                    <Text size="sm">Or, click here to dismiss tips.</Text>
+                    <Anchor onClick={() => completeOnboarding()} underline='always' c={"black"} size="sm">Or, click here to dismiss tips.</Anchor>
                   </>
                 }
               >
