@@ -8,7 +8,7 @@ import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
-import BlockHeader from "@components/ListView/Views/BlockHeader";
+import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 
@@ -118,7 +118,7 @@ export default function MyBlocks() {
 
       {!loading && sortedBlocks.length > 0 &&
         <Box p={16}>
-          <BlockHeader />
+          <BlockColumnHeader />
           {sortedBlocks.map((block) =>
             <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
           )}
