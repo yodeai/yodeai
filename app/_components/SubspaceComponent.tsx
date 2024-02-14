@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Anchor, Text, Button, Flex, Skeleton } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Anchor, Text, Button, Flex } from '@mantine/core';
 import BlockComponent from './BlockComponent';
-import { PiCaretUpBold, PiCaretDownBold } from "react-icons/pi";
+import { PiCaretUpBold, PiCaretDownBold, PiCaretRightBold } from "react-icons/pi";
 import LoadingSkeleton from './LoadingSkeleton';
 import { useRouter } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
@@ -53,10 +53,9 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
     <div style={{ marginTop: 10 }} className="flex flex-col gap-1">
       <div className="flex items-center">
         <Button p={0} h={24} mr={4} color='gray' variant='subtle' size="xs" onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ?
-            <PiCaretUpBold size={18} />
-            :
-            <PiCaretDownBold size={18} />
+          {isExpanded
+            ? <PiCaretDownBold size={18} />
+            : <PiCaretRightBold size={18} />
           }
         </Button>
         <Anchor size="xs" underline="never" onClick={handleSubspaceClick}>
