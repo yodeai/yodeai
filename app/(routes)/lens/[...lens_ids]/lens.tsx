@@ -40,7 +40,7 @@ export default function Lens(props: LensProps) {
 
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
-  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
+  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
   const $settingsItem = useRef<
@@ -63,7 +63,7 @@ export default function Lens(props: LensProps) {
 
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
-      setLayoutViewToLocalStorage("default_layout", "block")
+      setLayoutViewToLocalStorage("default_layout", "icon")
     }
   }, [])
 
