@@ -2,7 +2,6 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Spreadsheet from '@components/Spreadsheet';
-import Data from '@components/Spreadsheet/chart.json';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
