@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
-import { FaBox, FaBuffer, FaBug, FaChartArea, FaCog, FaCookie, FaExpand, FaFolder, FaStar } from "react-icons/fa";
+import { FaBox, FaBuffer, FaBug, FaChartArea, FaCog, FaCookie, FaExpand, FaFileExcel, FaFolder, FaStar } from "react-icons/fa";
 import {
     FaCube, FaFileLines, FaFilePdf, FaGoogleDrive,
-    FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece
+    FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece, FaChartLine
 } from "react-icons/fa6";
 import { IconBaseProps } from "react-icons/lib";
 
@@ -20,14 +20,16 @@ const icons: {
     note: (props) => <FaFileLines {...defaultProps} {...props} />,
     whiteboard: (props) => <FaChalkboard {...defaultProps} {...props} />,
     subspace: (props) => <FaCube {...defaultProps} {...props} />,
-    google_doc: (props) => <FaGoogleDrive {...defaultProps} color="#0f9d58"  {...props} />,
+    google_doc: (props) => <FaGoogleDrive {...defaultProps} color="#0f9d58" {...props} />,
+    spreadsheet: (props) => <FaFileExcel {...defaultProps} {...props} />,
     "plugin_user-insight": (props) => <FaUsersGear {...defaultProps} {...props} />,
     "plugin_competitive-analysis": (props) => <FaMagnifyingGlassChart {...defaultProps} {...props} />,
     "plugin_default": (props) => <FaPuzzlePiece {...defaultProps} {...props} />,
+    "plugin_pain-point-tracker": (props) => <FaChartLine {...defaultProps} {...props} />,
 
     // optional icons
 
-    star: (props) => <FaStar {...defaultProps} {...props} />, 
+    star: (props) => <FaStar {...defaultProps} {...props} />,
     box: (props) => <FaBox {...defaultProps} {...props} />,
     cube: (props) => <FaCube {...defaultProps} {...props} />,
     bug: (props) => <FaBug {...defaultProps} {...props} />,

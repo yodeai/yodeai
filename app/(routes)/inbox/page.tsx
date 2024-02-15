@@ -1,7 +1,7 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/BlockComponent";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';

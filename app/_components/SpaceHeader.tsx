@@ -11,6 +11,8 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
+import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
 import IconItemSettings from "./IconView/IconSettings";
 
 type SpaceHeaderProps = {
@@ -36,7 +38,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
 
     const {
         subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
-        competitiveAnalysisDisclosure, iconItemDisclosure,
+        spreadsheetModalDisclosure, competitiveAnalysisDisclosure, iconItemDisclosure,
+        painPointTrackerModalDisclosure,
         sortingOptions, setSortingOptions, zoomLevel, setZoomLevel
     } = useAppContext();
 
@@ -137,6 +140,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={-1} accessType={"owner"} />
                 <AddUserInsight modalController={userInsightsDisclosure} lensId={-1} accessType={"owner"} />
                 <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={-1} accessType={"owner"} />
+                <AddSpreadsheetModal modalController={spreadsheetModalDisclosure} lensId={-1} accessType={"owner"} />
+                <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>
