@@ -237,7 +237,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                         </Button>
                     </Tooltip>
-                    <HoverCard width={320} shadow="md" position="left">
+                    <HoverCard width={320} shadow="md" position="bottom-end">
                         <HoverCard.Target>
                             <Button
                                 size="sm"
@@ -270,8 +270,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </> || ""}
                 {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
             </Box>
-
-        </Flex >
+        </Flex>
 
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
