@@ -300,7 +300,7 @@ export default function IconLayoutComponent({
         icon={
           (item.access_type === "owner" || !item?.access_type)
             ? <fileTypeIcons.subspace color="#fd7e14" />
-            : <fileTypeIcons.subspace color="#d92e02" />
+            : <fileTypeIcons.shared_subspace color="#fd7e14" />
         } subspace={item} />
     }
 

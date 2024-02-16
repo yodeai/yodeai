@@ -5,6 +5,7 @@ import {
     FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece, FaChartLine
 } from "react-icons/fa6";
 import { IconBaseProps } from "react-icons/lib";
+import { SharedSubspace } from "./custom";
 
 const defaultProps = {
     color: "#888888",
@@ -22,13 +23,17 @@ const icons: {
     subspace: (props) => <FaCube {...defaultProps} {...props} />,
     google_doc: (props) => <FaGoogleDrive {...defaultProps} color="#0f9d58" {...props} />,
     spreadsheet: (props) => <FaFileExcel {...defaultProps} {...props} />,
+
+    // plugin icons
     "plugin_user-insight": (props) => <FaUsersGear {...defaultProps} {...props} />,
     "plugin_competitive-analysis": (props) => <FaMagnifyingGlassChart {...defaultProps} {...props} />,
     "plugin_default": (props) => <FaPuzzlePiece {...defaultProps} {...props} />,
     "plugin_pain-point-tracker": (props) => <FaChartLine {...defaultProps} {...props} />,
 
-    // optional icons
+    // custom icons
+    shared_subspace: (props) => <SharedSubspace transform="scale(0.75), translate(0, 10)"  {...props} />,
 
+    // optional icons
     star: (props) => <FaStar {...defaultProps} {...props} />,
     box: (props) => <FaBox {...defaultProps} {...props} />,
     cube: (props) => <FaCube {...defaultProps} {...props} />,
