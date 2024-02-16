@@ -20,6 +20,7 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import JiraTicketExport from "./JiraTicketExport";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -60,7 +61,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
+        userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure, sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel
     } = useAppContext();
 
@@ -270,6 +271,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <JiraTicketExport modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
