@@ -13,7 +13,6 @@ import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
 import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
-import IconItemSettings from "./IconView/IconSettings";
 
 type SpaceHeaderProps = {
     title: string;

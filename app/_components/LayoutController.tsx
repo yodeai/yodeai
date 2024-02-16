@@ -1,10 +1,10 @@
 
 import { Block } from "app/_types/block";
 import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
-import IconLayoutComponent from "./IconView/IconLayoutComponent";
+import IconLayoutComponent from "./IconView";
 import React from "react";
 import { Flex, Text } from "@mantine/core";
-import ListLayoutComponent from "./ListView/ListLayoutComponent";
+import ListLayoutComponent from "./ListView";
 import { Tables } from "app/_types/supabase";
 
 export type ViewController = {
