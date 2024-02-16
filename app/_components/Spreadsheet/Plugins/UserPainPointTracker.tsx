@@ -6,7 +6,7 @@ import { convertIndexToColumnAlphabet } from '../utils';
 import { buildDataTable } from '../utils'
 import { PluginInput, PluginOutput } from './index';
 import {
-    SpreadsheetComponent, SheetsDirective, ColumnsDirective, ChartModel,
+    SheetsDirective, ColumnsDirective, ChartModel,
     ColumnDirective, RangesDirective, RangeDirective
 } from '@syncfusion/ej2-react-spreadsheet';
 

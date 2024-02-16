@@ -1,11 +1,11 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { FaBox, FaBuffer, FaBug, FaChartArea, FaCog, FaCookie, FaExpand, FaFileExcel, FaFolder, FaStar } from "react-icons/fa";
 import {
     FaCube, FaFileLines, FaFilePdf, FaGoogleDrive,
     FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece, FaChartLine
 } from "react-icons/fa6";
 import { IconBaseProps } from "react-icons/lib";
-import { SharedSubspace } from "./custom";
+import { SharedSubspace } from "./custom/index";
 
 const defaultProps = {
     color: "#888888",

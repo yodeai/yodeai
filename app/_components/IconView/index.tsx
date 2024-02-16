@@ -1,14 +1,11 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Block } from "app/_types/block";
-import { FaCube, FaFileLines, FaFilePdf, FaGoogleDrive, FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece } from "react-icons/fa6";
 
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
-import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
-import { FaFileExcel } from "react-icons/fa";
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
 
@@ -21,11 +18,12 @@ import {
   SubspaceIconItem,
   WhiteboardIconItem,
   SpreadsheetIconItem
-} from "./Views";
+} from "./_views/index";
 
 import { ViewController } from "../LayoutController";
-import fileTypeIcons from "./icons";
+import fileTypeIcons from "./_icons/index";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
+import { useProgressRouter } from "@utils/nprogress";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -61,7 +59,7 @@ export default function IconLayoutComponent({
   handleSpreadsheetDelete,
   handleItemSettings
 }: IconLayoutComponentProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
   const $gridContainer = useRef<HTMLDivElement>(null);
@@ -150,14 +148,21 @@ export default function IconLayoutComponent({
     if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
 
     if (itemType === "ss") {
-      if (window.location.pathname === "/") {
-        return router.push(`/lens/${itemId}`);
-      }
+      if (window.location.pathname === "/") return router.push(`/lens/${itemId}`);
       return router.push(`${window.location.pathname}/${itemId}`);
     }
 
     if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
+  }
 
+  const onHoverItem = (itemType: IconViewItemChars, itemId: number) => {
+    if (itemType === "bl") return router.prefetch(`/block/${itemId}`);
+    if (itemType === "wb") return router.prefetch(`/whiteboard/${itemId}`);
+    if (itemType === "ss") {
+      if (window.location.pathname === "/") return router.prefetch(`/lens/${itemId}`);
+      return router.prefetch(`${window.location.pathname}/${itemId}`);
+    }
+    if (itemType === "sp") return router.prefetch(`/spreadsheet/${itemId}`);
   }
 
   const checkIfClickable = (itemType: IconViewItemChars, itemId: number, item: IconViewItemType) => {
@@ -305,6 +310,7 @@ export default function IconLayoutComponent({
     }
 
     return <div key={key} data-grid={dataGrid}
+      onMouseEnter={() => onHoverItem(key.split("_")[0] as IconViewItemChars, item_id)}
       className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {content}
     </div>

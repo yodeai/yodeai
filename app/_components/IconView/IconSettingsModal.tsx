@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Modal, Text, LoadingOverlay, Radio, Group, CheckIcon, Select, Checkbox } from '@mantine/core';
+import { Button, Flex, Modal, Text, LoadingOverlay, Radio, Group, Checkbox } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import toast from 'react-hot-toast';
 
 import { cn } from '@utils/style';
-import fileTypeIcons from './icons';
+import fileTypeIcons from './_icons';
 import { Tables } from 'app/_types/supabase';
 import { Lens, Subspace } from 'app/_types/lens';
 import load from '@lib/load';
