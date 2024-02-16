@@ -177,13 +177,13 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </Box>
 
                 <Menu.Dropdown>
-                    <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
+                    <Menu.Item disabled={["owner", "editor"].includes(accessType) === false} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                     <Menu.Divider />
                     <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
                         {isPinned ? "Unpin" : "Pin"} this space
                     </Menu.Item>
-                    <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                    <Menu.Item disabled={["owner", "editor"].includes(accessType) === false} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                 </Menu.Dropdown >
             </Menu>
 
