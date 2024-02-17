@@ -19,6 +19,7 @@ export type Lens = {
   user_to_access_type: UserToAccessType
   parent_id: number;
   access_type: string;
+  item_icons: ItemIcons;
 }
 
 export type LensLayout = {
@@ -49,4 +50,8 @@ export type Whiteboard = {
   owner_id: string;
   created_at: string;
   updated_at: string;
+}
+
+export type ItemIcons = {
+  [key: string]: string;
 }

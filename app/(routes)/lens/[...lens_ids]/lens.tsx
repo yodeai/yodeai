@@ -1,7 +1,7 @@
 "use client";
 
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
@@ -12,6 +12,7 @@ import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { Box, Flex } from "@mantine/core";
+import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 type LensProps = {
   lens_id: number;
@@ -23,6 +24,7 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
+import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheet';
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -32,18 +34,25 @@ export default function Lens(props: LensProps) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
+  const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
+  const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
-  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
+  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
+
+  const $settingsItem = useRef<
+    Lens | Subspace | Tables<"block"> | Tables<"whiteboard">
+  >(null);
 
   const router = useRouter();
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
-    accessType, setAccessType, sortingOptions
+    accessType, setAccessType, sortingOptions,
+    iconItemDisclosure
   } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
@@ -54,9 +63,8 @@ export default function Lens(props: LensProps) {
 
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
-      setLayoutViewToLocalStorage("default_layout", "block")
+      setLayoutViewToLocalStorage("default_layout", "icon")
     }
-
   }, [])
 
   useEffect(() => {
@@ -66,7 +74,8 @@ export default function Lens(props: LensProps) {
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
         getLensWhiteboards(lens_id),
-        getLensLayout(lens_id)
+        getLensLayout(lens_id),
+        getLensSpreadsheets(lens_id)
       ])
         .then(() => {
           setLoading(false);
@@ -135,6 +144,17 @@ export default function Lens(props: LensProps) {
       })
   }
 
+  const getLensSpreadsheets = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getSpreadsheets`)
+      .then((response) => response.json())
+      .then((data) => {
+        setSpreadsheets(data?.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching spreadsheets:', error);
+      })
+  }
+
   const getLensBlocks = async (lensId: number) => {
     let googleUserId = await getUserInfo();
     return fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`)
@@ -161,7 +181,8 @@ export default function Lens(props: LensProps) {
           block_layout: res?.data?.block_layout,
           icon_layout: res?.data?.icon_layout,
           list_layout: res?.data?.list_layout
-        })
+        });
+        setItemIcons(res?.data?.item_icons || {});
       })
   }
 
@@ -241,6 +262,7 @@ export default function Lens(props: LensProps) {
     }
   }, []);
 
+
   const deleteWhiteboard = useCallback((payload) => {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
@@ -260,6 +282,40 @@ export default function Lens(props: LensProps) {
     );
   }, []);
 
+  const addSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["new"]["spreadsheet_id"]
+    console.log("Added a spreadsheet", spreadsheet_id);
+    let newSpreadsheet = payload["new"]
+    if (!spreadsheets.some(item => item.spreadsheet_id === spreadsheet_id)) {
+      setSpreadsheets(prevSpreadsheets => [newSpreadsheet, ...prevSpreadsheets]);
+    }
+  }, []);
+
+  const deleteSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["old"]["spreadsheet_id"]
+    console.log("Deleting spreadsheet", spreadsheet_id);
+    setSpreadsheets((prevSpreadsheets) => prevSpreadsheets.filter((spreadsheet) => spreadsheet.spreadsheet_id !== spreadsheet_id))
+  }, []);
+
+  const updateSpreadsheet = useCallback((payload) => {
+    let spreadsheet_id = payload["new"]["spreadsheet_id"]
+    console.log("Updating spreadsheet", spreadsheet_id);
+    setSpreadsheets(prevSpreadsheets =>
+      prevSpreadsheets.map(item => {
+        if (item.spreadsheet_id === spreadsheet_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
+
+  const updateLensLayout = useCallback((payload) => {
+    console.log(payload)
+    setItemIcons(payload["new"]?.item_icons || {});
+  }, []);
+
+
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
     const channel = supabase
@@ -274,6 +330,10 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, addWhiteBoard)
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}` }, deleteWhiteboard)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whiteboard', filter: `lens_id=eq.${lens_id}`, }, updateWhiteboard)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}` }, addSpreadsheet)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}` }, deleteSpreadsheet)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}`, }, updateSpreadsheet)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_layout', filter: `lens_id=eq.${lens_id}`, }, updateLensLayout)
       .subscribe();
 
     return () => {
@@ -425,6 +485,33 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleSpreadsheetChangeName = async (spreadsheet_id: number, newSpreadsheetName: string) => {
+    const updatePromise = fetch(`/api/spreadsheet/${spreadsheet_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newSpreadsheetName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating spreadsheet name...",
+      success: "Spreadsheet name updated!",
+      error: "Failed to update spreadsheet name.",
+    });
+  }
+
+  const handleSpreadsheetDelete = async (spreadsheet_id: number) => {
+    const deletePromise = fetch(`/api/spreadsheet/${spreadsheet_id}`, { method: "DELETE" });
+    return load(deletePromise, {
+      loading: "Deleting spreadsheet...",
+      success: "Spreadsheet deleted!",
+      error: "Failed to delete spreadsheet.",
+    });
+  }
+
+  const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
+    $settingsItem.current = item;
+    iconItemDisclosure[1].open();
+  }
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -493,6 +580,26 @@ export default function Lens(props: LensProps) {
     return _sorted_whiteboards;
   }, [sortingOptions, whiteboards])
 
+  const sortedSpreadsheets = useMemo(() => {
+    if (sortingOptions.sortBy === null) return spreadsheets;
+
+    let _sorted_spreadsheets = [...spreadsheets].sort((a, b) => {
+      if (sortingOptions.sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortingOptions.sortBy === "createdAt") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortingOptions.sortBy === "updatedAt") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    })
+
+    if (sortingOptions.order === "desc") {
+      return _sorted_spreadsheets.reverse();
+    }
+
+    return _sorted_spreadsheets;
+  }, [sortingOptions, spreadsheets])
+
   return (
     <Flex direction="column" pt={0} h="100%">
       <DynamicSpaceHeader
@@ -519,13 +626,23 @@ export default function Lens(props: LensProps) {
           handleLensDelete={handleLensDelete}
           handleWhiteboardDelete={handleWhiteboardDelete}
           handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
           onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
           layout={layoutData}
           blocks={sortedBlocks}
           subspaces={sortedSubspaces}
           whiteboards={sortedWhiteboards}
+          spreadsheets={sortedSpreadsheets}
+          itemIcons={itemIcons}
           layoutView={selectedLayoutType} />}
       </Box>
-    </Flex >
+      <IconItemSettingsModal
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
+    </Flex>
   );
 }

@@ -180,11 +180,10 @@ export default function LensChat() {
                     <Flex align="center" direction="row">
                         <Text size="sm">
                             {lensId && lensName
-                                ? 'Context: ' + lensName
-                                : "Ask a question "
-                            }
+                                ? 'Chat: ' + lensName
+                                : "Chat"}
                         </Text>
-                        <InfoPopover infoText={"Ask a question and Yodeai will respond to it using the data in your blocks."} />
+                        <InfoPopover infoText={`This chat is for communicating with other users on the "${lensName}" space.`} />
                     </Flex>
                 </ToolbarHeader>
 
