@@ -13,7 +13,6 @@ import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
 import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
-import IconItemSettings from "./IconView/IconSettings";
 
 type SpaceHeaderProps = {
     title: string;
@@ -100,7 +99,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                     </Button>
                 </Tooltip> || ""}
-                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="left">
+                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="bottom-end">
                     <HoverCard.Target>
                         <Button
                             size="sm"

@@ -1,19 +1,17 @@
 "use client";
-import formatDate from "@lib/format-date";
-import clsx from "clsx";
-import { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState } from "react";
 import { Block } from "app/_types/block";
-import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
+import { FaArchive, FaFile } from "react-icons/fa";
 import BlockLenses from "@components/Block/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
-import { Divider, Spoiler, Text, Button, Tooltip, Flex, Anchor, ActionIcon, Grid } from "@mantine/core";
+import { Divider, Text, Tooltip, Flex, ActionIcon, Grid } from "@mantine/core";
 import InlineSpoiler from "../../InlineSpoiler";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@utils/index";
+import Link from "next/link";
 
 interface BlockProps {
   compact?: boolean;
@@ -23,8 +21,7 @@ interface BlockProps {
   hierarchy?: number;
   googleUserId?: string;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId=""}: BlockProps) {
-  const router = useRouter();
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId = "" }: BlockProps) {
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
 
@@ -58,14 +55,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       });
   }
 
-  const firstTwoLinesComplete = block.content?.split('\n').slice(0, 2).join('\n');
-  const firstTwoLines = firstTwoLinesComplete?.length < 300 ? firstTwoLinesComplete : firstTwoLinesComplete?.slice(0, 300);
-  const [expanded, setExpanded] = useState(false);
-
-  const toggleExpand = () => {
-    setExpanded(!expanded);
-  };
-
   // const previewText = block.preview ? (expanded ? block.preview : `${block.preview.slice(0, 80)}...`) : (firstTwoLines ? (expanded ? firstTwoLines : firstTwoLines.slice(0, 80)) : "");
   // useEffect(()=>{
   //   const supabase = createClientComponentClient()
@@ -84,9 +73,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
   // }, [])
 
-  const onClickBlock = () => {
-    router.push(`/block/${block.block_id}`)
-  }
 
   return (
     <div>
@@ -95,13 +81,9 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
               <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2 }} color="gray" />
-              <Anchor
-                size={"xs"}
-                underline="never"
-                onClick={onClickBlock}
-              >
+              <Link href={`/block/${block.block_id}`} className="no-underline" prefetch>
                 <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
-              </Anchor>
+              </Link>
               {hasArchiveButton && (
                 <Flex ml={2}>
                   <Tooltip label="Archive this block">

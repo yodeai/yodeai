@@ -12,7 +12,7 @@ import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/LayoutController";
 import toast from "react-hot-toast";
 import { Box, Flex } from "@mantine/core";
-import IconItemSettings from "app/_components/IconView/IconSettings";
+import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 type LensProps = {
   lens_id: number;
@@ -638,7 +638,7 @@ export default function Lens(props: LensProps) {
           itemIcons={itemIcons}
           layoutView={selectedLayoutType} />}
       </Box>
-      <IconItemSettings
+      <IconItemSettingsModal
         item_icons={itemIcons}
         item={$settingsItem.current}
         lens_id={lens_id}

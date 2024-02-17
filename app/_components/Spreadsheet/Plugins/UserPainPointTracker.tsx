@@ -6,7 +6,7 @@ import { convertIndexToColumnAlphabet } from '../utils';
 import { buildDataTable } from '../utils'
 import { PluginInput, PluginOutput } from './index';
 import {
-    SpreadsheetComponent, SheetsDirective, ColumnsDirective, ChartModel,
+    SheetsDirective, ColumnsDirective, ChartModel,
     ColumnDirective, RangesDirective, RangeDirective
 } from '@syncfusion/ej2-react-spreadsheet';
 
@@ -36,7 +36,16 @@ export default function ({ $spreadsheet, spreadsheet }: PluginInput): PluginOutp
             range: `A1:${convertIndexToColumnAlphabet(dataTable.columns.length-1)}${dataTable.records.length + 1}`,
             width: dataTable.columns.length * 101,
             top: ((dataTable.records.length + 1) * 20) + 20,
-            left: 230
+            left: 230,
+            markerSettings: {
+                shape: "Circle",
+                size: 5,
+                visible: true,
+                border: {
+                    width: 4
+                }
+            }
+            
         }]
     }, [dataTable]);
 

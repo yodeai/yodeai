@@ -2,23 +2,22 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Modal, Text, LoadingOverlay, Radio, Group, CheckIcon, Select, Checkbox } from '@mantine/core';
+import { Button, Flex, Modal, Text, LoadingOverlay, Radio, Group, Checkbox } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import toast from 'react-hot-toast';
 
 import { cn } from '@utils/style';
-import fileTypeIcons from './icons';
+import fileTypeIcons from './_icons';
 import { Tables } from 'app/_types/supabase';
 import { Lens, Subspace } from 'app/_types/lens';
 import load from '@lib/load';
 
-type IconItemSettingProps = {
+type IconItemSettingsModalProps = {
     item_icons: Lens["item_icons"]
     lens_id: number;
     modalController: ReturnType<typeof useDisclosure>;
     item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">;
 }
-export default function IconItemSettings({ lens_id, item_icons = {}, modalController, item }: IconItemSettingProps) {
+export default function IconItemSettingsModal({ lens_id, item_icons = {}, modalController, item }: IconItemSettingsModalProps) {
     const [loading, setLoading] = useState(false);
     const [opened, { close }] = modalController;
     const [selectedIcon, setSelectedIcon] = useState("");
@@ -40,7 +39,7 @@ export default function IconItemSettings({ lens_id, item_icons = {}, modalContro
         return null;
     }, [item]);
 
-    const getDefaultIcon = (item: IconItemSettingProps["item"]) => {
+    const getDefaultIcon = (item: IconItemSettingsModalProps["item"]) => {
         if ("whiteboard_id" in item) {
             if (item.whiteboard_id in item_icons) {
                 return item_icons[item.whiteboard_id];

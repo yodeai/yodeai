@@ -95,6 +95,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
     color: "#228be6",
     icon: <FaShare size={14} />,
     title: "Share",
+    disabled: ["owner"].includes(subspace.access_type || accessType) === false,
     onClick: () => shareModalController.open()
   },
   {
