@@ -107,7 +107,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 onClick={onClickBlock}
               >
                 
-                {(block.title === "About Blocks and Spaces" && onboardingStep === 1 && !onboardingIsComplete)
+                {((block.title === "About Pages and Spaces" || block.title === "About Blocks and Spaces") && onboardingStep === 1 && !onboardingIsComplete)
                   ?
                   <OnboardingPopover
                     width={400}
@@ -115,8 +115,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                     position="right-start"
                     popoverContent={
                       <>
-                        <Text size="sm" mb={10}>This is a <b>block</b>, a unit of information in Yodeai.</Text>
-                        <Text size="sm">Click <b>About blocks and spaces.</b></Text>
+                        <Text size="sm" mb={10}>This is a <b>page</b>, a unit of information in Yodeai.</Text>
+                        <Text size="sm">Click <b>About pages and spaces.</b></Text>
                       </>
                     }
                   >

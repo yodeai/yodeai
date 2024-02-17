@@ -13,7 +13,7 @@ export default function FinishedOnboardingModal() {
     const [opened, { open, close }] = useDisclosure(true);
 
     useEffect(() => {
-        if (onboardingStep === 5) {
+        if (onboardingStep === 6) {
             open();
         }
     }, [onboardingStep]);
@@ -24,7 +24,7 @@ export default function FinishedOnboardingModal() {
 
     return (
         <Modal
-            opened={opened && onboardingStep === 5}
+            opened={opened && onboardingStep === 6}
             onClose={dismissOnboarding}
             centered
             withCloseButton={true}
@@ -39,7 +39,7 @@ export default function FinishedOnboardingModal() {
         >
             <Flex direction="column" align="center" p="sm" pb={0}>
                 <Image src="/yodeai.png" alt="yodeai logo" h={50} w={50} mt={10} style={{ zIndex: 10000 }} />
-                <Text mb="md" mt={20}>You're all set! Organize and use your Yodeai workspace however feels best to you. To revisit any information about how Yodeai works, check out the <b>Getting Started</b> space.</Text>
+                <Text mb="md" mt={20} ta={"center"}>You're all set! Organize and use your Yodeai workspace however feels best to you.<br /><b>Welcome to Yodeai!</b></Text>
                 {/* <Button onClick={dismissOnboarding}>Finish onboarding</Button> */}
             </Flex>
         </Modal>

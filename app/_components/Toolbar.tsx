@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
+import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu, Text } from '@mantine/core';
-import { FaAngleRight, FaArrowCircleRight, FaInfo, FaPlus } from 'react-icons/fa';
+import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
@@ -46,6 +46,15 @@ export default function Toolbar() {
     const [userInsightsModalState, userInsightsModalController] = userInsightsDisclosure;
     const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
 
+    const [menuOpened, setMenuOpened] = useState(false);
+
+    const handlePlusIconClick = () => {
+        if (onboardingStep === 3 && !onboardingIsComplete) {
+            goToNextOnboardingStep();
+        }
+        setMenuOpened(true); // Open the menu programmatically
+    };
+
     const closeComponent = () => {
         setActiveToolbarComponent(null);
     }
@@ -67,32 +76,32 @@ export default function Toolbar() {
     }>(() => {
         if (lensId && ["owner", "editor"].includes(accessType) === false) {
             return {
-                block: "Your access level does not allow you to add new blocks on this space.",
-                whiteboard: "Your access level does not allow you to add new whiteboards on this space.",
-                subspace: "Your access level does not allow you to add new subspaces on this space.",
-                plugin: "Your access level does not allow you to add new plugins on this space."
+                block: "Only editors and owners can add new pages to this space.",
+                whiteboard: "Only editors and owners can add new whiteboards to this space.",
+                subspace: "Only editors and owners can add new subspaces to this space.",
+                plugin: "Only editors and owners can add new plugins to this space."
             }
         }
         if (["/"].includes(pathname)) {
             return {
-                block: "It is not allowed to add new blocks on the home page.",
-                whiteboard: "It is not allowed to add new whiteboards on the home page.",
-                plugin: "Your access level does not allow you to add new plugins on this space."
+                block: "Cannot add new pages to the home page.",
+                whiteboard: "Cannot add new whiteboards to the home page.",
+                plugin: "Cannot add new plugins to this space."
             }
         }
         if (["/myblocks"].includes(pathname)) {
             return {
-                subspace: "It is not allowed to add new subspaces on the My Blocks page.",
-                whiteboard: "It is not allowed to add new whiteboards on the My Blocks page.",
-                plugin: "Your access level does not allow you to add new plugins on this space."
+                subspace: "Cannot add new subspaces to My Pages.",
+                whiteboard: "Cannot add new whiteboards to My Pages.",
+                plugin: "Cannot add new plugins to this space."
             }
         }
         if (["/inbox"].includes(pathname)) {
             return {
-                block: "It is not allowed to add new blocks on the Inbox page.",
-                whiteboard: "It is not allowed to add new whiteboards on the Inbox page.",
-                subspace: "It is not allowed to add new subspaces on the Inbox page.",
-                plugin: "Your access level does not allow you to add new plugins on this space."
+                block: "Cannot add new pages to the Inbox.",
+                whiteboard: "Cannot add new whiteboards to the Inbox.",
+                subspace: "Cannot add new subspaces to the Inbox.",
+                plugin: "Cannot add new plugins to this space."
             }
         }
 
@@ -116,7 +125,7 @@ export default function Toolbar() {
                             position="left-start"
                             popoverContent={
                                 <>
-                                    <Text size="sm" mb={10}>Within a block or space, you can talk to the Yodeai agent.</Text>
+                                    <Text size="sm" mb={10}>Within a page or space, you can talk to the Yodeai agent.</Text>
                                     <Text size="sm">Click the <b>Yodeai icon.</b></Text>
                                 </>
                             }
@@ -143,12 +152,39 @@ export default function Toolbar() {
                         </Button>
                     }
                 </Box>
-                <Menu position="left">
+                <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
                     <Box>
                         <Menu.Target>
-                            <Button variant="subtle" c="gray.6">
-                                <FaPlus size={18} />
-                            </Button>
+                            {(onboardingStep === 3 && !onboardingIsComplete)
+                                ?
+                                <OnboardingPopover
+                                    width={400}
+                                    stepToShow={3}
+                                    position="left-start"
+                                    popoverContent={
+                                        <>
+                                            <Text size="sm" mb={10}>Yodeai provides a variety of widgets tailored for specific spaces. Each widget's functionality is designed to complement the content of the open space, ensuring a seamless integration.</Text>
+                                            <Text size="sm">Click the <b>+ icon.</b></Text>
+                                        </>
+                                    }
+                                >
+                                    <Button
+                                        variant="subtle"
+                                        c="gray.6"
+                                        onClick={handlePlusIconClick}
+                                    >
+                                        <FaPlus size={18} />
+                                    </Button>
+                                </OnboardingPopover>
+                                :
+                                <Button
+                                    variant="subtle"
+                                    c="gray.6"
+                                    onClick={handlePlusIconClick}
+                                >
+                                    <FaPlus size={18} />
+                                </Button>
+                            }
                         </Menu.Target>
                     </Box>
                     <Menu.Dropdown>

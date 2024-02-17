@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +43,7 @@ async function addToOnboardingList(uid, supabase) {
 }
 
 export async function POST(request: Request) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createRouteHandlerClient({ cookies });
   const requestUrl = new URL(request.url)
   const formData = await request.formData()
   const email = String(formData.get('email'))
@@ -69,6 +69,24 @@ export async function POST(request: Request) {
     },
   })
 
+  // console.log("Hello there");
+  // console.log(data);
+
+  // if (data && data.user) {
+  //   // Sign the user in
+  //   const { error: signInError } = await supabase.auth.signInWithPassword({
+  //     email,
+  //     password,
+  //   });
+  
+  //   if (signInError) {
+  //     console.error('Could not sign in user automatically after signup:', signInError);
+  //     // Handle error or redirect accordingly
+  //     return NextResponse.redirect(`${requestUrl.origin}/login?error=Could not automatically sign in user`, { status: 301 });
+  //   }
+  
+  // }
+
   if (error) {
     return NextResponse.redirect(
       `${requestUrl.origin}/login?error=Could not authenticate user`,
@@ -79,14 +97,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    // console.log(data);
     await addToOnboardingList(data.user.id, supabase);
+    console.error('Signup succeeded, and added user to onboarding list');
   } catch (error) {
     console.error('Signup succeeded, but failed to add to onboarding list:', error);
   }
 
   return NextResponse.redirect(
-    `${requestUrl.origin}/login?message=Success! Please sign in here.`,
+    requestUrl.origin,
     {
       status: 301,
     }

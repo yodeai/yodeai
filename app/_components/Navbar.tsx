@@ -99,7 +99,7 @@ export default function Navbar() {
     const newState = !opened;
     setOpened(newState);
 
-    if (newState && onboardingStep === 4 && !onboardingIsComplete) {
+    if (newState && onboardingStep === 5 && !onboardingIsComplete) {
       goToNextOnboardingStep();
     }
   };
@@ -108,15 +108,15 @@ export default function Navbar() {
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
-          {(onboardingStep === 4 && !onboardingIsComplete)
+          {(onboardingStep === 5 && !onboardingIsComplete)
             ?
             <OnboardingPopover
               width={430}
-              stepToShow={4}
+              stepToShow={5}
               position="right-start"
               popoverContent={
                 <>
-                  <Text size="sm" mb={10}>The Yodeai agent answers questions based on the blocks within a particular <b>space.</b></Text>
+                  <Text size="sm" mb={10}>The Yodeai agent answers questions based on the pages within a particular <b>space.</b></Text>
                   <Text size="sm">To create a space, click <b>+ New</b> then <b>+ New Space</b></Text>
                 </>
               }
@@ -154,7 +154,7 @@ export default function Navbar() {
             <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
               <FaPlus style={{ marginRight: 1 }} size={8} />
               <FaSquare size={12} />
-              <Box ml={10}>New Block</Box>
+              <Box ml={10}>New Page</Box>
             </Flex>
           }
           active
@@ -190,7 +190,7 @@ export default function Navbar() {
       <Link href="/myblocks" className="no-underline">
         <NavLink
           component="div"
-          label="My Blocks"
+          label="My Pages"
           leftSection={<FaThLarge size={18} />}
           color={pathname === "/myblocks" ? "blue" : "#888"}
           variant={pathname === "/myblocks" ? "light" : "subtle"}
@@ -207,7 +207,7 @@ export default function Navbar() {
           active
         />
       </Link>
-      <Anchor onClick={resetOnboarding}>{onboardingStep}</Anchor>
+      {/* <Anchor onClick={resetOnboarding}>{onboardingStep}</Anchor> */}
     </Flex>
 
     <Divider

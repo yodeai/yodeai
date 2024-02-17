@@ -79,7 +79,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
                 popoverContent={
                   <>
                     <Text size="sm" mb={10}>Welcome to Yodeai! Here are a few <b>tips</b> to help you get familiar with your Yodeai workspace.</Text>
-                    <Text size="sm" mb={10}>Click the <b>Getting Started</b> space to begin.</Text>
+                    <Text size="sm" mb={10}>Click the <b>"Welcome to Yodeai!"</b> space to begin.</Text>
                     <Anchor onClick={() => completeOnboarding()} underline='always' c={"black"} size="sm">Or, click here to dismiss tips.</Anchor>
                   </>
                 }
@@ -111,7 +111,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
                     <LoadingSkeleton boxCount={3} lineHeight={15} />
                   </>
                   :
-                  <Text size="sm" fw={400} c="gray.6">{"No blocks found within this subspace"}</Text>
+                  <Text size="sm" fw={400} c="gray.6">{"No pages found within this subspace"}</Text>
                 }
               </Flex>
             }

@@ -63,9 +63,9 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error retrieving lens's blocks:", error);
+        console.error("Error retrieving space's pages:", error);
         return new NextResponse(
-            JSON.stringify({ error: 'Failed to retrieve blocks for lens.' }),
+            JSON.stringify({ error: 'Failed to retrieve pages for space.' }),
             { status: 500 }
         );
     }

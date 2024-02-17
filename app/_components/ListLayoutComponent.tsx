@@ -56,7 +56,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
                         : <BlockComponent key={item.block_id} block={item} />
                 })}</>
             : <Flex align="center" justify="center">
-                <Text size="sm" c={"gray.7"} ta={"center"} my={20}>No block or whiteboards.</Text>
+                <Text size="sm" c={"gray.7"} ta={"center"} my={20}>No page or whiteboards.</Text>
             </Flex>) || ""}
 
         <Divider mb={0} size={1.8} label={<Text c={"gray.7"} size="sm" fw={500}>Subspaces</Text>} labelPosition="center" />

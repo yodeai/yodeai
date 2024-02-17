@@ -115,7 +115,7 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(true);
         const startTime = performance.now();
 
-        if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
+        if (onboardingStep === 4 && !onboardingIsComplete) goToNextOnboardingStep();
 
         try {
             const supabase = createClientComponentClient()
@@ -129,14 +129,14 @@ const QuestionAnswerForm: React.FC = () => {
                     (response.metadata.blocks || []).map(async (blockId: string) => {
                         try {
                             const blockResponse = await fetch(`/api/block/${blockId}`);
-                            if (!blockResponse.ok) throw new Error('Failed to fetch block title');
+                            if (!blockResponse.ok) throw new Error('Failed to fetch page title');
                             const blockData = await blockResponse.json();
 
-                            if (!blockData.ok) throw new Error('Failed to retrieve valid block data');
+                            if (!blockData.ok) throw new Error('Failed to retrieve valid page data');
 
                             return { title: blockData.data.title, blockId }; // Store title and blockId
                         } catch (error) {
-                            console.error("Error fetching block title:", error);
+                            console.error("Error fetching page title:", error);
                             return { title: 'Unknown Source', blockId };
                         }
                     })
@@ -219,11 +219,11 @@ const QuestionAnswerForm: React.FC = () => {
                     <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                                {(onboardingStep === 3 && !onboardingIsComplete)
+                                {(onboardingStep === 4 && !onboardingIsComplete)
                                     ?
                                     <OnboardingPopover
                                         width={400}
-                                        stepToShow={3}
+                                        stepToShow={4}
                                         position="left-start"
                                         popoverContent={
                                             <>
