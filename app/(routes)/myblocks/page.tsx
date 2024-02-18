@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
+import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
+import BlockHeader from "@components/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 
@@ -118,7 +118,7 @@ export default function MyBlocks() {
 
       {!loading && sortedBlocks.length > 0 &&
         <Box p={16}>
-          <BlockColumnHeader />
+          <BlockHeader />
           {sortedBlocks.map((block) =>
             <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
           )}

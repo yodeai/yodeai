@@ -8,20 +8,18 @@ import {
     Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
+import AddSubspace from "@components/AddSubspace";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
+import Link from "next/link";
 import LoadingSkeleton from "./LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
 
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
-
-import AddSubspace from "@components/AddSubspace";
-import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheet";
-import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -62,9 +60,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
     const {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
-        spreadsheetModalDisclosure, painPointTrackerModalDisclosure,
-        userInsightsDisclosure, competitiveAnalysisDisclosure,
-        sortingOptions, setSortingOptions,
+        userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
 
@@ -177,13 +173,13 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </Box>
 
                 <Menu.Dropdown>
-                    <Menu.Item disabled={["owner", "editor"].includes(accessType) === false} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
+                    <Menu.Item disabled={accessType !== 'owner'} onClick={() => setIsEditingLensName(true)}>Rename</Menu.Item>
                     <Menu.Item disabled={accessType !== 'owner'} onClick={shareModalController.open}>Share</Menu.Item>
                     <Menu.Divider />
                     <Menu.Item onClick={isPinned ? onUnpinLens : onPinLens}>
                         {isPinned ? "Unpin" : "Pin"} this space
                     </Menu.Item>
-                    <Menu.Item disabled={["owner", "editor"].includes(accessType) === false} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                    <Menu.Item disabled={accessType !== 'owner'} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                 </Menu.Dropdown >
             </Menu>
 
@@ -237,7 +233,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                         </Button>
                     </Tooltip>
-                    <HoverCard width={320} shadow="md" position="bottom-end">
+                    <HoverCard width={320} shadow="md" position="left">
                         <HoverCard.Target>
                             <Button
                                 size="sm"
@@ -270,7 +266,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </> || ""}
                 {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
             </Box>
-        </Flex>
+
+        </Flex >
 
         {!loading && lens && !lens?.shared || accessType == 'owner' || accessType == 'editor'
             ? <Flex justify={"center"} align={"center"}>
@@ -280,8 +277,6 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
-                    <AddSpreadsheet modalController={spreadsheetModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
-                    <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">

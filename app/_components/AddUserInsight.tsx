@@ -34,7 +34,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
     let queued = false
     await apiClient('/userAnalysis', 'POST', body)
       .then(result => {
-        console.log('User analysis queued successfully', result);
+        console.log('Competitive analysis queued successfully', result);
         queued = true
       })
       .catch(error => {

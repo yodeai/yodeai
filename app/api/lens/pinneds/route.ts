@@ -8,9 +8,6 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if(!user) return notOk('Session not found. Please log in.');
-
     try {
         const { data: lenses, error: lensesError } = await supabase
             .from('lens')
@@ -23,7 +20,7 @@ export async function GET(request: NextRequest) {
         }
 
         const filteredLenses = lenses
-            .filter(lens => lens.lens_users.some(lens_user => lens_user.pinned && lens_user.user_id === user.id));
+            .filter(lens => lens.lens_users.some(lens_user => lens_user.pinned));
 
         for (const lens of filteredLenses) {
             lens.user_to_access_type = {};

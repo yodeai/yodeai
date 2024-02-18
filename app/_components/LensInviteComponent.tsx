@@ -5,7 +5,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Block, LensInvite } from "app/_types/block";
 import { FaArchive } from "react-icons/fa";
-import BlockLenses from "@components/Block/BlockLenses";
+import BlockLenses from "@components/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import load from "@lib/load";

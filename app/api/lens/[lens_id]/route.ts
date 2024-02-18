@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { lens_id
     return ok(lens);
   }
   catch (err) {
-    return notOk(err.message);
+    return notOk(`${err}`);
   }
 }
 

@@ -1,16 +1,18 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
+import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, useContext } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import Link from 'next/link';
 
-import { Flex, Box, Paper, Text } from "@mantine/core";
+import { Button, Flex, Box, Paper, Text } from "@mantine/core";
+import { FaPlus } from "react-icons/fa";
 import LensInviteComponent from "@components/LensInviteComponent";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
+import BlockHeader from "@components/BlockHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 
@@ -91,7 +93,7 @@ export default function Inbox() {
   }
 
   useEffect(() => {
-    const fetchBlocksAndInfo = async () => {
+    const fetchBlocksAndInfo = async() => {
       fetchInvites();
       setLensId(null);
       const googleUserId = await getUserInfo();
@@ -129,7 +131,7 @@ export default function Inbox() {
           }
         </Paper>
 
-        <BlockColumnHeader />
+        <BlockHeader />
 
         <Text size="lg" fw={600} c={"gray.7"}>Latest Blocks</Text>
 

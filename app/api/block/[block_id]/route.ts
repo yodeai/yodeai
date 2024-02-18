@@ -58,6 +58,7 @@ export async function PUT(request: NextRequest, { params, }: { params: { block_i
   const lensId = data.lens_id;
   delete data.lens_id;
 
+  console.log("data: ", data, "block_id: ", block_id);
   let delay = data["delay"]
   delete data["delay"]
   try {

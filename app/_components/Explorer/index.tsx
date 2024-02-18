@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, Input, CloseButton, Box, Text, Chip, ScrollArea, Button, FocusTrap } from '@mantine/core';
 import { useDebouncedCallback } from '@utils/hooks';
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import BlockColumnHeader from '@components/Block/BlockColumnHeader';
+import BlockHeader from '@components/BlockHeader';
 import toast from 'react-hot-toast';
 
 import { FaSearch } from 'react-icons/fa';
@@ -125,7 +125,7 @@ const Explorer: React.FC<ExplorerProps> = ({ selectedItems, setSelectedItems }) 
             </Box> || ""}
 
             {!loading && items && hasResults && <div className="block-container w-full">
-                <BlockColumnHeader />
+                <BlockHeader />
 
                 <ScrollArea className="block-list" style={{ height: "calc(100vh - 350px)" }}>
                     <Chip.Group

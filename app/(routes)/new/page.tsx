@@ -1,7 +1,7 @@
 "use client";
 import Container from "@components/Container";
 import UploadBlocks from "@components/UploadBlocks";
-import BlockEditor from "@components/Block/BlockEditor";
+import BlockEditor from "@components/BlockEditor";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState, useEffect } from "react";
 import { useAppContext } from "@contexts/context";

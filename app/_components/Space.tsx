@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
+import BlockComponent from "@components/BlockComponent";
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useContext } from "react";
 import { Lens } from "app/_types/lens";
