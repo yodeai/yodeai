@@ -146,9 +146,9 @@ export default function Toolbar() {
                         <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
                             <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>New Whiteboard</Menu.Item>
                         </ConditionalTooltip>
-                        {/* <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
+                        <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
                             <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
-                        </ConditionalTooltip> */}
+                        </ConditionalTooltip>
                         {/* <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
                             <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>Add Whiteboard</Menu.Item>
                         </ConditionalTooltip> */}
@@ -161,7 +161,7 @@ export default function Toolbar() {
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
-                                {/* <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item> */}
+                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>
