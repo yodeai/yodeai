@@ -10,8 +10,9 @@ import WhiteboardMockData from 'app/_assets/whiteboard.userinsight.mock.raw.json
 import { WhiteboardPluginParams } from 'app/_types/whiteboard';
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, MultiSelect } from '@mantine/core';
 import { FaTrashAlt, FaPlus } from 'react-icons/fa';
+import { getUserInfo } from '@utils/googleUtils';
 
 type AddUserInsightProps = {
   lensId: number;
@@ -24,13 +25,40 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
   const supabase = createClientComponentClient();
   const [name, updateName] = useState("User Analysis")
   const [insightAreas, setInsightAreas] = useState<string[]>([]);
+  const [blockIds, setBlockIds] = useState({});
+  const [selectedPages, setSelectedPages] = useState<string[]>([]);
+
+  const fetchBlocks = async (lensId: number) => {
+    try {
+      let googleUserId = await getUserInfo();
+      let apiurl = `/api/lens/${lensId}/getBlocks/${googleUserId}`;
+      const response = await fetch(apiurl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch blocks');
+      }
+      const data = await response.json();
+      let blocks = data.data || [];
+      let blockIdsObject = {};
+      let selectedPagesArray = [];
+      blocks.forEach(block => {
+        blockIdsObject[block.title] = block.block_id;
+        selectedPagesArray.push(block.title);
+      });
+      setBlockIds(blockIdsObject);
+      setSelectedPages(selectedPagesArray);
+    } catch (error) {
+      console.error('(fetchBlocks) Error fetching blocks:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
-    setInsightAreas([]);
+    fetchBlocks(lensId);
   }, [opened])
+  
 
   const startUserAnalysis = async(whiteboard_id, lensId) => {
-    const body = { whiteboard_id: whiteboard_id, lens_id: lensId, topics: insightAreas}
+    const body = { whiteboard_id: whiteboard_id, lens_id: lensId, topics: insightAreas,   block_ids: selectedPages.map(selectedPage => blockIds[selectedPage])    }
     let queued = false
     await apiClient('/userAnalysis', 'POST', body)
       .then(result => {
@@ -108,6 +136,9 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
       return updatedAreas;
     });
   };
+  const handleSelectChange = (value: string[]) => {
+    setSelectedPages(value);
+  };
   return (
     <Container className="max-w-3xl absolute">
       <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New User Analysis</Text>} centered>
@@ -123,6 +154,20 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
               />
             </Input.Wrapper>
           </Flex>
+          <Box className="w-full flex flex-col items-center gap-2 mb-2">
+            <Text className="w-full" size="18px" fw="bold">Pages to include</Text>
+            <Text className="w-full mb-5 text-gray-300" size="xs">
+              Adjust the pages you would like to include in the analysis.
+            </Text>
+            <Flex className="flex-1 w-full flex-col">
+            <MultiSelect
+              data={Object.keys(blockIds)}
+              value={selectedPages}
+              searchable
+              onChange={handleSelectChange}
+            />
+            </Flex>
+          </Box>
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">User Insight Areas</Text>
