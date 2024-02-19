@@ -13,6 +13,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon, MultiSelect } from '@mantine/core';
 import { FaTrashAlt, FaPlus } from 'react-icons/fa';
 import { getUserInfo } from '@utils/googleUtils';
+import { useContentContext } from '@contexts/content';
 
 type AddUserInsightProps = {
   lensId: number;
@@ -28,37 +29,29 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
   const [blockIds, setBlockIds] = useState({});
   const [selectedPages, setSelectedPages] = useState<string[]>([]);
 
-  const fetchBlocks = async (lensId: number) => {
-    try {
-      let googleUserId = await getUserInfo();
-      let apiurl = `/api/lens/${lensId}/getBlocks/${googleUserId}`;
-      const response = await fetch(apiurl);
-      if (!response.ok) {
-        throw new Error('Failed to fetch blocks');
-      }
-      const data = await response.json();
-      let blocks = data.data || [];
-      let blockIdsObject = {};
-      let selectedPagesArray = [];
-      blocks.forEach(block => {
-        blockIdsObject[block.title] = block.block_id;
-        selectedPagesArray.push(block.title);
-      });
-      setBlockIds(blockIdsObject);
-      setSelectedPages(selectedPagesArray);
-    } catch (error) {
-      console.error('(fetchBlocks) Error fetching blocks:', error);
-      throw error;
-    }
+  const { blocks } = useContentContext();
+
+  const selectCustomBlocks = async () => {
+    let blockIdsObject = {};
+    let selectedPagesArray = [];
+    blocks.forEach(block => {
+      blockIdsObject[block.title] = block.block_id;
+      selectedPagesArray.push(block.title);
+    });
+    setBlockIds(blockIdsObject);
+    setSelectedPages(selectedPagesArray);
   };
 
   useEffect(() => {
-    fetchBlocks(lensId);
-  }, [opened])
-  
+    setBlockIds({});
+    setSelectedPages([]);
+    setInsightAreas([]);
 
-  const startUserAnalysis = async(whiteboard_id, lensId) => {
-    const body = { whiteboard_id: whiteboard_id, lens_id: lensId, topics: insightAreas,   block_ids: selectedPages.map(selectedPage => blockIds[selectedPage])    }
+    selectCustomBlocks();
+  }, [opened]);
+
+  const startUserAnalysis = async (whiteboard_id, lensId) => {
+    const body = { whiteboard_id: whiteboard_id, lens_id: lensId, topics: insightAreas, block_ids: selectedPages.map(selectedPage => blockIds[selectedPage]) }
     let queued = false
     await apiClient('/userAnalysis', 'POST', body)
       .then(result => {
@@ -79,7 +72,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name:name,
+          name: name,
           lens_id: lensId,
           payload: WhiteboardMockData,
           plugin: {
@@ -144,6 +137,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
       <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New User Analysis</Text>} centered>
         <Modal.Body p={2} pt={0}>
           <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+          
           <Flex key="name" className="w-full mb-5">
             <Input.Wrapper label="Analysis Name" className="w-full">
               <Input
@@ -154,18 +148,19 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
               />
             </Input.Wrapper>
           </Flex>
+
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">Pages to include</Text>
             <Text className="w-full mb-5 text-gray-300" size="xs">
               Adjust the pages you would like to include in the analysis.
             </Text>
             <Flex className="flex-1 w-full flex-col">
-            <MultiSelect
-              data={Object.keys(blockIds)}
-              value={selectedPages}
-              searchable
-              onChange={handleSelectChange}
-            />
+              <MultiSelect
+                data={Object.keys(blockIds)}
+                value={selectedPages}
+                searchable
+                onChange={handleSelectChange}
+              />
             </Flex>
           </Box>
 
@@ -186,31 +181,31 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
                   onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
                 />
 
-                  <ActionIcon
-                    onClick={() => handleDeleteInsightArea(index)}
-                    size="md"
-                    color="red"
-                    variant="gradient"
-                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                    mb={4}
-                  >
-                    <FaTrashAlt size={14} />
-                  </ActionIcon>
+                <ActionIcon
+                  onClick={() => handleDeleteInsightArea(index)}
+                  size="md"
+                  color="red"
+                  variant="gradient"
+                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                  mb={4}
+                >
+                  <FaTrashAlt size={14} />
+                </ActionIcon>
               </Flex>
             ))}
           </Flex>
 
           <Flex mt={10} gap="xs">
             <Button unstyled
-            leftSection={<FaPlus size="14px" />}
-            classNames={{
-              section: "h-[14px]",
-              inner: "flex items-center justify-center gap-2"
-            }}
-            onClick={addInsightArea}
-            className="border border-gray-400 text-gray-400 rounded-md border-dashed bg-transparent px-3 py-1.5 text-xs cursor-pointer hover:bg-gray-100 w-full">
-            Add more
-          </Button>
+              leftSection={<FaPlus size="14px" />}
+              classNames={{
+                section: "h-[14px]",
+                inner: "flex items-center justify-center gap-2"
+              }}
+              onClick={addInsightArea}
+              className="border border-gray-400 text-gray-400 rounded-md border-dashed bg-transparent px-3 py-1.5 text-xs cursor-pointer hover:bg-gray-100 w-full">
+              Add more
+            </Button>
           </Flex>
 
           <Flex mt={20} gap="xs">
