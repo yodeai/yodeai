@@ -12,6 +12,8 @@ import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import JiraTicketExport from "./JiraTicketExport";
+import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
+import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
 
 type SpaceHeaderProps = {
     title: string;
@@ -19,7 +21,8 @@ type SpaceHeaderProps = {
     staticSortBy?: boolean;
     staticZoomLevel?: boolean;
     selectedLayoutType: "block" | "icon",
-    handleChangeLayoutView?: any
+    handleChangeLayoutView?: any,
+    rightItem?: JSX.Element
 }
 
 export default function SpaceHeader(props: SpaceHeaderProps) {
@@ -30,9 +33,15 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         staticZoomLevel = true,
         selectedLayoutType,
         handleChangeLayoutView,
+        rightItem
     } = props;
 
-    const { subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
+    const {
+        subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
+        spreadsheetModalDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure,
+        iconItemDisclosure, painPointTrackerModalDisclosure,
+        sortingOptions, setSortingOptions, zoomLevel, setZoomLevel
+    } = useAppContext();
 
     return <>
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
@@ -91,7 +100,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                     </Button>
                 </Tooltip> || ""}
-                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="left">
+                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="bottom-end">
                     <HoverCard.Target>
                         <Button
                             size="sm"
@@ -120,8 +129,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                             ]}
                         />
                     </HoverCard.Dropdown>
-                </HoverCard>
-                }
+                </HoverCard>}
+                {rightItem}
             </Box>
         </Flex>
 
@@ -132,6 +141,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <AddUserInsight modalController={userInsightsDisclosure} lensId={-1} accessType={"owner"} />
                 <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={-1} accessType={"owner"} />
                 <JiraTicketExport modalController={jiraTicketExportDisclosure} lensId={-1} accessType={"owner"} />
+                <AddSpreadsheetModal modalController={spreadsheetModalDisclosure} lensId={-1} accessType={"owner"} />
+                <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>

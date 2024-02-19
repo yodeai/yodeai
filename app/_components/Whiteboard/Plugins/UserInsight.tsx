@@ -1,15 +1,21 @@
 import { WhiteboardPlugins } from "app/_types/whiteboard"
 import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
-import { getNodesBounding } from "./utils";
+import { calculateStickyNoteBoxHeight, getNodesBounding } from "./utils";
 
 export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] => {
     let groupNodes: Node<any>[] = [];
-    const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f05152", "#0c9f6e"];
+    const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f07576", "#55e0b2"];
+
+    let insightBoxes: Node<any>[] = [];
+    insightBoxes.push(createText({
+        data: { text: "User Insights", size: 64 },
+        position: { x: 0, y: 0 },
+        width: 400, height: 130
+    }));
 
     // rendering insights with title
-    for (let [insightIndex, insight] of Object.entries(payload.insights)) {
-        const groupBounding = getNodesBounding(groupNodes);
+    payload.insights.forEach((insight, insightIndex) => {
         const groupNodeColor = colors[Number(insightIndex) % colors.length];
 
         let nodes: Node<any>[] = [];
@@ -21,48 +27,69 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                     size: 32
                 },
                 position: { x: 0, y: 0 },
-                width: 500, height: 60
+                width: 400, height: "auto"
             }),
             createStickyNote({
                 data: { text: insight.user.info, color: groupNodeColor },
-                position: { x: 580, y: 10 },
-                width: 300, height: 50
+                position: { x: 480, y: 0 },
+                width: 400, height: "auto"
             })
         ])
 
-        for (let topic of insight.data) {
+        // user comments on topics
+        insight.data.forEach(topic => {
             let bounding = getNodesBounding(nodes);
 
             // topic title
             nodes = nodes.concat([
                 createText({
                     data: { text: topic.topicName, size: 24 },
-                    position: { x: 0, y: bounding.bottom + 50 },
-                    width: 500, height: 50
+                    position: { x: -10, y: bounding.bottom + 80 },
+                    width: 900, height: "auto"
                 })
-            ])
+            ]);
 
-            for (let [commentIndex, comment] of Object.entries(topic.comments)) {
-                const commentBoxWidth = 160;
-                const commentBoxHeight = 125;
+            bounding = getNodesBounding(nodes);
 
-                bounding = getNodesBounding(nodes);
+            const boxCountPerRow = 5;
+            const commentBoxWidth = 160;
+            const commentBoxPadding = 20;
 
-                const commentX = ((commentBoxWidth + 20) * (Number(commentIndex) % 5))
-                const commentY = Number(commentIndex) % 5 === 0
-                    ? bounding.bottom + 20
-                    : bounding.bottom - commentBoxHeight;
+            let commentNodes: Node<any>[] = [];
+            topic.comments.forEach((comment, commentIndex) => {
+                const commentBoxHeight = calculateStickyNoteBoxHeight(comment.comment, commentBoxWidth);
+
+                const commentX = ((commentBoxWidth + commentBoxPadding) * (commentIndex % boxCountPerRow))
+                const aboveCommentBoxesTotalHeight = commentNodes
+                    .filter((_, ind) => (ind % boxCountPerRow) === (commentIndex % boxCountPerRow))
+                    .reduce((acc, curr) => acc + curr.height + commentBoxPadding, 0)
+                const commentY = aboveCommentBoxesTotalHeight + bounding.bottom;
 
                 // comments
-                nodes = nodes.concat([
+                commentNodes = commentNodes.concat([
                     createStickyNote({
                         data: { text: comment.comment, color: groupNodeColor },
                         position: { x: commentX, y: commentY },
                         width: commentBoxWidth, height: commentBoxHeight
                     })
                 ])
+
+            });
+
+            if (topic.comments.length < boxCountPerRow) {
+                Array.from({ length: boxCountPerRow - topic.comments.length }).forEach((_, index) => {
+                    commentNodes = commentNodes.concat([
+                        createStickyNote({
+                            data: { text: "", color: groupNodeColor },
+                            position: { x: ((160 + commentBoxPadding) * (topic.comments.length + index)), y: bounding.bottom },
+                            width: commentBoxWidth, height: 100
+                        })
+                    ])
+                })
             }
-        }
+
+            nodes = nodes.concat(commentNodes);
+        })
 
         const groupBoxPaddingLeft = 50;
         const groupBoxPaddingTop = 75;
@@ -74,26 +101,21 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
         const sqrtN = Math.ceil(Math.sqrt(payload.insights.length));
 
-        const groupTitleText = createText({
-            data: { text: "User Insight", size: 48 },
-            position: {
-                x: (100 + groupNodeWidth) * (Number(insightIndex) % sqrtN),
-                y: Math.floor(Number(insightIndex) / sqrtN) * (groupNodeHeight + 100)
-            },
-            width: 400, height: 100
-        });
-
         const nthRow = Math.floor(Number(insightIndex) / sqrtN);
         const nthCol = Number(insightIndex) % sqrtN;
+
+        const insightBoxX = nthCol * (groupNodeWidth + 100)
+        const aboveInsightBoxesTotalHeight = insightBoxes
+            .filter(_ => _.type === "group")
+            .filter((_, ind) => (ind % sqrtN) === (nthCol % sqrtN))
+            .reduce((acc, curr) => acc + curr.height + 100, 20)
+        const insightBoxY = aboveInsightBoxesTotalHeight + 100;
 
         const groupNode = createGroupNode({
             data: { color: groupNodeColor },
             width: groupNodeWidth,
             height: groupNodeHeight,
-            position: {
-                x: (100 + groupNodeWidth) * nthCol,
-                y: nthRow * (groupNodeHeight + 100) + 50
-            }
+            position: { x: insightBoxX, y: insightBoxY }
         });
 
         nodes = nodes.map(node => ({
@@ -106,26 +128,31 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
             }
         }));
 
-        groupNodes = groupNodes.concat([
-            // groupTitleText,
+        insightBoxes = insightBoxes.concat([
             groupNode,
             ...nodes
-        ])
-    }
+        ]);
+    })
+
+    groupNodes = groupNodes.concat(insightBoxes);
 
     // rendering summary of insights
     const groupBounding = getNodesBounding(groupNodes);
 
     const summaryNodes: Node<any>[] = [];
     const summaryTopicNodes: Node<any>[] = [];
+
+    const summaryTopicWidth = 300;
+    const summaryTopicPadding = 50;
+
     payload.summary.topics.forEach((topic, topicIndex) => {
         const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
 
         summaryTopicNodes.push(createText({
-            id: topic.key,
-            data: { text: topic.name, size: 32 },
-            position: { x: summaryTopicBounding.right + (topicIndex === 0 ? 150 : 50), y: summaryTopicBounding.top },
-            width: 180, height: 50
+            id: `topic_${topicIndex}`,
+            data: { text: topic.name, size: 24 },
+            position: { x: summaryTopicBounding.right + (topicIndex === 0 ? summaryTopicWidth : summaryTopicPadding), y: summaryTopicBounding.top },
+            width: summaryTopicWidth - summaryTopicPadding, height: "auto"
         }));
     })
 
@@ -133,26 +160,48 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
         const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
 
         const summaryUserTitle = createText({
-            id: user.id,
+            id: `user_${userIndex}`,
             data: { text: user.name, size: 32 },
             position: { x: summaryTopicBounding.left, y: summaryTopicBounding.bottom + 50 },
-            width: 150, height: 120
+            width: summaryTopicWidth, height: "auto"
         })
 
-        user.commentSummary.forEach((comment, commentIndex) => {
-            summaryTopicNodes.push(createStickyNote({
-                data: { text: comment.content || "―", color: "#ffd43b" },
-                position: {
-                    x: summaryTopicBounding.left + ((summaryTopicNodes[0].width + 60) * Number(commentIndex)) + summaryUserTitle.width,
-                    y: summaryTopicBounding.bottom + 50
-                },
-                width: 180, height: 125
-            }));
+        Array.from({ length: payload.summary.topics.length }).forEach((_, index) => {
+            const commentSummary = user.commentSummary.find(comment => comment.topicKey === payload.summary.topics[index].key);
+            const positionX = summaryTopicBounding.left + ((summaryTopicNodes[0].width + summaryTopicPadding) * index) + summaryUserTitle.width;
+            const positionY = summaryTopicBounding.bottom + 50;
 
+            if (commentSummary) {
+                summaryTopicNodes.push(createStickyNote({
+                    data: { text: commentSummary.content || "―", color: colors[userIndex % colors.length] },
+                    position: { x: positionX, y: positionY },
+                    width: summaryTopicWidth - summaryTopicPadding, height: "auto"
+                }));
+            }else{
+                summaryTopicNodes.push(createStickyNote({
+                    data: { text: "", color: colors[userIndex % colors.length] },
+                    position: { x: positionX, y: positionY },
+                    width: summaryTopicWidth - summaryTopicPadding, height: 120
+                }));
+            }
         })
+
+        // user.commentSummary.forEach((comment, commentIndex) => {
+        //     const topicIndex = payload.summary.topics.findIndex(topic => topic.key === comment.topicKey);
+        //     const positionX = summaryTopicBounding.left + ((summaryTopicNodes[0].width + summaryTopicPadding) * topicIndex) + summaryUserTitle.width;
+        //     const positionY = summaryTopicBounding.bottom + 50;
+        //     summaryTopicNodes.push(createStickyNote({
+        //         data: { text: comment.content || "―", color: colors[userIndex % colors.length] },
+        //         position: { x: positionX, y: positionY },
+        //         width: summaryTopicWidth - summaryTopicPadding, height: "auto"
+        //     }));
+
+        // })
 
         summaryTopicNodes.push(summaryUserTitle)
     })
+
+    // TODOA: fix the issue with group node position
 
     const summaryTopicBounding = getNodesBounding(summaryTopicNodes);
     const summaryGroupNode = createGroupNode({
@@ -181,8 +230,6 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                 y: node.position.y + 50
             }
         })));
-
-
 
     groupNodes = groupNodes.concat(summaryNodes);
 

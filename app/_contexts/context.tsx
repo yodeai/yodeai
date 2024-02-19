@@ -39,6 +39,9 @@ export type contextType = {
   userInsightsDisclosure: ReturnType<typeof useDisclosure>;
   competitiveAnalysisDisclosure: ReturnType<typeof useDisclosure>;
   jiraTicketExportDisclosure: ReturnType<typeof useDisclosure>;
+  spreadsheetModalDisclosure: ReturnType<typeof useDisclosure>;
+  painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
+  iconItemDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -83,6 +86,9 @@ const defaultValue: contextType = {
   userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   competitiveAnalysisDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   jiraTicketExportDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  spreadsheetModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  painPointTrackerModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -129,6 +135,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const userInsightsDisclosure = useDisclosure(false);
   const competitiveAnalysisDisclosure = useDisclosure(false);
   const jiraTicketExportDisclosure = useDisclosure(false);
+  const spreadsheetModalDisclosure = useDisclosure(false);
+  const painPointTrackerModalDisclosure = useDisclosure(false);
+  const iconItemDisclosure = useDisclosure(false);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -238,7 +247,10 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
-      subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure,
+      subspaceModalDisclosure, whiteboardModelDisclosure,
+      userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure,
+      spreadsheetModalDisclosure, iconItemDisclosure,
+      painPointTrackerModalDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { notOk, ok } from '@lib/ok';
 import { removeNullValues } from '@lib/object';
 import { Database } from 'app/_types/supabase'
+import apiClient from '@utils/apiClient';
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createServerComponentClient({ cookies });
@@ -19,7 +20,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { data, error } = await supabase
       .from('whiteboard')
       .update(payload)
-      .match({ whiteboard_id: params.id, owner_id: user.data.user.id });
+      .match({ whiteboard_id: params.id });
 
     if (error) {
       console.log("error", error.message)
@@ -29,7 +30,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return ok(data);
 
   } catch (error) {
-    return notOk("Error inserting lens", error.message);
+    return notOk("Error inserting whiteboard", error.message);
   }
 }
 
@@ -43,10 +44,23 @@ export async function DELETE(request: NextRequest, { params, }: { params: { id: 
   }
 
   try {
+    const {data, error: selectError} = await supabase.from('whiteboard').select('task_id').eq('whiteboard_id', whiteboard_id);
+    const task_id = data[0]['task_id']
     const { error } = await supabase
       .from('whiteboard')
       .delete()
       .eq('whiteboard_id', whiteboard_id);
+
+    // revoke celery task if still running
+    if (task_id) {
+      await apiClient('/revokeTask', 'POST', {"task_id": task_id})
+        .then(result => {
+          console.log('revoked task successfully', result);
+        })
+        .catch(error => {
+          console.log('error revoking task: ' + error.message);
+        });
+    }
 
     if (error) {
       throw error;

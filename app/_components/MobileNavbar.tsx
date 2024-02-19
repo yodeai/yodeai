@@ -6,11 +6,13 @@ import Navbar from './Navbar';
 export function MobileNavbar() {
   const [opened, { toggle }] = useDisclosure(false);
   return (
-    <header>
+    <header className="relative">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-      {opened ?
-        (<Navbar/>) : null
-      }
+      <div className="absolute bg-white z-50 border border-gray-300">
+        {opened ?
+          (<Navbar />) : null
+        }
+      </div>
     </header>
   );
 }

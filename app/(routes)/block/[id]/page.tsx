@@ -3,17 +3,20 @@
 import ReactMarkdown from 'react-markdown';
 import formatDate from "@lib/format-date";
 import { Pencil2Icon } from "@radix-ui/react-icons";
-import { useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
-import BlockEditor from '@components/BlockEditor';
+import BlockEditor from '@components/Block/BlockEditor';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
-import { Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
+import { Box, Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
+import BlockHeader from "@components/Block/BlockHeader";
+import { FaCheck } from "react-icons/fa";
+import { timeAgo } from "@utils/index";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -22,6 +25,7 @@ export default function Block({ params }: { params: { id: string } }) {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClientComponentClient()
+  const $saveButton = useRef<HTMLButtonElement>()
 
   const { user } = useAppContext();
 
@@ -133,9 +137,6 @@ export default function Block({ params }: { params: { id: string } }) {
     }
   };
 
-
-
-
   const renderContent = () => {
     if (block && block.block_type === "pdf" && presignedUrl) {
       return <PDFViewerIframe url={presignedUrl} />;
@@ -147,8 +148,6 @@ export default function Block({ params }: { params: { id: string } }) {
       );
     }
   }
-
-
 
   async function getPresignedUrl(key) {
     const response = await fetch(`/api/getPresignedUrl?key=${key}`);
@@ -169,54 +168,83 @@ export default function Block({ params }: { params: { id: string } }) {
     setBlock(block);
   }
 
+  const onSaveTitle = async (title: string) => {
+    return fetch(`/api/block/${block.block_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title })
+    }).then(res => {
+      if (res.ok) setBlock({ ...block, title })
+      return res;
+    })
+  }
+
+  const onDelete = async () => {
+    return fetch(`/api/block/${block.block_id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }).then(res => {
+      if (res.ok) router.replace('/myblocks')
+      return res;
+    })
+  }
+
+  const rightEditButton = <div className="flex justify-between items-center w-full">
+    <div className="flex gap-2">
+      {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
+        <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
+          <Button size="xs" variant="subtle" leftSection={
+            isEditing ? <FaCheck /> : <Pencil2Icon />
+          }
+            onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
+            {isEditing ? "Save" : "Edit"}
+          </Button>
+        </Tooltip>
+        || ""}
+    </div>
+  </div >
+
   return (
-    <main className="container">
-      <Flex direction="column" p={16} pt={0}>
-        <Divider mb={0} size={1.5} label={<Text c={"gray.7"} size="sm" fw={500}>My blocks</Text>} labelPosition="center" />
-        <Divider mb={0} variant="dashed" size={1.5} label={<Text size={"sm"} c="gray.7">{block.block_type} </Text>} labelPosition="center" />
-        {!isEditing ? (
-          <>
-            <div className="p-2 pt-0 flex flex-col w-full">
-              <div className="flex justify-between items-center w-full">
-
-                <Link href={`/block/${block.block_id}`}>
-                  <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text>
-                </Link>
-
-                {/* <Link href={`/block/${block.block_id}`}> */}
-                {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
-                {/* </Link> */}
-                <div className="flex gap-2">
-                  {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
-                    <Tooltip color="blue" label="Edit this block's title/content">
-                      <Button
-                        size="xs"
-                        variant="subtle"
-                        leftSection={<Pencil2Icon />}
-                        onClick={() => handleEditing(true)}
-                      >
-                        Edit
-                      </Button>
-                    </Tooltip>
-                  }
-                </div>
-              </div>
-              <div className="min-w-full">
-                <div className="min-w-full">
-                  <Text size="xs" c="gray">
-                    {formatDate(block.updated_at)}
+    <main>
+      <Flex direction="column" pt={0}>
+        <BlockHeader
+          title={block.title}
+          accessType={block.accessLevel}
+          onSave={onSaveTitle}
+          onDelete={onDelete}
+          rightItem={rightEditButton}
+        />
+        <Box p={16} className="mx-auto w-[800px] h-full">
+          {!block.content && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+          {isEditing
+            // this recreates the entire block view but allows for editing
+            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+            ? <BlockEditor refs={{
+              saveButton: $saveButton
+            }} block={block} onSave={onSave} />
+            : <>
+              <div className="flex flex-row justify-between py-4">
+                <div>
+                  <Text size="sm" c="gray">
+                    Created {timeAgo(block.created_at)}
                   </Text>
-                  {renderContent()}
+                </div>
+                <div>
+                  <Text size="sm" c="gray">
+                    Updated {timeAgo(block.updated_at)}
+                  </Text>
                 </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <BlockEditor block={block} onSave={onSave} /> // this recreates the entire block view but allows for editing
-          // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-        )}
+              {renderContent()}
+            </>
+          }
+        </Box>
       </Flex>
-    </main>
+    </main >
 
   );
 }

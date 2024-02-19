@@ -4,15 +4,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { TextValueType } from "@components/Whiteboard/Nodes/Text";
 import { StickyNoteValueType } from "@components/Whiteboard/Nodes/StickyNote"
 import { GroupNodeValueType } from "@components/Whiteboard//Nodes/Group";
+import { calculateStickyNoteBoxHeight, calculateTextBoxHeight } from "./index";
 
 type CreateTextType = {
     id?: string;
     data: TextValueType;
     position: Node<any>["position"];
     width: number;
-    height: number;
+    height: number | "auto";
 }
 export const createText = ({ id = uuidv4(), data, position, width, height }: CreateTextType): Node<TextValueType> => {
+    if (height === "auto") height = calculateTextBoxHeight(data.text, data.size, width);
     return {
         id,
         data,
@@ -36,9 +38,10 @@ type CreateStickyNoteType = {
     data: StickyNoteValueType;
     position: Node<any>["position"];
     width: number;
-    height: number;
+    height: number | "auto"
 }
 export const createStickyNote = ({ id = uuidv4(), data, position, width, height }: CreateStickyNoteType): Node<StickyNoteValueType> => {
+    if (height === "auto") height = calculateStickyNoteBoxHeight(data.text, width);
     return {
         id,
         data,

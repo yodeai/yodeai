@@ -1,10 +1,10 @@
 import { Block } from "app/_types/block";
 import { Subspace } from "app/_types/lens";
 import { Tables } from "app/_types/supabase";
-import BlockComponent from "@components/BlockComponent";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Chip } from "@mantine/core";
-import WhiteboardLineComponent from "@components/Whiteboard/WhiteboardLineComponent";
-import SubspaceComponent from "@components/SubspaceComponent";
+import WhiteboardLineComponent from "@components/ListView/Views/WhiteboardLineComponent";
+import SubspaceComponent from "@components/ListView/Views/SubspaceComponent";
 
 type ExplorerItemComponentProps = {
     type: string;
