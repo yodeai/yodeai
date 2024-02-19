@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Container from "@components/Container";
-import { Button, Select, Flex, Modal, Text, LoadingOverlay, Input, Title, Box } from '@mantine/core';
+import { Button, Select, Flex, Modal, Text, LoadingOverlay, Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Block } from "app/_types/block";
 import { getUserInfo } from "@utils/googleUtils";
@@ -27,12 +27,11 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
     try {
       const response = await getBlock(Number(prdBlockId));
       if (!response.ok) {
-          throw new Error(response.statusText);
+        throw new Error(response.statusText);
       }
       const data = await response.json();
       prdBlock = data.data;
     } catch (error) {
-
       console.error("Failed to create Jira issue:", error);
     }
 
@@ -58,15 +57,12 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
           body: issueBody,
         });
         if (!response.ok) {
-            throw new Error(response.statusText);
+          throw new Error(response.statusText);
         }
       } catch (error) {
-          console.error("Failed to create Jira issue:", error);
+        console.error("Failed to create Jira issue:", error);
       }
     }
-
-    setPRDBlockId(null);
-    setProjectId(null);
   };
 
   const getBlock = async (blockId: number) => {

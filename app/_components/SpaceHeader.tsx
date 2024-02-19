@@ -11,6 +11,7 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import JiraTicketExport from "./JiraTicketExport";
 
 type SpaceHeaderProps = {
     title: string;
@@ -31,7 +32,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         handleChangeLayoutView,
     } = props;
 
-    const { subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
+    const { subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure, sortingOptions, setSortingOptions, zoomLevel, setZoomLevel } = useAppContext();
 
     return <>
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
@@ -130,6 +131,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={-1} accessType={"owner"} />
                 <AddUserInsight modalController={userInsightsDisclosure} lensId={-1} accessType={"owner"} />
                 <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={-1} accessType={"owner"} />
+                <JiraTicketExport modalController={jiraTicketExportDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>
