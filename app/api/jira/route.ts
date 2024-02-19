@@ -1,5 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     if (request.nextUrl.pathname === '/api/jira') {
         if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000/api") {
