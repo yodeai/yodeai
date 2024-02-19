@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/BlockEditor';
-import JiraTicketExportButton from '@components/JiraTicketExportButton';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
@@ -188,7 +187,6 @@ export default function Block({ params }: { params: { id: string } }) {
                 {/* <Text ta={"center"} size={"md"} fw={600} c="gray.7">{block.title}</Text> */}
                 {/* </Link> */}
                 <div className="flex gap-2">
-                  <JiraTicketExportButton block_id={block.block_id} />
                   {(block.accessLevel != 'editor' && block.accessLevel != "owner") ? null :
                     <Tooltip color="blue" label="Edit this block's title/content">
                       <Button

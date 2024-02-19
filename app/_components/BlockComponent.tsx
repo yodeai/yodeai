@@ -6,7 +6,6 @@ import ReactMarkdown from "react-markdown";
 import { Block } from "app/_types/block";
 import { FaArchive, FaFile, FaFolder } from "react-icons/fa";
 import BlockLenses from "@components/BlockLenses";
-import JiraTicketExportButton from "@components/JiraTicketExportButton";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
@@ -173,7 +172,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           {block.inLenses && (
             <BlockLenses lenses={block.inLenses} block_id={block.block_id} />
           )}
-          <JiraTicketExportButton block_id={block.block_id} />
         </Flex>
 
         {/* {!compact && firstTwoLines && false ? (
