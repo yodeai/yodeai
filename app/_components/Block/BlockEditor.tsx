@@ -28,9 +28,14 @@ type BlockEditorProps = {
   block?: Block;
   onSave?: (block: Block) => void
   onDelete?: () => void;
+  /**
+   * If the withHeader prop is true, the title input will be handled on the BlockHeader component.
+   * Otherwise, it will be handled within this component.
+   */
+  withHeader?: boolean;
 }
 
-export default function BlockEditor({ refs, block: initialBlock, onSave }: BlockEditorProps) {
+export default function BlockEditor({ refs, withHeader = false, block: initialBlock, onSave }: BlockEditorProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -283,8 +288,8 @@ export default function BlockEditor({ refs, block: initialBlock, onSave }: Block
   return (
     <div className="flex flex-col gap-1 w-full">
       {block && block.block_type === 'pdf' ? (
-        <>
-          {/* <div className="flex justify-between items-center w-full">
+        !withHeader && (
+          <div className="flex justify-between items-center w-full">
             <input
               className="text-gray-600 line-clamp-1 text-xl flex-grow"
               value={title}
@@ -316,44 +321,45 @@ export default function BlockEditor({ refs, block: initialBlock, onSave }: Block
                 </ActionIcon>
               )}
             </Flex>
-          </div> */}
-        </>
+          </div>
+        ) || ""
       ) : (
         <div className="flex flex-col w-full">
-          <div className="flex justify-between items-center w-full">
-            {/* <TextInput
-              style={{ flex: 1 }}
-              size="xs"
-              value={title || ""}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title..."
-            />
-            <div className="flex gap-2">
-              {isSaving && (
-                <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                  <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
-                </Flex>
-              )}
-              {isSaved && (
-                <Flex miw={40} ml={10} align={"center"} c={"green"}>
-                  <FaCheckCircle style={{ marginRight: 4 }} /> Saved
-                </Flex>
-              )}
-              {block && (
-                <ActionIcon
-                  onClick={handleDelete}
-                  size="md"
-                  color="red"
-                  variant="gradient"
-                  ml={5}
-                  gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                >
-                  <FaTrashAlt size={14} />
-                </ActionIcon>
-              )}
-            </div> */}
-          </div>
-
+          {!withHeader && (
+            <div className="flex justify-between items-center">
+              <TextInput
+                style={{ flex: 1 }}
+                size="xs"
+                value={title || ""}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter title..."
+              />
+              <div className="flex gap-2">
+                {isSaving && (
+                  <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                    <FaCheckCircle style={{ marginRight: 4 }} /> Saving...
+                  </Flex>
+                )}
+                {isSaved && (
+                  <Flex miw={40} ml={10} align={"center"} c={"green"}>
+                    <FaCheckCircle style={{ marginRight: 4 }} /> Saved
+                  </Flex>
+                )}
+                {block && (
+                  <ActionIcon
+                    onClick={handleDelete}
+                    size="md"
+                    color="red"
+                    variant="gradient"
+                    ml={5}
+                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                  >
+                    <FaTrashAlt size={14} />
+                  </ActionIcon>
+                )}
+              </div>
+            </div>
+          ) || ""}
           <div className="flex justify-between items-center w-full mt-1">
             <Select
               size="xs"
