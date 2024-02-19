@@ -271,7 +271,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddUserInsight modalController={userInsightsDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
-                    <JiraTicketExport modalController={competitiveAnalysisDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <JiraTicketExport modalController={jiraTicketExportDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                 </Flex>
             </Flex>
