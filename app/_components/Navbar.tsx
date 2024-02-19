@@ -179,7 +179,7 @@ export default function Navbar() {
       pr={8}
       label={
         <>
-          <FaCubes size={12} />
+          {/* <FaCubes size={12} /> */}
           <Box ml={5}>Pinned Spaces</Box>
         </>
       }

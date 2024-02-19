@@ -1,4 +1,5 @@
 import { IconType } from 'react-icons/lib';
+import { GenIcon } from "react-icons/lib";
 
 export const SharedSubspace: IconType = ({ color, ...props }) => {
     return <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -11,5 +12,4 @@ export const SharedSubspace: IconType = ({ color, ...props }) => {
         <path d="M39.9353 34.8734L23.8226 40.9156C23.8226 35.9451 25.6709 30.7278 31.4336 28.999C35.4336 27.799 39.9353 29.9028 39.9353 34.8734Z" fill={color || ""} />
         <path d="M28.1923 24.2856C28.1923 26.4948 29.9832 28.2856 32.1923 28.2856C34.4015 28.2856 36.1923 26.4948 36.1923 24.2856C36.1923 22.0765 34.4015 20.2856 32.1923 20.2856C29.9832 20.2856 28.1923 22.0765 28.1923 24.2856Z" fill={color} />
     </svg>
-
 }
