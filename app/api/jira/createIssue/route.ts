@@ -1,4 +1,4 @@
-// pages/api/jira/createIssues.ts
+// pages/api/jira/createIssue.ts
 import { NextRequest, NextResponse } from 'next/server';
 import cookie from 'cookie';
 
@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
             return new Response("Missing accessToken or siteId", { status: 400 });
         }
 
-        let issueBody = "";
-        for await (const chunk of request.body) {
-            issueBody += Array.from(chunk).map((byte: number) => String.fromCharCode(byte)).join('');
-        }
+        const issueBody = await readRequestBody(request.body);
 
         // Create a Jira issue
         const response = await fetch(`https://api.atlassian.com/ex/jira/${siteId}/rest/api/2/issue`, {
@@ -51,4 +48,15 @@ export async function POST(request: NextRequest) {
         console.error('Error:', error);
         return new Response("Server error while fetching Jira issues", { status: 500 });
     }
+}
+
+async function readRequestBody(body: ReadableStream<Uint8Array>): Promise<string> {
+    const reader = body.getReader();
+    let result = '';
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        result += new TextDecoder().decode(value);
+    }
+    return result;
 }

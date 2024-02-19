@@ -63,6 +63,8 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
         console.error("Failed to create Jira issue:", error);
       }
     }
+    setPRDBlockId(null);
+    setProjectId(null);
   };
 
   const getBlock = async (blockId: number) => {
