@@ -21,7 +21,7 @@ export default function Home() {
   const [lenses, setLenses] = useState<(Lens)[]>([]);
   const [loading, setLoading] = useState(true);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
-  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "block";
+  const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
   const { lensId, sortingOptions, setLensId, user } = useAppContext();
@@ -121,7 +121,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
-      setLayoutViewToLocalStorage("default_layout", "block")
+      setLayoutViewToLocalStorage("default_layout", "icon")
     }
 
     const channel = supabase.channel('schema_changes')
@@ -170,6 +170,7 @@ export default function Home() {
           <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
         </div>}
         <LayoutController
+          itemIcons={{}}
           subspaces={sortedLenses}
           layout={layoutData}
           layoutView={selectedLayoutType}

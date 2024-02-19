@@ -48,14 +48,14 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(false);
     }
 
- 
+
     useEffect(() => {
-        const fetchUserInfo= async() => {
-          let googleUserId = await getUserInfo();
-          set_google_user_id(googleUserId);
+        const fetchUserInfo = async () => {
+            let googleUserId = await getUserInfo();
+            set_google_user_id(googleUserId);
         }
         fetchUserInfo();
-      }, []);
+    }, []);
 
     useEffect(() => {
         if (!lensId) {
@@ -144,7 +144,7 @@ const QuestionAnswerForm: React.FC = () => {
                     const newQA = { question: inputValue, answer: response.answer, sources: blockTitles, created_at: new Date().toISOString() };
                     return [newQA, ...prevQuestionHistory]
                 } else {
-                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString()  };
+                    const newQA = { question: inputValue, answer: 'Failed to fetch answer. No answer in response.', sources: [], created_at: new Date().toISOString() };
                     return [newQA, ...prevQuestionHistory]
                 }
             });
@@ -165,6 +165,11 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }
 
+    const infoText = useMemo(() => {
+        const defaultText = "using the data in your pages.";
+        return `Ask a question and Yodeai will respond to it ${lensName ? `based on the pages in the space "${lensName}".` : defaultText}`
+    }, [lensName])
+
     return (
         <Flex
             direction={"column"}
@@ -183,7 +188,7 @@ const QuestionAnswerForm: React.FC = () => {
                                     "Ask a question")
                             }
                         </Text>
-                        <InfoPopover infoText={"Ask a question and Yodeai will respond to it using the data in your blocks."} />
+                        <InfoPopover infoText={infoText} />
                     </Flex>
                 </ToolbarHeader>
 

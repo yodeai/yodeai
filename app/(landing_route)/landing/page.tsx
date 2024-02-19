@@ -43,12 +43,6 @@ const teamMembers = [
   },
   {
     group: 'UX',
-    name: 'Bhada Yun',
-    imageUrl: '/bhada.png',
-    linkedinUrl: 'https://www.linkedin.com/in/bhadayun/',
-  },
-  {
-    group: 'UX',
     name: 'Manasvi Shah',
     imageUrl: '/manasvi.jpg',
     linkedinUrl: 'https://www.linkedin.com/in/manasvi-shah/',
@@ -58,6 +52,12 @@ const teamMembers = [
     name: 'Tarun Mugunthan',
     imageUrl: '/tarun.jpg',
     linkedinUrl: 'https://www.linkedin.com/in/tarun-mugunthan/',
+  },
+  {
+    group: 'UX',
+    name: 'S. Samet ÜN',
+    imageUrl: '/samet.jpg',
+    linkedinUrl: 'https://www.linkedin.com/in/sametcodes',
   },
   // Team members in the "Engineering" group
   {
@@ -74,10 +74,16 @@ const teamMembers = [
   },
   {
     group: 'Engineering',
+    name: 'Bhada Yun',
+    imageUrl: '/bhada.png',
+    linkedinUrl: 'https://www.linkedin.com/in/bhadayun/',
+  },
+  {
+    group: 'Engineering',
     name: 'Yash Dave',
     imageUrl: '/yash.jpg',
     linkedinUrl: 'https://www.linkedin.com/in/yashdave003/',
-  },
+  }
 ];
 
 export default function Landing() {
@@ -152,7 +158,7 @@ export default function Landing() {
                 <div style={{ flex: 1 }}>
                   <TextInput
                     style={{ marginBottom: 10 }}
-                    miw={{ base: 400, sm: 300, md: 400 }}
+                    miw={{ base: 280, sm: 300, md: 400 }}
                     withAsterisk={false}
                     id="email"
                     value={email}
@@ -163,7 +169,7 @@ export default function Landing() {
                   />
                 </div>
                 <Button
-                  miw={{ base: 400, sm: 300, md: 400 }}
+                  miw={{ base: 280, sm: 300, md: 400 }}
                   type="submit"
                   variant="gradient"
                   gradient={{ from: 'pink', to: 'violet', deg: 34 }}
