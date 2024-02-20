@@ -7,7 +7,6 @@ import { Lens } from "app/_types/lens";
 import { NavLink, Text } from "@mantine/core";
 import Link from "next/link";
 import icons from "./IconView/_icons";
-import { MdFolderShared, MdFolder } from "react-icons/md";
 
 interface LensProps {
   compact?: boolean;
@@ -18,11 +17,13 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
   const { lensId, user } = useAppContext(); // the selected lens retrieved from the context
 
   const leftIcon = lens.shared
-    ? <MdFolderShared size={28} fill="#999" />
-    : <MdFolder size={28} fill="#999" />;
+    ? <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
+    : <icons.shared_subspace transform="scale(0.6), translate(-10, 10)" fill="#999" />;
+
   return (
     <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline w-min">
       <NavLink
+        classNames={{ section: "!contents" }}
         component="div"
         label={<Text lh={1.2} size={"sm"} className="max-w-[150px]">{lens.name}</Text>}
         description={<>

@@ -1,8 +1,7 @@
 import { IconType } from 'react-icons/lib';
-import { GenIcon } from "react-icons/lib";
 
 export const SharedSubspace: IconType = ({ color, ...props }) => {
-    return <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    return <svg width={props.size} height={props.size} viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
         <path d="M2 12V35.5L3.33333 36L20.6667 42.5L22 43V19.5L2 12Z" fill={color || ""} />
         <path fill-rule="evenodd" clip-rule="evenodd" d="M21.2978 0.127342C21.7505 -0.0424472 22.2495 -0.0424472 22.7022 0.127342L42.7022 7.62734C43.4829 7.92007 44 8.66631 44 9.5V35.5C44 36.3337 43.4829 37.0799 42.7022 37.3727L22.7022 44.8727C22.2495 45.0424 21.7505 45.0424 21.2978 44.8727L1.29775 37.3727C0.517146 37.0799 0 36.3337 0 35.5V9.5C0 8.66631 0.517146 7.92007 1.29775 7.62734L21.2978 0.127342ZM4 14.886V34.114L20 40.114V20.886L4 14.886ZM24 20.886V40.114L40 34.114V14.886L24 20.886ZM39.6373 10.75L22 4.136L4.36267 10.75L22 17.364L39.6373 10.75Z" fill={color} />
         <path d="M22 4.136L39.6373 10.75L22 17.364L4.36267 10.75L22 4.136Z" fill="white" />
