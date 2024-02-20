@@ -70,7 +70,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                 spreadsheets={spreadsheets}
             />
         case "icon":
-            return <div className="w-full h-full overflow-scroll">
+            return <div className="w-full h-full overflow-scroll mb-[32px]">
                 <IconLayoutComponent
                     subspaces={subspaces}
                     layouts={layout.icon_layout}
