@@ -21,11 +21,12 @@ type SpreadsheetProps = {
         dataSource: SpreadsheetDataSource;
         plugin: SpreadsheetPluginParams
     }
+    access_type: "owner" | "editor" | "reader"
 }
 
-const Spreadsheet = (props: SpreadsheetProps) => {
+const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProps) => {
     const supabase = createClientComponentClient<Database>();
-    const [spreadsheet, setSpreadsheet] = useState<SpreadsheetProps["spreadsheet"]>(props.spreadsheet);
+    const [spreadsheet, setSpreadsheet] = useState<SpreadsheetProps["spreadsheet"]>(_spreadsheet);
 
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
@@ -95,13 +96,13 @@ const Spreadsheet = (props: SpreadsheetProps) => {
         onSheetChanged = () => { },
         document,
         isProtected = false
-    } = useSpreadsheetPlugin({ $spreadsheet, spreadsheet });
+    } = useSpreadsheetPlugin({ $spreadsheet, spreadsheet, access_type });
 
     return (
         <div className='root-spreadsheet control-pane h-full overflow-hidden'>
             <SpreadsheetHeader
                 title={spreadsheet.name}
-                accessType={"editor"}
+                accessType={access_type}
                 onSave={handleSaveTitle}
                 onDelete={handleDelete}
             />
