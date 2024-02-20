@@ -65,8 +65,8 @@ async function exchangeAuthorizationCodeForToken(code: string) {
     client_id = process.env.JIRA_CLIENT_ID_LOCAL;
     client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
   } else {
-    client_id = process.env.JIRA_CLIENT_ID_LOCAL;
-    client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
+    client_id = process.env.JIRA_CLIENT_ID_PROD;
+    client_secret = process.env.JIRA_CLIENT_SECRET_PROD;
   }
   const redirect_uri = `${process.env.NEXT_PUBLIC_API_BASE_URL}/jira/callback`;
 
