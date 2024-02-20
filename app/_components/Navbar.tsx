@@ -72,6 +72,7 @@ export default function Navbar() {
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
     event.preventDefault();
+    event.nativeEvent.stopImmediatePropagation();
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
