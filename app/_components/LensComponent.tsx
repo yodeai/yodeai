@@ -17,8 +17,8 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
   const { lensId, user } = useAppContext(); // the selected lens retrieved from the context
 
   const leftIcon = lens.shared
-    ? <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
-    : <icons.shared_subspace transform="scale(0.6), translate(-10, 0)" fill="#999" />;
+    ? <icons.shared_subspace transform="scale(0.6), translate(-10, 0)" fill="#999" />
+    : <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
 
   return (
     <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline w-min">
