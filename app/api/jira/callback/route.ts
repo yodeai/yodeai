@@ -59,8 +59,15 @@ export async function GET(request: NextRequest) {
 
 async function exchangeAuthorizationCodeForToken(code: string) {
   const tokenEndpoint = 'https://auth.atlassian.com/oauth/token';
-  const client_id = process.env.JIRA_CLIENT_ID;
-  const client_secret = process.env.JIRA_CLIENT_SECRET;
+  let client_id: string;
+  let client_secret: string;
+  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000/api") {
+    client_id = process.env.JIRA_CLIENT_ID_LOCAL;
+    client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
+  } else {
+    client_id = process.env.JIRA_CLIENT_ID_LOCAL;
+    client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
+  }
   const redirect_uri = `${process.env.NEXT_PUBLIC_API_BASE_URL}/jira/callback`;
 
   const response = await fetch(tokenEndpoint, {
