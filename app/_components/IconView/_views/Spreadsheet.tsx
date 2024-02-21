@@ -13,6 +13,7 @@ import { cn } from "@utils/style";
 
 import { FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
+import { MdCancel } from "react-icons/md";
 
 type SpreadsheetProps = {
     icon: JSX.Element,
@@ -105,32 +106,44 @@ export const SpreadsheetIconItem = ({
         }
     }, [$textarea, editMode])
 
-    const actions: ContextMenuContent = useMemo(() => [{
-        key: 'open',
-        color: "#228be6",
-        icon: <FaLink size={16} />,
-        title: "Open",
-        onClick: () => {
-            router.push(`/spreadsheet/${spreadsheet.spreadsheet_id}`)
+    const actions: ContextMenuContent = useMemo(() => {
+        if (spreadsheetPluginState?.status && ["waiting", "queued", "processing"]
+            .includes(spreadsheetPluginState?.status)) {
+            return [{
+                key: 'cancel',
+                color: "#ff6b6b",
+                icon: <MdCancel size={16} color="#ff6b6b" />,
+                title: "Cancel",
+                onClick: onConfirmDelete
+            }]
         }
-    }, {
-        key: 'rename',
-        color: "#228be6",
-        icon: <FaICursor size={16} />,
-        title: 'Rename',
-        disabled: ["owner", "editor"].includes(accessType) === false,
-        onClick: () => {
-            setEditMode(true);
-        }
-    },
-    {
-        key: 'remove',
-        color: "#ff6b6b",
-        icon: <FaRegTrashCan size={16} />,
-        title: "Delete",
-        disabled: ["owner", "editor"].includes(accessType) === false,
-        onClick: () => openDeleteModal()
-    }], [accessType]);
+        return [{
+            key: 'open',
+            color: "#228be6",
+            icon: <FaLink size={16} />,
+            title: "Open",
+            onClick: () => {
+                router.push(`/spreadsheet/${spreadsheet.spreadsheet_id}`)
+            }
+        }, {
+            key: 'rename',
+            color: "#228be6",
+            icon: <FaICursor size={16} />,
+            title: 'Rename',
+            disabled: ["owner", "editor"].includes(accessType) === false,
+            onClick: () => {
+                setEditMode(true);
+            }
+        },
+        {
+            key: 'remove',
+            color: "#ff6b6b",
+            icon: <FaRegTrashCan size={16} />,
+            title: "Delete",
+            disabled: ["owner", "editor"].includes(accessType) === false,
+            onClick: () => openDeleteModal()
+        }]
+    }, [accessType, spreadsheetPluginState]);
 
     const onContextMenu = showContextMenu(actions);
 
@@ -145,7 +158,7 @@ export const SpreadsheetIconItem = ({
                     {spreadsheetPluginState?.status && ["waiting", "queued", "processing"]
                         .includes(spreadsheetPluginState?.status) &&
                         <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            {`${(spreadsheetPluginState.progress * 100).toFixed(1)}%`}
+                            {`${((spreadsheetPluginState.progress || 0) * 100).toFixed(1)}%`}
                         </Text>}
                     <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
                 </>

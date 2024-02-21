@@ -6,7 +6,7 @@ import { Text, Flex, Box, Textarea } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaCog, FaICursor, FaIcons } from "react-icons/fa";
+import { FaCog, FaICursor } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 
@@ -15,6 +15,7 @@ import { WhiteboardPluginParams } from "app/_types/whiteboard";
 import { cn } from "@utils/style";
 import { FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { Lens, Subspace } from "app/_types/lens";
+import { MdCancel } from "react-icons/md";
 
 type WhiteboardIconItemProps = {
   icon: JSX.Element
@@ -66,43 +67,55 @@ export const WhiteboardIconItem = ({
     handleWhiteboardDelete(whiteboard.whiteboard_id).then(res => setLoading(false));
   }
 
-  const actions: ContextMenuContent = useMemo(() => [{
-    key: 'open',
-    color: "#228be6",
-    icon: <FaLink size={16} />,
-    title: "Open",
-    onClick: () => {
-      router.push(`/whiteboard/${whiteboard.whiteboard_id}`)
+  const actions: ContextMenuContent = useMemo(() => {
+    if(whiteboardPluginState?.status && ["waiting", "queued", "processing"].includes(whiteboardPluginState?.status)){
+      return [{
+        key: 'cancel',
+        color: "#ff6b6b",
+        icon: <MdCancel size={16} color="#ff6b6b" />,
+        title: "Cancel",
+        onClick: onConfirmDelete
+      }]
     }
-  },
-  {
-    key: 'rename',
-    color: "#228be6",
-    icon: <FaICursor size={16} />,
-    title: 'Rename',
-    disabled: ["owner", "editor"].includes(accessType) === false,
-    onClick: () => {
-      setEditMode(true);
-    }
-  },
-  {
-    key: 'changeIcon',
-    color: "#228be6",
-    icon: <FaCog size={16} />,
-    title: "Settings",
-    disabled: ["owner", "editor"].includes(accessType) === false,
-    onClick: () => {
-      handleItemSettings(whiteboard);
-    }
-  },
-  {
-    key: 'remove',
-    color: "#ff6b6b",
-    icon: <FaRegTrashCan size={16} />,
-    title: "Delete",
-    onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(accessType) === false,
-  }], []);
+
+    return [{
+      key: 'open',
+      color: "#228be6",
+      icon: <FaLink size={16} />,
+      title: "Open",
+      onClick: () => {
+        router.push(`/whiteboard/${whiteboard.whiteboard_id}`)
+      }
+    },
+    {
+      key: 'rename',
+      color: "#228be6",
+      icon: <FaICursor size={16} />,
+      title: 'Rename',
+      disabled: ["owner", "editor"].includes(accessType) === false,
+      onClick: () => {
+        setEditMode(true);
+      }
+    },
+    {
+      key: 'changeIcon',
+      color: "#228be6",
+      icon: <FaCog size={16} />,
+      title: "Settings",
+      disabled: ["owner", "editor"].includes(accessType) === false,
+      onClick: () => {
+        handleItemSettings(whiteboard);
+      }
+    },
+    {
+      key: 'remove',
+      color: "#ff6b6b",
+      icon: <FaRegTrashCan size={16} />,
+      title: "Delete",
+      onClick: openDeleteModal,
+      disabled: ["owner", "editor"].includes(accessType) === false,
+    }];
+  }, [accessType, whiteboardPluginState]);
 
   const onChangeTitle = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitleText(event.target.value);
@@ -156,7 +169,7 @@ export const WhiteboardIconItem = ({
         {loading
           ? <>
             {whiteboardPluginState?.status && ["waiting", "queued", "processing"].includes(whiteboardPluginState?.status) && <Text size="xs" fw="bold" c="dimmed" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              {(whiteboardPluginState?.progress * 100).toFixed(1)}%
+              {((whiteboardPluginState?.progress || 0) * 100).toFixed(1)}%
             </Text>}
             <AiOutlineLoading size={48} fill="#999" className="animate-spin" />
           </>
