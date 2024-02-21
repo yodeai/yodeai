@@ -2,73 +2,67 @@ import { NextResponse, NextRequest } from 'next/server';
 import cookie from 'cookie';
 
 export async function GET(request: NextRequest) {
-  if (request.nextUrl.pathname === '/api/jira/callback') {
-    const requestUrl = new URL(request.url);
-    const origin = request.nextUrl.origin;
-    const code = request.nextUrl.searchParams.get('code');
-    if (code) {
-      // console.log("Authorization Code:", code);
-      const tokenResponse = await exchangeAuthorizationCodeForToken(code, origin);
-      // console.log("Access Token:", tokenResponse);
-      const cloudID = await exchangeTokenForCloudID(tokenResponse.access_token);
-      const firstSite = cloudID[0];
-      // console.log("CloudID:", cloudID);
+  const requestUrl = new URL(request.url);
+  const origin = request.nextUrl.origin;
+  const code = request.nextUrl.searchParams.get('code');
+  if (code) {
+    // console.log("Authorization Code:", code);
+    const tokenResponse = await exchangeAuthorizationCodeForToken(code, origin);
+    // console.log("Access Token:", tokenResponse);
+    const cloudID = await exchangeTokenForCloudID(tokenResponse.access_token);
+    const firstSite = cloudID[0];
+    // console.log("CloudID:", cloudID);
 
-      if (firstSite) {
-        const cookieLife = 60 * 60 * 24000; // 1 day
+    if (firstSite) {
+      const cookieLife = 60 * 60 * 24000; // 1 day
 
-        const jiraAuthCookieExists = cookie.serialize('jiraAuthExists', JSON.stringify({
-          accessTokenExists: true,
-          siteId: firstSite.id,
-          siteUrl: firstSite.url
-        }), {
-          path: '/',
-          httpOnly: false,
-          expires: new Date(Date.now() + cookieLife),
-          sameSite: 'strict'
-        });
+      const jiraAuthCookieExists = cookie.serialize('jiraAuthExists', JSON.stringify({
+        accessTokenExists: true,
+        siteId: firstSite.id,
+        siteUrl: firstSite.url
+      }), {
+        path: '/',
+        httpOnly: false,
+        expires: new Date(Date.now() + cookieLife),
+        sameSite: 'strict'
+      });
 
-        const jiraAuthCookie = cookie.serialize('jiraAuth', JSON.stringify({
-          accessToken: tokenResponse.access_token,
-          siteId: firstSite.id,
-          siteUrl: firstSite.url
-        }), {
-          path: '/',
-          httpOnly: true,
-          expires: new Date(Date.now() + cookieLife),
-          sameSite: 'strict'
-        });
+      const jiraAuthCookie = cookie.serialize('jiraAuth', JSON.stringify({
+        accessToken: tokenResponse.access_token,
+        siteId: firstSite.id,
+        siteUrl: firstSite.url
+      }), {
+        path: '/',
+        httpOnly: true,
+        expires: new Date(Date.now() + cookieLife),
+        sameSite: 'strict'
+      });
 
-        const response = NextResponse.redirect(`${requestUrl.origin}/`);
+      const response = NextResponse.redirect(`${requestUrl.origin}/`);
 
-        response.headers.append('Set-Cookie', jiraAuthCookieExists);
-        response.headers.append('Set-Cookie', jiraAuthCookie);
+      response.headers.append('Set-Cookie', jiraAuthCookieExists);
+      response.headers.append('Set-Cookie', jiraAuthCookie);
 
-        return response;
+      return response;
 
-      } else {
-        console.error('No sites available');
-      }
-
-      return NextResponse.redirect(`${requestUrl.origin}/`);
     } else {
-      return new Response("Error authenticating with Jira", { status: 400 });
+      console.error('No sites available');
     }
+
+    return NextResponse.redirect(`${requestUrl.origin}/`);
+  } else {
+    return new Response("Error authenticating with Jira", { status: 400 });
   }
 }
 
 async function exchangeAuthorizationCodeForToken(code: string, origin: string) {
   const tokenEndpoint = 'https://auth.atlassian.com/oauth/token';
-  let client_id: string;
-  let client_secret: string;
-  if (origin === "http://localhost:3000") {
-    client_id = process.env.JIRA_CLIENT_ID_LOCAL;
-    client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
-  } else {
-    client_id = process.env.JIRA_CLIENT_ID_PROD;
-    client_secret = process.env.JIRA_CLIENT_SECRET_PROD;
-  }
-  const redirect_uri = `${origin}/api/jira/callback`;
+  let client_id: string = process.env.JIRA_CLIENT_ID;
+  let client_secret: string = process.env.JIRA_CLIENT_SECRET;
+
+  const redirect_uri = process.env.VERCEL
+    ? `https://${process.env.VERCEL_URL}/api/jira/callback`
+    : `http://localhost:3000/api/jira/callback`;
 
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
@@ -77,10 +71,8 @@ async function exchangeAuthorizationCodeForToken(code: string, origin: string) {
     },
     body: JSON.stringify({
       grant_type: 'authorization_code',
-      client_id: client_id,
-      client_secret: client_secret,
-      code: code,
-      redirect_uri: redirect_uri
+      client_id, client_secret,
+      code, redirect_uri
     })
   });
 
