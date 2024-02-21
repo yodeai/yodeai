@@ -4,15 +4,15 @@ import cookie from 'cookie';
 export async function GET(request: NextRequest) {
   if (request.nextUrl.pathname === '/api/jira/callback') {
     const requestUrl = new URL(request.url);
-
+    const origin = request.nextUrl.origin;
     const code = request.nextUrl.searchParams.get('code');
     if (code) {
-      console.log("Authorization Code:", code);
-      const tokenResponse = await exchangeAuthorizationCodeForToken(code);
-      console.log("Access Token:", tokenResponse);
+      // console.log("Authorization Code:", code);
+      const tokenResponse = await exchangeAuthorizationCodeForToken(code, origin);
+      // console.log("Access Token:", tokenResponse);
       const cloudID = await exchangeTokenForCloudID(tokenResponse.access_token);
       const firstSite = cloudID[0];
-      console.log("CloudID:", cloudID);
+      // console.log("CloudID:", cloudID);
 
       if (firstSite) {
         const cookieLife = 60 * 60 * 24000; // 1 day
@@ -57,18 +57,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function exchangeAuthorizationCodeForToken(code: string) {
+async function exchangeAuthorizationCodeForToken(code: string, origin: string) {
   const tokenEndpoint = 'https://auth.atlassian.com/oauth/token';
   let client_id: string;
   let client_secret: string;
-  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000/api") {
+  if (origin === "http://localhost:3000") {
     client_id = process.env.JIRA_CLIENT_ID_LOCAL;
     client_secret = process.env.JIRA_CLIENT_SECRET_LOCAL;
   } else {
     client_id = process.env.JIRA_CLIENT_ID_PROD;
     client_secret = process.env.JIRA_CLIENT_SECRET_PROD;
   }
-  const redirect_uri = `${process.env.NEXT_PUBLIC_API_BASE_URL}/jira/callback`;
+  const redirect_uri = `${origin}/api/jira/callback`;
 
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
