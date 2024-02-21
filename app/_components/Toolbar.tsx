@@ -149,9 +149,6 @@ export default function Toolbar() {
                         {/* <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
                             <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
                         </ConditionalTooltip> */}
-                        {/* <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
-                            <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>Add Whiteboard</Menu.Item>
-                        </ConditionalTooltip> */}
                         <Menu position="left" shadow="md" width={250} trigger="hover">
                             <Menu.Target>
                                 <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />} disabled={"plugin" in disabledItems}>
@@ -161,7 +158,7 @@ export default function Toolbar() {
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
-                                {/* <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item> */}
+                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>
