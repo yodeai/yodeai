@@ -61,7 +61,9 @@ async function exchangeAuthorizationCodeForToken(code: string, origin: string) {
   let client_secret: string = process.env.JIRA_CLIENT_SECRET;
 
   const redirect_uri = process.env.VERCEL
-    ? `https://${process.env.VERCEL_URL}/api/jira/callback`
+    ? (process.env.VERCEL_ENV === "production"
+      ? process.env.BASE_URL
+      : `https://${process.env.VERCEL_BRANCH_URL}/api/jira/callback`)
     : `http://localhost:3000/api/jira/callback`;
 
   const response = await fetch(tokenEndpoint, {

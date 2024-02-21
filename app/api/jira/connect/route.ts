@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4, v4 } from 'uuid';
+import { v4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const redirect_uri = process.env.VERCEL
-        ? `https://${process.env.VERCEL_URL}/api/jira/callback`
+        ? (process.env.VERCEL_ENV === "production"
+            ? process.env.BASE_URL
+            : `https://${process.env.VERCEL_BRANCH_URL}/api/jira/callback`)
         : `http://localhost:3000/api/jira/callback`;
 
     const url_params = new URLSearchParams({
