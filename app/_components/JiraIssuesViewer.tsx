@@ -6,17 +6,15 @@ import InfoPopover from './InfoPopover';
 import ToolbarHeader from './ToolbarHeader';
 
 import { MdLockOutline, MdRefresh } from "react-icons/md";
-import { useRouter } from 'next/navigation';
 
 const JiraIssuesViewer: React.FC = () => {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [jiraIssues, setJiraIssues] = useState([]);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const handleJiraLogin = async () => {
-        router.push('/api/jira/connect');
+        window.location.href = `/api/jira`;
     };
 
     function getCookie(name: string) {
