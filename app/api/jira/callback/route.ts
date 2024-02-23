@@ -3,11 +3,10 @@ import cookie from 'cookie';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
-  const origin = request.nextUrl.origin;
   const code = request.nextUrl.searchParams.get('code');
   if (code) {
     // console.log("Authorization Code:", code);
-    const tokenResponse = await exchangeAuthorizationCodeForToken(code, origin);
+    const tokenResponse = await exchangeAuthorizationCodeForToken(code);
     // console.log("Access Token:", tokenResponse);
     const cloudID = await exchangeTokenForCloudID(tokenResponse.access_token);
     const firstSite = cloudID[0];
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function exchangeAuthorizationCodeForToken(code: string, origin: string) {
+async function exchangeAuthorizationCodeForToken(code: string) {
   const tokenEndpoint = 'https://auth.atlassian.com/oauth/token';
   let client_id: string = process.env.JIRA_CLIENT_ID;
   let client_secret: string = process.env.JIRA_CLIENT_SECRET;
