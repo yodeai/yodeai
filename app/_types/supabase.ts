@@ -849,6 +849,24 @@ export type Database = {
           }
         ]
       }
+      onboarding_list: {
+        Row: {
+          created_at: string
+          id: number
+          uid: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          uid?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          uid?: string | null
+        }
+        Relationships: []
+      }
       painpoint_summarization: {
         Row: {
           block_id: number
@@ -1009,7 +1027,6 @@ export type Database = {
       }
       spreadsheet: {
         Row: {
-          columns: Json | null
           created_at: string
           dataSource: Json | null
           lens_id: number | null
@@ -1017,10 +1034,10 @@ export type Database = {
           owner_id: string | null
           plugin: Json | null
           spreadsheet_id: number
+          task_id: string | null
           updated_at: string | null
         }
         Insert: {
-          columns?: Json | null
           created_at?: string
           dataSource?: Json | null
           lens_id?: number | null
@@ -1028,10 +1045,10 @@ export type Database = {
           owner_id?: string | null
           plugin?: Json | null
           spreadsheet_id?: number
+          task_id?: string | null
           updated_at?: string | null
         }
         Update: {
-          columns?: Json | null
           created_at?: string
           dataSource?: Json | null
           lens_id?: number | null
@@ -1039,6 +1056,7 @@ export type Database = {
           owner_id?: string | null
           plugin?: Json | null
           spreadsheet_id?: number
+          task_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -1251,6 +1269,13 @@ export type Database = {
             }
             Returns: string
           }
+      get_access_type_spreadsheet: {
+        Args: {
+          chosen_spreadsheet_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
       get_access_type_whiteboard: {
         Args: {
           chosen_whiteboard_id: number
@@ -1540,6 +1565,16 @@ export type Database = {
         }[]
       }
       update_plugin_progress: {
+        Args: {
+          id: number
+          new_progress: number
+        }
+        Returns: {
+          success: boolean
+          message: string
+        }[]
+      }
+      update_plugin_progress_spreadsheet: {
         Args: {
           id: number
           new_progress: number
