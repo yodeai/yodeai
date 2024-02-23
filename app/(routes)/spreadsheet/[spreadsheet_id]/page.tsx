@@ -5,6 +5,7 @@ import Spreadsheet from '@components/Spreadsheet';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
+import { convertDataSource } from "@components/Spreadsheet/utils";
 
 type SpreadsheetProps = {
     params: { spreadsheet_id: number }
@@ -45,7 +46,6 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
     }
 
     const accessType = (accessTypeResponse.data as "owner" | "editor" | "reader") ?? "owner";
-
     return <Spreadsheet
         spreadsheet={data}
         access_type={accessType}

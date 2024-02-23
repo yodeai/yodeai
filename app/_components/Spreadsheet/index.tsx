@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { registerLicense } from '@syncfusion/ej2-base';
-import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
+import { EmitType, registerLicense } from '@syncfusion/ej2-base';
+import { BeforeCellUpdateArgs, SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
 import './styles/styles.css';
 import './styles/bootstrap.css';
 import './styles/material3.css';
@@ -10,15 +10,19 @@ import './styles/material3.css';
 registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 
 import { Database, Tables } from 'app/_types/supabase';
-import { SpreadsheetDataSource, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
+import { SpreadsheetDataSource, SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
 import usePlugin from './Plugins';
 import SpreadsheetHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useDebouncedCallback } from '@utils/hooks';
+import { convertDataSource } from './utils';
+import { ImSpinner8 } from 'react-icons/im';
+import { Text } from '@mantine/core';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
-        dataSource: SpreadsheetDataSource;
+        dataSource: SpreadsheetDataSourceObject;
         plugin: SpreadsheetPluginParams
     }
     access_type: "owner" | "editor" | "reader"
@@ -27,18 +31,19 @@ type SpreadsheetProps = {
 const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProps) => {
     const supabase = createClientComponentClient<Database>();
     const [spreadsheet, setSpreadsheet] = useState<SpreadsheetProps["spreadsheet"]>(_spreadsheet);
+    const [isSaving, setIsSaving] = useState(false);
 
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
     const $container = useRef<HTMLDivElement>();
     const router = useRouter();
+    const $dataSource = useRef<SpreadsheetDataSourceObject>(spreadsheet.dataSource);
 
     const onHandleResize = useCallback(() => {
         const eSheetPanel = $container.current.querySelector<HTMLDivElement>('.e-sheet-panel');
         if (!eSheetPanel) return;
 
-        console.log("Container height", $container.current.clientHeight, "Sheet panel height", eSheetPanel.style.height)
-        eSheetPanel.style.height = `${$container.current.clientHeight - 160}px`;
+        eSheetPanel.style.height = `${$container.current.clientHeight - 210}px`;
     }, [$spreadsheet, $container]);
 
     useEffect(() => {
@@ -49,20 +54,15 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         }
     }, [$container]);
 
-    const updateSpreadsheet = useCallback((payload) => {
-        setSpreadsheet((prev) => {
-            return {
-                ...prev,
-                ...payload.new
-            }
-        })
+    const handleUpdateSpreadsheet = useCallback((payload) => {
+        setSpreadsheet((prev) => ({ ...prev, name: payload.new.name }))
     }, []);
 
     useEffect(() => {
         console.log("Subscribing to spreadsheet changes.")
         const channel = supabase
             .channel('schema-db-changes')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'spreadsheet', filter: `spreadsheet_id=eq.${spreadsheet.spreadsheet_id}` }, updateSpreadsheet)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'spreadsheet', filter: `spreadsheet_id=eq.${spreadsheet.spreadsheet_id}` }, handleUpdateSpreadsheet)
             .subscribe();
 
         return () => {
@@ -91,12 +91,44 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         })
     }
 
+    const syncSpreadsheetData = useDebouncedCallback((dataSource: SpreadsheetDataSourceObject) => {
+        setIsSaving(true);
+        return fetch(`/api/spreadsheet/${spreadsheet.spreadsheet_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ dataSource }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).finally(() => {
+            setIsSaving(false);
+        });
+    }, 1000, []);
+
+    const onCellUpdate: EmitType<BeforeCellUpdateArgs> = useCallback(({ rowIndex, colIndex, cell }: BeforeCellUpdateArgs) => {
+        let currentDataSource = $dataSource.current;
+
+        const newCell = Object.assign({}, currentDataSource?.[rowIndex]?.[colIndex] || {}, cell);
+        currentDataSource = {
+            ...currentDataSource,
+            [rowIndex]: {
+                ...currentDataSource[rowIndex],
+                [colIndex]: newCell
+            }
+        }
+
+        if (cell.value === "") delete currentDataSource[rowIndex][colIndex];
+        if (Object.keys(currentDataSource[rowIndex]).length === 0) delete currentDataSource[rowIndex];
+
+        $dataSource.current = currentDataSource;
+        syncSpreadsheetData(currentDataSource);
+    }, []);
+
     const {
         onCreated = () => { },
-        onSheetChanged = () => { },
+        beforeDataBound = () => { },
         document,
         isProtected = false
-    } = useSpreadsheetPlugin({ $spreadsheet, spreadsheet, access_type });
+    } = useSpreadsheetPlugin({ $spreadsheet, $dataSource, spreadsheet, access_type });
 
     return (
         <div className='root-spreadsheet control-pane h-full overflow-hidden'>
@@ -105,11 +137,18 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                 accessType={access_type}
                 onSave={handleSaveTitle}
                 onDelete={handleDelete}
+                rightSection={<>
+                    {isSaving && <div className="flex flex-row items-center gap-2">
+                        <ImSpinner8 size={14} className="animate-spin" />
+                        <Text size="sm" c="gray.7" m={0} p={0}>Auto-save...</Text>
+                    </div> || ""}
+                </>}
             />
             <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
                 <SpreadsheetComponent
-                    beforeDataBound={onSheetChanged}
-                    isProtected={isProtected}
+                    saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
+                    beforeCellUpdate={onCellUpdate}
+                    beforeDataBound={beforeDataBound}
                     created={onCreated.bind(this)}
                     ref={$spreadsheet}>
                     {document}
