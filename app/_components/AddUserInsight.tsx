@@ -149,20 +149,6 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
             </Input.Wrapper>
           </Flex>
 
-          <Box className="w-full flex flex-col items-center gap-2 mb-2">
-            <Text className="w-full" size="18px" fw="bold">Pages to include</Text>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
-              Adjust the pages you would like to include in the analysis.
-            </Text>
-            <Flex className="flex-1 w-full flex-col">
-              <MultiSelect
-                data={Object.keys(blockIds)}
-                value={selectedPages}
-                searchable
-                onChange={handleSelectChange}
-              />
-            </Flex>
-          </Box>
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">User Insight Areas</Text>
@@ -207,6 +193,21 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
               Add more
             </Button>
           </Flex>
+
+          <Box className="w-full flex flex-col items-center gap-2 mb-2">
+            <Text className="w-full" size="18px" fw="bold">Pages to include</Text>
+            <Text className="w-full mb-5 text-gray-300" size="xs">
+              Adjust the pages you would like to include in the analysis.
+            </Text>
+            <Flex className="flex-1 w-full flex-col">
+              <MultiSelect
+                data={Object.keys(blockIds)}
+                value={selectedPages}
+                searchable
+                onChange={handleSelectChange}
+              />
+            </Flex>
+          </Box>
 
           <Flex mt={20} gap="xs">
             <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateWhiteBoard}>
