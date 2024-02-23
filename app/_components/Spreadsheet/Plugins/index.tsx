@@ -13,6 +13,7 @@ export type PluginInput = {
         dataSource: SpreadsheetDataSource;
         plugin: SpreadsheetPluginParams
     };
+    access_type: "owner" | "editor" | "reader";
 }
 
 export type PluginOutput = {

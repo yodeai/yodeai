@@ -18,7 +18,8 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
     if (Number.isNaN(Number(spreadsheet_id))) return <p>Spreadsheet not found.</p>
 
     const userData = await supabase.auth.getUser();
-    if (userData.error || userData.data === null) return <p>Not logged in.</p>
+    const user = userData.data.user;
+    if (!userData || !user) return redirect("/notFound");
 
     const { data, error } = await supabase
         .from("spreadsheet")
@@ -37,20 +38,16 @@ export default async function SpreadsheetPage({ params, searchParams }: Spreadsh
         return <p>Spreadsheet is still processing, please check back later.</p>;
     }
 
-    // const accessTypeResponse = await supabase.rpc('get_access_type_whiteboard', { "chosen_user_id": user.id, "chosen_whiteboard_id": whiteboard_id })
-    // if (accessTypeResponse.error) {
-    //     console.log("message", accessTypeResponse.error.message);
-    //     throw accessTypeResponse.error.message;
-    // }
-
-    // const whiteboardWithAccessType = data as Tables<"spreadsheet"> & { accessType: string };
-    // whiteboardWithAccessType.accessType = accessTypeResponse.data ?? "owner"; // if the whiteboard is not part of a lens, then it is the user's own whiteboard.
-
-    if (!Array.isArray(data.dataSource)) {
-        return <p>Spreadsheet data not found.</p>
+    const accessTypeResponse = await supabase.rpc('get_access_type_spreadsheet', { "chosen_user_id": user.id, "chosen_spreadsheet_id": spreadsheet_id })
+    if (accessTypeResponse.error) {
+        console.log("message", accessTypeResponse.error.message);
+        throw accessTypeResponse.error.message;
     }
+
+    const accessType = (accessTypeResponse.data as "owner" | "editor" | "reader") ?? "owner";
 
     return <Spreadsheet
         spreadsheet={data}
+        access_type={accessType}
     />
 }

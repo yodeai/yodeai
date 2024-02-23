@@ -46,6 +46,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     useEffect(() => {
         updateName("");
         setInsightAreas([]);
+        setNumberOfPainPoints(0);
     }, [opened])
 
     const handleCreateSpreadsheet = async () => {
