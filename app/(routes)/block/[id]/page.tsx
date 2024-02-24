@@ -224,9 +224,11 @@ export default function Block({ params }: { params: { id: string } }) {
           {isEditing
             // this recreates the entire block view but allows for editing
             // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-            ? <BlockEditor refs={{
-              saveButton: $saveButton
-            }} block={block} onSave={onSave} />
+            ? <BlockEditor
+              withHeader={true}
+              refs={{ saveButton: $saveButton }}
+              block={block} onSave={onSave}
+              />
             : <>
               <div className="flex flex-row justify-between py-4">
                 <div>

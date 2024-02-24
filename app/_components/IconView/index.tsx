@@ -24,6 +24,7 @@ import { ViewController } from "../LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { useProgressRouter } from "@utils/nprogress";
+import { FaCheckCircle } from 'react-icons/fa';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -140,6 +141,13 @@ export default function IconLayoutComponent({
 
   useEffect(() => {
     getLensParents()
+
+    if ($gridContainer.current) {
+      const [container, grid] = [$gridContainer.current, $gridContainer.current.children[0]];
+      if (container.clientHeight < grid.clientHeight) {
+        (grid as HTMLDivElement).style.height = `${grid.clientHeight + 50}px`;
+      }
+    }
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
