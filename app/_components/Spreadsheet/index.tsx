@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EmitType, registerLicense } from '@syncfusion/ej2-base';
 import { BeforeCellUpdateArgs, SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
 import './styles/styles.css';
@@ -10,7 +10,7 @@ import './styles/material3.css';
 registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 
 import { Database, Tables } from 'app/_types/supabase';
-import { SpreadsheetDataSource, SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
+import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
 import usePlugin from './Plugins';
 import SpreadsheetHeader from './Header';
 import { useRouter } from 'next/navigation';
@@ -123,12 +123,27 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         syncSpreadsheetData(currentDataSource);
     }, []);
 
+
     const {
         onCreated = () => { },
         beforeDataBound = () => { },
-        document,
-        isProtected = false
+        document
     } = useSpreadsheetPlugin({ $spreadsheet, $dataSource, spreadsheet, access_type });
+
+
+    const onSheetCreated = useCallback(function () {
+        onCreated.bind(this).call();
+
+        if (["owner", "editor"].includes(access_type) === false) {
+             $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
+            $spreadsheet.current.protectSheet();
+        }
+    }, [access_type, $spreadsheet])
+
+    const isSpreadsheetProtected = useMemo(() => {
+        if (["owner", "editor"].includes(access_type)) return false;
+        return true;
+    }, [access_type])
 
     return (
         <div className='root-spreadsheet control-pane h-full overflow-hidden'>
@@ -149,7 +164,8 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                     saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
                     beforeCellUpdate={onCellUpdate}
                     beforeDataBound={beforeDataBound}
-                    created={onCreated.bind(this)}
+                    created={onSheetCreated.bind(this)}
+                    isProtected={isSpreadsheetProtected}
                     ref={$spreadsheet}>
                     {document}
                 </SpreadsheetComponent>

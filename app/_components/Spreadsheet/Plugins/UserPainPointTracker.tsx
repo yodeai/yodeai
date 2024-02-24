@@ -42,8 +42,6 @@ export default function ({ $spreadsheet, $dataSource, spreadsheet }: PluginInput
 
     const onCreated = useCallback(() => {
         if (!$spreadsheet.current) return;
-        $spreadsheet.current.hideRibbonTabs(['Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
-        $spreadsheet.current.hideFileMenuItems(['Save As'], false)
         onSheetChanged();
     }, [$dataSource.current]);
 
