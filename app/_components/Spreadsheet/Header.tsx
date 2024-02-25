@@ -12,6 +12,7 @@ type SpreadsheetProps = {
     accessType: "owner" | "editor" | "reader";
     onSave: (title: string) => Promise<Response>
     onDelete: () => Promise<Response>
+    rightSection?: React.ReactNode
 }
 
 export default function SpreadsheetHeader(props: SpreadsheetProps) {
@@ -99,6 +100,9 @@ export default function SpreadsheetHeader(props: SpreadsheetProps) {
                         <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
+            </Box>
+            <Box className="flex flex-row">
+                {props.rightSection || ""}
             </Box>
         </Flex>
     </>
