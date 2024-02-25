@@ -146,9 +146,9 @@ export default function Toolbar() {
                         <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
                             <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>New Whiteboard</Menu.Item>
                         </ConditionalTooltip>
-                        {/* <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
+                        <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
                             <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
-                        </ConditionalTooltip> */}
+                        </ConditionalTooltip>
                         <Menu position="left" shadow="md" width={250} trigger="hover">
                             <Menu.Target>
                                 <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />} disabled={"plugin" in disabledItems}>

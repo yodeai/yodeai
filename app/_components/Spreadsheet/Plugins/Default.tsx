@@ -1,26 +1,29 @@
 
 
 import { useCallback, useMemo } from 'react';
-import { buildDataTable } from '../utils'
 import { PluginInput, PluginOutput } from './index';
-import { SheetsDirective, SheetDirective } from '@syncfusion/ej2-react-spreadsheet';
+import {
+    SheetsDirective, SheetDirective, RowDirective, RowsDirective,
+    CellDirective, CellsDirective
+} from '@syncfusion/ej2-react-spreadsheet';
+import { useSheetData } from 'app/_components/Spreadsheet/hooks';
 
-export default ({ $spreadsheet, spreadsheet }: PluginInput): PluginOutput => {
-    const { dataSource, plugin } = spreadsheet;
+export default ({ $spreadsheet, $dataSource }: PluginInput): PluginOutput => {
+    const dataSource = $dataSource.current;
 
     const onCreated = useCallback(() => {
         if (!$spreadsheet.current) return;
-        $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
     }, []);
 
-    const dataTable = useMemo(() => buildDataTable(dataSource), [dataSource]);
+    const sheetContent = useSheetData({ dataSource });
+
     const document = <SheetsDirective>
         <SheetDirective name='Default'>
+            {sheetContent}
         </SheetDirective>
     </SheetsDirective>
 
     return {
-        dataTable,
         document,
         onCreated
     };
