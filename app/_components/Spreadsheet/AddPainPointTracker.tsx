@@ -165,7 +165,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 <Box className="w-full flex flex-col items-center gap-2 mb-2">
                 <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
                 <Text className="w-full mb-5 text-gray-300" size="xs">
-                    Enter the number of painpoints you wish to extract.
+                    Enter the max number of painpoints you wish to extract.
                 </Text>
             </Box>
             <Flex mt={10} className = "flex-1 w-full flex-col">
