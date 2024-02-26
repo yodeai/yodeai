@@ -64,7 +64,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 body: JSON.stringify({
                     name,
                     lens_id: lensId,
-                    dataSource: [],
+                    dataSource: {},
                     plugin: {
                         name: "pain-point-tracker",
                         data: {},

@@ -31,7 +31,7 @@ export default function AddSpreadsheetModal({ lensId, modalController }: AddSpre
                 body: JSON.stringify({
                     name: name,
                     lens_id: lensId,
-                    dataSource: [],
+                    dataSource: {},
                     plugin: {}
                 }),
             });
