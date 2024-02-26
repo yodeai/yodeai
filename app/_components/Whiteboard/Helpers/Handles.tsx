@@ -1,9 +1,11 @@
 import { Position } from "reactflow"
 import { Handle } from "reactflow"
 import { useFlow } from "./FlowWrapper"
+import { cn } from "@utils/style"
 
 type HandlesProps = {
     children: React.ReactNode
+    className?: string
     positions?: {
         target: Position,
         source: Position
@@ -11,16 +13,17 @@ type HandlesProps = {
 }
 export const Handles = ({
     children,
+    className,
     positions = {
         target: Position.Left,
         source: Position.Right
     }
 }: HandlesProps) => {
-    const { isLocked } = useFlow();
+    const { isLocked } = useFlow();
 
     return <>
-        {!isLocked && <Handle type="target" position={positions.target} /> || ""}
+        <Handle type="target" position={positions.target} className={cn(className, isLocked && "opacity-0" || "")} />
         {children}
-        {!isLocked && <Handle type="source" position={positions.source} /> || ""}
+        <Handle type="source" position={positions.source} className={cn(className, isLocked && "opacity-0" || "")} />
     </>
 }
