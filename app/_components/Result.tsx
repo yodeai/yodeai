@@ -1,3 +1,5 @@
+"use client";
+
 import { Text, Title } from "@mantine/core"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
