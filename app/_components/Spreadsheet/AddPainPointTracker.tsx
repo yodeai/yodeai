@@ -64,7 +64,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 body: JSON.stringify({
                     name,
                     lens_id: lensId,
-                    dataSource: [],
+                    dataSource: {},
                     plugin: {
                         name: "pain-point-tracker",
                         data: {},
@@ -121,10 +121,10 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 <Modal.Body p={2} pt={0}>
                     <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                     <Flex key="name" className="w-full mb-5">
-                        <Input.Wrapper label="Spreadsheet name" className="w-full">
+                        <Input.Wrapper label="Spreadsheet name" className="w-full mt-2">
                             <Input
                                 id="whiteboardName"
-                                className="mt-0.5 w-full"
+                                className="w-full"
                                 placeholder="Enter name of the spreadsheet"
                                 value={name}
                                 onChange={(event) => updateName(event.currentTarget.value)}
@@ -139,7 +139,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                     />
                     </Flex>
                     {gatherReviews ? 
-                            <Flex key="app_name" className="w-full mb-5">
+                            <Flex key="app_name" className="w-full mb-5 mt-3">
                             <Input.Wrapper label="App Name" className="w-full">
                                 <Input
                                     id="appName"
@@ -152,7 +152,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                         </Flex>
                         : null
                 }
-                 <Flex mt={10} className = "flex-1 w-full flex-col">
+                 <Flex mt={10} mb={20} className = "flex-1 w-full flex-col">
                 <Checkbox
                     checked={generatePainPoints}
                     onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
@@ -181,7 +181,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
             </div>
             : 
             <div>
-            <Box mt={10} className="w-full flex flex-col items-center gap-2 mb-2">
+            <Box  className="w-full flex flex-col items-center gap-2 mb-2">
                 <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
                 <Text className="w-full mb-5 text-gray-300" size="xs">
                     Enter the painpoints you wish to extract from reviews.
