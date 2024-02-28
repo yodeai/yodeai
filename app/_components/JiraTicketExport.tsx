@@ -5,6 +5,7 @@ import { Button, Select, Flex, Modal, Text, LoadingOverlay, Box } from '@mantine
 import { useDisclosure } from '@mantine/hooks';
 import { Block } from "app/_types/block";
 import { getUserInfo } from "@utils/googleUtils";
+import toast from 'react-hot-toast';
 
 type JiraTicketExportProps = {
   lensId: number;
@@ -14,6 +15,7 @@ type JiraTicketExportProps = {
 
 function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
   const [opened, { close }] = modalController;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isBlocksLoading, setIsBlocksLoading] = useState<boolean>(true);
   const [isProjectsLoading, setIsProjectsLoading] = useState<boolean>(true);
   const [blocks, setBlocks] = useState([]);
@@ -22,8 +24,8 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
   const [projectId, setProjectId] = useState<string | null>(null);
 
   const handleJiraTicketExport = async () => {
+    setIsLoading(true);
     let prdBlock: Block = null;
-
     try {
       const response = await getBlock(Number(prdBlockId));
       if (!response.ok) {
@@ -59,12 +61,15 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
+        close();
+        toast.success("Jira tickets created successfully.");
       } catch (error) {
-        console.error("Failed to create Jira issue:", error);
+        toast.error("Something went wrong. Please try again later.", error);
       }
     }
     setPRDBlockId(null);
     setProjectId(null);
+    setIsLoading(false);
   };
 
   const getBlock = async (blockId: number) => {
@@ -130,7 +135,7 @@ function JiraTicketExport({ lensId, modalController }: JiraTicketExportProps) {
     <Container className="max-w-3xl absolute">
       <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>Export New Jira Tickets from PRD</Text>} centered>
         <Modal.Body p={2} pt={0} className="flex flex-col items-end">
-          <LoadingOverlay visible={(isBlocksLoading || isProjectsLoading)} zIndex={1000} overlayProps={{ radius: "sm", blur: 2, style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } }} />
+          <LoadingOverlay visible={isBlocksLoading || isProjectsLoading || isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2, style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } }} />
           <Flex className="flex flex-col w-full mb-3" gap="10px" align="flex-end">
             <Box className="w-full flex flex-col items-center gap-2 mb-5">
               <Text className="w-full" size="18px" fw="bold">Product Requirements Document</Text>
