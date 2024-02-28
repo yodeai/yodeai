@@ -7,8 +7,8 @@ import ReactFlow, {
     useNodesState, useEdgesState, addEdge,
     Controls, Background, Node, Edge, MiniMap
 } from 'reactflow';
-import WhiteboardDock from "./Dock";
-import ContextMenu from './ContextMenu';
+import WhiteboardDock from "./Helpers/Dock";
+import ContextMenu from './Helpers/ContextMenu';
 
 import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "@utils/hooks";
@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 import { useAppContext } from '@contexts/context';
+import { FlowWrapper } from './Helpers/FlowWrapper';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -146,43 +147,48 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
-    return <div className="w-full h-full relative flex flex-col">
-        <WhiteboardHeader
-            title={whiteboard.name} accessType={data.accessType}
-            onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
-        {isSaving &&
-            <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
-                <ImSpinner8 size={10} className="animate-spin" />
-                <Text size="sm" c="gray.7">Auto-save...</Text>
-            </div>}
-        <ReactFlow
-            nodesDraggable={!isLocked}
-            nodesConnectable={!isLocked}
-            elementsSelectable={!isLocked}
-            className="flex-1"
-            minZoom={0.05}
-            maxZoom={4}
-            ref={$whiteboard}
-            fitView
-            fitViewOptions={{ padding: 0.5 }}
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            onNodeContextMenu={onNodeContextMenu}
-            onPaneClick={onPaneClick}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}>
-            <Controls onInteractiveChange={() => setIsLocked(!isLocked)} showInteractive={canBeUnlocked} />
-            <Background gap={12} size={1} />
-            {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
-            <MiniMap />
-        </ReactFlow>
-        {!isLocked && <WhiteboardDock />}
-    </div>
+    return <FlowWrapper 
+        whiteboard={whiteboard} 
+        isSaving={isSaving} 
+        isLocked={isLocked}>
+        <div className="w-full h-full relative flex flex-col">
+            <WhiteboardHeader
+                title={whiteboard.name} accessType={data.accessType}
+                onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
+            {isSaving &&
+                <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
+                    <ImSpinner8 size={10} className="animate-spin" />
+                    <Text size="sm" c="gray.7">Auto-save...</Text>
+                </div>}
+            <ReactFlow
+                nodesDraggable={!isLocked}
+                nodesConnectable={!isLocked}
+                elementsSelectable={!isLocked}
+                className="flex-1"
+                minZoom={0.05}
+                maxZoom={4}
+                ref={$whiteboard}
+                fitView
+                fitViewOptions={{ padding: 0.5 }}
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                onNodeContextMenu={onNodeContextMenu}
+                onPaneClick={onPaneClick}
+                onInit={setReactFlowInstance}
+                onDrop={onDrop}
+                onDragOver={onDragOver}>
+                <Controls onInteractiveChange={() => setIsLocked(!isLocked)} showInteractive={canBeUnlocked} />
+                <Background gap={12} size={1} />
+                {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+                <MiniMap />
+            </ReactFlow>
+            {!isLocked && <WhiteboardDock />}
+        </div>
+    </FlowWrapper>
 }
 
 export default function WhiteboardContainer(props: WhiteboardComponentProps) {

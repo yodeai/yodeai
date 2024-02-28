@@ -5,8 +5,8 @@ import { Tables } from 'app/_types/supabase';
 import { useExplorer } from '@contexts/explorer'
 import { FaPlus } from 'react-icons/fa';
 
-import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
-import ResizableNode from '@components/Whiteboard/Resizer'
+import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
+import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 
 import { BlockElement } from './Block';
 import { WhiteboardElement } from './Whiteboard';

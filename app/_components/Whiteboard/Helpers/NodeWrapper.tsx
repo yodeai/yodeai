@@ -14,6 +14,7 @@ export const withNodeController = <P extends object>(Component: React.ComponentT
 
     const EnhancedComponent: React.FC<Props> = (props) => {
         const reactFlow = useReactFlow();
+
         const nodeId = useNodeId();
         const node = reactFlow.getNode(nodeId);
 
