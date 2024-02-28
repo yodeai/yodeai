@@ -9,11 +9,11 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
-
 import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname } from 'next/navigation';
+import { getAtlassianCookie } from '@utils/atlassianUtils';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -33,9 +33,8 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
-
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
-
+    const [atlassianAccountConnected, setAtlassianAccountConnected] = useState(false);
     const {
         accessType, subspaceModalDisclosure, lensId,
         whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, jiraTicketExportDisclosure,
@@ -69,6 +68,7 @@ export default function Toolbar() {
         subspace?: string;
         plugin?: string;
         spreadsheet?: string;
+        atlassian?: string;
     }>(() => {
         if (lensId && ["owner", "editor"].includes(accessType) === false) {
             return {
@@ -104,13 +104,27 @@ export default function Toolbar() {
                 spreadsheet: "Your access level does not allow you to add new spreadsheets on this space."
             }
         }
-
+        if (!atlassianAccountConnected) {
+            return {
+                atlassian: "You must connect your Atlassian account to access this feature."
+            }
+        }
         return {}
-    }, [accessType, lensId, pathname]);
+    }, [accessType, lensId, pathname, atlassianAccountConnected]);
 
     useEffect(() => {
         if (!lensId && activeToolbarComponent === "social") closeComponent();
     }, [lensId])
+
+    useEffect(() => {
+        const jiraAuthCookie = getAtlassianCookie('jiraAuthExists');
+        if (!jiraAuthCookie) {
+          setAtlassianAccountConnected(false);
+          console.log('No Jira Auth cookie found');
+        } else {
+          setAtlassianAccountConnected(true);
+        }
+      }, []);
 
     return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
         { /*toolbar buttons*/}
@@ -159,7 +173,10 @@ export default function Toolbar() {
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
-                                <Menu.Item onClick={jiraTicketExportModalController.open}>Export PRD to Jira</Menu.Item>
+                                {/* <Menu.Item onClick={jiraTicketExportModalController.open}>Export PRD to Jira</Menu.Item> */}
+                                <ConditionalTooltip visible={"atlassian" in disabledItems} label={disabledItems.spreadsheet}>
+                                    <Menu.Item disabled={"atlassian" in disabledItems} onClick={jiraTicketExportModalController.open}>Export PRD to Jira</Menu.Item>
+                                </ConditionalTooltip>
                                 <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
