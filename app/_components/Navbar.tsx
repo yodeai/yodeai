@@ -74,6 +74,7 @@ export default function Navbar() {
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
     event.preventDefault();
+    event.nativeEvent.stopImmediatePropagation();
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
@@ -177,7 +178,7 @@ export default function Navbar() {
     </Popover>
 
     <Flex direction="column" gap={5} mt={10}>
-      <Link href="/" className="no-underline">
+      <Link href="/" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="Home"
@@ -187,7 +188,7 @@ export default function Navbar() {
           active
         />
       </Link>
-      <Link href="/myblocks" className="no-underline">
+      <Link href="/myblocks" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="My Pages"
@@ -197,7 +198,7 @@ export default function Navbar() {
           active
         />
       </Link>
-      <Link href="/inbox" className="no-underline">
+      <Link href="/inbox" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="Inbox"
@@ -217,7 +218,7 @@ export default function Navbar() {
       pr={8}
       label={
         <>
-          <FaCubes size={12} />
+          {/* <FaCubes size={12} /> */}
           <Box ml={5}>Pinned Spaces</Box>
         </>
       }
@@ -233,7 +234,7 @@ export default function Navbar() {
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
             <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
-              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false}></LoadingOverlay>
+              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{size: 20}}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}
                 rightSection={

@@ -1,46 +1,34 @@
 "use client";
-import Button from "@components/Button";
+
 import formatDate from "@lib/format-date";
-import load from "@lib/load";
-import clsx from "clsx";
-import { useRouter } from "next/navigation";
-import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@contexts/context";
 import { Lens } from "app/_types/lens";
-import { ShadowInnerIcon } from "@radix-ui/react-icons";
-import { FaSquare, FaStar, FaThLarge, FaFolder, FaFolderOpen, FaCube } from "react-icons/fa";
-import { useState, useEffect } from "react";
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NavLink, Text } from "@mantine/core";
 import Link from "next/link";
+import icons from "./IconView/_icons";
+
 interface LensProps {
   compact?: boolean;
   lens: Lens;
   rightSection?: React.ReactNode;
 }
-export default function LensComponent({ lens, compact, rightSection }: LensProps) {
-  const router = useRouter();
-  const { lensId, setLensId } = useAppContext(); // the selected lens retrieved from the context
-  const [user, setUser] = useState(null);
-  const supabase = createClientComponentClient();
+export default function LensComponent({ lens, compact = false, rightSection }: LensProps) {
+  const { lensId, user } = useAppContext(); // the selected lens retrieved from the context
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user);
-    }
-    getUser()
-  }, [])
+  const leftIcon = lens.shared
+    ? <icons.shared_subspace transform="scale(0.6), translate(-10, 0)" fill="#999" />
+    : <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
 
   return (
-    <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline">
+    <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline w-min">
       <NavLink
+        classNames={{ section: "!contents" }}
         component="div"
         label={<Text lh={1.2} size={"sm"} className="max-w-[150px]">{lens.name}</Text>}
-        description={
-          <>
-            <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+        description={<>
+          <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+          {!compact && <>
             {lens.shared && (
               <Text c="blue" size="xs">
                 Collaborative: {lens?.user_to_access_type?.[user?.id] ?? ''}
@@ -49,9 +37,10 @@ export default function LensComponent({ lens, compact, rightSection }: LensProps
             <Text c={'green'} size="xs">
               {lens.public ? 'Published' : 'Not Published'}
             </Text>
-          </>
+          </>}
+        </>
         }
-        leftSection={<FaCube size={18} />}
+        leftSection={leftIcon}
         rightSection={rightSection}
         active
         color={Number(lensId) !== lens.lens_id ? '#888' : 'blue'}

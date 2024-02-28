@@ -39,7 +39,8 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
   
       // Split domain parts and capitalize the first part
       const domainParts = domainName.split('.');
-      return domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
+      let name = domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
+      return name.replace(/%20/g, ' ');
     } catch (error) {
       console.error('Invalid URL:', url);
       return null;
@@ -49,7 +50,8 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
 
   const extractCompanyUrl = async (company_name) => {
     try {
-      const response = await fetch(`/api/getCompanyDomain/${company_name}`, {
+      const cleaned_company_name = company_name.replace(/\s/g, '');
+      const response = await fetch(`/api/getCompanyDomain/${cleaned_company_name}`, {
         method: "GET",
       });
   

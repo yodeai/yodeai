@@ -11,7 +11,8 @@ import { useAppContext, contextType } from "@contexts/context";
 import AddWhiteBoard from "./AddWhiteboard";
 import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
-import IconItemSettings from "./IconView/IconSettings";
+import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
+import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
 
 type SpaceHeaderProps = {
     title: string;
@@ -36,7 +37,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
 
     const {
         subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
-        competitiveAnalysisDisclosure, iconItemDisclosure,
+        spreadsheetModalDisclosure, competitiveAnalysisDisclosure, iconItemDisclosure,
+        painPointTrackerModalDisclosure,
         sortingOptions, setSortingOptions, zoomLevel, setZoomLevel
     } = useAppContext();
 
@@ -97,7 +99,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
                     </Button>
                 </Tooltip> || ""}
-                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="left">
+                {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="bottom-end">
                     <HoverCard.Target>
                         <Button
                             size="sm"
@@ -137,6 +139,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <AddWhiteBoard modalController={whiteboardModelDisclosure} lensId={-1} accessType={"owner"} />
                 <AddUserInsight modalController={userInsightsDisclosure} lensId={-1} accessType={"owner"} />
                 <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={-1} accessType={"owner"} />
+                <AddSpreadsheetModal modalController={spreadsheetModalDisclosure} lensId={-1} accessType={"owner"} />
+                <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={-1} accessType={"owner"} />
             </Flex>
         </Flex>
     </>

@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       block: {
@@ -21,6 +21,7 @@ export interface Database {
           google_doc_id: string | null
           google_user_id: string | null
           is_file: boolean
+          original_date: string | null
           owner_id: string
           parent_id: number | null
           preview: string | null
@@ -40,6 +41,7 @@ export interface Database {
           google_doc_id?: string | null
           google_user_id?: string | null
           is_file?: boolean
+          original_date?: string | null
           owner_id?: string
           parent_id?: number | null
           preview?: string | null
@@ -59,6 +61,7 @@ export interface Database {
           google_doc_id?: string | null
           google_user_id?: string | null
           is_file?: boolean
+          original_date?: string | null
           owner_id?: string
           parent_id?: number | null
           preview?: string | null
@@ -349,6 +352,7 @@ export interface Database {
           created_at: string
           embedding: string | null
           metadata: Json | null
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -361,6 +365,7 @@ export interface Database {
           created_at?: string
           embedding?: string | null
           metadata?: Json | null
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -373,6 +378,7 @@ export interface Database {
           created_at?: string
           embedding?: string | null
           metadata?: Json | null
+          title?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -661,6 +667,7 @@ export interface Database {
           created_at: string
           icon_layout: Json | null
           id: number
+          item_icons: Json | null
           lens_id: number | null
           list_layout: Json | null
         }
@@ -669,6 +676,7 @@ export interface Database {
           created_at?: string
           icon_layout?: Json | null
           id?: number
+          item_icons?: Json | null
           lens_id?: number | null
           list_layout?: Json | null
         }
@@ -677,6 +685,7 @@ export interface Database {
           created_at?: string
           icon_layout?: Json | null
           id?: number
+          item_icons?: Json | null
           lens_id?: number | null
           list_layout?: Json | null
         }
@@ -840,6 +849,54 @@ export interface Database {
           }
         ]
       }
+      onboarding_list: {
+        Row: {
+          created_at: string
+          id: number
+          uid: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          uid?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          uid?: string | null
+        }
+        Relationships: []
+      }
+      painpoint_summarization: {
+        Row: {
+          block_id: number
+          block_type: string
+          content: string | null
+          embedding: string | null
+          parent_id: number | null
+          review_id: string | null
+          substantiveness: number | null
+        }
+        Insert: {
+          block_id?: number
+          block_type: string
+          content?: string | null
+          embedding?: string | null
+          parent_id?: number | null
+          review_id?: string | null
+          substantiveness?: number | null
+        }
+        Update: {
+          block_id?: number
+          block_type?: string
+          content?: string | null
+          embedding?: string | null
+          parent_id?: number | null
+          review_id?: string | null
+          substantiveness?: number | null
+        }
+        Relationships: []
+      }
       processBlockLogging: {
         Row: {
           block_id: number
@@ -968,6 +1025,57 @@ export interface Database {
         }
         Relationships: []
       }
+      spreadsheet: {
+        Row: {
+          created_at: string
+          dataSource: Json | null
+          lens_id: number | null
+          name: string | null
+          owner_id: string | null
+          plugin: Json | null
+          spreadsheet_id: number
+          task_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          dataSource?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          owner_id?: string | null
+          plugin?: Json | null
+          spreadsheet_id?: number
+          task_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          dataSource?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          owner_id?: string | null
+          plugin?: Json | null
+          spreadsheet_id?: number
+          task_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spreadsheet_lens_id_fkey"
+            columns: ["lens_id"]
+            isOneToOne: false
+            referencedRelation: "lens"
+            referencedColumns: ["lens_id"]
+          },
+          {
+            foreignKeyName: "spreadsheet_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       users: {
         Row: {
           email: string | null
@@ -1090,6 +1198,7 @@ export interface Database {
           nodes: Json | null
           owner_id: string
           plugin: Json | null
+          task_id: string | null
           updated_at: string
           whiteboard_id: number
         }
@@ -1101,6 +1210,7 @@ export interface Database {
           nodes?: Json | null
           owner_id?: string
           plugin?: Json | null
+          task_id?: string | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1112,6 +1222,7 @@ export interface Database {
           nodes?: Json | null
           owner_id?: string
           plugin?: Json | null
+          task_id?: string | null
           updated_at?: string
           whiteboard_id?: number
         }
@@ -1158,6 +1269,13 @@ export interface Database {
             }
             Returns: string
           }
+      get_access_type_spreadsheet: {
+        Args: {
+          chosen_spreadsheet_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
       get_access_type_whiteboard: {
         Args: {
           chosen_whiteboard_id: number
@@ -1187,6 +1305,18 @@ export interface Database {
         Returns: {
           block_id: number
           ave_embedding: string
+        }[]
+      }
+      get_most_relevant_chunk: {
+        Args: {
+          interview_block_id: number
+          matchcount: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          similarity: number
         }[]
       }
       get_navbar_lenses: {
@@ -1325,6 +1455,19 @@ export interface Database {
           similarity: number
         }[]
       }
+      get_top_chunks_for_user_analysis: {
+        Args: {
+          interview_block_id: number
+          queryembedding: string
+          matchcount: number
+        }
+        Returns: {
+          chunk_id: number
+          block_id: number
+          content: string
+          similarity: number
+        }[]
+      }
       get_top_chunks_from_inbox: {
         Args: {
           match_count: number
@@ -1422,6 +1565,16 @@ export interface Database {
         }[]
       }
       update_plugin_progress: {
+        Args: {
+          id: number
+          new_progress: number
+        }
+        Returns: {
+          success: boolean
+          message: string
+        }[]
+      }
+      update_plugin_progress_spreadsheet: {
         Args: {
           id: number
           new_progress: number

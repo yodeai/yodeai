@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/BlockComponent";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";

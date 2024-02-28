@@ -169,6 +169,11 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }
 
+    const infoText = useMemo(() => {
+        const defaultText = "using the data in your pages.";
+        return `Ask a question and Yodeai will respond to it ${lensName ? `based on the pages in the space "${lensName}".` : defaultText}`
+    }, [lensName])
+
     return (
         <Flex
             direction={"column"}
@@ -187,7 +192,7 @@ const QuestionAnswerForm: React.FC = () => {
                                     "Ask a question")
                             }
                         </Text>
-                        <InfoPopover infoText={"Ask a question and Yodeai will respond to it using the data in your blocks."} />
+                        <InfoPopover infoText={infoText} />
                     </Flex>
                 </ToolbarHeader>
 

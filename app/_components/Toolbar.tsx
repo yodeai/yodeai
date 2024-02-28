@@ -39,12 +39,18 @@ export default function Toolbar() {
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
-    const { accessType, subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, lensId } = useAppContext();
+    const {
+        accessType, subspaceModalDisclosure, lensId,
+        whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
+        painPointTrackerModalDisclosure
+    } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
     const [whiteboardModalState, whiteboardModalController] = whiteboardModelDisclosure;
     const [userInsightsModalState, userInsightsModalController] = userInsightsDisclosure;
     const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
+    const [spreadsheetModalState, spreadsheetModalController] = spreadsheetModalDisclosure;
+    const [painPointTrackerModalState, painPointTrackerModalController] = painPointTrackerModalDisclosure;
 
     const [menuOpened, setMenuOpened] = useState(false);
 
@@ -73,27 +79,31 @@ export default function Toolbar() {
         whiteboard?: string;
         subspace?: string;
         plugin?: string;
+        spreadsheet?: string;
     }>(() => {
         if (lensId && ["owner", "editor"].includes(accessType) === false) {
             return {
                 block: "Only editors and owners can add new pages to this space.",
                 whiteboard: "Only editors and owners can add new whiteboards to this space.",
                 subspace: "Only editors and owners can add new subspaces to this space.",
-                plugin: "Only editors and owners can add new plugins to this space."
+                plugin: "Only editors and owners can add new plugins to this space.",
+                spreadsheet: "Only editors and owners can add new spreadsheets on this space."
             }
         }
         if (["/"].includes(pathname)) {
             return {
                 block: "Cannot add new pages to the home page.",
                 whiteboard: "Cannot add new whiteboards to the home page.",
-                plugin: "Cannot add new plugins to this space."
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
         if (["/myblocks"].includes(pathname)) {
             return {
                 subspace: "Cannot add new subspaces to My Pages.",
                 whiteboard: "Cannot add new whiteboards to My Pages.",
-                plugin: "Cannot add new plugins to this space."
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
         if (["/inbox"].includes(pathname)) {
@@ -101,7 +111,8 @@ export default function Toolbar() {
                 block: "Cannot add new pages to the Inbox.",
                 whiteboard: "Cannot add new whiteboards to the Inbox.",
                 subspace: "Cannot add new subspaces to the Inbox.",
-                plugin: "Cannot add new plugins to this space."
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
 
@@ -190,28 +201,32 @@ export default function Toolbar() {
                     <Menu.Dropdown>
                         <ConditionalTooltip visible={"block" in disabledItems} label={disabledItems.block}>
                             <Link href="/new" className={cn(
-                                "block decoration-transparent text-inherit bg-gray h-full w-full",
+                                "no-underline block decoration-transparent text-inherit bg-gray h-full w-full",
                                 "block" in disabledItems && "pointer-events-none" || "")}>
                                 <Menu.Item disabled={"block" in disabledItems}>
-                                    Add Block
+                                    New Page
                                 </Menu.Item>
                             </Link>
                         </ConditionalTooltip>
                         <ConditionalTooltip visible={"subspace" in disabledItems} label={disabledItems.subspace}>
-                            <Menu.Item disabled={"subspace" in disabledItems} onClick={subspaceModalController.open}>Add Subspace</Menu.Item>
+                            <Menu.Item disabled={"subspace" in disabledItems} onClick={subspaceModalController.open}>New Space</Menu.Item>
                         </ConditionalTooltip>
                         <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
-                            <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>Add Whiteboard</Menu.Item>
+                            <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>New Whiteboard</Menu.Item>
                         </ConditionalTooltip>
-                        <Menu position="left" shadow="md" width={200} trigger="hover">
+                        <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
+                            <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
+                        </ConditionalTooltip>
+                        <Menu position="left" shadow="md" width={250} trigger="hover">
                             <Menu.Target>
                                 <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />} disabled={"plugin" in disabledItems}>
-                                    Add Plugin
+                                    New Widget
                                 </Menu.Item>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
+                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>
