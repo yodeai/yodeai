@@ -32,7 +32,10 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
         setNumberOfPainPoints(value);
     };
     const startPainpointAnalysis = async(spreadsheet_id) => {
-        const body = { spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints, app_name: appName }
+        const { data: { user } } = await supabase.auth.getUser()
+ 
+        const user_id = user.id;
+        const body = { owner_id: user_id, spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints, app_name: appName }
         let queued = false
         await apiClient('/painpointAnalysis', 'POST', body)
           .then(result => {
