@@ -15,7 +15,9 @@ import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
 import { Database } from "app/_types/supabase";
+import { RiPushpinFill } from "react-icons/ri";
 import OnboardingPopover from "./Onboarding/OnboardingPopover";
+
 const supabase = createClientComponentClient<Database>()
 
 export default function Navbar() {
@@ -218,7 +220,7 @@ export default function Navbar() {
       pr={8}
       label={
         <>
-          {/* <FaCubes size={12} /> */}
+          <RiPushpinFill size={12} />
           <Box ml={5}>Pinned Spaces</Box>
         </>
       }
