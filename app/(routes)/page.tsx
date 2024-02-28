@@ -14,7 +14,6 @@ import { useAppContext } from "@contexts/context";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 
 import { Database } from "app/_types/supabase";
-import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 const supabase = createClientComponentClient<Database>()
 
 export default function Home() {
@@ -61,9 +60,9 @@ export default function Home() {
     });
 
     return load<Response>(updatePromise, {
-      loading: "Updating page name...",
-      success: "Page name updated!",
-      error: "Failed to update page name.",
+      loading: "Updating block name...",
+      success: "Block name updated!",
+      error: "Failed to update block name.",
     });
   }
 
@@ -72,18 +71,18 @@ export default function Home() {
       method: "DELETE"
     });
     return load(deletePromise, {
-      loading: "Deleting page...",
-      success: "Page deleted!",
-      error: "Failed to delete page.",
+      loading: "Deleting block...",
+      success: "Block deleted!",
+      error: "Failed to delete block.",
     });
   }
 
   const handleLensDelete = async (lens_id: number) => {
     const deletePromise = fetch(`/api/lens/${lens_id}`, { method: "DELETE" });
     return load(deletePromise, {
-      loading: "Deleting space...",
-      success: "Space deleted!",
-      error: "Failed to delete space.",
+      loading: "Deleting lens...",
+      success: "Lens deleted!",
+      error: "Failed to delete lens.",
     });
   }
 
@@ -103,7 +102,7 @@ export default function Home() {
 
   const deleteSubspace = useCallback((payload) => {
     let lens_id = payload["old"]["lens_id"]
-    console.log("Deleting space", payload);
+    console.log("Deleting lens", payload);
     setLenses((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
   }, []);
 
@@ -114,9 +113,9 @@ export default function Home() {
     });
 
     return load<Response>(updatePromise, {
-      loading: "Updating space name...",
-      success: "Space name updated!",
-      error: "Failed to update space name.",
+      loading: "Updating lens name...",
+      success: "Lens name updated!",
+      error: "Failed to update lens name.",
     });
   }
 
@@ -131,7 +130,7 @@ export default function Home() {
       .subscribe();
 
     return () => {
-      console.log("Unsubscribing from space changes")
+      console.log("Unsubscribing from lens changes")
       if (channel) {
         channel.unsubscribe();
       }
@@ -182,7 +181,6 @@ export default function Home() {
           onChangeLayout={onChangeLensLayout}
         />
       </Box>
-      <FinishedOnboardingModal />
     </Flex >
   );
 }

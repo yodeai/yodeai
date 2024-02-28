@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
         
     if (error) {
         return new NextResponse(
-            JSON.stringify({ error: 'Failed to retrieve pages for the space.' }),
+            JSON.stringify({ error: 'Failed to retrieve blocks for lens.' }),
             { status: 404 }
         );
     }

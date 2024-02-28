@@ -62,9 +62,9 @@ export async function GET(request: NextRequest, { params }: { params: { googleUs
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error retrieving the space's pages:", error);
+        console.error("Error retrieving lens's blocks:", error);
         return new NextResponse(
-            JSON.stringify({ error: 'Failed to retrieve pages for the space.' }),
+            JSON.stringify({ error: 'Failed to retrieve blocks for lens.' }),
             { status: 500 }
         );
     }

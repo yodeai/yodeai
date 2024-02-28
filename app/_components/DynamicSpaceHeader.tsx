@@ -71,7 +71,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
 
     const openDeleteModal = () => modals.openConfirmModal({
-        title: 'Confirm page deletion',
+        title: 'Confirm block deletion',
         centered: true,
         confirmProps: { color: 'red' },
         children: (
@@ -79,7 +79,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 Are you sure you want to delete this block? This action cannot be undone.
             </Text>
         ),
-        labels: { confirm: 'Delete page', cancel: "Cancel" },
+        labels: { confirm: 'Delete block', cancel: "Cancel" },
         onCancel: () => console.log('Canceled deletion'),
         onConfirm: handleDeleteLens
     });
@@ -88,12 +88,12 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         try {
             const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
             if (pinResponse.ok) {
-                console.log("Pinned spaces", lens.lens_id)
+                console.log("Pinned lens", lens.lens_id)
                 setPinnedLenses(pinnedLenses => [...pinnedLenses, lens])
             }
             if (!pinResponse.ok) console.error("Failed to pin lens");
         } catch (error) {
-            console.error("Error pinning spaces:", error);
+            console.error("Error pinning lens:", error);
         }
     }
 
@@ -104,9 +104,9 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 console.log("Unpinned lens", lens.lens_id)
                 setPinnedLenses(pinnedLenses => pinnedLenses.filter(pinnedLens => pinnedLens.lens_id !== lens.lens_id))
             }
-            if (!pinResponse.ok) console.error("Failed to unpin spaces");
+            if (!pinResponse.ok) console.error("Failed to unpin lens");
         } catch (error) {
-            console.error("Error unpinning spaces:", error);
+            console.error("Error unpinning lens:", error);
         }
     }
 

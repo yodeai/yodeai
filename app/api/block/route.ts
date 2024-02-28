@@ -22,7 +22,7 @@ async function addBlockToInbox(supabase, block_id, user_id){
   .select();
 
   if (error) {
-    console.log("error inserting page into inbox: ", error)
+    console.log("error inserting block into inbox: ", error)
     throw error;
   }
 }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     if (data && data[0]) {
       newBlock = data[0];
       addBlockToInbox(supabase, newBlock.block_id, user.id);
-      console.log("processing page now", newBlock.block_id);
+      console.log("processing block now", newBlock.block_id);
     
       apiClient('/processBlock', 'POST', { block_id: newBlock.block_id, delay: delay })
         .then(result => {
@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
               .from('block')
               .update({ 'status': 'failure' })
               .eq('block_id', newBlock.block_id);
-            console.log('Page status updated to failure', newBlock.block_id);
+            console.log('Block status updated to failure', newBlock.block_id);
           } catch (updateError) {
-            console.error('Error updating page status', updateError);
+            console.error('Error updating block status', updateError);
           }
         });
     }
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       console.log('Submitted task to process ancestors', result);
     })
     .catch(error => {
-      console.error('Error adding page to ancestors: ' + error.message);
+      console.error('Error adding block to ancestors: ' + error.message);
     });
 
       // Update the lens's updated_at to the current timestamp

@@ -39,7 +39,7 @@ export default function BlockHeader(props: BlockHeaderProps) {
     }
 
     const openDeleteModal = () => modals.openConfirmModal({
-        title: 'Confirm page deletion',
+        title: 'Confirm block deletion',
         centered: true,
         confirmProps: { color: 'red' },
         children: (
@@ -47,14 +47,14 @@ export default function BlockHeader(props: BlockHeaderProps) {
                 Are you sure you want to delete this block? This action cannot be undone.
             </Text>
         ),
-        labels: { confirm: 'Delete page', cancel: "Cancel" },
+        labels: { confirm: 'Delete block', cancel: "Cancel" },
         onCancel: () => console.log('Canceled deletion'),
         onConfirm: () => {
             const deletePromise = onDelete();
             load(deletePromise, {
-                loading: "Deleting page...",
-                success: "Page deleted.",
-                error: "Failed to delete page."
+                loading: "Deleting block...",
+                success: "Block deleted.",
+                error: "Failed to delete block."
             });
         }
     });

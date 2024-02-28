@@ -10,20 +10,18 @@ import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
 import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
 import { FaHouse } from "react-icons/fa6";
-import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
+import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
 import { Database } from "app/_types/supabase";
-import OnboardingPopover from "./Onboarding/OnboardingPopover";
 const supabase = createClientComponentClient<Database>()
 
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
-    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
-    resetOnboarding, onboardingStep, onboardingIsComplete, goToNextOnboardingStep
+    lensId, setLensId, reloadLenses, setActiveComponent, user,
+    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -96,55 +94,20 @@ export default function Navbar() {
 
   const [opened, setOpened] = useState(false);
 
-  const togglePopover = () => {
-    const newState = !opened;
-    setOpened(newState);
-
-    if (newState && onboardingStep === 5 && !onboardingIsComplete) {
-      goToNextOnboardingStep();
-    }
-  };
-
   return <>
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
-          {(onboardingStep === 5 && !onboardingIsComplete)
-            ?
-            <OnboardingPopover
-              width={430}
-              stepToShow={5}
-              position="right-start"
-              popoverContent={
-                <>
-                  <Text size="sm" mb={10}>The Yodeai agent answers questions based on the pages within a particular <b>space.</b></Text>
-                  <Text size="sm">To create a space, click <b>+ New</b> then <b>+ New Space</b></Text>
-                </>
-              }
-            >
-              <Button
-                onClick={togglePopover}
-                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
-                leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-                color="gray"
-                variant="gradient"
-                opacity={0.9}
-              >
-                New
-              </Button>
-            </OnboardingPopover>
-            :
-            <Button
-              onClick={togglePopover}
-              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
-              leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
-              color="gray"
-              variant="gradient"
-              opacity={0.9}
-            >
-              New
-            </Button>
-          }
+          <Button
+            onClick={() => setOpened(!opened)}
+            style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+            leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+            color="gray"
+            variant="gradient"
+            opacity={0.9}
+          >
+            New
+          </Button>
         </Flex>
       </Popover.Target>
       <Popover.Dropdown p={0}>
@@ -155,7 +118,7 @@ export default function Navbar() {
             <Flex ml={-8} align={"center"} justify={"center"} direction={"row"}>
               <FaPlus style={{ marginRight: 1 }} size={8} />
               <FaSquare size={12} />
-              <Box ml={10}>New Page</Box>
+              <Box ml={10}>New Block</Box>
             </Flex>
           }
           active
@@ -191,7 +154,7 @@ export default function Navbar() {
       <Link href="/myblocks" className="no-underline" prefetch>
         <NavLink
           component="div"
-          label="My Pages"
+          label="My Blocks"
           leftSection={<FaThLarge size={18} />}
           color={pathname === "/myblocks" ? "blue" : "#888"}
           variant={pathname === "/myblocks" ? "light" : "subtle"}
@@ -208,7 +171,6 @@ export default function Navbar() {
           active
         />
       </Link>
-      {/* <Anchor onClick={resetOnboarding}>{onboardingStep}</Anchor> */}
     </Flex>
 
     <Divider

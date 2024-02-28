@@ -107,7 +107,7 @@ export default function MyBlocks() {
   return (
     <Flex direction="column" pt={0}>
       <SpaceHeader
-        title="My Pages"
+        title="My Blocks"
         selectedLayoutType="block"
         staticLayout={true}
       />
@@ -127,7 +127,7 @@ export default function MyBlocks() {
 
       {!loading && sortedBlocks?.length == 0 &&
         <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-          Nothing to show here. As you add pages they will initially show up in your Inbox.
+          Nothing to show here. As you add blocks they will initially show up in your Inbox.
         </Text> || ""
       }
 
