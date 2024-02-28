@@ -1243,6 +1243,57 @@ export type Database = {
           }
         ]
       }
+      widget: {
+        Row: {
+          created_at: string
+          id: number
+          input: Json | null
+          lens_id: number | null
+          name: string | null
+          output: Json | null
+          owner_id: string | null
+          state: Json | null
+          type: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          input?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          output?: Json | null
+          owner_id?: string | null
+          state?: Json | null
+          type?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          input?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          output?: Json | null
+          owner_id?: string | null
+          state?: Json | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_widget_lens_id_fkey"
+            columns: ["lens_id"]
+            isOneToOne: false
+            referencedRelation: "lens"
+            referencedColumns: ["lens_id"]
+          },
+          {
+            foreignKeyName: "public_widget_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
