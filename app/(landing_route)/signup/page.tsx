@@ -6,7 +6,7 @@ import { IconAt } from '@tabler/icons-react'
 export default function Signup() {
   return (
     <Flex mt={100} style={{ width: '100%' }} align="center" justify="center" direction={"column"}>
-      <Text fw={600} size='lg'>Sign up for Yode</Text>
+      <Text fw={600} size='lg'>Sign up for Yodeai</Text>
 
       <Flex align={"center"} justify={"center"} direction={"column"}>
 

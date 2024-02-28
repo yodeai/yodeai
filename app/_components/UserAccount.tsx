@@ -5,7 +5,7 @@ import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
-import { checkGoogleAccountConnected, clearCookies, getUserInfo } from '@utils/googleUtils';
+import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 
 
 const UserAccountHandler = () => {

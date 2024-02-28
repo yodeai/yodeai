@@ -56,7 +56,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                 mt={30}
                 mb={15}
             >
-                This space is empty, add blocks to populate this space with content & context.
+                This space is empty, add pages to populate this space with content & context.
             </Text>
         </Flex>
     )
