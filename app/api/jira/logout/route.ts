@@ -3,11 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    // Replace 'cookieName' with the name of the cookie you want to remove
-    const cookieName = 'jiraAuthExists';
-    // Set the cookie in the response headers
     const response = new NextResponse();
-    response.cookies.delete(cookieName)
+    response.cookies.delete('jiraAuthExists');
+    response.cookies.delete('jiraAuth');
     return response;
   } catch (error) {
     console.error('Error removing cookie:', error.message);

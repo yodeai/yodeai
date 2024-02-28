@@ -48,6 +48,7 @@ const UserAccountHandler = () => {
   const handleAtlassianLogout = async () => {
     await clearAtlassianCookies();
     setAtlassianAccountConnected(false);
+    window.location.reload();
   };
 
   useEffect(() => {
