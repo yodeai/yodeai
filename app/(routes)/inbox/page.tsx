@@ -13,6 +13,7 @@ import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -131,7 +132,7 @@ export default function Inbox() {
 
         <BlockColumnHeader />
 
-        <Text size="lg" fw={600} c={"gray.7"}>Latest Blocks</Text>
+        <Text size="lg" fw={600} c={"gray.7"}>Latest Pages</Text>
 
         {
           loading ? (
@@ -144,7 +145,7 @@ export default function Inbox() {
             ))
           ) : (
             <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-              Nothing to show here. As you add blocks they will initially show up in your Inbox.
+              Nothing to show here. As you add pages they will initially show up in your Inbox.
             </Text>
           )
         }
@@ -153,6 +154,7 @@ export default function Inbox() {
         <QuestionAnswerForm />
       </Flex> */}
       </Box>
+      <FinishedOnboardingModal />
     </Flex >
   );
 }

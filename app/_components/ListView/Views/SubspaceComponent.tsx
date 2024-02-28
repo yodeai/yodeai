@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Anchor, Text, Button, Flex } from '@mantine/core';
+import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/core';
 import BlockComponent from './BlockComponent';
 import { PiCaretUpBold, PiCaretDownBold, PiCaretRightBold } from "react-icons/pi";
 import LoadingSkeleton from '../../LoadingSkeleton';
@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
 import { Lens, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
+import { useAppContext } from "@contexts/context";
+import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
 type SubspaceComponentProps = {
   subspace: Subspace | Lens;
@@ -19,7 +21,11 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   const [childSubspaces, setChildSubspaces] = useState([]);
   const router = useRouter();
 
+  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding } = useAppContext();
+
   const handleSubspaceClick = () => {
+    if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
+
     if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
     else router.push(`${window.location.pathname}/${subspace.lens_id}`)
   };
@@ -31,7 +37,10 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
       if (isExpanded) {
         try {
           let googleUserId = await getUserInfo();
+          
           const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks/${googleUserId}`);
+          if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
+
           const blocksData = await blocksResponse.json();
           setBlocks(blocksData?.data);
 
@@ -60,7 +69,25 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
         </Button>
         <Anchor size="xs" underline="never" onClick={handleSubspaceClick}>
           <Flex ml={3} align={"center"}>
-            <Text size="md" fw={600} c="gray.7">{subspace.name}</Text>
+            {(subspace.name === "Welcome to Yodeai!" && onboardingStep === 0 && !onboardingIsComplete)
+              ?
+              <OnboardingPopover
+                stepToShow={0}
+                width={500}
+                position="right-start"
+                popoverContent={
+                  <>
+                    <Text size="sm" mb={10}>Welcome to Yodeai! Here are a few <b>tips</b> to help you get familiar with your Yodeai workspace.</Text>
+                    <Text size="sm" mb={10}>Click the <b>"Welcome to Yodeai!"</b> space to begin.</Text>
+                    <Anchor onClick={() => completeOnboarding()} underline='always' c={"black"} size="sm">Or, click here to dismiss tips.</Anchor>
+                  </>
+                }
+              >
+                <Text size="md" fw={600} c="gray.7">{subspace.name}</Text>
+              </OnboardingPopover>
+              :
+              <Text size="md" fw={600} c="gray.7">{subspace.name}</Text>
+            }
           </Flex>
         </Anchor>
       </div>
@@ -83,7 +110,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
                     <LoadingSkeleton boxCount={3} lineHeight={15} />
                   </>
                   :
-                  <Text size="sm" fw={400} c="gray.6">{"No blocks found within this subspace"}</Text>
+                  <Text size="sm" fw={400} c="gray.6">{"No pages found within this subspace"}</Text>
                 }
               </Flex>
             }

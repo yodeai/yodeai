@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, { params,}: {params: { lens_id:
         const supabase = createServerComponentClient({ cookies, });
         const { block_id } = await request.json();
         const lens_id = params.lens_id;
-        console.log("removing block from lens", block_id, lens_id);
+        console.log("removing page from space", block_id, lens_id);
 
         if (!lens_id || !block_id) {
             throw new Error('Missing lens_id or block_id.');
@@ -68,17 +68,17 @@ export async function POST(request: NextRequest, { params,}: {params: { lens_id:
         console.log('Submitted task to process ancestors', result);
       })
       .catch(error => {
-        console.error('Error adding block to ancestors: ' + error.message);
+        console.error('Error adding page to ancestors: ' + error.message);
       });
 
         return new NextResponse(
-            JSON.stringify({ message: 'Successfully removed block from lens.' }),
+            JSON.stringify({ message: 'Successfully removed page from space.' }),
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error removing block from lens:", error);
+        console.error("Error removing page from space:", error);
         return new NextResponse(
-            JSON.stringify({ error: 'Failed to remove block from lens.' }),
+            JSON.stringify({ error: 'Failed to remove page from space.' }),
             { status: 500 }
         );
     }

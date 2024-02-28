@@ -54,14 +54,14 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
                     (response.metadata.blocks || []).map(async (blockId: string) => {
                         try {
                             const blockResponse = await fetch(`/api/publishedBlocks/${blockId}`);
-                            if (!blockResponse.ok) throw new Error('Failed to fetch block title');
+                            if (!blockResponse.ok) throw new Error('Failed to fetch page title');
                             const blockData = await blockResponse.json();
 
-                            if (!blockData.ok) throw new Error('Failed to retrieve valid block data');
+                            if (!blockData.ok) throw new Error('Failed to retrieve valid page data');
 
                             return { title: blockData.data.title, blockId }; // Store title and blockId
                         } catch (error) {
-                            console.error("Error fetching block title:", error);
+                            console.error("Error fetching page title:", error);
                             return { title: 'Unknown Source', blockId };
                         }
                     })
