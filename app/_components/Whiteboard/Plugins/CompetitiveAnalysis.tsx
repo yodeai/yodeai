@@ -46,7 +46,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                 data: { text: company.company_url, size: 16 },
                 position: {
                     x: 0,
-                    y: summaryBoxBounding.bottom + 50,
+                    y: summaryBoxBounding.bottom + 70
                 }, width: 250, height: 60
             }),
             createText({
@@ -54,7 +54,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                 position: {
                     x: 50,
                     y: summaryBoxBounding.bottom + 10,
-                }, width: 360, height: 60
+                }, width: 200, height: 60
             }),
             createText({
                 data: { text: company.data[0].content, size: 16 },
@@ -134,21 +134,21 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         // appending analysis content
         let companyContentNodes: Node<any>[] = [];
         company.data.slice(1).forEach((content, index) => {
-            const stickyNoteBoxHeight = calculateStickyNoteBoxHeight(content.content, 150);
+            const stickyNoteBoxHeight = calculateStickyNoteBoxHeight(content.content, 250);
             companyContentNodes.push(
                 createText({
                     data: { text: content.title, size: 12 },
                     position: {
-                        x: (200 * index),
+                        x: (300 * index),
                         y: 0,
-                    }, width: 150, height: 40
+                    }, width: 250, height: 50
                 }),
                 createStickyNote({
                     data: { text: content.content, color: companyColor },
                     position: {
-                        x: (200 * index),
-                        y: 50,
-                    }, width: 150, height: stickyNoteBoxHeight
+                        x: (300 * index),
+                        y: 60,
+                    }, width: 250, height: stickyNoteBoxHeight
                 })
             )
         });

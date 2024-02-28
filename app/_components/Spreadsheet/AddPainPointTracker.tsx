@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box } from '@mantine/core';
+import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box, Checkbox } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
 
@@ -20,15 +20,19 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     const [opened, { close }] = modalController;
     const supabase = createClientComponentClient();
     const [name, updateName] = useState("")
+    const [appName, updateAppName] = useState("");
     const [insightAreas, setInsightAreas] = useState<string[]>([]);
     const [numberOfPainPoints, setNumberOfPainPoints] = useState<number>(0); // New state for the number of pain points
+    const [generatePainPoints, setGeneratePainPoints] = useState(false);
+    const [gatherReviews, setGatherReviews] = useState(false);
+
 
     const handleNumberOfPainPointsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(event.target.value);
         setNumberOfPainPoints(value);
     };
     const startPainpointAnalysis = async(spreadsheet_id) => {
-        const body = { spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints }
+        const body = { spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints, app_name: appName }
         let queued = false
         await apiClient('/painpointAnalysis', 'POST', body)
           .then(result => {
@@ -46,6 +50,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     useEffect(() => {
         updateName("");
         setInsightAreas([]);
+        setNumberOfPainPoints(0);
     }, [opened])
 
     const handleCreateSpreadsheet = async () => {
@@ -59,7 +64,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 body: JSON.stringify({
                     name,
                     lens_id: lensId,
-                    dataSource: [],
+                    dataSource: {},
                     plugin: {
                         name: "pain-point-tracker",
                         data: {},
@@ -116,66 +121,99 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 <Modal.Body p={2} pt={0}>
                     <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
                     <Flex key="name" className="w-full mb-5">
-                        <Input.Wrapper label="Spreadsheet name" className="w-full">
+                        <Input.Wrapper label="Spreadsheet name" className="w-full mt-2">
                             <Input
                                 id="whiteboardName"
-                                className="mt-0.5 w-full"
+                                className="w-full"
                                 placeholder="Enter name of the spreadsheet"
                                 value={name}
                                 onChange={(event) => updateName(event.currentTarget.value)}
                             />
                         </Input.Wrapper>
                     </Flex>
-                    <Box className="w-full flex flex-col items-center gap-2 mb-2">
-                        <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
-                        <Text className="w-full mb-5 text-gray-300" size="xs">
-                            If you would like to autogenerate painpoints from the reviews, enter the number of painpoints you wish to extract.
-                        </Text>
-                    </Box>
                     <Flex mt={10} className = "flex-1 w-full flex-col">
-                        <Input
-                            type="number"
-                            min={1}
-                            max={9}
-                            value={numberOfPainPoints.toString()}
-                            onChange={handleNumberOfPainPointsChange}
-                            className="w-full"
-                        />
+                    <Checkbox
+                    checked={gatherReviews}
+                    onChange={(event) => setGatherReviews(event.currentTarget.checked)}
+                    label="Gather reviews to populate this current space"
+                    />
                     </Flex>
-
-                    <Box mt={10} className="w-full flex flex-col items-center gap-2 mb-2">
-                        <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
-                        <Text className="w-full mb-5 text-gray-300" size="xs">
-                            If you would like to provide your own painpoints, enter the painpoints you wish to extract from reviews.
-                        </Text>
-                    </Box>
-
-                    <Flex className="flex-1 w-full flex-col">
-                        {insightAreas.map((area, index) => (
-                            <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
+                    {gatherReviews ? 
+                            <Flex key="app_name" className="w-full mb-5 mt-3">
+                            <Input.Wrapper label="App Name" className="w-full">
                                 <Input
-                                    className="mt-0.5 flex-1"
-                                    placeholder={`Painpoint ${index + 1}`}
-                                    value={area}
-                                    onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
+                                    id="appName"
+                                    className="mt-0.5 w-full"
+                                    placeholder="Enter the name of the app from the Apple App Store"
+                                    value={appName}
+                                    onChange={(event) => updateAppName(event.currentTarget.value)}
                                 />
-
-                                <ActionIcon
-                                    onClick={() => handleDeleteInsightArea(index)}
-                                    size="md"
-                                    color="red"
-                                    variant="gradient"
-                                    gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                                    mb={4}
-                                >
-                                    <FaTrashAlt size={14} />
-                                </ActionIcon>
-
-                            </Flex>
-                        ))}
+                            </Input.Wrapper>
+                        </Flex>
+                        : null
+                }
+                 <Flex mt={10} mb={20} className = "flex-1 w-full flex-col">
+                <Checkbox
+                    checked={generatePainPoints}
+                    onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
+                    label="Autogenerate Painpoints"
+                    />
                     </Flex>
 
-                    <Flex mt={10} gap="xs">
+                {generatePainPoints ? 
+                <div>
+                <Box className="w-full flex flex-col items-center gap-2 mb-2">
+                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
+                <Text className="w-full mb-5 text-gray-300" size="xs">
+                    Enter the max number of painpoints you wish to extract.
+                </Text>
+            </Box>
+            <Flex mt={10} className = "flex-1 w-full flex-col">
+                <Input
+                    type="number"
+                    min={1}
+                    max={9}
+                    value={numberOfPainPoints.toString()}
+                    onChange={handleNumberOfPainPointsChange}
+                    className="w-full"
+                />
+            </Flex>
+            </div>
+            : 
+            <div>
+            <Box  className="w-full flex flex-col items-center gap-2 mb-2">
+                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
+                <Text className="w-full mb-5 text-gray-300" size="xs">
+                    Enter the painpoints you wish to extract from reviews.
+                </Text>
+            </Box>
+
+            <Flex className="flex-1 w-full flex-col">
+                {insightAreas.map((area, index) => (
+                    <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
+                        <Input
+                            className="mt-0.5 flex-1"
+                            placeholder={`Painpoint ${index + 1}`}
+                            value={area}
+                            onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
+                        />
+
+                        <ActionIcon
+                            onClick={() => handleDeleteInsightArea(index)}
+                            size="md"
+                            color="red"
+                            variant="gradient"
+                            gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                            mb={4}
+                        >
+                            <FaTrashAlt size={14} />
+                        </ActionIcon>
+
+                    </Flex>
+                ))}
+            </Flex>
+
+            <Flex mt={10} gap="xs">
                         <Button unstyled
                             leftSection={<FaPlus size="14px" />}
                             classNames={{
@@ -187,6 +225,9 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                             Add more
                         </Button>
                     </Flex>
+            </div>}
+            
+
 
                     <Flex mt={20} gap="xs">
                         <Button h={26} style={{ flex: 1 }} size='xs' onClick={handleCreateSpreadsheet}>

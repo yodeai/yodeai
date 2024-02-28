@@ -15,6 +15,7 @@ import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
 import { Database } from "app/_types/supabase";
+import { RiPushpinFill } from "react-icons/ri";
 const supabase = createClientComponentClient<Database>()
 
 export default function Navbar() {
@@ -72,6 +73,7 @@ export default function Navbar() {
 
   const handleUnpinLens = async (lens_id: number, event: React.MouseEvent) => {
     event.preventDefault();
+    event.nativeEvent.stopImmediatePropagation();
     setStateOfLenses({ ...stateOfLenses, [lens_id]: true });
 
     try {
@@ -179,7 +181,7 @@ export default function Navbar() {
       pr={8}
       label={
         <>
-          <FaCubes size={12} />
+          <RiPushpinFill size={12} />
           <Box ml={5}>Pinned Spaces</Box>
         </>
       }

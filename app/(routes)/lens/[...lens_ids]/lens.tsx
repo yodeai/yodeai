@@ -25,6 +25,7 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
 import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheet';
+import { ContentProvider } from "@contexts/content";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -601,48 +602,54 @@ export default function Lens(props: LensProps) {
   }, [sortingOptions, spreadsheets])
 
   return (
-    <Flex direction="column" pt={0} h="100%">
-      <DynamicSpaceHeader
-        loading={loading}
-        lens={lens}
-        lensName={lensName}
-        editingLensName={editingLensName}
-        isEditingLensName={isEditingLensName}
-        setIsEditingLensName={setIsEditingLensName}
-        handleNameChange={handleNameChange}
-        handleKeyPress={handleKeyPress}
-        saveNewLensName={saveNewLensName}
-        handleDeleteLens={handleDeleteLens}
-        accessType={accessType}
-        selectedLayoutType={selectedLayoutType}
-        handleChangeLayoutView={handleChangeLayoutView}
-      />
-      <Box className="flex items-stretch flex-col h-full">
-        {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-        {!loading && <LayoutController
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          handleLensChangeName={handleLensChangeName}
-          handleLensDelete={handleLensDelete}
-          handleWhiteboardDelete={handleWhiteboardDelete}
-          handleWhiteboardChangeName={handleWhiteboardChangeName}
-          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-          handleSpreadsheetDelete={handleSpreadsheetDelete}
-          onChangeLayout={onChangeLensLayout}
-          handleItemSettings={handleItemSettings}
-          layout={layoutData}
-          blocks={sortedBlocks}
-          subspaces={sortedSubspaces}
-          whiteboards={sortedWhiteboards}
-          spreadsheets={sortedSpreadsheets}
-          itemIcons={itemIcons}
-          layoutView={selectedLayoutType} />}
-      </Box>
-      <IconItemSettingsModal
-        item_icons={itemIcons}
-        item={$settingsItem.current}
-        lens_id={lens_id}
-        modalController={iconItemDisclosure} />
-    </Flex>
+    <ContentProvider 
+      blocks={blocks}
+      whiteboards={whiteboards}
+      subspaces={subspaces}
+      spreadsheets={spreadsheets}>
+      <Flex direction="column" pt={0} h="100%">
+        <DynamicSpaceHeader
+          loading={loading}
+          lens={lens}
+          lensName={lensName}
+          editingLensName={editingLensName}
+          isEditingLensName={isEditingLensName}
+          setIsEditingLensName={setIsEditingLensName}
+          handleNameChange={handleNameChange}
+          handleKeyPress={handleKeyPress}
+          saveNewLensName={saveNewLensName}
+          handleDeleteLens={handleDeleteLens}
+          accessType={accessType}
+          selectedLayoutType={selectedLayoutType}
+          handleChangeLayoutView={handleChangeLayoutView}
+        />
+        <Box className="flex items-stretch flex-col h-full">
+          {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
+          {!loading && <LayoutController
+            handleBlockChangeName={handleBlockChangeName}
+            handleBlockDelete={handleBlockDelete}
+            handleLensChangeName={handleLensChangeName}
+            handleLensDelete={handleLensDelete}
+            handleWhiteboardDelete={handleWhiteboardDelete}
+            handleWhiteboardChangeName={handleWhiteboardChangeName}
+            handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+            handleSpreadsheetDelete={handleSpreadsheetDelete}
+            onChangeLayout={onChangeLensLayout}
+            handleItemSettings={handleItemSettings}
+            layout={layoutData}
+            blocks={sortedBlocks}
+            subspaces={sortedSubspaces}
+            whiteboards={sortedWhiteboards}
+            spreadsheets={sortedSpreadsheets}
+            itemIcons={itemIcons}
+            layoutView={selectedLayoutType} />}
+        </Box>
+        <IconItemSettingsModal
+          item_icons={itemIcons}
+          item={$settingsItem.current}
+          lens_id={lens_id}
+          modalController={iconItemDisclosure} />
+      </Flex>
+    </ContentProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { NodeProps } from "reactflow";
-import { withNodeController } from "@components/Whiteboard/NodeWrapper";
+import { withNodeController } from "@components/Whiteboard/Helpers/NodeWrapper";
 
 import * as StickyNote from "./StickyNote";
 import * as DynamicElements from "./DynamicElements";

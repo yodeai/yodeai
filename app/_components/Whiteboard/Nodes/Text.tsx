@@ -1,9 +1,11 @@
 import React, { memo, useState, useRef, useEffect } from 'react'
 import { NodeProps, Handle, Position } from 'reactflow'
-import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
-import ResizableNode from '@components/Whiteboard/Resizer'
+import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
+import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
 import { FaA } from 'react-icons/fa6'
+import { Handles } from '@components/Whiteboard/Helpers/Handles'
+import { useFlow } from '@components/Whiteboard/Helpers/FlowWrapper'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
@@ -24,6 +26,7 @@ export const defaultNodeProps: { height: number; width: number } = {
 
 export const Component = memo(({ data, node, selected, updateNode, updateNodeSelf }: StickyNoteProps) => {
     const [text, setText] = useState(data.text);
+    const { isLocked } = useFlow();
 
     const handleChange = (event) => {
         setText(event.target.value);
@@ -35,21 +38,21 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
 
     return <ResizableNode selected={selected}>
         <TextSizer value={node.data.size} selected={selected} handleTextSizeChange={(size) => updateNode({ size })} />
-        <Handle type="target" position={Position.Left} />
-        <div className="rounded-lg border border-gray-200">
-            <textarea
-                style={{
-                    height: node.height || 50,
-                    width: node.width || 100,
-                    fontSize: node.data.size
-                }}
-                className="border-none m-0 resize-none block w-full bg-transparent"
-                value={text}
-                onChange={handleChange}
-                onBlur={handleBlur}
-            />
-        </div>
-        <Handle type="source" position={Position.Right} />
+        <Handles>
+            <div className={cn("rounded-lg border border-transparent", !isLocked && "border-gray-200 box-content" || "")}>
+                <textarea
+                    style={{
+                        height: node.height || 50,
+                        width: node.width || 100,
+                        fontSize: node.data.size
+                    }}
+                    className="border-none m-0 resize-none block w-full bg-transparent"
+                    value={text}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                />
+            </div>
+        </Handles>
     </ResizableNode>
 });
 

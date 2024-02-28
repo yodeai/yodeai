@@ -186,7 +186,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
           p={0} m={0}
           h={20}
           onChange={onChangeTitle} placeholder="Title" value={titleText} />
-        : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">{titleText}</Text>
+        : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
       }
     </Box>
   </Flex>

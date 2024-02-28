@@ -5,6 +5,9 @@ import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { WhiteboardComponentProps } from "app/_types/whiteboard";
 import { access } from "fs";
+import { Result } from "@components/Result";
+import { MdError } from "react-icons/md";
+import { FaCircleNotch } from "react-icons/fa";
 
 type WhiteboardPageProps = {
     params: { whiteboard_id: number }
@@ -32,9 +35,21 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
         redirect("/notFound");
     }
     let whiteboard = (data as WhiteboardComponentProps["data"])
+
+    if (whiteboard?.plugin?.state && whiteboard?.plugin?.state?.status === 'error') {
+        return <Result
+            title="Error"
+            description="The plugin has encountered an error, and the output is not available at this time. Please try again later."
+            icon={<MdError color="#222" size={28} />} />
+    }
+
     if (whiteboard?.plugin?.state && whiteboard?.plugin?.state?.status !== 'success') {
-        return <p>Whiteboard is still processing, please check back later.</p>;
-    }  
+        return <Result
+            refreshInvervally={true}
+            title="Processing..."
+            description="Spreadsheet is still processing, please check back later."
+            icon={<FaCircleNotch className="animate-spin" size={24} />} />
+    }
 
     const accessTypeResponse = await supabase.rpc('get_access_type_whiteboard', { "chosen_user_id": user.id, "chosen_whiteboard_id": whiteboard_id })
     if (accessTypeResponse.error) {

@@ -31,7 +31,7 @@ const icons: {
     "plugin_pain-point-tracker": (props) => <FaChartLine {...defaultProps} {...props} />,
 
     // custom icons
-    shared_subspace: (props) => <SharedSubspace transform="scale(0.75), translate(0, 10)"  {...props} />,
+    shared_subspace: (props) => <SharedSubspace {...defaultProps} {...props} />,
 
     // optional icons
     star: (props) => <FaStar {...defaultProps} {...props} />,
