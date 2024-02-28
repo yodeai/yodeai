@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 
-import widgets, { WidgetType } from '@components/Widgets';
+import widgets, { WidgetComponentProps, WidgetComponentType, WidgetType } from '@components/Widgets';
 import { Result } from "@components/Result";
 import { MdError } from "react-icons/md";
 import { WidgetData } from "app/_types/widget";
@@ -31,8 +31,6 @@ export default async function Page({ params, searchParams }: PageProps) {
     const user = userData.data.user;
     if (!userData || !user) return redirect("/notFound");
 
-    console.log({ widget_id, widget_type })
-
     const { data, error } = await supabase
         .from('widget')
         .select('*')
@@ -46,12 +44,21 @@ export default async function Page({ params, searchParams }: PageProps) {
         return redirect("/notFound");
     }
 
-    const Widget: WidgetType<WidgetData> = widgets[widget_type];
+    const Widget: WidgetComponentType<{}, {}> = widgets[widget_type];
 
+    const accessTypeResponse = await supabase.rpc('get_access_type_widget', { "chosen_user_id": user.id, "chosen_widget_id": widget_id })
+    if (accessTypeResponse.error) {
+        console.log("message", accessTypeResponse.error.message);
+        throw accessTypeResponse.error.message;
+    }
+
+    const accessType = accessTypeResponse.data as "owner" | "editor" | "reader";
     return <Widget
+        widget_id={widget_id}
         name={data.name}
         input={data.input}
         output={data.output}
         state={data.state as WidgetData["state"]}
+        access_type={accessType}
     />
 }

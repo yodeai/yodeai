@@ -1246,7 +1246,6 @@ export type Database = {
       widget: {
         Row: {
           created_at: string
-          id: number
           input: Json | null
           lens_id: number | null
           name: string | null
@@ -1254,10 +1253,10 @@ export type Database = {
           owner_id: string | null
           state: Json | null
           type: string | null
+          widget_id: number
         }
         Insert: {
           created_at?: string
-          id?: number
           input?: Json | null
           lens_id?: number | null
           name?: string | null
@@ -1265,10 +1264,10 @@ export type Database = {
           owner_id?: string | null
           state?: Json | null
           type?: string | null
+          widget_id?: number
         }
         Update: {
           created_at?: string
-          id?: number
           input?: Json | null
           lens_id?: number | null
           name?: string | null
@@ -1276,6 +1275,7 @@ export type Database = {
           owner_id?: string | null
           state?: Json | null
           type?: string | null
+          widget_id?: number
         }
         Relationships: [
           {
@@ -1330,6 +1330,13 @@ export type Database = {
       get_access_type_whiteboard: {
         Args: {
           chosen_whiteboard_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
+      get_access_type_widget: {
+        Args: {
+          chosen_widget_id: number
           chosen_user_id: string
         }
         Returns: string

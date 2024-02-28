@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Ticket } from './index';
-import { Input, Button, LoadingOverlay, Overlay, Text, ButtonGroup } from '@mantine/core';
-import { FaCheck, FaLink, FaPen } from 'react-icons/fa6';
-import { FaSave, FaCheckCircle } from 'react-icons/fa';
+import { Input, Button, LoadingOverlay, Text, Overlay } from '@mantine/core';
+import { FaCheck, FaPen } from 'react-icons/fa6';
+import { FaCheckCircle, FaLink, FaSave } from 'react-icons/fa';
 import { MdOutlineTitle } from 'react-icons/md';
 
 import 'easymde/dist/easymde.min.css';
@@ -12,12 +12,23 @@ import Link from 'next/link';
 
 type TicketProps = {
     data: Ticket
-    onHandleUpdate: (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket) => void
+    handleChange: (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket) => void
+    handleUpdate: () => Promise<void>;
     onExport?: (ticket: Ticket) => Promise<any>;
 }
-export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps) => {
+export const TicketComponent = ({ data, handleChange, handleUpdate, onExport }: TicketProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [editMode, setEditMode] = useState(false);
+
+    const switchEdit = async () => {
+        setEditMode(!editMode);
+
+        if (editMode) {
+            setIsLoading(true);
+            await handleUpdate();
+            setIsLoading(false);
+        }
+    }
 
     const handleExport = async (ticket: Ticket) => {
         setIsLoading(true);
@@ -33,7 +44,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
 
     return <>
         <div className="grid grid-cols-1 gap-3 w-full h-full">
-            {/* {data.exported && <Overlay
+            {data.exported && <Overlay
                 zIndex={100}
                 backgroundOpacity={0.9}
                 blur={1}
@@ -51,7 +62,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
                         </Button>
                     </Link>
                 </div>
-            </Overlay>} */}
+            </Overlay>}
             <LoadingOverlay visible={isLoading} />
             <Input.Wrapper
                 label="Title" className="my-1">
@@ -59,7 +70,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
                     leftSection={<MdOutlineTitle size={16} />}
                     name="title"
                     value={data.title}
-                    onChange={(e) => onHandleUpdate(e, data)}
+                    onChange={(e) => handleChange(e, data)}
                     disabled={!editMode}
                 />
             </Input.Wrapper>
@@ -73,7 +84,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
                             className="h-full overflow-scroll"
                             options={editorOptions}
                             value={data.summary}
-                            onChange={(value) => onHandleUpdate({ target: { name: "summary", value } } as any, data)}
+                            onChange={(value) => handleChange({ target: { name: "summary", value } } as any, data)}
                         />
                         : <ReactMarkdown className="propose text-gray-600">
                             {data.summary}
@@ -81,7 +92,6 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
                     }
                 </Input.Wrapper>
             </div>
-
 
             <div>
                 <Text className="mb-1" size="sm" fw={500}>Description</Text>
@@ -92,7 +102,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
                             className="h-full overflow-scroll"
                             options={editorOptions}
                             value={data.description}
-                            onChange={(value) => onHandleUpdate({ target: { name: "description", value } } as any, data)}
+                            onChange={(value) => handleChange({ target: { name: "description", value } } as any, data)}
                         />
                         : <ReactMarkdown className="propose text-gray-600">
                             {data.description}
@@ -104,7 +114,7 @@ export const TicketComponent = ({ data, onHandleUpdate, onExport }: TicketProps)
 
         <div className="flex mt-3 gap-3">
             <Button className="flex-1" variant="outline"
-                onClick={() => setEditMode(!editMode)}>
+                onClick={switchEdit}>
                 {editMode
                     ? <div className="flex gap-2">
                         <FaCheck size={12} />

@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 import { WidgetType } from '../index';
-import { Card, Title } from '@mantine/core';
+import { Card } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
+
+import WidgetHeader from '@components/Widgets/Header';
+import { useWidget } from '../hooks';
+import load from '@lib/load';
+import { useRouter } from 'next/navigation';
 
 /** 
  * @name PRDTickets
@@ -24,54 +29,77 @@ export type Ticket = {
     };
 }
 
-type WidgetProps = {
-    name: string;
-    input: {
-
-    };
-    output: {
-        tickets: Ticket[];
-    };
-    state?: {
-        status: "waiting" | "queued" | "processing" | "success" | "error";
-        message?: string;
-        progress?: number;
-    }
+type WidgetInputProps = { }
+type WidgetOutputProps = {
+    tickets: Ticket[];
 }
 
-const Widget: WidgetType<WidgetProps> = ({
-    input, output, state
-}) => {
-    const [tickets, setTickets] = useState<Ticket[]>(output.tickets);
+const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
+    const {
+        name,
+        input,
+        output,
+        state,
+        updateTitle,
+        updateWidget,
+        deleteWidget
+    } = useWidget<WidgetInputProps, WidgetOutputProps>(props);
+    const router = useRouter();
 
-    const updateTicket = (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket) => {
+    const [data, setData] = useState(props);
+    const [tickets, setTickets] = useState(output.tickets);
+
+    const updateTicket = (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket, ticketIndex: number) => {
         const { name, value } = event.target;
 
-        setTickets(tickets.map((t) => {
-            if (t.title === ticket.title) return { ...t, [name]: value };
-            return t;
-        }))
+        const newTickets = [...tickets];
+        newTickets[ticketIndex] = { ...ticket, [name]: value };
+        setTickets(newTickets);
     }
 
     const exportToJira = (ticket: Ticket): Promise<any> => {
-        console.log("Export to Jira", ticket);
         return new Promise(resolve => setTimeout(resolve, 1000))
     }
 
-    return <div className="m-8">
-        <div className="flex justify-between mb-4">
-            <div>
-                <Title order={2}>Tickets</Title>
-            </div>
-            <div>
-                {/* Right side of the header */}
-            </div>
+    const handleUpdateWidget = async () => {
+        const promise = updateWidget({ output: { tickets: tickets } });
 
-        </div>
-        <div className="grid grid-cols-2 gap-8">
+        return load<Response>(promise, {
+            loading: "Updating widget",
+            success: "Widget updated",
+            error: "Failed to update widget",
+        }).then(res => {
+            console.log(res)
+        })
+    }
+
+    const handleDeleteWidget = async () => {
+        const promise = deleteWidget();
+
+        return load<Response>(promise, {
+            loading: "Deleting widget",
+            success: "Widget deleted",
+            error: "Failed to delete widget",
+        }).then(() => {
+            router.replace(`/`)
+        })
+    }
+
+    return <div>
+        <WidgetHeader
+            title={name}
+            accessType={props.access_type}
+            onSave={updateTitle}
+            onDelete={handleDeleteWidget}
+        />
+
+        <div className="grid grid-cols-2 gap-8 m-8">
             {tickets.map((ticket, index) => (
                 <Card key={index} shadow="xs" padding="lg" radius="md">
-                    <TicketComponent onHandleUpdate={updateTicket} onExport={exportToJira} data={ticket} />
+                    <TicketComponent
+                        handleChange={(...args) => updateTicket(...args, index)}
+                        handleUpdate={handleUpdateWidget}
+                        onExport={exportToJira} data={ticket} />
                 </Card>
             ))}
         </div>
