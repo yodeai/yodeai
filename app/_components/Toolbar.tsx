@@ -230,7 +230,7 @@ export default function Toolbar() {
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                                 <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
-                                <Menu.Item onClick={widgetFormController.open}>PDR to Tickets</Menu.Item>
+                                <Menu.Item onClick={widgetFormController.open}>PRD to Tickets</Menu.Item>
                                 <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>

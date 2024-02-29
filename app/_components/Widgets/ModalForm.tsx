@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Container from "@components/Container";
-import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box, Checkbox } from '@mantine/core';
+import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box, Checkbox, Select } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
 import MockData from './mock.json';
+import { getUserInfo } from '@utils/googleUtils';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import apiClient from '@utils/apiClient';
 
 type AddWidgetModalProps = {
     lensId: number;
@@ -15,18 +18,63 @@ type AddWidgetModalProps = {
 export default function AddWidgetModal({ lensId, modalController }: AddWidgetModalProps) {
     const [loading, setLoading] = useState(false);
     const [opened, { close }] = modalController;
-
+    const [prdBlockId, setPRDBlockId] = useState<string | null>(null);
+    const [blocks, setBlocks] = useState([]);
+    const [isBlocksLoading, setIsBlocksLoading] = useState<boolean>(true);
+    const supabase = createClientComponentClient();
     const defaultFormValue = {
         name: "",
         fields: []
     }
 
+
     const [form, setForm] = useState(defaultFormValue);
+
+
+
+
+    const startJiraGeneration = async (widget_id) => {
+        const body = { widget_id, prd_block_id: prdBlockId, fields: form["fields"]}
+        let queued = false
+        await apiClient('/jiraGeneration', 'POST', body)
+          .then(result => {
+            console.log('Jira generation queued successfully', result);
+            queued = true
+          })
+          .catch(error => {
+            console.log('Error doing jira generation: ' + error.message);
+          });
+        return queued;
+    
+      }
+
+    const getLensBlocks = async (lensId: number) => {
+        setIsBlocksLoading(true);
+        let googleUserId = await getUserInfo();
+        try {
+          const response = await fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`);
+          if (!response.ok) {
+              throw new Error("Failed to fetching lens blocks");
+          }
+          const data = await response.json();
+          setBlocks(data.data.map((elem) => ({
+            value: String(elem.block_id),
+            label: String(elem.title),
+          })) || []);
+        } catch (error) {
+          console.error("JiraTicketExport:", error);
+        } finally {
+          setIsBlocksLoading(false);
+        }
+      }
 
     useEffect(() => {
         setForm(defaultFormValue);
     }, [opened])
 
+    useEffect(() => {
+        getLensBlocks(lensId);
+      }, [lensId]);
     const handleCreateWidget = async () => {
         setLoading(true);
         try {
@@ -40,13 +88,10 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
                     input: {
                         fields: form.fields
                     },
-                    output: {
-                        tickets: MockData
-                    },
                     type: "prd-to-tickets",
                     lens_id: lensId,
                     state: {
-                        status: "success"
+                        status: "waiting"
                     }
                 }),
             });
@@ -54,6 +99,17 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            const widget_id = data["data"][0]["widget_id"]
+            const queued_request = await startJiraGeneration(widget_id)
+            if (!queued_request) {
+              const { error } = await supabase
+                .from('widget')
+                .delete()
+                .eq('widget_id', widget_id)
+              console.log("Error in deleting", error)
+              return
+            }
+
             close();
             toast.success("Widget created successfully.", data);
         } catch (e) {
@@ -95,6 +151,29 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
                             />
                         </Input.Wrapper>
                     </Flex>
+                    <LoadingOverlay visible={isBlocksLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2, style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } }} />
+                    <Flex className="flex flex-col w-full mb-3" gap="10px" align="flex-end">
+
+                        <Box className="w-full flex flex-col items-center gap-2 mb-5">
+                        <Input.Wrapper label="Product Requirements Document" className="w-full">
+                            <Text className="w-full mb-5 text-gray-300" size="xs">
+                                Select the Product Requirements Document you want to create Tickets from.
+                            </Text>
+                            <Select
+                                className="w-full"
+                                value={prdBlockId}
+                                placeholder="Enter block title..."
+                                data={blocks}
+                                onChange={setPRDBlockId}
+                                maxDropdownHeight={150}
+                                searchable
+                                nothingFoundMessage="None found"
+                            />
+                             </Input.Wrapper>
+
+                            </Box>
+                            
+                        </Flex>
 
                     {/* 
                     [“Acceptance criteria/scope”, “Background”, “Priority level”, “In and out of scope”,“User story”, “Technical considerations”, “Design field”, “Questions”]
