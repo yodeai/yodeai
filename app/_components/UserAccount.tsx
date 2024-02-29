@@ -1,18 +1,23 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
-import { Button, Flex, Text } from '@mantine/core';
+import { Button, Flex, Text, Menu } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies, getUserInfo } from '@utils/googleUtils';
-
+import { getAtlassianCookie, clearAtlassianCookies } from '@utils/atlassianUtils';
+import { FaAtlassian, FaGoogle } from 'react-icons/fa';
 
 const UserAccountHandler = () => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
+  const [atlassianAccountConnected, setAtlassianAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
+
   const openGoogleAuthWindow = () => {
     const authWindow = window.open(redirectUri);
 
@@ -35,6 +40,16 @@ const UserAccountHandler = () => {
     clearCookies();
     setGoogleAccountConnected(false);
   }
+
+  const handleAtlassianLogin = async () => {
+    router.push('/api/jira/connect');
+  };
+
+  const handleAtlassianLogout = async () => {
+    await clearAtlassianCookies();
+    setAtlassianAccountConnected(false);
+    window.location.reload();
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -68,13 +83,20 @@ const UserAccountHandler = () => {
         console.error("Failed to fetch Google redirect uri", response.statusText);
       }
     };
-
-
     fetchAndCheckGoogle();
-
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const jiraAuthCookie = getAtlassianCookie('jiraAuthExists');
+    if (!jiraAuthCookie) {
+      setAtlassianAccountConnected(false);
+      console.log('No Jira Auth cookie found');
+    } else {
+      setAtlassianAccountConnected(true);
+    }
   }, []);
 
   return (
@@ -89,14 +111,39 @@ const UserAccountHandler = () => {
           >
             Hey, {user.email}!
           </Text>
-          { googleAccountConnected ?
-          <Button onClick={removeGoogleAccount}color="red" size="xs" variant="light">
-            Remove Google Account
-          </Button>:
-          <Button onClick={openGoogleAuthWindow}color="blue" size="xs" variant="light">
-            Connect Google Account
-          </Button>
-}
+          <Menu shadow="md">
+            <Menu.Target>
+              <Button color="blue" size="xs" variant="light">
+                Connect Accounts
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              { googleAccountConnected ?
+                <Menu.Item
+                  onClick={removeGoogleAccount}
+                  leftSection={<FaGoogle color="red"/>} color="red" variant="light">
+                  Remove Google
+                </Menu.Item> :
+                <Menu.Item
+                  onClick={openGoogleAuthWindow}
+                  leftSection={<FaGoogle color="red"/>} variant="light">
+                  Connect Google
+                </Menu.Item>
+              }
+              { atlassianAccountConnected ?
+                <Menu.Item
+                  onClick={handleAtlassianLogout}
+                  leftSection={<FaAtlassian color="blue"/>} color="red" variant="light">
+                  Remove Atlassian
+                </Menu.Item> :
+                <Menu.Item
+                  onClick={handleAtlassianLogin}
+                  leftSection={<FaAtlassian color="blue"/>} variant="light">
+                  Connect Atlassian
+                </Menu.Item>
+              }
+            </Menu.Dropdown>
+          </Menu>
           <LogoutButton />
         </div>
       ) : (
