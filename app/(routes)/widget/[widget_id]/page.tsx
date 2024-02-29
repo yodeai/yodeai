@@ -10,18 +10,12 @@ import { MdError } from "react-icons/md";
 import { WidgetData } from "app/_types/widget";
 
 type PageProps = {
-    params: { widget_id: number, widget_type: string }
+    params: { widget_id: number }
     searchParams: { [key: string]: string | string[] | undefined }
 }
 
 export default async function Page({ params, searchParams }: PageProps) {
-    const { widget_id, widget_type } = params;
-    if (widget_type in widgets === false)
-        return <Result
-            title="Error"
-            description="Widget path couldn't be found. Please try again later."
-            icon={<MdError color="#222" size={28} />} />
-
+    const { widget_id } = params;
     const supabase = createServerComponentClient<Database>({ cookies });
 
     if (Number.isNaN(Number(widget_id)))
@@ -35,17 +29,20 @@ export default async function Page({ params, searchParams }: PageProps) {
         .from('widget')
         .select('*')
         .eq('widget_id', widget_id)
-        .eq('type', widget_type)
         .single();
-
 
     if (error) {
         console.log(error)
         return redirect("/notFound");
     }
 
-    const Widget: WidgetComponentType<{}, {}> = widgets[widget_type];
+    if (data.type in widgets === false)
+        return <Result
+            title="Error"
+            description="Widget path couldn't be found. Please try again later."
+            icon={<MdError color="#222" size={28} />} />
 
+    const Widget: WidgetComponentType<{}, {}> = widgets[data.type];
     const accessTypeResponse = await supabase.rpc('get_access_type_widget', { "chosen_user_id": user.id, "chosen_widget_id": widget_id })
     if (accessTypeResponse.error) {
         console.log("message", accessTypeResponse.error.message);

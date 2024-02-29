@@ -1252,7 +1252,9 @@ export type Database = {
           output: Json | null
           owner_id: string | null
           state: Json | null
+          task_id: string | null
           type: string | null
+          updated_at: string | null
           widget_id: number
         }
         Insert: {
@@ -1263,7 +1265,9 @@ export type Database = {
           output?: Json | null
           owner_id?: string | null
           state?: Json | null
+          task_id?: string | null
           type?: string | null
+          updated_at?: string | null
           widget_id?: number
         }
         Update: {
@@ -1274,7 +1278,9 @@ export type Database = {
           output?: Json | null
           owner_id?: string | null
           state?: Json | null
+          task_id?: string | null
           type?: string | null
+          updated_at?: string | null
           widget_id?: number
         }
         Relationships: [

@@ -24,7 +24,7 @@ import { ViewController } from "../LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { useProgressRouter } from "@utils/nprogress";
-import { FaCheckCircle } from 'react-icons/fa';
+import { WidgetIconItem } from "./_views/Widget";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -36,17 +36,19 @@ type IconViewItemType = Block | Subspace | Lens
   | Tables<"whiteboard"> & {
     plugin?: WhiteboardPluginParams
   }
-  | Tables<"spreadsheet"> & {
+  | (Tables<"spreadsheet"> & {
     plugin?: SpreadsheetPluginParams
-  };
+  })
+  | Tables<"widget">;
 
-type IconViewItemChars = "bl" | "ss" | "wb" | "sp";
+type IconViewItemChars = "bl" | "ss" | "wb" | "sp" | "wd";
 
 export default function IconLayoutComponent({
   blocks,
   subspaces,
   whiteboards,
   spreadsheets,
+  widgets,
   layouts,
   itemIcons,
   onChangeLayout,
@@ -58,6 +60,8 @@ export default function IconLayoutComponent({
   handleWhiteboardChangeName,
   handleSpreadsheetChangeName,
   handleSpreadsheetDelete,
+  handleWidgetChangeName,
+  handleWidgetDelete,
   handleItemSettings
 }: IconLayoutComponentProps) {
   const router = useProgressRouter();
@@ -80,8 +84,8 @@ export default function IconLayoutComponent({
   const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
   const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
 
-  const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets),
-    [blocks, subspaces, whiteboards, spreadsheets])
+  const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets, widgets),
+    [blocks, subspaces, whiteboards, spreadsheets, widgets])
 
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
@@ -160,6 +164,8 @@ export default function IconLayoutComponent({
       return router.push(`${window.location.pathname}/${itemId}`);
     }
 
+    if(itemType === "wd") return router.push(`/widget/${itemId}`)
+
     if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
   }
 
@@ -170,6 +176,7 @@ export default function IconLayoutComponent({
       if (window.location.pathname === "/") return router.prefetch(`/lens/${itemId}`);
       return router.prefetch(`${window.location.pathname}/${itemId}`);
     }
+    if(itemType === "wd") return router.prefetch(`/widget/${itemId}`);
     if (itemType === "sp") return router.prefetch(`/spreadsheet/${itemId}`);
   }
 
@@ -187,6 +194,7 @@ export default function IconLayoutComponent({
     const item = items.find(item => {
       if ("whiteboard_id" in item) return Number(itemId) === item.whiteboard_id;
       if ("spreadsheet_id" in item) return Number(itemId) === item.spreadsheet_id;
+      if ("widget_id" in item) return Number(itemId) === item.widget_id;
       if ("block_id" in item) return Number(itemId) === item.block_id;
       if ("lens_id" in item) return Number(itemId) === item.lens_id;
     })
@@ -301,6 +309,24 @@ export default function IconLayoutComponent({
         unselectBlocks={() => setSelectedItems([])}
         icon={icon}
         spreadsheet={item} />
+    } else if ("widget_id" in item) {
+      // widget item
+      key = `wd_${item.widget_id}`;
+      item_id = item.widget_id;
+      let icon = <fileTypeIcons.plugin_default />;
+      // if ((item.plugin as any)?.name && `plugin_${(item.plugin as any)?.name}` in fileTypeIcons) {
+      //   const spreadsheetPluginName = `plugin_${(item.plugin as any)?.name}`;
+      //   const fileTypeIcon = fileTypeIcons[spreadsheetPluginName];
+      //   icon = fileTypeIcon({})
+      // }
+      content = <WidgetIconItem
+        selected={selectedItems.includes(item_id)}
+        handleWidgetChangeName={handleWidgetChangeName}
+        handleWidgetDelete={handleWidgetDelete}
+        unselectBlocks={() => setSelectedItems([])}
+        icon={icon}
+        widget={item} />
+
     } else {
       // subspace item
       key = `ss_${item.lens_id}`;
@@ -322,7 +348,7 @@ export default function IconLayoutComponent({
       className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {content}
     </div>
-  }), [subspaces, breakpoint, blocks, whiteboards, spreadsheets, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel, itemIcons])
+  }), [subspaces, widgets, breakpoint, blocks, whiteboards, spreadsheets, layouts, cols, selectedItems, sortedItems, sortingOptions, zoomLevel, itemIcons])
 
   const onPinLens = async (lens_id: string) => {
     try {

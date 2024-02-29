@@ -36,6 +36,7 @@ export default function Lens(props: LensProps) {
   const [subspaces, setSubspaces] = useState<Subspace[]>([]);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
   const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>([]);
+  const [widgets, setWidgets] = useState<Tables<"widget">[]>([]);
   const [layoutData, setLayoutData] = useState<LensLayout>({})
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
@@ -75,6 +76,7 @@ export default function Lens(props: LensProps) {
         getLensBlocks(lens_id),
         getLensSubspaces(lens_id),
         getLensWhiteboards(lens_id),
+        getLensWidgets(lens_id),
         getLensLayout(lens_id),
         getLensSpreadsheets(lens_id)
       ])
@@ -184,6 +186,17 @@ export default function Lens(props: LensProps) {
           list_layout: res?.data?.list_layout
         });
         setItemIcons(res?.data?.item_icons || {});
+      })
+  }
+
+  const getLensWidgets = async (lensId: number) => {
+    return fetch(`/api/lens/${lensId}/getWidgets`)
+      .then((response) => response.json())
+      .then((data) => {
+        setWidgets(data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching widgets:', error);
       })
   }
 
@@ -311,6 +324,34 @@ export default function Lens(props: LensProps) {
     );
   }, []);
 
+ const addWidget = useCallback((payload) => {
+    let widget_id = payload["new"]["widget_id"]
+    console.log("Added a widget", widget_id);
+    let newWidget = payload["new"]
+    if (!widgets.some(item => item.widget_id === widget_id)) {
+      setWidgets(prevWidgets => [newWidget, ...prevWidgets]);
+    }
+  }, []);
+
+  const deleteWidget = useCallback((payload) => {
+    let widget_id = payload["old"]["widget_id"]
+    console.log("Deleting widget", widget_id);
+    setWidgets((prevWidgets) => prevWidgets.filter((widget) => widget.widget_id !== widget_id))
+  }, []);
+
+  const updateWidget = useCallback((payload) => {
+    let widget_id = payload["new"]["widget_id"]
+    console.log("Updating widget", widget_id);
+    setWidgets(prevWidgets =>
+      prevWidgets.map(item => {
+        if (item.widget_id === widget_id) {
+          return { ...payload['new'] };
+        }
+        return item;
+      })
+    );
+  }, []);
+
   const updateLensLayout = useCallback((payload) => {
     console.log(payload)
     setItemIcons(payload["new"]?.item_icons || {});
@@ -335,6 +376,9 @@ export default function Lens(props: LensProps) {
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}` }, deleteSpreadsheet)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'spreadsheet', filter: `lens_id=eq.${lens_id}`, }, updateSpreadsheet)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lens_layout', filter: `lens_id=eq.${lens_id}`, }, updateLensLayout)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'widget', filter: `lens_id=eq.${lens_id}` }, addWidget)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'widget', filter: `lens_id=eq.${lens_id}` }, deleteWidget)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'widget', filter: `lens_id=eq.${lens_id}`, }, updateWidget)
       .subscribe();
 
     return () => {
@@ -508,6 +552,29 @@ export default function Lens(props: LensProps) {
     });
   }
 
+  const handleWidgetChangeName = async (widget_id: number, newWidgetName: string) => {
+    const updatePromise = fetch(`/api/widget/${widget_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name: newWidgetName }),
+    });
+
+    return load<Response>(updatePromise, {
+      loading: "Updating widget name...",
+      success: "Widget name updated!",
+      error: "Failed to update widget name.",
+    });
+  }
+
+  const handleWidgetDelete = async (widget_id: number) => {
+    const deletePromise = fetch(`/api/widget/${widget_id}`, { method: "DELETE" });
+
+    return load(deletePromise, {
+      loading: "Deleting widget...",
+      success: "Widget deleted!",
+      error: "Failed to delete widget.",
+    });
+  }
+
   const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
     $settingsItem.current = item;
     iconItemDisclosure[1].open();
@@ -521,88 +588,56 @@ export default function Lens(props: LensProps) {
     );
   }
 
-  const sortedSubspaces = useMemo(() => {
-    if (sortingOptions.sortBy === null) return subspaces;
+  type SortItems = Subspace | Block | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget">;
 
-    let _sorted_subspaces = [...subspaces].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      } else if (sortingOptions.sortBy === "createdAt") {
+  const sortItems = function <T extends SortItems>
+    (items: T[], sortBy: string | null, order: "asc" | "desc" | null = "asc") {
+    if (sortBy === null) return items;
+
+    let _sorted_items = [...items].sort((a, b) => {
+      if (sortBy === "name") {
+        if ("name" in a && "name" in b) {
+          return a.name.localeCompare(b.name);
+        }
+        if ("title" in a && "title" in b) {
+          return a.title.localeCompare(b.title)
+        }
+      } else if (sortBy === "createdAt") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
+      } else if (sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
       }
     })
 
-    if (sortingOptions.order === "desc") {
-      return _sorted_subspaces.reverse();
+    if (order === "desc") {
+      return _sorted_items.reverse();
     }
 
-    return _sorted_subspaces;
+    return _sorted_items;
+  }
+
+  const sortedSubspaces = useMemo(() => {
+    return sortItems(subspaces, sortingOptions.sortBy, sortingOptions.order);
   }, [sortingOptions, subspaces])
 
   const sortedBlocks = useMemo(() => {
-    if (sortingOptions.sortBy === null) return blocks;
-
-    let _sorted_blocks = [...blocks].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        return a.title.localeCompare(b.title);
-      } else if (sortingOptions.sortBy === "createdAt") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
-    })
-
-    if (sortingOptions.order === "desc") {
-      return _sorted_blocks.reverse();
-    }
-
-    return _sorted_blocks;
+    return sortItems(blocks, sortingOptions.sortBy, sortingOptions.order);
   }, [sortingOptions, blocks])
 
   const sortedWhiteboards = useMemo(() => {
-    if (sortingOptions.sortBy === null) return whiteboards;
-
-    let _sorted_whiteboards = [...whiteboards].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      } else if (sortingOptions.sortBy === "createdAt") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
-    })
-
-    if (sortingOptions.order === "desc") {
-      return _sorted_whiteboards.reverse();
-    }
-
-    return _sorted_whiteboards;
+    return sortItems(whiteboards, sortingOptions.sortBy, sortingOptions.order);
   }, [sortingOptions, whiteboards])
 
   const sortedSpreadsheets = useMemo(() => {
-    if (sortingOptions.sortBy === null) return spreadsheets;
+    return sortItems(spreadsheets, sortingOptions.sortBy, sortingOptions.order);
+  }, [sortingOptions, spreadsheets]);
 
-    let _sorted_spreadsheets = [...spreadsheets].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      } else if (sortingOptions.sortBy === "createdAt") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
-    })
-
-    if (sortingOptions.order === "desc") {
-      return _sorted_spreadsheets.reverse();
-    }
-
-    return _sorted_spreadsheets;
-  }, [sortingOptions, spreadsheets])
+  const sortedWidgets = useMemo(() => {
+    return sortItems(widgets, sortingOptions.sortBy, sortingOptions.order);
+  }, [sortingOptions, widgets]);
 
   return (
-    <ContentProvider 
+    <ContentProvider
       blocks={blocks}
       whiteboards={whiteboards}
       subspaces={subspaces}
@@ -634,6 +669,8 @@ export default function Lens(props: LensProps) {
             handleWhiteboardChangeName={handleWhiteboardChangeName}
             handleSpreadsheetChangeName={handleSpreadsheetChangeName}
             handleSpreadsheetDelete={handleSpreadsheetDelete}
+            handleWidgetChangeName={handleWidgetChangeName}
+            handleWidgetDelete={handleWidgetDelete}
             onChangeLayout={onChangeLensLayout}
             handleItemSettings={handleItemSettings}
             layout={layoutData}
@@ -641,6 +678,8 @@ export default function Lens(props: LensProps) {
             subspaces={sortedSubspaces}
             whiteboards={sortedWhiteboards}
             spreadsheets={sortedSpreadsheets}
+            widgets={sortedWidgets}
+
             itemIcons={itemIcons}
             layoutView={selectedLayoutType} />}
         </Box>
