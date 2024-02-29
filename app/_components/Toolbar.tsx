@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu, Text } from '@mantine/core';
+import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
 import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
@@ -13,7 +13,7 @@ import Link from 'next/link';
 import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import OnboardingPopover from './Onboarding/OnboardingPopover';
 
 type contextType = {
@@ -34,6 +34,7 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
+    const router = useRouter();
 
     const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
@@ -55,7 +56,7 @@ export default function Toolbar() {
     const [menuOpened, setMenuOpened] = useState(false);
 
     const handlePlusIconClick = () => {
-        if (onboardingStep === 3 && !onboardingIsComplete) {
+        if (onboardingStep === 4 && !onboardingIsComplete) {
             goToNextOnboardingStep();
         }
         setMenuOpened(true); // Open the menu programmatically
@@ -166,16 +167,17 @@ export default function Toolbar() {
                 <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
                     <Box>
                         <Menu.Target>
-                            {(onboardingStep === 3 && !onboardingIsComplete)
+                            {(onboardingStep === 4 && !onboardingIsComplete)
                                 ?
                                 <OnboardingPopover
                                     width={400}
-                                    stepToShow={3}
+                                    stepToShow={4}
                                     position="left-start"
                                     popoverContent={
                                         <>
                                             <Text size="sm" mb={10}>Yodeai provides a variety of widgets tailored for specific spaces. Each widget's functionality is designed to complement the content of the open space, ensuring a seamless integration.</Text>
-                                            <Text size="sm">Click the <b>+ icon.</b></Text>
+                                            <Text size="sm" mb={10}>Click the <b>+ icon.</b></Text>
+                                            <Anchor onClick={() => router.push(`/demos`)} underline='always' c={"black"} size="sm">Click here to learn more about widgets</Anchor>
                                         </>
                                     }
                                 >
@@ -227,6 +229,7 @@ export default function Toolbar() {
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                                 <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
+                                <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>

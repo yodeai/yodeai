@@ -50,6 +50,11 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(false);
     }
 
+    useEffect(() => {
+        if (onboardingStep === 3 && !onboardingIsComplete) {
+            setInputValue('What is Yodeai?');
+        }
+    }, [onboardingStep]);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -115,7 +120,7 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(true);
         const startTime = performance.now();
 
-        if (onboardingStep === 4 && !onboardingIsComplete) goToNextOnboardingStep();
+        if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
 
         try {
             const supabase = createClientComponentClient()
@@ -224,11 +229,11 @@ const QuestionAnswerForm: React.FC = () => {
                     <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                                {(onboardingStep === 4 && !onboardingIsComplete)
+                                {(onboardingStep === 3 && !onboardingIsComplete)
                                     ?
                                     <OnboardingPopover
                                         width={400}
-                                        stepToShow={4}
+                                        stepToShow={3}
                                         position="left-start"
                                         popoverContent={
                                             <>
