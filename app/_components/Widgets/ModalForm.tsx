@@ -101,14 +101,14 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
                     */}
 
                     <Input.Wrapper label="Fields" className="flex flex-col gap-2">
-                        <Checkbox name="Acceptance criteria/scope" label="Acceptance criteria/scope" checked={form.fields.includes("Acceptance criteria/scope")} onChange={onFormFieldsChange} />
-                        <Checkbox name="Background" label="Background" checked={form.fields.includes("Background")} onChange={onFormFieldsChange} />
-                        <Checkbox name="Priority level" label="Priority level" checked={form.fields.includes("Priority level")} onChange={onFormFieldsChange} />
-                        <Checkbox name="In and out of scope" label="In and out of scope" checked={form.fields.includes("In and out of scope")} onChange={onFormFieldsChange} />
-                        <Checkbox name="User story" label="User story" checked={form.fields.includes("User story")} onChange={onFormFieldsChange} />
-                        <Checkbox name="Technical considerations" label="Technical considerations" checked={form.fields.includes("Technical considerations")} onChange={onFormFieldsChange} />
-                        <Checkbox name="Design field" label="Design field" checked={form.fields.includes("Design field")} onChange={onFormFieldsChange} />
-                        <Checkbox name="Questions" label="Questions" checked={form.fields.includes("Questions")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Acceptance criteria/scope" label="Acceptance criteria/scope" checked={form.fields.includes("Acceptance criteria/scope")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Background" label="Background" checked={form.fields.includes("Background")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="In and out of scope" label="In and out of scope" checked={form.fields.includes("In and out of scope")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Priority level" label="Priority level" checked={form.fields.includes("Priority level")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="User story" label="User story" checked={form.fields.includes("User story")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Technical considerations" label="Technical considerations" checked={form.fields.includes("Technical considerations")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Design field" label="Design field" checked={form.fields.includes("Design field")} onChange={onFormFieldsChange} />
+                        <Checkbox icon={() => <></>} name="Questions" label="Questions" checked={form.fields.includes("Questions")} onChange={onFormFieldsChange} />
                     </Input.Wrapper>
 
                     <Flex mt={20} gap="xs">
