@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, createContext, useContext, use, useMemo } from 'react';
+import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu } from '@mantine/core';
-import { FaAngleRight, FaArrowCircleRight, FaInfo, FaPlus } from 'react-icons/fa';
+import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
+import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { useAppContext } from '@contexts/context';
@@ -13,7 +13,8 @@ import Link from 'next/link';
 import ConditionalTooltip from './ConditionalTooltip';
 import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import OnboardingPopover from './Onboarding/OnboardingPopover';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -33,6 +34,9 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
     const [activeToolbarComponent, setActiveToolbarComponent] = useState<contextType["activeToolbarComponent"]>(defaultValue.activeToolbarComponent);
 
@@ -49,6 +53,15 @@ export default function Toolbar() {
     const [spreadsheetModalState, spreadsheetModalController] = spreadsheetModalDisclosure;
     const [painPointTrackerModalState, painPointTrackerModalController] = painPointTrackerModalDisclosure;
     const [widgetFormState, widgetFormController] = widgetFormDisclosure;
+
+    const [menuOpened, setMenuOpened] = useState(false);
+
+    const handlePlusIconClick = () => {
+        if (onboardingStep === 4 && !onboardingIsComplete) {
+            goToNextOnboardingStep();
+        }
+        setMenuOpened(true); // Open the menu programmatically
+    };
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
@@ -72,36 +85,36 @@ export default function Toolbar() {
     }>(() => {
         if (lensId && ["owner", "editor"].includes(accessType) === false) {
             return {
-                block: "Your access level does not allow you to add new blocks on this space.",
-                whiteboard: "Your access level does not allow you to add new whiteboards on this space.",
-                subspace: "Your access level does not allow you to add new subspaces on this space.",
-                plugin: "Your access level does not allow you to add new plugins on this space.",
-                spreadsheet: "Your access level does not allow you to add new spreadsheets on this space."
+                block: "Only editors and owners can add new pages to this space.",
+                whiteboard: "Only editors and owners can add new whiteboards to this space.",
+                subspace: "Only editors and owners can add new subspaces to this space.",
+                plugin: "Only editors and owners can add new plugins to this space.",
+                spreadsheet: "Only editors and owners can add new spreadsheets on this space."
             }
         }
         if (["/"].includes(pathname)) {
             return {
-                block: "It is not allowed to add new blocks on the home page.",
-                whiteboard: "It is not allowed to add new whiteboards on the home page.",
-                plugin: "Your access level does not allow you to add new plugins on this space.",
-                spreadsheet: "Your access level does not allow you to add new spreadsheets on this space."
+                block: "Cannot add new pages to the home page.",
+                whiteboard: "Cannot add new whiteboards to the home page.",
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
         if (["/myblocks"].includes(pathname)) {
             return {
-                subspace: "It is not allowed to add new subspaces on the My Blocks page.",
-                whiteboard: "It is not allowed to add new whiteboards on the My Blocks page.",
-                plugin: "Your access level does not allow you to add new plugins on this space.",
-                spreadsheet: "Your access level does not allow you to add new spreadsheets on this space."
+                subspace: "Cannot add new subspaces to My Pages.",
+                whiteboard: "Cannot add new whiteboards to My Pages.",
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
         if (["/inbox"].includes(pathname)) {
             return {
-                block: "It is not allowed to add new blocks on the Inbox page.",
-                whiteboard: "It is not allowed to add new whiteboards on the Inbox page.",
-                subspace: "It is not allowed to add new subspaces on the Inbox page.",
-                plugin: "Your access level does not allow you to add new plugins on this space.",
-                spreadsheet: "Your access level does not allow you to add new spreadsheets on this space."
+                block: "Cannot add new pages to the Inbox.",
+                whiteboard: "Cannot add new whiteboards to the Inbox.",
+                subspace: "Cannot add new subspaces to the Inbox.",
+                plugin: "Cannot add new plugins to this space.",
+                spreadsheet: "Cannot add new spreadsheets on this space."
             }
         }
 
@@ -117,18 +130,75 @@ export default function Toolbar() {
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
-                    <Button
-                        variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
-                        onClick={switchComponent.bind(null, "questionform")} c="gray.6">
-                        <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
-                    </Button>
+                    {(onboardingStep === 2 && !onboardingIsComplete)
+                        ?
+                        <OnboardingPopover
+                            width={300}
+                            stepToShow={2}
+                            position="left-start"
+                            popoverContent={
+                                <>
+                                    <Text size="sm" mb={10}>Within a page or space, you can talk to the Yodeai agent.</Text>
+                                    <Text size="sm">Click the <b>Yodeai icon.</b></Text>
+                                </>
+                            }
+                        >
+                            <Button
+                                variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
+                                onClick={() => {
+                                    switchComponent("questionform");
+                                    if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                                }}
+                                c="gray.6">
+                                <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
+                            </Button>
+                        </OnboardingPopover>
+                        :
+                        <Button
+                            variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
+                            onClick={() => {
+                                switchComponent("questionform");
+                                if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                            }}
+                            c="gray.6">
+                            <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
+                        </Button>
+                    }
                 </Box>
-                <Menu position="left">
+                <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
                     <Box>
                         <Menu.Target>
-                            <Button variant="subtle" c="gray.6">
-                                <FaPlus size={18} />
-                            </Button>
+                            {(onboardingStep === 4 && !onboardingIsComplete)
+                                ?
+                                <OnboardingPopover
+                                    width={400}
+                                    stepToShow={4}
+                                    position="left-start"
+                                    popoverContent={
+                                        <>
+                                            <Text size="sm" mb={10}>Yodeai provides a variety of widgets tailored for specific spaces. Each widget's functionality is designed to complement the content of the open space, ensuring a seamless integration.</Text>
+                                            <Text size="sm" mb={10}>Click the <b>+ icon.</b></Text>
+                                            <Anchor onClick={() => router.push(`/demos`)} underline='always' c={"black"} size="sm">Click here to learn more about widgets</Anchor>
+                                        </>
+                                    }
+                                >
+                                    <Button
+                                        variant="subtle"
+                                        c="gray.6"
+                                        onClick={handlePlusIconClick}
+                                    >
+                                        <FaPlus size={18} />
+                                    </Button>
+                                </OnboardingPopover>
+                                :
+                                <Button
+                                    variant="subtle"
+                                    c="gray.6"
+                                    onClick={handlePlusIconClick}
+                                >
+                                    <FaPlus size={18} />
+                                </Button>
+                            }
                         </Menu.Target>
                     </Box>
                     <Menu.Dropdown>
@@ -161,6 +231,7 @@ export default function Toolbar() {
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                                 <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
                                 <Menu.Item onClick={widgetFormController.open}>PDR to Tickets</Menu.Item>
+                                <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
                     </Menu.Dropdown>

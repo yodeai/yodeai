@@ -53,6 +53,11 @@ export type contextType = {
 
   zoomLevel: number;
   setZoomLevel: (zoomLevel: number, lensIdOrTitle: string) => void;
+  onboardingStep: number;
+  onboardingIsComplete: boolean;
+  goToNextOnboardingStep: () => void;
+  completeOnboarding: () => void;
+  resetOnboarding: () => void;
 };
 
 
@@ -98,7 +103,13 @@ const defaultValue: contextType = {
   user: undefined,
 
   zoomLevel: 100,
-  setZoomLevel: () => { }
+  setZoomLevel: () => { },
+
+  onboardingStep: 0,
+  onboardingIsComplete: false,
+  goToNextOnboardingStep: () => { },
+  completeOnboarding: () => { },
+  resetOnboarding: () => { }
 };
 
 const context = createContext<contextType>(defaultValue);
@@ -138,6 +149,71 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
   const widgetFormDisclosure = useDisclosure(false);
+
+  // Onboarding Context Data
+  const [onboardingStep, setOnboardingStep] = useState(-1);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(true);
+
+  const goToNextOnboardingStep = () => {
+    setOnboardingStep((currentStep) => currentStep + 1);
+    console.log("going to next step");
+  };
+
+  const resetOnboarding = () => {
+    setOnboardingStep(0);
+    console.log("resetting onboarding step");
+  };
+
+  const completeOnboarding = async () => {
+    setOnboardingStep(-1);
+    setOnboardingIsComplete(true);
+    
+    const { error } = await supabase
+      .from('onboarding_list')
+      .delete()
+      .match({ uid: user.id });
+
+    if (!error) {
+      completeOnboarding();
+    } else {
+      console.error('Failed to update onboarding status:', error.message);
+    }
+
+    console.log("onboarding done!");
+
+    close();
+  };
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('onboarding_list')
+          .select('*')
+          .eq('uid', user.id)
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          if (onboardingStep === -1) {
+            setOnboardingStep(0);
+            setOnboardingIsComplete(false);
+          }
+        } else {
+          setOnboardingStep(-1);
+          setOnboardingIsComplete(true);
+        }
+
+      } catch (error) {
+        console.error('Failed to check onboarding status:', error.message);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [user]);
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
@@ -255,7 +331,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,
-      setZoomLevel: setIconViewZoomLevel
+      setZoomLevel: setIconViewZoomLevel,
+      onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
       {children}
     </context.Provider>

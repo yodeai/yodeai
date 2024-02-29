@@ -5,7 +5,7 @@ import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
-import { checkGoogleAccountConnected, clearCookies, getUserInfo } from '@utils/googleUtils';
+import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 
 
 const UserAccountHandler = () => {
@@ -27,7 +27,7 @@ const UserAccountHandler = () => {
       }
 
       // Clean up event listener
-      window.removeEventListener('beforeunload', () => {});
+      window.removeEventListener('beforeunload', () => { });
     });
   };
 
@@ -79,36 +79,36 @@ const UserAccountHandler = () => {
 
   return (
     <nav className="w-full">
-    <Flex justify={"flex-end"}>
-      {user && user.email ? (
-        <div className="flex gap-4 items-center">
-          <Text
-            size='sm'
-            c={"gray.8"}
-            fw={500}
-          >
-            Hey, {user.email}!
-          </Text>
-          { googleAccountConnected ?
-          <Button onClick={removeGoogleAccount}color="red" size="xs" variant="light">
-            Remove Google Account
-          </Button>:
-          <Button onClick={openGoogleAuthWindow}color="blue" size="xs" variant="light">
-            Connect Google Account
-          </Button>
-}
-          <LogoutButton />
-        </div>
-      ) : (
-        <Link href="/login">
-          <Button type="submit" color="blue" size="xs" variant="light">
-            Login
-          </Button>
-        </Link>
-      )}
+      <Flex align={"center"} justify={"flex-end"}>
+        {user && user.email ? (
+          <div className="flex gap-4 items-center">
+            <Text
+              size='sm'
+              c={"gray.8"}
+              fw={500}
+            >
+              Hey, {user.email}!
+            </Text>
+            {googleAccountConnected ?
+              <Button onClick={removeGoogleAccount} color="red" size="xs" variant="light">
+                Remove Google Account
+              </Button> :
+              <Button onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
+                Connect Google Account
+              </Button>
+            }
+            <LogoutButton />
+          </div>
+        ) : (
+          <Link href="/login">
+            <Button type="submit" color="blue" size="xs" variant="light">
+              Login
+            </Button>
+          </Link>
+        )}
 
-    </Flex>
-  </nav>
+      </Flex>
+    </nav>
   );
 };
 

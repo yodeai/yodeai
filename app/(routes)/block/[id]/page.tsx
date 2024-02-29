@@ -18,6 +18,7 @@ import { useAppContext } from "@contexts/context";
 import BlockHeader from "@components/Block/BlockHeader";
 import { FaCheck } from "react-icons/fa";
 import { timeAgo } from "@utils/index";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -97,7 +98,7 @@ export default function Block({ params }: { params: { id: string } }) {
   const handleEditing = async (startEditing) => {
     try {
       if (block.block_type == "google_doc") {
-        toast("Do not edit this block on the external Google Docs site while you edit on Yodeai.", { duration: 6000 })
+        toast("Do not edit this page on the external Google Docs site while you edit on Yodeai.", { duration: 6000 })
 
       }
       if (!startEditing) {
@@ -247,6 +248,7 @@ export default function Block({ params }: { params: { id: string } }) {
           }
         </Box>
       </Flex>
+      <FinishedOnboardingModal />
     </main >
 
   );
