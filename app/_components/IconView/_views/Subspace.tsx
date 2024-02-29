@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 
-import { Text, Flex, Box, Textarea } from '@mantine/core';
+import { Text, Flex, Box, Textarea, Anchor } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { Subspace, Lens } from "app/_types/lens";
@@ -14,6 +14,7 @@ import ShareLensComponent from '../../ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import { FaRegTrashCan, FaLink } from "react-icons/fa6";
 import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
+import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
 type SubspaceIconItemProps = {
   icon: JSX.Element
@@ -36,6 +37,15 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
 
   const shareModalDisclosure = useDisclosure(false);
   const [shareModalState, shareModalController] = shareModalDisclosure;
+
+  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding } = useAppContext();
+
+  const handleSubspaceClick = () => {
+    if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
+
+    if (window.location.pathname === "/") return router.push(`/lens/${subspace.lens_id}`)
+    else router.push(`${window.location.pathname}/${subspace.lens_id}`)
+  };
 
   const openDeleteModal = () => modals.openConfirmModal({
     title: 'Confirm space deletion',
@@ -165,36 +175,85 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
 
   return <>
     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
-    <Flex
-      onContextMenu={onContextMenu}
-      mih={100} gap="6px"
-      justify="flex-end" align="center"
-      direction="column" wrap="nowrap">
-      <Box>
-        {loading
-          ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
-          : icon
+    {(subspace.name === "Welcome to Yodeai!" && onboardingStep === 0 && !onboardingIsComplete)
+      ?
+      <OnboardingPopover
+        stepToShow={0}
+        width={500}
+        position="right-start"
+        popoverContent={
+          <>
+            <Text size="sm" mb={10}>Welcome to Yodeai! Here are a few <b>tips</b> to help you get familiar with your Yodeai workspace.</Text>
+            <Text size="sm" mb={10}>Click the <b>"Welcome to Yodeai!"</b> space to begin.</Text>
+            <Anchor onClick={() => completeOnboarding()} underline='always' c={"black"} size="sm">Or, click here to dismiss tips.</Anchor>
+          </>
         }
-      </Box>
-      <Box w={100} h={40} variant="unstyled" className="text-center">
-        {editMode
-          ? <Textarea
-            rows={1}
-            className="z-50 block-input leading-4 w-full"
-            maxRows={2}
-            ref={$textarea}
-            variant="unstyled" ta="center" c="dimmed"
-            onKeyDown={onKeyDown}
-            size={`${7 * 200 / zoomLevel}px`}
-            p={0} m={0}
-            h={20}
-            onChange={onChangeTitle} placeholder="Title" value={titleText} />
-          : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
-        }
-        {/* <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+      >
+        <Flex
+          onClick={handleSubspaceClick}
+          onContextMenu={onContextMenu}
+          mih={100} gap="6px"
+          justify="flex-end" align="center"
+          direction="column" wrap="nowrap">
+          <Box>
+            {loading
+              ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+              : icon
+            }
+          </Box>
+          <Box w={100} h={40} variant="unstyled" className="text-center">
+            {editMode
+              ? <Textarea
+                rows={1}
+                className="z-50 block-input leading-4 w-full"
+                maxRows={2}
+                ref={$textarea}
+                variant="unstyled" ta="center" c="dimmed"
+                onKeyDown={onKeyDown}
+                size={`${7 * 200 / zoomLevel}px`}
+                p={0} m={0}
+                h={20}
+                onChange={onChangeTitle} placeholder="Title" value={titleText} />
+              : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
+            }
+            {/* <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
           {subspace.name}
         </Text> */}
-      </Box>
-    </Flex>
+          </Box>
+        </Flex>
+      </OnboardingPopover>
+      :
+      <Flex
+        onContextMenu={onContextMenu}
+        mih={100} gap="6px"
+        justify="flex-end" align="center"
+        direction="column" wrap="nowrap">
+        <Box>
+          {loading
+            ? <AiOutlineLoading size={32} fill="#999" className="animate-spin" />
+            : icon
+          }
+        </Box>
+        <Box w={100} h={40} variant="unstyled" className="text-center">
+          {editMode
+            ? <Textarea
+              rows={1}
+              className="z-50 block-input leading-4 w-full"
+              maxRows={2}
+              ref={$textarea}
+              variant="unstyled" ta="center" c="dimmed"
+              onKeyDown={onKeyDown}
+              size={`${7 * 200 / zoomLevel}px`}
+              p={0} m={0}
+              h={20}
+              onChange={onChangeTitle} placeholder="Title" value={titleText} />
+            : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
+          }
+          {/* <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none">
+        {subspace.name}
+      </Text> */}
+        </Box>
+      </Flex>
+    }
   </>
 }

@@ -17,6 +17,14 @@ export default function OnboardingPopover({ children, width, stepToShow, popover
             arrowOffset={20}
             arrowSize={15}
             radius={10}
+            styles={{
+                arrow: {
+                    border: 'none',
+                },
+                dropdown: {
+                    zIndex: 2000
+                }
+            }}
         >
             <Popover.Target>
                 {children}
