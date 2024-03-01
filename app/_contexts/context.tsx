@@ -191,6 +191,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
           .single();
 
         if (error) {
+          setOnboardingStep(-1);
+          setOnboardingIsComplete(true);
           throw error;
         }
 
