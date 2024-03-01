@@ -4,7 +4,7 @@ import { FaArrowDown, FaArrowUp, FaCaretDown, FaCaretUp, FaFolder, FaList } from
 import { FaMagnifyingGlassPlus } from "react-icons/fa6";
 import {
     Flex, Button, Text, Tooltip, Box,
-    Menu, UnstyledButton, Select, HoverCard, Slider
+    Menu, UnstyledButton, Select, HoverCard, Slider, SegmentedControl, Center
 } from "@mantine/core";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
@@ -84,21 +84,24 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
                 />}
-                {staticLayout === false && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
-                    ? "Switch to icon view."
-                    : "Switch to list view."
-                }>
-                    <Button
-                        size="sm"
-                        variant="subtle"
-                        color="gray.7"
-                        p={7}
-                        ml={5}
-                        onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                    >
-                        {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
-                    </Button>
-                </Tooltip> || ""}
+                {staticLayout === false && <SegmentedControl
+                    className="ml-3"
+                    value={selectedLayoutType}
+                    onChange={handleChangeLayoutView}
+                    data={[{
+                        value: "block", label: (
+                            <Center className="gap-[10px]">
+                                <FaList color="#777777" size={18} />
+                            </Center>
+                        )
+                    }, {
+                        value: "icon", label: (
+                            <Center className="gap-[10px]">
+                                <FaFolder color="#777777" size={18} />
+                            </Center>
+                        )
+                    }]}
+                /> || ""}
                 {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="bottom-end">
                     <HoverCard.Target>
                         <Button
