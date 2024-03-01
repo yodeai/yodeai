@@ -160,7 +160,7 @@ export default function IconLayoutComponent({
       return router.push(`${window.location.pathname}/${itemId}`);
     }
 
-    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
+    if (itemType === "sp") return router.replace(`/spreadsheet/${itemId}?${Math.random().toString(36).substring(7)}`);
   }
 
   const onHoverItem = (itemType: IconViewItemChars, itemId: number) => {

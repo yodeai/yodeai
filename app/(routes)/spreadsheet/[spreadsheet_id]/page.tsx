@@ -5,11 +5,11 @@ import Spreadsheet from '@components/Spreadsheet';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
-import { convertDataSource } from "@components/Spreadsheet/utils";
 import { Result } from "@components/Result";
-import { FaBug, FaCircle } from "react-icons/fa";
 import { MdError } from "react-icons/md";
 import { FaCircleNotch } from "react-icons/fa6";
+
+export const dynamic = "force-dynamic";
 
 type SpreadsheetProps = {
     params: { spreadsheet_id: number }
