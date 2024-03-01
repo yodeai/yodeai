@@ -167,14 +167,14 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       .delete()
       .match({ uid: user.id });
 
-    if (!error) {
-      setOnboardingStep(-1);
-      setOnboardingIsComplete(true);
-    } else {
-      console.error('Failed to update onboarding status:', error.message);
-    }
+    setOnboardingStep(-1);
+    setOnboardingIsComplete(true);
 
-    console.log("onboarding done!");
+    if (error) {
+      console.error('Failed to update onboarding status:', error.message);
+    } else {
+      console.log("onboarding complete");
+    }
   };
 
   useEffect(() => {
