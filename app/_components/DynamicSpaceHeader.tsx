@@ -22,6 +22,7 @@ import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import AddSubspace from "@components/AddSubspace";
 import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheet";
 import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
+import AddWidget from "./Widgets/ModalForm";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,
@@ -64,6 +65,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
         lensId, pinnedLenses, subspaceModalDisclosure, whiteboardModelDisclosure,
         spreadsheetModalDisclosure, painPointTrackerModalDisclosure,
         userInsightsDisclosure, competitiveAnalysisDisclosure,
+        widgetFormDisclosure,
         sortingOptions, setSortingOptions,
         zoomLevel, setZoomLevel, setPinnedLenses
     } = useAppContext();
@@ -282,6 +284,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
                     <AddSpreadsheet modalController={spreadsheetModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
                     <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={Number(lensId)} accessType={accessType} />
+                    <AddWidget modalController={widgetFormDisclosure} lensId={Number(lensId)} accessType={accessType} />
                 </Flex>
             </Flex>
             : <span className="text-xl font-semibold">

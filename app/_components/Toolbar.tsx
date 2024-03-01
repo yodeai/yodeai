@@ -43,7 +43,7 @@ export default function Toolbar() {
     const {
         accessType, subspaceModalDisclosure, lensId,
         whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
-        painPointTrackerModalDisclosure
+        painPointTrackerModalDisclosure, widgetFormDisclosure
     } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
@@ -52,6 +52,7 @@ export default function Toolbar() {
     const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
     const [spreadsheetModalState, spreadsheetModalController] = spreadsheetModalDisclosure;
     const [painPointTrackerModalState, painPointTrackerModalController] = painPointTrackerModalDisclosure;
+    const [widgetFormState, widgetFormController] = widgetFormDisclosure;
 
     const [menuOpened, setMenuOpened] = useState(false);
 
@@ -229,6 +230,7 @@ export default function Toolbar() {
                                 <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                                 <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                                 <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
+                                <Menu.Item onClick={widgetFormController.open}>PRD to Tickets</Menu.Item>
                                 <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>

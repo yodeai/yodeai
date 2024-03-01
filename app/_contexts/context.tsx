@@ -41,6 +41,7 @@ export type contextType = {
   spreadsheetModalDisclosure: ReturnType<typeof useDisclosure>;
   painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
   iconItemDisclosure: ReturnType<typeof useDisclosure>;
+  widgetFormDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -92,6 +93,7 @@ const defaultValue: contextType = {
   spreadsheetModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   painPointTrackerModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  widgetFormDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -146,6 +148,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const spreadsheetModalDisclosure = useDisclosure(false);
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
+  const widgetFormDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
@@ -326,6 +329,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       userInsightsDisclosure, competitiveAnalysisDisclosure,
       spreadsheetModalDisclosure, iconItemDisclosure,
       painPointTrackerModalDisclosure,
+      widgetFormDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,
