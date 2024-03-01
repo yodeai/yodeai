@@ -9,6 +9,7 @@ import MockData from './mock.json';
 import { getUserInfo } from '@utils/googleUtils';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import apiClient from '@utils/apiClient';
+import { useContentContext } from '@contexts/content';
 
 type AddWidgetModalProps = {
     lensId: number;
@@ -19,7 +20,8 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
     const [loading, setLoading] = useState(false);
     const [opened, { close }] = modalController;
     const [prdBlockId, setPRDBlockId] = useState<string | null>(null);
-    const [blocks, setBlocks] = useState([]);
+    const { blocks } = useContentContext();
+    const [formattedBlocks, setFormattedBlocks] = useState([]);
     const [isBlocksLoading, setIsBlocksLoading] = useState<boolean>(true);
     const supabase = createClientComponentClient();
     const defaultFormValue = {
@@ -48,16 +50,10 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
     
       }
 
-    const getLensBlocks = async (lensId: number) => {
+    const formatBlocks = async () => {
         setIsBlocksLoading(true);
-        let googleUserId = await getUserInfo();
         try {
-          const response = await fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`);
-          if (!response.ok) {
-              throw new Error("Failed to fetching lens blocks");
-          }
-          const data = await response.json();
-          setBlocks(data.data.map((elem) => ({
+          setFormattedBlocks(blocks.map((elem) => ({
             value: String(elem.block_id),
             label: String(elem.title),
           })) || []);
@@ -73,8 +69,8 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
     }, [opened])
 
     useEffect(() => {
-        getLensBlocks(lensId);
-      }, [lensId]);
+        formatBlocks();
+      }, [blocks]);
     const handleCreateWidget = async () => {
         setLoading(true);
         try {
@@ -163,7 +159,7 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
                                 className="w-full"
                                 value={prdBlockId}
                                 placeholder="Enter block title..."
-                                data={blocks}
+                                data={formattedBlocks}
                                 onChange={setPRDBlockId}
                                 maxDropdownHeight={150}
                                 searchable
