@@ -12,6 +12,7 @@ export type ViewController = {
     subspaces?: (Subspace | Lens)[]
     whiteboards?: Tables<"whiteboard">[]
     spreadsheets?: Tables<"spreadsheet">[]
+    widgets?: Tables<"widget">[]
 
     onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
     layout: LensLayout,
@@ -25,6 +26,8 @@ export type ViewController = {
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
     handleSpreadsheetChangeName?: (spreadsheet_id: number, newSpreadsheetName: string) => Promise<any>
     handleSpreadsheetDelete?: (spreadsheet_id: number) => Promise<any>
+    handleWidgetChangeName?: (widget_id: number, newWidgetName: string) => Promise<any>
+    handleWidgetDelete?: (widget_id: number) => Promise<any>
     handleItemSettings?: (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => void
 }
 
@@ -39,6 +42,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         layout,
         layoutView,
         subspaces,
+        widgets,
         whiteboards,
         spreadsheets,
         onChangeLayout
@@ -78,6 +82,8 @@ export default function LayoutController(props: LayoutControllerProps) {
                     blocks={blocks || []}
                     whiteboards={whiteboards || []}
                     spreadsheets={spreadsheets || []}
+                    widgets={widgets || []}
+
                     {...props}
                 />
             </div>

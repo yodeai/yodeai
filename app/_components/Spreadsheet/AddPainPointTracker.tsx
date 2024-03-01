@@ -136,6 +136,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                     </Flex>
                     <Flex mt={10} className = "flex-1 w-full flex-col">
                     <Checkbox
+                    icon={() => <></>}
                     checked={gatherReviews}
                     onChange={(event) => setGatherReviews(event.currentTarget.checked)}
                     label="Gather reviews to populate this current space"
@@ -157,6 +158,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                 }
                  <Flex mt={10} mb={20} className = "flex-1 w-full flex-col">
                 <Checkbox
+                    icon={() => <></>}
                     checked={generatePainPoints}
                     onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
                     label="Autogenerate Painpoints"
