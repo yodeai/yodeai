@@ -66,13 +66,16 @@ export const TicketComponent = ({ data, handleChange, handleUpdate, onExport }: 
             <LoadingOverlay visible={isLoading} />
             <Input.Wrapper
                 label="Title" className="my-1">
-                <Input
-                    leftSection={<MdOutlineTitle size={16} />}
-                    name="title"
-                    value={data.title}
-                    onChange={(e) => handleChange(e, data)}
-                    disabled={!editMode}
-                />
+                {editMode
+                    ? <Input
+                        name="title"
+                        value={data.title}
+                        onChange={(e) => handleChange(e, data)}
+                        disabled={!editMode}
+                    />
+                    : <Text component="p" className="bg-gray-100 rounded-md text-gray-500 !p-3">
+                        {data.title}
+                    </Text>}
             </Input.Wrapper>
 
             <div>
@@ -86,7 +89,7 @@ export const TicketComponent = ({ data, handleChange, handleUpdate, onExport }: 
                             value={data.summary}
                             onChange={(value) => handleChange({ target: { name: "summary", value } } as any, data)}
                         />
-                        : <ReactMarkdown className="propose text-gray-600">
+                        : <ReactMarkdown className="propose text-gray-600 px-5">
                             {data.summary}
                         </ReactMarkdown>
                     }
@@ -104,7 +107,7 @@ export const TicketComponent = ({ data, handleChange, handleUpdate, onExport }: 
                             value={data.description}
                             onChange={(value) => handleChange({ target: { name: "description", value } } as any, data)}
                         />
-                        : <ReactMarkdown className="propose text-gray-600">
+                        : <ReactMarkdown className="propose text-gray-600 px-5">
                             {data.description}
                         </ReactMarkdown>
                     }

@@ -93,7 +93,7 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
             onDelete={handleDeleteWidget}
         />
 
-        <div className="grid grid-cols-2 gap-8 m-8">
+        <div className="sm:w-[80%] w-full mx-auto flex flex-col my-[20px] gap-[20px]">
             {tickets.map((ticket, index) => (
                 <Card key={index} shadow="xs" padding="lg" radius="md">
                     <TicketComponent
