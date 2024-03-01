@@ -1,10 +1,11 @@
 'use client';
 
-import { FaArrowDown, FaArrowUp, FaCaretDown, FaCaretUp, FaFolder, FaList } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaList } from "react-icons/fa";
 import { FaMagnifyingGlassPlus } from "react-icons/fa6";
+import { BsFillGrid3X3GapFill } from 'react-icons/bs';
 import {
-    Flex, Button, Text, Tooltip, Box,
-    Menu, UnstyledButton, Select, HoverCard, Slider, SegmentedControl, Center
+    Flex, Button, Text, Box,
+    Select, HoverCard, Slider, SegmentedControl, Center
 } from "@mantine/core";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
@@ -91,13 +92,13 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                     data={[{
                         value: "block", label: (
                             <Center className="gap-[10px]">
-                                <FaList color="#777777" size={18} />
+                                <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"} size={18} />
                             </Center>
                         )
                     }, {
                         value: "icon", label: (
                             <Center className="gap-[10px]">
-                                <FaFolder color="#777777" size={18} />
+                                <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"} size={18} />
                             </Center>
                         )
                     }]}

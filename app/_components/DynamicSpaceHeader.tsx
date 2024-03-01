@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from "react";
-import { FaCheck, FaTrashAlt, FaFolder, FaList, FaCaretDown, FaCaretUp, FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaCheck, FaList, FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { BsFillGrid3X3GapFill } from 'react-icons/bs';
 import { CiGlobe } from "react-icons/ci";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
@@ -229,13 +230,13 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                         data={[{
                             value: "block", label: (
                                 <Center className="gap-[10px]">
-                                    <FaList color="#777777" size={18} />
+                                    <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"}  size={18} />
                                 </Center>
                             )
                         }, {
                             value: "icon", label: (
                                 <Center className="gap-[10px]">
-                                    <FaFolder color="#777777" size={18} />
+                                    <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"}  size={18} />
                                 </Center>
                             )
                         }]}
