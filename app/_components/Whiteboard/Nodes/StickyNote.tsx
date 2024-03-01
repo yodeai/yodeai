@@ -1,8 +1,9 @@
 import React, { useState, useRef, memo } from 'react'
 import { NodeProps, Handle, Position } from 'reactflow'
-import { WrappedComponentType } from '@components/Whiteboard/NodeWrapper'
-import ResizableNode from '@components/Whiteboard/Resizer'
+import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
+import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
+import { Handles } from '../Helpers/Handles'
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
@@ -44,34 +45,34 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
     };
 
     return <ResizableNode selected={selected}>
-        <ColorPicker
-            handleColorChange={(color) => updateNode({ color })}
-            value={node.data.color}
-            selected={selected}
-        />
-        <Handle type="target" position={Position.Left} />
-        <div className="shadow-md rounded-md"
-            style={{
-                backgroundColor: node.data.color,
-                opacity: text.length === 0 ? 0.25 : 1
-            }}>
-            <textarea
-                style={{
-                    backgroundColor: "transparent",
-                    height: node.height || data.height || defaultNodeProps.height,
-                    width: node.width || data.width || defaultNodeProps.width,
-                    fontSize: defaultNodeProps.style.fontSize,
-                    lineHeight: defaultNodeProps.style.lineHeight,
-                    hyphens: "auto"
-                }}
-                ref={$textarea}
-                className="border-none m-0 resize-none block w-full"
-                value={text}
-                onChange={handleChange}
-                onBlur={handleBlur}
+        <Handles>
+            <ColorPicker
+                handleColorChange={(color) => updateNode({ color })}
+                value={node.data.color}
+                selected={selected}
             />
-        </div>
-        <Handle type="source" position={Position.Right} />
+            <div className="shadow-md rounded-md"
+                style={{
+                    backgroundColor: node.data.color,
+                    opacity: text.length === 0 ? 0.25 : 1
+                }}>
+                <textarea
+                    style={{
+                        backgroundColor: "transparent",
+                        height: node.height || data.height || defaultNodeProps.height,
+                        width: node.width || data.width || defaultNodeProps.width,
+                        fontSize: defaultNodeProps.style.fontSize,
+                        lineHeight: defaultNodeProps.style.lineHeight,
+                        hyphens: "auto"
+                    }}
+                    ref={$textarea}
+                    className="border-none m-0 resize-none block w-full"
+                    value={text}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                />
+            </div>
+        </Handles>
     </ResizableNode>
 });
 

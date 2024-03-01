@@ -7,11 +7,12 @@ import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
-import { Divider, Text, Tooltip, Flex, ActionIcon, Grid } from "@mantine/core";
+import { Divider, Text, Tooltip, Flex, ActionIcon, Grid, Anchor } from "@mantine/core";
 import InlineSpoiler from "../../InlineSpoiler";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@utils/index";
-import Link from "next/link";
+import { useAppContext } from "@contexts/context";
+import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
 interface BlockProps {
   compact?: boolean;
@@ -21,7 +22,12 @@ interface BlockProps {
   hierarchy?: number;
   googleUserId?: string;
 }
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId = "" }: BlockProps) {
+
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId=""}: BlockProps) {
+  const router = useRouter();
+
+  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
+
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
 
@@ -73,6 +79,10 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
 
   // }, [])
 
+  const onClickBlock = () => {
+    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
+    router.push(`/block/${block.block_id}`)
+  }
 
   return (
     <div>
@@ -81,9 +91,34 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
           <Grid.Col span={10}>
             <Flex align={"center"} direction={"row"}>
               <FaFile size={12} style={{ minWidth: 12, minHeight: 12, marginRight: 5, marginBottom: 0.2 }} color="gray" />
-              <Link href={`/block/${block.block_id}`} className="no-underline" prefetch>
-                <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
-              </Link>
+
+              <Anchor
+                size={"xs"}
+                underline="never"
+                onClick={onClickBlock}
+              >
+                
+                {((block.title === "About Pages and Spaces" || block.title === "About Blocks and Spaces") && onboardingStep === 1 && !onboardingIsComplete)
+                  ?
+                  <OnboardingPopover
+                    width={400}
+                    stepToShow={1}
+                    position="right-start"
+                    popoverContent={
+                      <>
+                        <Text size="sm" mb={10}>This is a <b>page</b>, a unit of information in Yodeai.</Text>
+                        <Text size="sm">Click <b>About pages and spaces.</b></Text>
+                      </>
+                    }
+                  >
+                    <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                  </OnboardingPopover>
+                  :
+                  <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                }
+
+              </Anchor>
+
               {hasArchiveButton && (
                 <Flex ml={2}>
                   <Tooltip label="Archive this block">

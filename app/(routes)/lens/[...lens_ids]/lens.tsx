@@ -425,9 +425,9 @@ export default function Lens(props: LensProps) {
     });
 
     return load<Response>(updatePromise, {
-      loading: "Updating block name...",
-      success: "Block name updated!",
-      error: "Failed to update block name.",
+      loading: "Updating page name...",
+      success: "Page name updated!",
+      error: "Failed to update page name.",
     });
   }
 
@@ -436,18 +436,18 @@ export default function Lens(props: LensProps) {
       method: "DELETE"
     });
     return load(deletePromise, {
-      loading: "Deleting block...",
-      success: "Block deleted!",
-      error: "Failed to delete block.",
+      loading: "Deleting page...",
+      success: "Page deleted!",
+      error: "Failed to delete page.",
     });
   }
 
   const handleLensDelete = async (lens_id: number) => {
     const deletePromise = fetch(`/api/lens/${lens_id}`, { method: "DELETE" });
     return load(deletePromise, {
-      loading: "Deleting lens...",
-      success: "Lens deleted!",
-      error: "Failed to delete lens.",
+      loading: "Deleting space...",
+      success: "Space deleted!",
+      error: "Failed to delete space.",
     });
   }
 
@@ -458,9 +458,9 @@ export default function Lens(props: LensProps) {
     });
 
     return load<Response>(updatePromise, {
-      loading: "Updating lens name...",
-      success: "Lens name updated!",
-      error: "Failed to update lens name.",
+      loading: "Updating space name...",
+      success: "Space name updated!",
+      error: "Failed to update space name.",
     });
   }
 
