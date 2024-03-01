@@ -149,7 +149,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
-  const [onboardingIsComplete, setOnboardingIsComplete] = useState(true);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(false);
 
   const goToNextOnboardingStep = () => {
     setOnboardingStep((currentStep) => currentStep + 1);
@@ -162,26 +162,26 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   };
 
   const completeOnboarding = async () => {
-    setOnboardingStep(-1);
-    setOnboardingIsComplete(true);
-    
     const { error } = await supabase
       .from('onboarding_list')
       .delete()
       .match({ uid: user.id });
 
     if (!error) {
-      completeOnboarding();
+      setOnboardingStep(-1);
+      setOnboardingIsComplete(true);
     } else {
       console.error('Failed to update onboarding status:', error.message);
     }
 
     console.log("onboarding done!");
-
-    close();
   };
 
   useEffect(() => {
+    if (onboardingIsComplete) {
+      return;
+    }
+
     const checkOnboardingStatus = async () => {
       try {
         const { data, error } = await supabase
