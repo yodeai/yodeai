@@ -216,6 +216,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             { value: "name", label: "Name" },
                             { value: "createdAt", label: "Created At" },
                             { value: "updatedAt", label: "Updated At" },
+                            { value: "type", label: "Type" }
                         ]}
                         allowDeselect={true}
                         value={sortingOptions.sortBy}

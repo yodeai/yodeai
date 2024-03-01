@@ -521,6 +521,32 @@ export default function Lens(props: LensProps) {
     );
   }
 
+  const typeOrder = {
+    "whiteboard": 1,
+    "whiteboard_plugin": 2,
+    "spreadsheet": 3,
+    "spreadsheet_plugin": 4,
+    "widget": 5,
+    "lens": 6,
+    "block": 7
+  };
+
+  const getType = (item: Tables<"block"> | Tables<"whiteboard"> | Tables<"spreadsheet"> | Lens | Subspace | Block) => {
+    if ("widget_id" in item) {
+      return "widget";
+    } else if ("block_id" in item) {
+      return "block";
+    } else if ("whiteboard_id" in item) {
+      if(item.plugin) return "whiteboard_plugin";
+      return "whiteboard";
+    } else if ("spreadsheet_id" in item) {
+      if(item.plugin) return "spreadsheet_plugin";
+      return "spreadsheet";
+    } else {
+      return "lens";
+    }
+  }
+
   const sortedSubspaces = useMemo(() => {
     if (sortingOptions.sortBy === null) return subspaces;
 
@@ -531,6 +557,8 @@ export default function Lens(props: LensProps) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortingOptions.sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     })
 
@@ -551,6 +579,8 @@ export default function Lens(props: LensProps) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortingOptions.sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     })
 
@@ -571,6 +601,8 @@ export default function Lens(props: LensProps) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortingOptions.sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     })
 
@@ -591,6 +623,8 @@ export default function Lens(props: LensProps) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortingOptions.sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     })
 
@@ -602,7 +636,7 @@ export default function Lens(props: LensProps) {
   }, [sortingOptions, spreadsheets])
 
   return (
-    <ContentProvider 
+    <ContentProvider
       blocks={blocks}
       whiteboards={whiteboards}
       subspaces={subspaces}

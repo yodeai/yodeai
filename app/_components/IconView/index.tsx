@@ -214,6 +214,32 @@ export default function IconLayoutComponent({
     setBreakpoint(breakpoint[0])
   }
 
+  const typeOrder = {
+    "whiteboard": 1,
+    "whiteboard_plugin": 2,
+    "spreadsheet": 3,
+    "spreadsheet_plugin": 4,
+    "widget": 5,
+    "lens": 6,
+    "block": 7
+  };
+
+  const getType = (item: Tables<"block"> | Tables<"whiteboard"> | Tables<"spreadsheet"> | Lens | Subspace | Block) => {
+    if ("widget_id" in item) {
+      return "widget";
+    } else if ("block_id" in item) {
+      return "block";
+    } else if ("whiteboard_id" in item) {
+      if ((item.plugin as any)?.name) return "whiteboard_plugin";
+      return "whiteboard";
+    } else if ("spreadsheet_id" in item) {
+      if ((item.plugin as any)?.name) return "spreadsheet_plugin";
+      return "spreadsheet";
+    } else {
+      return "lens";
+    }
+  }
+
   const sortedItems = useMemo(() => {
     if (sortingOptions.sortBy === null) return items;
 
@@ -226,6 +252,8 @@ export default function IconLayoutComponent({
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortingOptions.sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     });
 
