@@ -41,6 +41,7 @@ export type contextType = {
   spreadsheetModalDisclosure: ReturnType<typeof useDisclosure>;
   painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
   iconItemDisclosure: ReturnType<typeof useDisclosure>;
+  widgetFormDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -92,6 +93,7 @@ const defaultValue: contextType = {
   spreadsheetModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   painPointTrackerModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  widgetFormDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -146,10 +148,11 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const spreadsheetModalDisclosure = useDisclosure(false);
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
+  const widgetFormDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
-  const [onboardingIsComplete, setOnboardingIsComplete] = useState(true);
+  const [onboardingIsComplete, setOnboardingIsComplete] = useState(false);
 
   const goToNextOnboardingStep = () => {
     setOnboardingStep((currentStep) => currentStep + 1);
@@ -162,26 +165,26 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   };
 
   const completeOnboarding = async () => {
-    setOnboardingStep(-1);
-    setOnboardingIsComplete(true);
-    
     const { error } = await supabase
       .from('onboarding_list')
       .delete()
       .match({ uid: user.id });
 
-    if (!error) {
-      completeOnboarding();
-    } else {
+    setOnboardingStep(-1);
+    setOnboardingIsComplete(true);
+
+    if (error) {
       console.error('Failed to update onboarding status:', error.message);
+    } else {
+      console.log("onboarding complete");
     }
-
-    console.log("onboarding done!");
-
-    close();
   };
 
   useEffect(() => {
+    if (onboardingIsComplete) {
+      return;
+    }
+
     const checkOnboardingStatus = async () => {
       try {
         const { data, error } = await supabase
@@ -191,6 +194,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
           .single();
 
         if (error) {
+          setOnboardingStep(-1);
+          setOnboardingIsComplete(true);
           throw error;
         }
 
@@ -324,6 +329,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       userInsightsDisclosure, competitiveAnalysisDisclosure,
       spreadsheetModalDisclosure, iconItemDisclosure,
       painPointTrackerModalDisclosure,
+      widgetFormDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,
