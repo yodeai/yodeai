@@ -25,7 +25,7 @@ export default function Home() {
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
-  const { lensId, sortingOptions, setLensId, user } = useAppContext();
+  const { sortingOptions, setLensId, setLensName } = useAppContext();
 
   const getLenses = async () => {
     return fetch(`/api/lens/getAll`)
@@ -42,7 +42,8 @@ export default function Home() {
   }
 
   useEffect(() => {
-    setLensId(null)
+    setLensId(null);
+    setLensName(null);
     getLenses();
   }, []);
 

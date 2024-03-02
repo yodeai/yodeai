@@ -25,6 +25,7 @@ import fileTypeIcons from "./_icons/index";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { useProgressRouter } from "@utils/nprogress";
 import { WidgetIconItem } from "./_views/Widget";
+import { usePathname } from "next/navigation";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -64,6 +65,7 @@ export default function IconLayoutComponent({
   handleWidgetDelete,
   handleItemSettings
 }: IconLayoutComponentProps) {
+  const pathname = usePathname();
   const router = useProgressRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
@@ -90,7 +92,7 @@ export default function IconLayoutComponent({
   const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
     let elements = [].concat(
       [{ name: 'Spaces', lens_id: null }],
-      breadcrumbData || lensId && [{ lens_id: lensId, name: lensName }] || []
+      (pathname !== "/" && breadcrumbData) || lensId && [{ lens_id: lensId, name: lensName }] || []
     )
     elements = elements.reduce((acc, lens, index, arr) => {
       return [...acc,
@@ -105,26 +107,35 @@ export default function IconLayoutComponent({
         if ("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
         if ("block_id" in item) return selectedItems[0] === item.block_id;
         if ("spreadsheet_id" in item) return selectedItems[0] === item.spreadsheet_id;
+        if ("widget_id" in item) return selectedItems[0] === item.widget_id;
         if ("lens_id" in item) return selectedItems[0] === item.lens_id;
       });
       if (!selectedItem) return elements;
+
+      let href = "";
+      if ("whiteboard_id" in selectedItem) href = `/whiteboard/${selectedItem.whiteboard_id}`;
+      if ("spreadsheet_id" in selectedItem) href = `/spreadsheet/${selectedItem.spreadsheet_id}`;
+      if ("widget_id" in selectedItem) href = `/widget/${selectedItem.widget_id}`;
+      if ("block_id" in selectedItem) href = `/block/${selectedItem.block_id}`;
+      if ("lens_id" in selectedItem) href = `/lens/${selectedItem.lens_id}`;
+
       elements.push({
         title: "lens_id" in selectedItem ? selectedItem.name : selectedItem.title,
-        href: "lens_id" in selectedItem ? `/lens/${selectedItem.lens_id}` : `/block/${selectedItem.block_id}`
+        href: href
       })
     } else if (selectedItems.length > 1) {
       elements.push({ title: `${selectedItems.length} items selected` })
     }
 
     return elements;
-  }, [breadcrumbData, items, lensName, lensId, selectedItems])
+  }, [breadcrumbData, items, lensName, lensId, selectedItems, pathname])
 
-  const getLensParents = () => {
-    if (!lensId) {
-      setBreadcrumbLoading(false);
+  const getLensParents = useCallback((lens_id) => {
+    if (!lens_id) {
+      setBreadcrumbData([]);
       return;
     }
-    return fetch(`/api/lens/${lensId}/getParents`)
+    return fetch(`/api/lens/${lens_id}/getParents`)
       .then(res => {
         if (!res.ok) {
           throw new Error("Couldn't get parents of the lens.")
@@ -141,10 +152,10 @@ export default function IconLayoutComponent({
       .finally(() => {
         setBreadcrumbLoading(false);
       })
-  }
+  }, [])
 
   useEffect(() => {
-    getLensParents()
+    getLensParents(lensId)
 
     if ($gridContainer.current) {
       const [container, grid] = [$gridContainer.current, $gridContainer.current.children[0]];
@@ -152,6 +163,7 @@ export default function IconLayoutComponent({
         (grid as HTMLDivElement).style.height = `${grid.clientHeight + 50}px`;
       }
     }
+
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
@@ -164,7 +176,7 @@ export default function IconLayoutComponent({
       return router.push(`${window.location.pathname}/${itemId}`);
     }
 
-    if(itemType === "wd") return router.push(`/widget/${itemId}`)
+    if (itemType === "wd") return router.push(`/widget/${itemId}`)
 
     if (itemType === "sp") return router.replace(`/spreadsheet/${itemId}?${Math.random().toString(36).substring(7)}`);
   }
@@ -176,7 +188,7 @@ export default function IconLayoutComponent({
       if (window.location.pathname === "/") return router.prefetch(`/lens/${itemId}`);
       return router.prefetch(`${window.location.pathname}/${itemId}`);
     }
-    if(itemType === "wd") return router.prefetch(`/widget/${itemId}`);
+    if (itemType === "wd") return router.prefetch(`/widget/${itemId}`);
     if (itemType === "sp") return router.prefetch(`/spreadsheet/${itemId}`);
   }
 
