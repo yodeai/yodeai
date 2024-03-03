@@ -588,6 +588,32 @@ export default function Lens(props: LensProps) {
     );
   }
 
+  const typeOrder = {
+    "whiteboard": 1,
+    "whiteboard_plugin": 2,
+    "spreadsheet": 3,
+    "spreadsheet_plugin": 4,
+    "widget": 5,
+    "lens": 6,
+    "block": 7
+  };
+
+  const getType = (item: Tables<"block"> | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget"> | Lens | Subspace | Block) => {
+    if ("widget_id" in item) {
+      return "widget";
+    } else if ("block_id" in item) {
+      return "block";
+    } else if ("whiteboard_id" in item) {
+      if(item.plugin) return "whiteboard_plugin";
+      return "whiteboard";
+    } else if ("spreadsheet_id" in item) {
+      if(item.plugin) return "spreadsheet_plugin";
+      return "spreadsheet";
+    } else {
+      return "lens";
+    }
+  }
+
   type SortItems = Subspace | Block | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget">;
 
   const sortItems = function <T extends SortItems>
@@ -606,6 +632,8 @@ export default function Lens(props: LensProps) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortBy === "updatedAt") {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      } else if (sortingOptions.sortBy === "type") {
+        return typeOrder[getType(a)] - typeOrder[getType(b)];
       }
     })
 
