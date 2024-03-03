@@ -73,16 +73,16 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
     }, [$dataSource.current]);
 
     const document = <SheetsDirective>
-        <SheetDirective name='Pain Points'>
-            {sheetContent}
+        <SheetDirective name='Cumulative'>
+            {sheetCumulativeContent}
+
             <ColumnsDirective>
                 {Array.from({ length: sheetPosition.colIndex }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 104} key={i} />)}
             </ColumnsDirective>
         </SheetDirective>
 
-        <SheetDirective name='Cumulative'>
-            {sheetCumulativeContent}
-
+        <SheetDirective name='Pain Points'>
+            {sheetContent}
             <ColumnsDirective>
                 {Array.from({ length: sheetPosition.colIndex }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 104} key={i} />)}
             </ColumnsDirective>
