@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from "react";
-import { FaCheck, FaTrashAlt, FaFolder, FaList, FaCaretDown, FaCaretUp, FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaCheck, FaList, FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { BsFillGrid3X3GapFill } from 'react-icons/bs';
 import { CiGlobe } from "react-icons/ci";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
-    Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider
+    Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider, SegmentedControl, Center
 } from "@mantine/core";
 import ShareLensComponent from "@components/ShareLensComponent";
 import { modals } from '@mantine/modals';
@@ -217,6 +218,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             { value: "name", label: "Name" },
                             { value: "createdAt", label: "Created At" },
                             { value: "updatedAt", label: "Updated At" },
+                            { value: "type", label: "Type" }
                         ]}
                         allowDeselect={true}
                         value={sortingOptions.sortBy}
@@ -224,21 +226,24 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             setSortingOptions({ ...sortingOptions, sortBy: value })
                         }}
                     />
-                    <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
-                        ? "Switch to icon view."
-                        : "Switch to list view."
-                    }>
-                        <Button
-                            size="sm"
-                            variant="subtle"
-                            color="gray.7"
-                            p={7}
-                            ml={5}
-                            onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                        >
-                            {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
-                        </Button>
-                    </Tooltip>
+                    <SegmentedControl
+                        className="ml-3"
+                        value={selectedLayoutType}
+                        onChange={handleChangeLayoutView}
+                        data={[{
+                            value: "block", label: (
+                                <Center className="gap-[10px]">
+                                    <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"}  size={18} />
+                                </Center>
+                            )
+                        }, {
+                            value: "icon", label: (
+                                <Center className="gap-[10px]">
+                                    <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"}  size={18} />
+                                </Center>
+                            )
+                        }]}
+                    />
                     <HoverCard width={320} shadow="md" position="bottom-end">
                         <HoverCard.Target>
                             <Button

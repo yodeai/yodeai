@@ -45,7 +45,7 @@ export type contextType = {
 
   sortingOptions: {
     order: "asc" | "desc",
-    sortBy: null | "name" | "createdAt" | "updatedAt"
+    sortBy: null | "name" | "createdAt" | "updatedAt" | "type"
   },
   setSortingOptions: React.Dispatch<React.SetStateAction<contextType["sortingOptions"]>>;
 

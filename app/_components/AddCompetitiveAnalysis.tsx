@@ -263,9 +263,9 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
             <Title order={4} className="w-full">
               Areas of Analysis
             </Title>
-            {/* <Text className="w-full mb-5 text-gray-300" size="xs">
-              Enter the areas of analysis you want to analyze. You can add multiple companies and areas of analysis.
-            </Text> */}
+            <Text className="w-full mb-5 text-gray-300" size="xs">
+              Leave this blank if you would like to autogenerate 3 areas.
+            </Text>
           </Box>
 
           {form.areasOfAnalysis.map((area, index) => (

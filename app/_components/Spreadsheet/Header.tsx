@@ -6,6 +6,7 @@ import { FaAngleDown, FaCheck } from "react-icons/fa";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
 import { useDebouncedCallback } from '@utils/hooks';
+import { useRouter } from "next/navigation";
 
 type SpreadsheetProps = {
     title: string
@@ -17,6 +18,7 @@ type SpreadsheetProps = {
 
 export default function SpreadsheetHeader(props: SpreadsheetProps) {
     const { title, accessType, onSave, onDelete } = props;
+    const router = useRouter();
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -54,7 +56,9 @@ export default function SpreadsheetHeader(props: SpreadsheetProps) {
                 loading: "Deleting spreadsheet...",
                 success: "Spreadsheet deleted.",
                 error: "Failed to delete spreadsheet."
-            });
+            }).then(() => {
+                router.back();
+            })
         }
     });
 

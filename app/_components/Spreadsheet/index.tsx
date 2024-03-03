@@ -55,6 +55,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     }, [$container]);
 
     const handleUpdateSpreadsheet = useCallback((payload) => {
+        if (payload.new.name === spreadsheet.name) return;
         setSpreadsheet((prev) => ({ ...prev, name: payload.new.name }))
     }, []);
 
@@ -128,14 +129,14 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         onCreated = () => { },
         beforeDataBound = () => { },
         document
-    } = useSpreadsheetPlugin({ $spreadsheet, $dataSource, spreadsheet, access_type });
+    } = useSpreadsheetPlugin({ $spreadsheet, $dataSource, access_type });
 
 
     const onSheetCreated = useCallback(function () {
         onCreated.bind(this).call();
 
         if (["owner", "editor"].includes(access_type) === false) {
-             $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
+            $spreadsheet.current.hideRibbonTabs(['Home', 'Insert', 'Data', 'View', 'Formulas', 'Chart Design']);
             $spreadsheet.current.protectSheet();
         }
     }, [access_type, $spreadsheet])
@@ -143,7 +144,19 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const isSpreadsheetProtected = useMemo(() => {
         if (["owner", "editor"].includes(access_type)) return false;
         return true;
-    }, [access_type])
+    }, [access_type]);
+
+    const spreadsheetContainer = useMemo(() => <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
+        <SpreadsheetComponent
+            saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
+            beforeCellUpdate={onCellUpdate}
+            beforeDataBound={beforeDataBound}
+            created={onSheetCreated.bind(this)}
+            isProtected={isSpreadsheetProtected}
+            ref={$spreadsheet}>
+            {document}
+        </SpreadsheetComponent>
+    </div>, []);
 
     return (
         <div className='root-spreadsheet control-pane h-full overflow-hidden'>
@@ -159,17 +172,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                     </div> || ""}
                 </>}
             />
-            <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
-                <SpreadsheetComponent
-                    saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
-                    beforeCellUpdate={onCellUpdate}
-                    beforeDataBound={beforeDataBound}
-                    created={onSheetCreated.bind(this)}
-                    isProtected={isSpreadsheetProtected}
-                    ref={$spreadsheet}>
-                    {document}
-                </SpreadsheetComponent>
-            </div>
+            {spreadsheetContainer}
         </div >
     )
 }
