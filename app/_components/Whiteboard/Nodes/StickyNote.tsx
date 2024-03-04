@@ -1,9 +1,10 @@
-import React, { useState, useRef, memo } from 'react'
+import React, { useState, useRef, memo, useEffect } from 'react'
 import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
 import { Handles } from '../Helpers/Handles'
+import { calculateStickyNoteBoxHeight } from '../Plugins/utils/index';
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
@@ -28,7 +29,7 @@ export const defaultNodeProps: {
     width: 200,
     style: {
         lineHeight: 1.5,
-        fontSize: 9
+        fontSize: 12
     }
 }
 
@@ -43,6 +44,13 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
     const handleBlur = () => {
         updateNode({ text });
     };
+
+    useEffect(() => {
+        const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width);
+        if(node.height && node.height !== calculatedHeight) {
+            updateNode({ height: calculatedHeight });
+        }
+    }, [node])
 
     return <ResizableNode selected={selected}>
         <Handles>

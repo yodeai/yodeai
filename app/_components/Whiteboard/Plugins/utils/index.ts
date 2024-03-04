@@ -18,12 +18,12 @@ export const getNodesBounding = (
 export const calculateStickyNoteBoxHeight = (text: string, width: number) => {
     const { lineHeight, fontSize } = stickyNoteDefaultStyling.style;
     const newLineCount = (text.match(/\n/g) || []).length;
-    const rowCount = Math.ceil(text.length / (width / 5.5)) + newLineCount / 2; // 5.5px width per character (roughly)
-    return (rowCount + 2) * (fontSize * lineHeight); // 15px height per row
+    const rowCount = Math.ceil(text.length / (width / ((fontSize / 2) + 2))) + newLineCount / 2;
+    return (rowCount + 2) * (fontSize * lineHeight);
 }
 
 export const calculateTextBoxHeight = (text: string, fontSize: number, width: number) => {
     const newLineCount = (text.match(/\n/g) || []).length;
-    const rowCount = Math.ceil(text.length / (width / ((fontSize / 2) + 2))) + newLineCount / 2; // 5.5px width per character (roughly)
+    const rowCount = Math.ceil(text.length / (width / ((fontSize / 2) + 2))) + newLineCount / 2;
     return (rowCount + 2) * fontSize 
 }
