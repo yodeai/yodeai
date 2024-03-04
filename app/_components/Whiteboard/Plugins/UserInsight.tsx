@@ -147,7 +147,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
     const summaryNodes: Node<any>[] = [];
     const summaryTopicNodes: Node<any>[] = [];
 
-    const summaryTopicWidth = 300;
+    const summaryTopicWidth = 400;
     const summaryTopicPadding = 50;
 
     payload.summary.topics.forEach((topic, topicIndex) => {
