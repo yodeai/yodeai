@@ -3,9 +3,17 @@ import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
 import { calculateStickyNoteBoxHeight, getNodesBounding } from "./utils";
 
+const stickyNoteFontSize = 24;
+
 export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] => {
     let groupNodes: Node<any>[] = [];
     const colors = ["#ffd43b", "#80caff", "#d9b8ff", "#f07576", "#55e0b2"];
+
+    if(!payload) return groupNodes;
+
+    const commentBoxWidth = 300;
+    const commentBoxPadding = 20;
+    const boxCountPerRow = 5;
 
     let insightBoxes: Node<any>[] = [];
     insightBoxes.push(createText({
@@ -30,9 +38,9 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                 width: 400, height: "auto"
             }),
             createStickyNote({
-                data: { text: insight.user.info, color: groupNodeColor },
-                position: { x: 480, y: 0 },
-                width: 400, height: "auto"
+                data: { text: insight.user.info, color: groupNodeColor, fontSize: stickyNoteFontSize },
+                position: { x: ((commentBoxWidth + commentBoxPadding) * boxCountPerRow) - 800, y: 0 },
+                width: 800, height: "auto"
             })
         ])
 
@@ -51,13 +59,10 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
             bounding = getNodesBounding(nodes);
 
-            const boxCountPerRow = 5;
-            const commentBoxWidth = 160;
-            const commentBoxPadding = 20;
 
             let commentNodes: Node<any>[] = [];
             topic.comments.forEach((comment, commentIndex) => {
-                const commentBoxHeight = calculateStickyNoteBoxHeight(comment.comment, commentBoxWidth);
+                const commentBoxHeight = calculateStickyNoteBoxHeight(comment.comment, commentBoxWidth, stickyNoteFontSize);
 
                 const commentX = ((commentBoxWidth + commentBoxPadding) * (commentIndex % boxCountPerRow))
                 const aboveCommentBoxesTotalHeight = commentNodes
@@ -68,7 +73,7 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                 // comments
                 commentNodes = commentNodes.concat([
                     createStickyNote({
-                        data: { text: comment.comment, color: groupNodeColor },
+                        data: { text: comment.comment, color: groupNodeColor, fontSize: stickyNoteFontSize },
                         position: { x: commentX, y: commentY },
                         width: commentBoxWidth, height: commentBoxHeight
                     })
@@ -80,8 +85,8 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
                 Array.from({ length: boxCountPerRow - topic.comments.length }).forEach((_, index) => {
                     commentNodes = commentNodes.concat([
                         createStickyNote({
-                            data: { text: "", color: groupNodeColor },
-                            position: { x: ((160 + commentBoxPadding) * (topic.comments.length + index)), y: bounding.bottom },
+                            data: { text: "", color: groupNodeColor, fontSize: stickyNoteFontSize },
+                            position: { x: ((commentBoxWidth + commentBoxPadding) * (topic.comments.length + index)), y: bounding.bottom },
                             width: commentBoxWidth, height: 100
                         })
                     ])
@@ -173,13 +178,13 @@ export const render = (payload: WhiteboardPlugins["user-insight"]): Node<any>[] 
 
             if (commentSummary) {
                 summaryTopicNodes.push(createStickyNote({
-                    data: { text: commentSummary.content || "―", color: colors[userIndex % colors.length] },
+                    data: { text: commentSummary.content || "―", color: colors[userIndex % colors.length], fontSize: stickyNoteFontSize },
                     position: { x: positionX, y: positionY },
                     width: summaryTopicWidth - summaryTopicPadding, height: "auto"
                 }));
-            }else{
+            } else {
                 summaryTopicNodes.push(createStickyNote({
-                    data: { text: "", color: colors[userIndex % colors.length] },
+                    data: { text: "", color: colors[userIndex % colors.length], fontSize: stickyNoteFontSize },
                     position: { x: positionX, y: positionY },
                     width: summaryTopicWidth - summaryTopicPadding, height: 120
                 }));

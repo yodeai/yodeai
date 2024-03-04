@@ -3,8 +3,11 @@ import { Node } from "reactflow"
 import { createText, createStickyNote, createGroupNode } from './utils/renderer';
 import { calculateStickyNoteBoxHeight, getNodesBounding } from "./utils";
 
+const stickyNoteFontSize = 14;
+
 export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node<any>[] => {
     let nodes: Node<any>[] = [];
+
 
     // Summary
     let summaryBoxNodes: Node<any>[] = [];
@@ -134,7 +137,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
         // appending analysis content
         let companyContentNodes: Node<any>[] = [];
         company.data.slice(1).forEach((content, index) => {
-            const stickyNoteBoxHeight = calculateStickyNoteBoxHeight(content.content, 250);
+            const stickyNoteBoxHeight = calculateStickyNoteBoxHeight(content.content, 250, stickyNoteFontSize);
             companyContentNodes.push(
                 createText({
                     data: { text: content.title, size: 12 },
@@ -144,7 +147,7 @@ export const render = (payload: WhiteboardPlugins["competitive-analysis"]): Node
                     }, width: 250, height: 50
                 }),
                 createStickyNote({
-                    data: { text: content.content, color: companyColor },
+                    data: { text: content.content, color: companyColor, fontSize: stickyNoteFontSize },
                     position: {
                         x: (300 * index),
                         y: 60,
