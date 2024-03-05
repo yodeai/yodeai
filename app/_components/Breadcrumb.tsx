@@ -13,9 +13,14 @@ export const Breadcrumb = () => {
     const { lensId, breadcrumbActivePage } = useAppContext();
 
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<({ name, lens_id }[])>(null);
+    const [data, setData] = useState<({ name: string, lens_id: string }[])>(null);
 
     const getParents = useCallback(() => {
+        if (!lensId) {
+            setLoading(false);
+            return;
+        }
+
         return fetch(`/api/lens/${lensId}/getParents`)
             .then(res => {
                 if (!res.ok) {
@@ -60,16 +65,16 @@ export const Breadcrumb = () => {
                 separator: "!text-gray-400",
                 breadcrumb: "!text-gray-500 font-semibold",
             }} separatorMargin={5} className="z-50 select-none">{
-                breadcrumbs.map(({ title, href }, index) => (
-                    <Fragment key={index}>
-                        {href
-                            ? <Link href={href} className="no-underline hover:underline text-inherit" prefetch>
-                                <Text size="sm">{title}</Text>
-                            </Link>
-                            : <Text size="sm">{title}</Text>
-                        }
-                    </Fragment>
-                ))}
+                    breadcrumbs.map(({ title, href }, index) => (
+                        <Fragment key={index}>
+                            {href
+                                ? <Link href={href} className="no-underline hover:underline text-inherit" prefetch>
+                                    <Text size="sm">{title}</Text>
+                                </Link>
+                                : <Text size="sm">{title}</Text>
+                            }
+                        </Fragment>
+                    ))}
             </Breadcrumbs>
         </>}
     </Box>
