@@ -40,7 +40,7 @@ export function getSortingOptionsFromLocalStorage() {
 
 export function setSortingOptionsToLocalStorage(sortingOptions: {
     order: "asc" | "desc",
-    sortBy: null | "name" | "createdAt" | "updatedAt"
+    sortBy: null | "name" | "createdAt" | "updatedAt" | "type"
 }) {
     if (global.localStorage) {
         global.localStorage.setItem("sortingOptions", JSON.stringify(sortingOptions));

@@ -11,10 +11,6 @@ import { EmitType } from '@syncfusion/ej2-base';
 export type PluginInput = {
     $spreadsheet: MutableRefObject<SpreadsheetComponent>;
     $dataSource: MutableRefObject<SpreadsheetDataSourceObject>;
-    spreadsheet: Tables<"spreadsheet"> & {
-        dataSource: SpreadsheetDataSourceObject;
-        plugin: SpreadsheetPluginParams
-    };
     access_type: "owner" | "editor" | "reader"
 }
 
@@ -27,7 +23,6 @@ export type PluginOutput = {
 
 export type PluginFunction = ({
     $spreadsheet,
-    spreadsheet,
     $dataSource,
     access_type
 }: PluginInput

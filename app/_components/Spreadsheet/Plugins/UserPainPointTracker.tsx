@@ -10,7 +10,7 @@ import {
 import { SpreadsheetDataSource, SpreadsheetDataSourceObject } from 'app/_types/spreadsheet';
 import { useSheetChart, useSheetData, useSheetRange } from '../hooks';
 
-export default function ({ $spreadsheet, $dataSource, spreadsheet }: PluginInput): PluginOutput {
+export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutput {
     const dataSource = useMemo<SpreadsheetDataSourceObject>(() => {
         if (Array.isArray($dataSource.current)) {
             console.log('Rendering legacy structure to new structure', $dataSource.current);
@@ -70,7 +70,7 @@ export default function ({ $spreadsheet, $dataSource, spreadsheet }: PluginInput
             }, `A2':A${sheetPosition.rowIndex}`);
             $spreadsheet.current.deselectChart();
         }, 100)
-    }, [spreadsheet.dataSource]);
+    }, [$dataSource.current]);
 
     const document = <SheetsDirective>
         <SheetDirective name='Cumulative'>

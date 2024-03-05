@@ -50,7 +50,7 @@ export default function Toolbar() {
     const {
         accessType, subspaceModalDisclosure, lensId,
         whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
-        painPointTrackerModalDisclosure
+        painPointTrackerModalDisclosure, widgetFormDisclosure
     } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
@@ -59,6 +59,7 @@ export default function Toolbar() {
     const [competitiveAnalysisModalState, competitiveAnalysisModalController] = competitiveAnalysisDisclosure;
     const [spreadsheetModalState, spreadsheetModalController] = spreadsheetModalDisclosure;
     const [painPointTrackerModalState, painPointTrackerModalController] = painPointTrackerModalDisclosure;
+    const [widgetFormState, widgetFormController] = widgetFormDisclosure;
 
     const [menuOpened, setMenuOpened] = useState(false);
     const [widgetMenuOpened, setWidgetsMenuOpened] = useState(false);

@@ -47,7 +47,7 @@ export default async function WhiteboardPage({ params, searchParams }: Whiteboar
         return <Result
             refreshInvervally={true}
             title="Processing..."
-            description="Spreadsheet is still processing, please check back later."
+            description="Whiteboard is still processing, please check back later."
             icon={<FaCircleNotch className="animate-spin" size={24} />} />
     }
 

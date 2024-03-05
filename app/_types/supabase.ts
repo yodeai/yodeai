@@ -1243,6 +1243,63 @@ export type Database = {
           }
         ]
       }
+      widget: {
+        Row: {
+          created_at: string
+          input: Json | null
+          lens_id: number | null
+          name: string | null
+          output: Json | null
+          owner_id: string | null
+          state: Json | null
+          task_id: string | null
+          type: string | null
+          updated_at: string | null
+          widget_id: number
+        }
+        Insert: {
+          created_at?: string
+          input?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          output?: Json | null
+          owner_id?: string | null
+          state?: Json | null
+          task_id?: string | null
+          type?: string | null
+          updated_at?: string | null
+          widget_id?: number
+        }
+        Update: {
+          created_at?: string
+          input?: Json | null
+          lens_id?: number | null
+          name?: string | null
+          output?: Json | null
+          owner_id?: string | null
+          state?: Json | null
+          task_id?: string | null
+          type?: string | null
+          updated_at?: string | null
+          widget_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_widget_lens_id_fkey"
+            columns: ["lens_id"]
+            isOneToOne: false
+            referencedRelation: "lens"
+            referencedColumns: ["lens_id"]
+          },
+          {
+            foreignKeyName: "public_widget_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1279,6 +1336,13 @@ export type Database = {
       get_access_type_whiteboard: {
         Args: {
           chosen_whiteboard_id: number
+          chosen_user_id: string
+        }
+        Returns: string
+      }
+      get_access_type_widget: {
+        Args: {
+          chosen_widget_id: number
           chosen_user_id: string
         }
         Returns: string

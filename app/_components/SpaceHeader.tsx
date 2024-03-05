@@ -1,10 +1,11 @@
 'use client';
 
-import { FaArrowDown, FaArrowUp, FaCaretDown, FaCaretUp, FaFolder, FaList } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaList } from "react-icons/fa";
 import { FaMagnifyingGlassPlus } from "react-icons/fa6";
+import { BsFillGrid3X3GapFill } from 'react-icons/bs';
 import {
-    Flex, Button, Text, Tooltip, Box,
-    Menu, UnstyledButton, Select, HoverCard, Slider
+    Flex, Button, Text, Box,
+    Select, HoverCard, Slider, SegmentedControl, Center
 } from "@mantine/core";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
@@ -13,6 +14,7 @@ import AddUserInsight from "./AddUserInsight";
 import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
 import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
 import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
+import AddWidgetModal from "./Widgets/ModalForm";
 
 type SpaceHeaderProps = {
     title: string;
@@ -38,7 +40,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
     const {
         subspaceModalDisclosure, whiteboardModelDisclosure, userInsightsDisclosure,
         spreadsheetModalDisclosure, competitiveAnalysisDisclosure, iconItemDisclosure,
-        painPointTrackerModalDisclosure,
+        painPointTrackerModalDisclosure, widgetFormDisclosure,
         sortingOptions, setSortingOptions, zoomLevel, setZoomLevel
     } = useAppContext();
 
@@ -77,6 +79,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         { value: "name", label: "Name" },
                         { value: "createdAt", label: "Created At" },
                         { value: "updatedAt", label: "Updated At" },
+                        { value: "type", label: "Type" }
                     ]}
                     allowDeselect={true}
                     value={sortingOptions.sortBy}
@@ -84,21 +87,24 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}
                 />}
-                {staticLayout === false && <Tooltip position="bottom-end" color="gray.7" offset={10} label={selectedLayoutType === "block"
-                    ? "Switch to icon view."
-                    : "Switch to list view."
-                }>
-                    <Button
-                        size="sm"
-                        variant="subtle"
-                        color="gray.7"
-                        p={7}
-                        ml={5}
-                        onClick={() => handleChangeLayoutView(selectedLayoutType === "block" ? "icon" : "block")}
-                    >
-                        {selectedLayoutType === "icon" ? <FaFolder size={18} /> : <FaList size={18} />}
-                    </Button>
-                </Tooltip> || ""}
+                {staticLayout === false && <SegmentedControl
+                    className="ml-3"
+                    value={selectedLayoutType}
+                    onChange={handleChangeLayoutView}
+                    data={[{
+                        value: "block", label: (
+                            <Center className="gap-[10px]">
+                                <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"} size={18} />
+                            </Center>
+                        )
+                    }, {
+                        value: "icon", label: (
+                            <Center className="gap-[10px]">
+                                <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"} size={18} />
+                            </Center>
+                        )
+                    }]}
+                /> || ""}
                 {staticZoomLevel === false && <HoverCard width={320} shadow="md" position="bottom-end">
                     <HoverCard.Target>
                         <Button
@@ -141,6 +147,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 <AddCompetitiveAnalysis modalController={competitiveAnalysisDisclosure} lensId={-1} accessType={"owner"} />
                 <AddSpreadsheetModal modalController={spreadsheetModalDisclosure} lensId={-1} accessType={"owner"} />
                 <AddPainPointTracker modalController={painPointTrackerModalDisclosure} lensId={-1} accessType={"owner"} />
+                <AddWidgetModal modalController={widgetFormDisclosure} lensId={-1} accessType="owner" />
             </Flex>
         </Flex>
     </>

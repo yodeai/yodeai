@@ -6,19 +6,16 @@ import { FaAngleDown, FaCheck } from "react-icons/fa";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
 import { useDebouncedCallback } from '@utils/hooks';
-import { useRouter } from "next/navigation";
 
-type SpreadsheetProps = {
+type WidgetHeaderProps = {
     title: string
     accessType: "owner" | "editor" | "reader";
     onSave: (title: string) => Promise<Response>
-    onDelete: () => Promise<Response>
-    rightSection?: React.ReactNode
+    onDelete: () => Promise<void>
 }
 
-export default function SpreadsheetHeader(props: SpreadsheetProps) {
+export default function WidgetHeader(props: WidgetHeaderProps) {
     const { title, accessType, onSave, onDelete } = props;
-    const router = useRouter();
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -40,26 +37,17 @@ export default function SpreadsheetHeader(props: SpreadsheetProps) {
     }
 
     const openDeleteModal = () => modals.openConfirmModal({
-        title: 'Confirm spreadsheet deletion',
+        title: 'Confirm widget deletion',
         centered: true,
         confirmProps: { color: 'red' },
         children: (
             <Text size="sm">
-                Are you sure you want to delete this spreadsheet? This action cannot be undone.
+                Are you sure you want to delete this widget? This action cannot be undone.
             </Text>
         ),
-        labels: { confirm: 'Delete spreadsheet', cancel: "Cancel" },
+        labels: { confirm: 'Delete widget', cancel: "Cancel" },
         onCancel: () => console.log('Canceled deletion'),
-        onConfirm: () => {
-            const deletePromise = onDelete();
-            load(deletePromise, {
-                loading: "Deleting spreadsheet...",
-                success: "Spreadsheet deleted.",
-                error: "Failed to delete spreadsheet."
-            }).then(() => {
-                router.back();
-            })
-        }
+        onConfirm: onDelete
     });
 
     return <>
@@ -104,9 +92,6 @@ export default function SpreadsheetHeader(props: SpreadsheetProps) {
                         <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
-            </Box>
-            <Box className="flex flex-row">
-                {props.rightSection || ""}
             </Box>
         </Flex>
     </>
