@@ -102,6 +102,21 @@ export async function GET(request: NextRequest, { params, }: { params: { block_i
       .eq('block_id', block_id)
       .single();
 
+    // Get lens_id from lens_blocks
+    const { data: lensBlocks, error: lensBlocksError } = await supabase
+      .from('lens_blocks')
+      .select('lens_id')
+      .eq('block_id', block_id)
+      .single();
+
+    if (lensBlocksError) {
+      console.log("message", lensBlocksError.message);
+      throw lensBlocksError;
+    }
+
+    const lensId = lensBlocks ? lensBlocks.lens_id : null;
+    block.lens_id = lensId;
+
     // Check for errors
     if (blockError) {
       throw blockError;

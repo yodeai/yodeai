@@ -21,6 +21,12 @@ export type contextType = {
   activeComponent: "global" | "lens" | "myblocks" | "inbox";
   setActiveComponent: React.Dispatch<React.SetStateAction<string>>;
 
+  breadcrumbActivePage?: {
+    title: string;
+    href: string;
+  }
+  setBreadcrumbActivePage: React.Dispatch<React.SetStateAction<contextType["breadcrumbActivePage"]>>;
+
   pinnedLensesLoading: boolean;
   pinnedLenses: Lens[];
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
@@ -72,6 +78,8 @@ const defaultValue: contextType = {
   allLenses: [],
   activeComponent: "global",
   setActiveComponent: () => { },
+  breadcrumbActivePage: undefined,
+  setBreadcrumbActivePage: () => { },
 
   pinnedLensesLoading: true,
   pinnedLenses: [],
@@ -140,6 +148,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
   const [user, setUser] = useState<User>();
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
 
   const subspaceModalDisclosure = useDisclosure(false);
   const whiteboardModelDisclosure = useDisclosure(false);
@@ -334,6 +343,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       user,
       zoomLevel: memoizedZoomLevel,
       setZoomLevel: setIconViewZoomLevel,
+      breadcrumbActivePage, setBreadcrumbActivePage,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
     }}>
       {children}

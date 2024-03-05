@@ -1,11 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tables } from "app/_types/supabase";
+import { useAppContext } from "@contexts/context";
 
 export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     input: K;
     output: L;
 }) => {
     const [data, setData] = useState(widgetData);
+
+    const { setLensId, setBreadcrumbActivePage } = useAppContext();
+
+    useEffect(() => {
+        console.log(widgetData)
+
+        setLensId(widgetData.lens_id?.toString())
+        setBreadcrumbActivePage({
+            title: widgetData.name,
+            href: `/widget/${widgetData.widget_id}`
+        });
+
+        return () => {
+            setLensId(null);
+            setBreadcrumbActivePage(null);
+        }
+    }, [widgetData.lens_id])
 
     const updateTitle = async (newTitle: string) => {
         return fetch(`/api/widget/${data.widget_id}`, {

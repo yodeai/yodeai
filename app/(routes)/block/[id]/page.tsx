@@ -29,7 +29,7 @@ export default function Block({ params }: { params: { id: string } }) {
   const supabase = createClientComponentClient()
   const $saveButton = useRef<HTMLButtonElement>()
 
-  const { user } = useAppContext();
+  const { user, setBreadcrumbActivePage, setLensId } = useAppContext();
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -54,8 +54,14 @@ export default function Block({ params }: { params: { id: string } }) {
         setPresignedUrl(url);
       }
     }
-
     fetchPresignedUrl();
+
+    if(block?.lens_id) setLensId(block.lens_id.toString())
+    setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
+    return () => {
+      setLensId(null);
+      setBreadcrumbActivePage(null);
+    }
   }, [block]);
 
   useEffect(() => {
@@ -220,7 +226,7 @@ export default function Block({ params }: { params: { id: string } }) {
           onDelete={onDelete}
           rightItem={rightEditButton}
         />
-        <Box p={16} className="mx-auto w-[800px] h-full">
+        <Box p={16} className="mx-auto w-[800px] overflow-scroll h-full">
           {!block.content && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
           {isEditing
             // this recreates the entire block view but allows for editing
