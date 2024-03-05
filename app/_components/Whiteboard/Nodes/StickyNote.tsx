@@ -1,20 +1,23 @@
-import React, { useState, useRef, memo } from 'react'
-import { NodeProps, Handle, Position } from 'reactflow'
+import React, { useState, useRef, memo, useEffect } from 'react'
+import { NodeProps } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
 import { Handles } from '../Helpers/Handles'
+import { calculateStickyNoteBoxHeight } from '../Plugins/utils/index';
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
 export type StickyNoteValueType = {
     text: string
     color: string
+    fontSize: number;
 }
 
 export const defaultValues: StickyNoteProps["data"] = {
     text: "Sticky Note",
-    color: "#ffd43b"
+    color: "#ffd43b",
+    fontSize: 9
 }
 
 export const defaultNodeProps: {
@@ -32,7 +35,7 @@ export const defaultNodeProps: {
     }
 }
 
-export const Component = memo(({ data, node, selected, updateNode }: StickyNoteProps) => {
+export const Component = memo(({ data, node, selected, updateNode, updateNodeSelf }: StickyNoteProps) => {
     const [text, setText] = useState(data.text);
     const $textarea = useRef(null);
 
@@ -43,6 +46,14 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
     const handleBlur = () => {
         updateNode({ text });
     };
+
+    useEffect(() => {
+        const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width, node.data.fontSize);
+        if(node.height && node.height !== calculatedHeight) {
+            updateNode({ height: calculatedHeight });
+            updateNodeSelf({ height: calculatedHeight });
+        }
+    }, [node]);
 
     return <ResizableNode selected={selected}>
         <Handles>
@@ -61,7 +72,7 @@ export const Component = memo(({ data, node, selected, updateNode }: StickyNoteP
                         backgroundColor: "transparent",
                         height: node.height || data.height || defaultNodeProps.height,
                         width: node.width || data.width || defaultNodeProps.width,
-                        fontSize: defaultNodeProps.style.fontSize,
+                        fontSize: node.data.fontSize || defaultNodeProps.style.fontSize,
                         lineHeight: defaultNodeProps.style.lineHeight,
                         hyphens: "auto"
                     }}

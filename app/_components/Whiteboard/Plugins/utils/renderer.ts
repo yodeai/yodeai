@@ -41,7 +41,7 @@ type CreateStickyNoteType = {
     height: number | "auto"
 }
 export const createStickyNote = ({ id = uuidv4(), data, position, width, height }: CreateStickyNoteType): Node<StickyNoteValueType> => {
-    if (height === "auto") height = calculateStickyNoteBoxHeight(data.text, width);
+    if (height === "auto") height = calculateStickyNoteBoxHeight(data.text, width, data.fontSize);
     return {
         id,
         data,

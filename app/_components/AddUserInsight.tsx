@@ -181,7 +181,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
             ))}
           </Flex>
 
-          <Flex mt={10} gap="xs">
+          <Flex mt={10} mb={20} gap="xs">
             <Button unstyled
               leftSection={<FaPlus size="14px" />}
               classNames={{
