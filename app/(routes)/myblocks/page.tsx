@@ -11,6 +11,7 @@ import { Flex, Text, Box } from "@mantine/core";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function MyBlocks() {
   const supabase = createClientComponentClient()
@@ -76,7 +77,7 @@ export default function MyBlocks() {
   };
 
   useEffect(() => {
-    const fetchBlocksAndInfo = async() => {
+    const fetchBlocksAndInfo = async () => {
       let googleUserId = await getUserInfo();
       fetchBlocks(googleUserId);
       setLensId(null);
@@ -131,6 +132,7 @@ export default function MyBlocks() {
         </Text> || ""
       }
 
+      <FinishedOnboardingModal />
     </Flex >
   );
 }

@@ -120,8 +120,6 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(true);
         const startTime = performance.now();
 
-        if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
-
         try {
             const supabase = createClientComponentClient()
             console.log("asking a question")
@@ -170,6 +168,7 @@ const QuestionAnswerForm: React.FC = () => {
             const duration = endTime - startTime; // Calculate the duration
             console.log(`Time to get the answer: ${duration.toFixed(2)} ms`);
             setInputValue('');
+            if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
             setIsSubmitting(false);
         }
     }
@@ -232,12 +231,12 @@ const QuestionAnswerForm: React.FC = () => {
                                 {(onboardingStep === 3 && !onboardingIsComplete)
                                     ?
                                     <OnboardingPopover
-                                        width={400}
+                                        width={390}
                                         stepToShow={3}
                                         position="left-start"
                                         popoverContent={
                                             <>
-                                                <Text size="sm" mb={10}>The Yodeai agent can answer questions, generate summaries, and more.</Text>
+                                                <Text size="sm" mb={10}>The Yodeai agent can answer questions and generate summaries based on the content in the currently open space/block.</Text>
                                                 <Text size="sm">Ask a question, like <b>"What is Yodeai?"</b></Text>
                                             </>
                                         }

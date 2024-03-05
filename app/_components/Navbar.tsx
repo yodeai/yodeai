@@ -102,7 +102,7 @@ export default function Navbar() {
     const newState = !opened;
     setOpened(newState);
 
-    if (newState && onboardingStep === 5 && !onboardingIsComplete) {
+    if (newState && onboardingStep === 10 && !onboardingIsComplete) {
       goToNextOnboardingStep();
     }
   };
@@ -111,11 +111,11 @@ export default function Navbar() {
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
-          {(onboardingStep === 5 && !onboardingIsComplete)
+          {(onboardingStep === 10 && !onboardingIsComplete)
             ?
             <OnboardingPopover
               width={430}
-              stepToShow={5}
+              stepToShow={10}
               position="right-start"
               popoverContent={
                 <>

@@ -1,12 +1,8 @@
 import React, { useEffect } from 'react';
-import { Popover, Button, Anchor, Flex, Text, Modal, Image } from '@mantine/core';
+import { Anchor, Flex, Text, Modal, Image } from '@mantine/core';
 import { useAppContext } from '@contexts/context';
-import { createClient } from '@supabase/supabase-js';
 import { useDisclosure } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
-
-// Assuming you have your Supabase credentials set up
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export default function FinishedOnboardingModal() {
     const { user, onboardingStep, completeOnboarding } = useAppContext();
@@ -27,7 +23,7 @@ export default function FinishedOnboardingModal() {
 
     return (
         <Modal
-            opened={opened && onboardingStep === 6}
+            opened={onboardingStep === 6 && opened}
             onClose={dismissOnboarding}
             centered
             withCloseButton={true}

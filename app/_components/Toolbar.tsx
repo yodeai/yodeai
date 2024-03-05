@@ -6,6 +6,11 @@ import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
 import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
+import { HiDocumentText } from "react-icons/hi2";
+import { BiSolidWidget } from "react-icons/bi";
+import { FaSitemap } from "react-icons/fa";
+import { BiSolidNotepad } from "react-icons/bi";
+
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
@@ -15,9 +20,11 @@ import LensChat from './LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname, useRouter } from 'next/navigation';
 import OnboardingPopover from './Onboarding/OnboardingPopover';
+import NotesSection from './NotesSection';
+import { on } from 'events';
 
 type contextType = {
-    activeToolbarComponent: "social" | "questionform";
+    activeToolbarComponent: "social" | "questionform" | "notes";
     closeComponent: () => void;
 };
 
@@ -54,12 +61,17 @@ export default function Toolbar() {
     const [painPointTrackerModalState, painPointTrackerModalController] = painPointTrackerModalDisclosure;
 
     const [menuOpened, setMenuOpened] = useState(false);
+    const [widgetMenuOpened, setWidgetsMenuOpened] = useState(false);
 
     const handlePlusIconClick = () => {
-        if (onboardingStep === 4 && !onboardingIsComplete) {
+        setMenuOpened(true);
+    };
+
+    const handleWidgetIconClick = () => {
+        if (onboardingStep === 5 && !onboardingIsComplete) {
             goToNextOnboardingStep();
         }
-        setMenuOpened(true); // Open the menu programmatically
+        setWidgetsMenuOpened(true);
     };
 
     const closeComponent = () => {
@@ -70,6 +82,13 @@ export default function Toolbar() {
         if (activeToolbarComponent === component) return closeComponent();
         setActiveToolbarComponent(component);
     }
+
+    const handleNotesIconClick = () => {
+        setActiveToolbarComponent("notes");
+        if (onboardingStep === 4 && !onboardingIsComplete) {
+            goToNextOnboardingStep();
+        }
+    };
 
     useEffect(() => {
         setActiveToolbarTab(activeToolbarComponent);
@@ -167,37 +186,13 @@ export default function Toolbar() {
                 <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
                     <Box>
                         <Menu.Target>
-                            {(onboardingStep === 4 && !onboardingIsComplete)
-                                ?
-                                <OnboardingPopover
-                                    width={400}
-                                    stepToShow={4}
-                                    position="left-start"
-                                    popoverContent={
-                                        <>
-                                            <Text size="sm" mb={10}>Yodeai provides a variety of widgets tailored for specific spaces. Each widget's functionality is designed to complement the content of the open space, ensuring a seamless integration.</Text>
-                                            <Text size="sm" mb={10}>Click the <b>+ icon.</b></Text>
-                                            <Anchor onClick={() => router.push(`/demos`)} underline='always' c={"black"} size="sm">Click here to learn more about widgets</Anchor>
-                                        </>
-                                    }
-                                >
-                                    <Button
-                                        variant="subtle"
-                                        c="gray.6"
-                                        onClick={handlePlusIconClick}
-                                    >
-                                        <FaPlus size={18} />
-                                    </Button>
-                                </OnboardingPopover>
-                                :
-                                <Button
-                                    variant="subtle"
-                                    c="gray.6"
-                                    onClick={handlePlusIconClick}
-                                >
-                                    <FaPlus size={18} />
-                                </Button>
-                            }
+                            <Button
+                                variant="subtle"
+                                c="gray.6"
+                                onClick={handlePlusIconClick}
+                            >
+                                <FaPlus size={18} />
+                            </Button>
                         </Menu.Target>
                     </Box>
                     <Menu.Dropdown>
@@ -219,21 +214,82 @@ export default function Toolbar() {
                         <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
                             <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
                         </ConditionalTooltip>
-                        <Menu position="left" shadow="md" width={250} trigger="hover">
-                            <Menu.Target>
-                                <Menu.Item rightSection={<FaAngleRight className="text-gray-400" size={12} />} disabled={"plugin" in disabledItems}>
-                                    New Widget
-                                </Menu.Item>
-                            </Menu.Target>
-                            <Menu.Dropdown>
-                                <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
-                                <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
-                                <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
-                                <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
-                            </Menu.Dropdown>
-                        </Menu>
                     </Menu.Dropdown>
                 </Menu>
+                <Menu position="left" opened={widgetMenuOpened} onChange={setWidgetsMenuOpened}>
+                    <Box>
+                        <Menu.Target>
+                            {(onboardingStep === 5 && !onboardingIsComplete)
+                                ?
+                                <OnboardingPopover
+                                    width={400}
+                                    stepToShow={5}
+                                    position="left-start"
+                                    popoverContent={
+                                        <>
+                                            <Text size="sm" mb={10}>Yodeai provides a variety of widgets tailored for specific spaces. Each widget's functionality is designed to complement the content of the open space, ensuring a seamless integration.</Text>
+                                            <Text size="sm" mb={10}>Click the <b>widgets icon.</b></Text>
+                                            <Anchor onClick={() => router.push(`/demos`)} underline='always' c={"black"} size="sm">Click here to learn more about widgets</Anchor>
+                                        </>
+                                    }
+                                >
+                                    <Button
+                                        variant="subtle"
+                                        c="gray.6"
+                                        onClick={handleWidgetIconClick}
+                                    >
+                                        <FaSitemap size={18} />
+                                    </Button>
+                                </OnboardingPopover>
+                                :
+                                <Button
+                                    variant="subtle"
+                                    c="gray.6"
+                                    onClick={handleWidgetIconClick}
+                                >
+                                    <FaSitemap size={18} />
+                                </Button>
+                            }
+                        </Menu.Target>
+                    </Box>
+                    <Menu.Dropdown>
+                        <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
+                        <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
+                        <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
+                        <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
+                    </Menu.Dropdown>
+                </Menu>
+                <Box>
+                    {(onboardingStep === 4 && !onboardingIsComplete)
+                        ?
+                        <OnboardingPopover
+                            width={400}
+                            stepToShow={4}
+                            position="left-start"
+                            popoverContent={
+                                <>
+                                    <Text size="sm" mb={10}>Yodeai provides a notepad where you can jot down notes and keep track your thoughts. This notepad is universal and contains the same information regardless of what page or space you're in.</Text>
+                                    <Text size="sm">Click the <b>notepad icon.</b></Text>
+                                </>
+                            }
+                        >
+                            <Button
+                                variant={activeToolbarComponent === "notes" ? "light" : "subtle"}
+                                c="gray.6"
+                                onClick={() => handleNotesIconClick()}
+                            >
+                                <BiSolidNotepad size={18} />
+                            </Button>
+                        </OnboardingPopover>
+                        :
+                        <Button
+                            variant={activeToolbarComponent === "notes" ? "light" : "subtle"}
+                            c="gray.6"
+                            onClick={switchComponent.bind(null, "notes")}>
+                            <BiSolidNotepad size={18} />
+                        </Button>
+                    }
+                </Box>
                 <Box>
                     <Button
                         disabled={!lensId}
@@ -263,6 +319,7 @@ export default function Toolbar() {
             }}>
                 {activeToolbarComponent === "questionform" && <QuestionAnswerForm />}
                 {activeToolbarComponent === "social" && <LensChat />}
+                {activeToolbarComponent === "notes" && <NotesSection />}
             </context.Provider>
         </Box>
     </Flex >

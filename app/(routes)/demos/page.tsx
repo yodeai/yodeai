@@ -11,19 +11,6 @@ export default function Demo() {
     <Flex direction="column" pt={0} h="100%">
       <Flex align={"center"} className="flex items-stretch flex-col h-full">
         <div className="demo-video-container">
-          <Title mt={20} mb={10} size="h3">Competitive Analysis</Title>
-          <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/L9X9DdV9CJQ"
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </div>
-
-        <div className="demo-video-container">
           <Title mt={20} mb={10} size="h3">User Insights</Title>
           <iframe
             width="560"
@@ -48,8 +35,21 @@ export default function Demo() {
             allowFullScreen
           ></iframe>
         </div>
+
+        <div className="demo-video-container">
+          <Title mt={20} mb={10} size="h3">Competitive Analysis</Title>
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/L9X9DdV9CJQ"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
       </Flex>
-      
+
       <FinishedOnboardingModal />
     </Flex >
   );

@@ -26,6 +26,7 @@ import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
 import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheet';
 import { ContentProvider } from "@contexts/content";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -650,6 +651,8 @@ export default function Lens(props: LensProps) {
           lens_id={lens_id}
           modalController={iconItemDisclosure} />
       </Flex>
+
+      <FinishedOnboardingModal />
     </ContentProvider>
   );
 }
