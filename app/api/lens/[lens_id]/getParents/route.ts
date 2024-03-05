@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { ok, notOk } from "@lib/ok";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "default-cache";
 
 export async function GET(request: NextRequest, { params }: { params: { lens_id: string }; }) {
     const lens_id = Number(params.lens_id)
