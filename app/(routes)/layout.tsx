@@ -1,6 +1,5 @@
 import Navbar from "@components/Navbar";
 import { MobileNavbar } from "@components/MobileNavbar";
-import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import Toolbar from '@components/Toolbar'
 import { LensProvider } from "@contexts/context";
 import ExplorerProvider from "@contexts/explorer";
@@ -9,6 +8,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import NextTopLoader from 'nextjs-toploader';
+import { Breadcrumb } from "@components/Breadcrumb";
 
 export default async function AppLayout({ children }: { children: React.ReactNode; }) {
   const supabase = createServerComponentClient({ cookies })
@@ -33,8 +33,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
                 <MobileNavbar />
               </Flex>
-              <Box className="w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01">
-                {children}
+              <Box className="flex flex-col w-full h-full">
+                <Box className="grow h-[calc(100vh-120px)] overflow-scroll w-full">
+                  {children}
+                </Box>
+                <Box className="h-[60px]">
+                  <Breadcrumb />
+                </Box>
               </Box>
 
               {/* QuestionAnswerForm with a left border */}

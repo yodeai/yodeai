@@ -52,6 +52,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     const accessType = accessTypeResponse.data as "owner" | "editor" | "reader";
     return <Widget
         widget_id={widget_id}
+        lens_id={data.lens_id}
         name={data.name}
         input={data.input}
         output={data.output}

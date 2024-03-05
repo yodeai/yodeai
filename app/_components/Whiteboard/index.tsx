@@ -37,6 +37,8 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [menu, setMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
 
+    const { setLensId, setBreadcrumbActivePage } = useAppContext();
+
     const getInitialLockState = () => {
         if (data.plugin) return true;
         if (["owner", "editor"].includes(data.accessType) === false) return true;
@@ -143,13 +145,25 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     useEffect(() => {
         if (isLocked && (data.plugin ? data.plugin?.rendered === true : true)) return;
         syncWhiteboard(nodes, edges);
-    }, [nodes, edges])
+    }, [nodes, edges]);
+
+    useEffect(() => {
+        setLensId(whiteboard.lens_id.toString());
+        setBreadcrumbActivePage({
+            title: whiteboard.name,
+            href: `/whiteboard/${whiteboard.whiteboard_id}`
+        })
+
+        return () => {
+            setBreadcrumbActivePage(null);
+        }
+    }, [whiteboard.lens_id])
 
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
-    return <FlowWrapper 
-        whiteboard={whiteboard} 
-        isSaving={isSaving} 
+    return <FlowWrapper
+        whiteboard={whiteboard}
+        isSaving={isSaving}
         isLocked={isLocked}>
         <div className="w-full h-full relative flex flex-col">
             <WhiteboardHeader

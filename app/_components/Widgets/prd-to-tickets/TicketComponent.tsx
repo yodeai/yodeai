@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Ticket } from './index';
 import { Input, Button, LoadingOverlay, Text, Overlay } from '@mantine/core';
 import { FaCheck, FaPen } from 'react-icons/fa6';
