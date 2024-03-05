@@ -132,6 +132,7 @@ export default function IconLayoutComponent({
 
   const getLensParents = useCallback((lens_id) => {
     if (!lens_id) {
+      setBreadcrumbLoading(false);
       setBreadcrumbData([]);
       return;
     }
