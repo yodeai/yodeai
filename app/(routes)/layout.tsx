@@ -29,12 +29,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Navbar />
             </Flex>
             {/* Main content area */}
-            <Flex mah='100%' w={'100%'} direction={{ base: 'row' }} className="overflow-x-hidden">
+            <Flex mah='100%' w={'100%'} direction={{ base: 'row' }}>
               <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
                 <MobileNavbar />
               </Flex>
               <Box className="flex flex-col w-full h-full">
-                <Box className="grow h-[calc(100vh-120px)] overflow-scroll w-full">
+                <Box className="grow w-full sm:w-[calc(100vw-290px)] h-[calc(100vh-180px)]">
                   {children}
                 </Box>
                 <Box className="h-[60px]">
@@ -43,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </Box>
 
               {/* QuestionAnswerForm with a left border */}
-              <Box h="100%" className="z-50">
+              <Box h="100%" w="100%" className="z-50">
                 <Toolbar />
               </Box>
             </Flex>

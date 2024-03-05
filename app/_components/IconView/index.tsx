@@ -425,7 +425,7 @@ export default function IconLayoutComponent({
     <div ref={$gridContainer} style={{
       transform: `scale(${zoomLevel / 100}) translateZ(0)`,
       transformOrigin: 'top left',
-      height: "calc(100vh - 160px)"
+      height: "calc(100vh - 180px)"
     }}>
       <ResponsiveReactGridLayout
         maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
