@@ -32,6 +32,7 @@ export type Block = {
   parent?: Block;
   kids: Block[];
   links: Block[];
+  lens_id: number;
   backlinks: Block[];
   inLenses?: LensDetail[];
   file_url?: string;
