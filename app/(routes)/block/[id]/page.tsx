@@ -29,7 +29,7 @@ export default function Block({ params }: { params: { id: string } }) {
   const supabase = createClientComponentClient()
   const $saveButton = useRef<HTMLButtonElement>()
 
-  const { user, setBreadcrumbActivePage } = useAppContext();
+  const { user, setBreadcrumbActivePage, setLensId } = useAppContext();
 
   useEffect(() => {
     fetch(`/api/block/${params.id}`)
@@ -56,8 +56,10 @@ export default function Block({ params }: { params: { id: string } }) {
     }
     fetchPresignedUrl();
 
+    if(block?.lens_id) setLensId(block.lens_id.toString())
     setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
     return () => {
+      setLensId(null);
       setBreadcrumbActivePage(null);
     }
   }, [block]);
