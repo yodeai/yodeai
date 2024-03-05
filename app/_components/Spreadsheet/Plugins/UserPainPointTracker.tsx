@@ -52,8 +52,8 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
                         cumulativeData[rowIndex][colIndex] = value;
                     } else {
                         let total = ""
-                        for (let i in value.block_ids) {
-                            let block_id = value.block_ids[i]
+                        for (let i in (value as any).block_ids) {
+                            let block_id = (value as any).block_ids[i]
                             total += block_id + "," ;
                         }
                         sum += total
@@ -74,8 +74,8 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
                         citedData[rowIndex][colIndex] = value;
                     } else {
                         let total = "";
-                        for (let i in value.block_ids) {
-                            let block_id = value.block_ids[i];
+                        for (let i in (value as any).block_ids) {
+                            let block_id = (value as any).block_ids[i];
                             total += block_id + ",";
                         }
                         citedData[rowIndex][colIndex] = total;
