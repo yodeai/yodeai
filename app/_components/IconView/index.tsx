@@ -155,9 +155,7 @@ export default function IconLayoutComponent({
     if ("spreadsheet_id" in selectedItem) { href = `/spreadsheet/${itemId}`; title = selectedItem.name }
     if ("widget_id" in selectedItem) { href = `/widget/${itemId}`; title = selectedItem.name }
     if ("whiteboard_id" in selectedItem) { href = `/whiteboard/${itemId}`; title = selectedItem.name }
-
-    // @ts-ignore
-    if ("lens_id" in selectedItem) { href = `/lens/${itemId}`; title = selectedItem.name }
+    if ("name" in selectedItem) { href = `/lens/${itemId}`; title = selectedItem.name }
 
     setBreadcrumbActivePage({ title, href });
 
@@ -228,10 +226,8 @@ export default function IconLayoutComponent({
 
     let _sorted_items = [...items].sort((a, b) => {
       if (sortingOptions.sortBy === "name") {
-        // @ts-ignore
-        let aName = "lens_id" in a ? a.name : a.title;
-        // @ts-ignore
-        let bName = "lens_id" in b ? b.name : b.title;
+        let aName = "block_id" in a ? a.title : a.name;
+        let bName = "block_id" in b ? b.title : b.name;
         return aName.localeCompare(bName);
       } else if (sortingOptions.sortBy === "createdAt") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
