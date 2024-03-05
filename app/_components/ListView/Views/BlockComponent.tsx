@@ -114,7 +114,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                     <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
                   </OnboardingPopover>
                   :
-                  <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
+                  <Text size={"md"} fw={500} c="gray.7">{block.title} (block id: {block.block_id})</Text>
                 }
 
               </Anchor>

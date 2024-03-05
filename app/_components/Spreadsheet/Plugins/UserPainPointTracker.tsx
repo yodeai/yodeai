@@ -9,8 +9,8 @@ import {
 } from '@syncfusion/ej2-react-spreadsheet';
 import { SpreadsheetDataSource, SpreadsheetDataSourceObject } from 'app/_types/spreadsheet';
 import { useSheetChart, useSheetData, useSheetRange } from '../hooks';
-
 export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutput {
+
     const dataSource = useMemo<SpreadsheetDataSourceObject>(() => {
         if (Array.isArray($dataSource.current)) {
             console.log('Rendering legacy structure to new structure', $dataSource.current);
@@ -21,6 +21,7 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
 
         return $dataSource.current;
     }, [$dataSource.current]);
+
 
     const cumulativeDataSource = useMemo<SpreadsheetDataSourceObject>(() => {
         return Object.entries(dataSource)
@@ -40,6 +41,50 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
             }, {});
     }, [dataSource]);
 
+    const cumulativeDataSourceCited = useMemo<SpreadsheetDataSourceObject>(() => {
+        return Object.entries(dataSource)
+            .reduce((cumulativeData, [rowIndex, cols]) => {
+                if (!cumulativeData[rowIndex]) cumulativeData[rowIndex] = {};
+
+                let sum = "";
+                Object.entries(cols).forEach(([colIndex, value]) => {
+                    if (colIndex === '0' || rowIndex === '0') {
+                        cumulativeData[rowIndex][colIndex] = value;
+                    } else {
+                        let total = ""
+                        for (let i in value.block_ids) {
+                            let block_id = value.block_ids[i]
+                            total += block_id + "," ;
+                        }
+                        sum += total
+                        cumulativeData[rowIndex][colIndex] = sum;
+                    }
+                });
+                return cumulativeData;
+            }, {});
+    }, [dataSource]);
+
+    const dataSourceCited = useMemo<SpreadsheetDataSourceObject>(() => {
+        return Object.entries(dataSource)
+            .reduce((citedData, [rowIndex, cols]) => {
+                if (!citedData[rowIndex]) citedData[rowIndex] = {};
+    
+                Object.entries(cols).forEach(([colIndex, value]) => {
+                    if (colIndex === '0' || rowIndex === '0') {
+                        citedData[rowIndex][colIndex] = value;
+                    } else {
+                        let total = "";
+                        for (let i in value.block_ids) {
+                            let block_id = value.block_ids[i];
+                            total += block_id + ",";
+                        }
+                        citedData[rowIndex][colIndex] = total;
+                    }
+                });
+                return citedData;
+            }, {});
+    }, [dataSource]);
+    
     const onCreated = useCallback(() => {
         if (!$spreadsheet.current) return;
         onSheetChanged();
@@ -50,6 +95,13 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
 
     const sheetCumulativeChart = useSheetChart({ dataSource: cumulativeDataSource });
     const sheetCumulativeContent = useSheetData({ dataSource: cumulativeDataSource, chart: sheetCumulativeChart });
+
+    const sheetCumulativeChartCited = useSheetChart({ dataSource: cumulativeDataSourceCited });
+    const sheetCumulativeContentCited = useSheetData({ dataSource: cumulativeDataSourceCited, chart: sheetCumulativeChartCited });
+
+    const sheetChartCited = useSheetChart({ dataSource: dataSourceCited });
+    const sheetContentCited = useSheetData({ dataSource: dataSourceCited, chart: sheetChartCited });
+
 
     const sheetPosition = useSheetRange(dataSource);
 
@@ -82,6 +134,20 @@ export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutp
         </SheetDirective>
         <SheetDirective name='Pain Points'>
             {sheetContent}
+            
+            <ColumnsDirective>
+                {Array.from({ length: sheetPosition.colIndex }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 104} key={i} />)}
+            </ColumnsDirective>
+        </SheetDirective>
+        <SheetDirective name='Sources (Cumulative)'>
+            {sheetCumulativeContentCited}
+            
+            <ColumnsDirective>
+                {Array.from({ length: sheetPosition.colIndex }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 104} key={i} />)}
+            </ColumnsDirective>
+        </SheetDirective>
+        <SheetDirective name='Sources (Pain Points)'>
+            {sheetContentCited}
             
             <ColumnsDirective>
                 {Array.from({ length: sheetPosition.colIndex }, (_, i) => <ColumnDirective width={i === 0 ? 250 : 104} key={i} />)}
