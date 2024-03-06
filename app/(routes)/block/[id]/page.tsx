@@ -221,7 +221,6 @@ export default function Block({ params }: { params: { id: string } }) {
           rightItem={rightEditButton}
         />
         <Box p={16} className="mx-auto w-[800px] h-full">
-          {!block.content && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
           {isEditing
             // this recreates the entire block view but allows for editing
             // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
@@ -231,7 +230,7 @@ export default function Block({ params }: { params: { id: string } }) {
               block={block} onSave={onSave}
               />
             : <>
-              <div className="flex flex-row justify-between py-4">
+              <div className="flex flex-col py-4">
                 <div>
                   <Text size="sm" c="gray">
                     Created {timeAgo(block.created_at)}
@@ -246,6 +245,7 @@ export default function Block({ params }: { params: { id: string } }) {
               {renderContent()}
             </>
           }
+          {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
         </Box>
       </Flex>
       <FinishedOnboardingModal />
