@@ -16,8 +16,8 @@ import SpreadsheetHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from '@utils/hooks';
-import { convertDataSource } from './utils';
-import { ImSpinner8 } from 'react-icons/im';
+import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
+
 import { Text } from '@mantine/core';
 import { useAppContext } from '@contexts/context';
 

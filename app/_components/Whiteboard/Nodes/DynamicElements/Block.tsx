@@ -4,7 +4,7 @@ import { Tables } from 'app/_types/supabase';
 import { Box, Title, Text } from '@mantine/core';
 import { useDebouncedCallback } from '@utils/hooks';
 import Link from 'next/link';
-import { FaFile } from 'react-icons/fa';
+import { FaFile } from '@react-icons/all-files/fa/FaFile';
 import { Node } from 'reactflow';
 
 type BlockElementProps = {

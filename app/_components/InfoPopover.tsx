@@ -1,7 +1,7 @@
 import { Popover, Text, UnstyledButton } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
-import { FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle } from "@react-icons/all-files/fa/FaInfoCircle";
 
 const InfoPopover = ({ infoText }) => {
     const [opened, { close, open }] = useDisclosure(false);

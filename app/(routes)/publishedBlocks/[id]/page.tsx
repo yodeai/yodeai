@@ -1,9 +1,7 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import formatDate from "@lib/format-date";
-import { Pencil2Icon } from "@radix-ui/react-icons";
 import { useState } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';

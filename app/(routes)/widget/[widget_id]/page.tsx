@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import widgets, { WidgetComponentProps, WidgetComponentType, WidgetType } from '@components/Widgets';
 import { Result } from "@components/Result";
-import { MdError } from "react-icons/md";
+import { MdError } from "@react-icons/all-files/md/MdError";
 import { WidgetData } from "app/_types/widget";
 
 type PageProps = {
