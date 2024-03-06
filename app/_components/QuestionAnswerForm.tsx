@@ -254,6 +254,12 @@ const QuestionAnswerForm: React.FC = () => {
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
                                         placeholder="Enter your question"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSubmit(e); // Call handleSubmit function when Enter key is pressed
+                                            }
+                                        }}
                                     />
                                 }
                                 <Group justify="flex-end" mt="xs">
