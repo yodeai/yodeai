@@ -4,7 +4,7 @@ import { Flex, Text, ScrollArea, Divider } from "@mantine/core";
 import { Block } from "app/_types/block";
 import { Subspace, Lens } from "app/_types/lens";
 
-import BlockHeader from "@components/ListView/Views/BlockHeader";
+import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
 import SubspaceComponent from "@components/ListView/Views/SubspaceComponent";
 
@@ -68,7 +68,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
     return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
         {(blocks || whiteboards) && (sortedItems.length > 0
             ? <>
-                <BlockHeader />
+                <BlockColumnHeader />
                 {sortedItems.map(itemRenderer)}
             </>
             : <Flex align="center" justify="center">
