@@ -36,8 +36,8 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
 
         let _sorted_items = [...items].sort((a, b) => {
             if (sortingOptions.sortBy === "name") {
-                let aName = "lens_id" in a ? a.name : a.title;
-                let bName = "lens_id" in b ? b.name : b.title;
+                let aName = "block_id" in a ? a.title : a.name;
+                let bName = "block_id" in b ? b.title : b.name;
                 return aName.localeCompare(bName);
             } else if (sortingOptions.sortBy === "createdAt") {
                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
