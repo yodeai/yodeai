@@ -79,6 +79,12 @@ export default function Toolbar() {
     }
 
     useEffect(() => {
+        if(toolbarOpened && !activeToolbarComponent){
+            setActiveToolbarComponent(getActiveToolbarTab() || "questionform");
+        }
+    }, [toolbarOpened, activeToolbarComponent])
+
+    useEffect(() => {
         setActiveToolbarTab(activeToolbarComponent);
     }, [activeToolbarComponent]);
 
