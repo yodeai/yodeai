@@ -2,7 +2,8 @@
 
 import { useState, useRef, } from "react";
 import { Flex, Text, Box, Input, ActionIcon, Menu, UnstyledButton } from "@mantine/core";
-import { FaAngleDown, FaCheck } from "react-icons/fa";
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
+import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
 import { useDebouncedCallback } from '@utils/hooks';

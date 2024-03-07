@@ -8,13 +8,14 @@ import LoadingSkeleton from '@components/LoadingSkeleton';
 import BlockColumnHeader from '@components/Block/BlockColumnHeader';
 import toast from 'react-hot-toast';
 
-import { FaSearch } from 'react-icons/fa';
-import { MdSearchOff } from 'react-icons/md';
 import { ExplorerItemType } from '@lib/types';
 import { Tables } from 'app/_types/supabase';
 import { Block } from 'app/_types/block';
 import { Subspace } from 'app/_types/lens';
 import { ExplorerItemComponent } from './ExplorerItem';
+
+import { FaSearch } from '@react-icons/all-files/fa/FaSearch';
+import { MdSearchOff } from '@react-icons/all-files/md/MdSearchOff';
 
 type ExplorerProps = {
     selectedItems: ExplorerItemType[],

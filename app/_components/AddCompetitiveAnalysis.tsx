@@ -4,7 +4,9 @@ import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Input, Title, Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
-import { FaPlus, FaTrashAlt } from 'react-icons/fa';
+
+import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
+import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
 import { ActionIcon } from '@mantine/core';
 
 import { WhiteboardPluginParams } from 'app/_types/whiteboard';
@@ -26,17 +28,17 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
   function extractCompanyName(url) {
     try {
       const correctedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
-  
+
       const encodedUrl = encodeURI(correctedUrl);
       const parsedUrl = new URL(encodedUrl);
-  
+
       let domainName = parsedUrl.hostname;
-  
+
       // Remove "www." if it exists at the beginning of the domain name
       if (domainName.startsWith('www.')) {
         domainName = domainName.slice(4);
       }
-  
+
       // Split domain parts and capitalize the first part
       const domainParts = domainName.split('.');
       let name = domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
@@ -46,7 +48,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
       return null;
     }
   }
-  
+
 
   const extractCompanyUrl = async (company_name) => {
     try {
@@ -54,7 +56,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
       const response = await fetch(`/api/getCompanyDomain/${cleaned_company_name}`, {
         method: "GET",
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         return data["domain"]
@@ -67,9 +69,9 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
       throw error;
     }
   };
-  
 
-  
+
+
 
   const [form, setForm] = useState({
     companyInfo: [""],
@@ -224,7 +226,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
               Enter the company names or URLs you want to analyze.
             </Text>
           </Box>
-     
+
           {form.companyInfo.map((company_url, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
               <Input
@@ -270,12 +272,12 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
 
           {form.areasOfAnalysis.map((area, index) => (
             <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
-                <Input
-                  className="mt-0.5 w-full"
-                  placeholder={`Area of Analysis ${index + 1}`}
-                  defaultValue={area}
-                  onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
-                />
+              <Input
+                className="mt-0.5 w-full"
+                placeholder={`Area of Analysis ${index + 1}`}
+                defaultValue={area}
+                onChange={(event) => updateAreaOfAnalysis(index, event.currentTarget.value)}
+              />
               {index > 0 && (
                 <ActionIcon
                   onClick={() => handleDeleteArea(index)}

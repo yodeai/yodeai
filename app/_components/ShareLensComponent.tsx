@@ -1,9 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lens } from "app/_types/lens";
-import { Share1Icon } from "@radix-ui/react-icons";
-import { LinkIcon } from '@heroicons/react/20/solid'
 import formatDate from "@lib/format-date";
 
 import apiClient from '@utils/apiClient';

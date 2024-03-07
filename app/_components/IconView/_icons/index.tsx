@@ -1,10 +1,30 @@
 import React from "react";
-import { FaBox, FaBuffer, FaBug, FaChartArea, FaCog, FaCookie, FaExpand, FaFileExcel, FaFolder, FaStar } from "react-icons/fa";
-import {
-    FaCube, FaFileLines, FaFilePdf, FaGoogleDrive,
-    FaChalkboard, FaUsersGear, FaMagnifyingGlassChart, FaPuzzlePiece, FaChartLine
-} from "react-icons/fa6";
-import { IconBaseProps } from "react-icons/lib";
+
+import { FaBox } from "@react-icons/all-files/fa/FaBox";
+import { FaBuffer } from "@react-icons/all-files/fa/FaBuffer";
+import { FaBug } from "@react-icons/all-files/fa/FaBug";
+import { FaChartArea } from "@react-icons/all-files/fa/FaChartArea";
+import { FaCog } from "@react-icons/all-files/fa/FaCog";
+import { FaCookie } from "@react-icons/all-files/fa/FaCookie";
+import { FaExpand } from "@react-icons/all-files/fa/FaExpand";
+import { FaFileExcel } from "@react-icons/all-files/fa/FaFileExcel";
+import { FaFolder } from "@react-icons/all-files/fa/FaFolder";
+import { FaStar } from "@react-icons/all-files/fa/FaStar";
+
+import { FaCube } from "@react-icons/all-files/fa6/FaCube";
+import { FaFileLines } from "@react-icons/all-files/fa6/FaFileLines";
+import { FaFilePdf } from "@react-icons/all-files/fa6/FaFilePdf";
+import { FaGoogleDrive } from "@react-icons/all-files/fa6/FaGoogleDrive";
+import { FaChalkboard } from "@react-icons/all-files/fa6/FaChalkboard";
+import { FaUsersGear } from "@react-icons/all-files/fa6/FaUsersGear";
+import { FaMagnifyingGlassChart } from "@react-icons/all-files/fa6/FaMagnifyingGlassChart";
+import { FaPuzzlePiece } from "@react-icons/all-files/fa6/FaPuzzlePiece";
+import { FaChartLine } from "@react-icons/all-files/fa6/FaChartLine";
+
+
+import { IconBaseProps } from "@react-icons/all-files/lib";
+
+
 import { SharedSubspace } from "./custom/index";
 
 const defaultProps = {

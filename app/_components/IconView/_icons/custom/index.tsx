@@ -1,4 +1,4 @@
-import { IconType } from 'react-icons/lib';
+import { IconType } from '@react-icons/all-files/lib';
 
 export const SharedSubspace: IconType = ({ color, ...props }) => {
     return <svg width={props.size} height={props.size} viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
