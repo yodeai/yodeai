@@ -1,6 +1,6 @@
 "use client";
 
-import { BiSolidChalkboard } from "react-icons/bi";
+import { BiSolidChalkboard } from "@react-icons/all-files/bi/BiSolidChalkboard";
 import { Divider, Text, Flex, Grid } from "@mantine/core";
 import Link from "next/link";
 import { timeAgo } from "@utils/index";

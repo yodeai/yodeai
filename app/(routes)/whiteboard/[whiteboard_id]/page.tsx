@@ -4,10 +4,9 @@ import Whiteboard from '@components/Whiteboard';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { WhiteboardComponentProps } from "app/_types/whiteboard";
-import { access } from "fs";
 import { Result } from "@components/Result";
-import { MdError } from "react-icons/md";
-import { FaCircleNotch } from "react-icons/fa";
+import { MdError } from "@react-icons/all-files/md/MdError";
+import { FaCircleNotch } from "@react-icons/all-files/fa/FaCircleNotch";
 
 type WhiteboardPageProps = {
     params: { whiteboard_id: number }

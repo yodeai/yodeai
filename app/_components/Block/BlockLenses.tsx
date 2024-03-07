@@ -1,10 +1,12 @@
-import { ShadowInnerIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { useAppContext } from "@contexts/context";
 import load from "@lib/load";
-import { FaFolder, FaLink, FaPlus, FaTimes } from "react-icons/fa";
 import { ActionIcon, Button, Group, Select } from "@mantine/core";
+
+import { FaLink } from "@react-icons/all-files/fa/FaLink";
+import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
+import { FaTimes } from "@react-icons/all-files/fa/FaTimes";
 
 
 interface LensProps {
@@ -66,7 +68,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
     setNewLensName(e);
 
     if (e) {
-        const filtered = allLenses.filter(lens =>
+      const filtered = allLenses.filter(lens =>
         lens.name.toLowerCase().includes(e.toLowerCase()) && lens.access_type != 'reader');
       setSuggestions(filtered);
     } else {
@@ -77,7 +79,7 @@ const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
   const handleSuggestionClick = (suggestionId: number) => {
     setAddingNewLens(true); // Indicate that a new lens is being added
 
-  const request = fetch(`/api/lens/${suggestionId}/addBlock`, {
+    const request = fetch(`/api/lens/${suggestionId}/addBlock`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

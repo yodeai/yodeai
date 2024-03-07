@@ -3,17 +3,28 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { IoMdClose } from "react-icons/io";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+import { IoMdClose } from "@react-icons/all-files/io/IoMdClose";
+import { FaHouse } from "@react-icons/all-files/fa6/FaHouse";
+import { RiPushpinFill } from "@react-icons/all-files/ri/RiPushpinFill";
+
+import { FaInbox } from "@react-icons/all-files/fa/FaInbox";
+import { FaThLarge } from "@react-icons/all-files/fa/FaThLarge";
+import { FaPlusSquare } from "@react-icons/all-files/fa/FaPlusSquare";
+import { FaCube } from "@react-icons/all-files/fa/FaCube";
+import { FaSquare } from "@react-icons/all-files/fa/FaSquare";
+import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
+
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
-import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaSquare, FaPlus } from "react-icons/fa";
-import { FaHouse } from "react-icons/fa6";
-import { AppShell, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text, ActionIcon } from "@mantine/core";
-import { RiPushpinFill } from "react-icons/ri";
-
+import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text, AppShell } from "@mantine/core";
+import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "../LoadingSkeleton";
+
 import OnboardingPopover from "../Onboarding/OnboardingPopover";
+
 
 export default function Navbar() {
   const router = useRouter();

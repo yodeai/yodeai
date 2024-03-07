@@ -13,8 +13,8 @@ import EdgeContextMenu from './Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "@utils/hooks";
-import { ImSpinner8 } from "react-icons/im";
-import { AppShell, Box, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
+import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import edgeTypes from './Edges';
 import WhiteboardHeader from './Header';

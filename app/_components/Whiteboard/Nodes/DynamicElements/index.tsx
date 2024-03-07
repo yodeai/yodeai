@@ -3,7 +3,7 @@ import { NodeProps, Handle, Position } from 'reactflow'
 import { cn } from '@utils/style'
 import { Tables } from 'app/_types/supabase';
 import { useExplorer } from '@contexts/explorer'
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
 
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'

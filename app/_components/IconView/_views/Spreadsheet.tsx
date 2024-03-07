@@ -1,19 +1,22 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { AiOutlineLoading, AiOutlinePushpin } from "react-icons/ai";
+
+import { AiOutlineLoading } from "@react-icons/all-files/ai/AiOutlineLoading";
+import { MdCancel } from "@react-icons/all-files/md/MdCancel";
+import { FaRegTrashCan} from "@react-icons/all-files/fa6/FaRegTrashCan";
+import { FaLink } from "@react-icons/all-files/fa6/FaLink";
+import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { Tables } from "app/_types/supabase";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { cn } from "@utils/style";
 
-import { FaRegTrashCan, FaLink } from "react-icons/fa6";
+
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
-import { MdCancel } from "react-icons/md";
 
 type SpreadsheetProps = {
     icon: JSX.Element,

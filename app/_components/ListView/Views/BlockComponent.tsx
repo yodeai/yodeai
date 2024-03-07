@@ -1,7 +1,6 @@
 "use client";
-import { useState } from "react";
+
 import { Block } from "app/_types/block";
-import { FaArchive, FaFile } from "react-icons/fa";
 import BlockLenses from "@components/Block/BlockLenses";
 import apiClient from "@utils/apiClient";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -14,6 +13,9 @@ import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";
 import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
+import { FaArchive, } from "@react-icons/all-files/fa/FaArchive";
+import { FaFile } from "@react-icons/all-files/fa/FaFile";
+
 interface BlockProps {
   compact?: boolean;
   block: Block;
@@ -23,7 +25,7 @@ interface BlockProps {
   googleUserId?: string;
 }
 
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId=""}: BlockProps) {
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId = "" }: BlockProps) {
   const router = useRouter();
 
   const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
@@ -97,7 +99,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 underline="never"
                 onClick={onClickBlock}
               >
-                
+
                 {((block.title === "About Pages and Spaces" || block.title === "About Blocks and Spaces") && onboardingStep === 1 && !onboardingIsComplete)
                   ?
                   <OnboardingPopover

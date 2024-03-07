@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+
 import Container from "@components/Container";
 import { Button, Flex, Group, Modal, Text, TextInput, LoadingOverlay } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';

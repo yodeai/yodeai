@@ -1,14 +1,12 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
-import formatDate from "@lib/format-date";
-import { Pencil2Icon } from "@radix-ui/react-icons";
-import { useMemo, useState, useRef } from 'react';
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
+
+import { useState, useRef } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
-import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
 import { AppShell, Box, Button, Divider, Flex, Text, Tooltip, ScrollArea } from '@mantine/core';
@@ -16,9 +14,10 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
 import BlockHeader from "@components/Block/BlockHeader";
-import { FaCheck } from "react-icons/fa";
 import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+
+import { FaPen } from '@react-icons/all-files/fa6/FaPen';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -206,7 +205,7 @@ export default function Block({ params }: { params: { id: string } }) {
       {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
         <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
           <Button size="xs" variant="subtle" leftSection={
-            isEditing ? <FaCheck /> : <Pencil2Icon />
+            isEditing ? <FaCheck /> : <FaPen />
           }
             onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
             {isEditing ? "Save" : "Edit"}

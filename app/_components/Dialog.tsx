@@ -1,7 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 import * as ReactDialog from "@radix-ui/react-dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
 
 interface DialogProps {
   children: React.ReactNode;

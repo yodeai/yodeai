@@ -1,9 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from "react";
-import { FaCheck, FaList, FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { BsFillGrid3X3GapFill } from 'react-icons/bs';
-import { CiGlobe } from "react-icons/ci";
+
+
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
+import { FaList } from "@react-icons/all-files/fa/FaList";
+import { FaArrowDown } from "@react-icons/all-files/fa/FaArrowDown";
+import { FaArrowUp } from "@react-icons/all-files/fa/FaArrowUp";
+import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
+import { FaMagnifyingGlassPlus } from "@react-icons/all-files/fa6/FaMagnifyingGlassPlus";
+import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
+
+import { BsFillGrid3X3GapFill } from '@react-icons/all-files/bs/BsFillGrid3X3GapFill';
+import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
 import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
     Menu, rem, UnstyledButton, Divider, Select, HoverCard, Slider, SegmentedControl, Center
@@ -11,7 +20,6 @@ import {
 import ShareLensComponent from "@components/ShareLensComponent";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
-import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
 import LoadingSkeleton from "../../LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";

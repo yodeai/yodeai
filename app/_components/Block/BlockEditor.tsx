@@ -10,11 +10,13 @@ import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
-import { FaCheck, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
 import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
 import { RequestBodyType } from '@api/types';
 
+import { FaCheck} from '@react-icons/all-files/fa/FaCheck';
+import { FaCheckCircle } from '@react-icons/all-files/fa/FaCheckCircle';
+import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
 
 const DynamicSimpleMDE = dynamic(
   () => import('react-simplemde-editor').then(mod => mod.SimpleMdeReact),

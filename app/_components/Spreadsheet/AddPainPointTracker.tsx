@@ -8,8 +8,11 @@ import toast from 'react-hot-toast';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon } from '@mantine/core';
-import { FaTrashAlt, FaPlus } from 'react-icons/fa';
 import apiClient from '@utils/apiClient';
+
+import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
+import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
+
 type AddPainPointTrackerProps = {
     lensId: number;
     modalController: ReturnType<typeof useDisclosure>
@@ -31,20 +34,20 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
         const value = parseInt(event.target.value);
         setNumberOfPainPoints(value);
     };
-    const startPainpointAnalysis = async(spreadsheet_id) => {
+    const startPainpointAnalysis = async (spreadsheet_id) => {
         const { data: { user } } = await supabase.auth.getUser()
- 
+
         const user_id = user.id;
         const body = { owner_id: user_id, spreadsheet_id: spreadsheet_id, lens_id: lensId, painpoints: insightAreas, num_clusters: numberOfPainPoints, app_name: appName }
         let queued = false
         await apiClient('/painpointAnalysis', 'POST', body)
-          .then(result => {
-            console.log('Painpoint analysis queued successfully', result);
-            queued = true
-          })
-          .catch(error => {
-            console.log('Error doing painpoint analysis: ' + error.message);
-          });
+            .then(result => {
+                console.log('Painpoint analysis queued successfully', result);
+                queued = true
+            })
+            .catch(error => {
+                console.log('Error doing painpoint analysis: ' + error.message);
+            });
         return queued;
 
     }
@@ -84,9 +87,9 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
             const queued_request = await startPainpointAnalysis(spreadsheet_id)
             if (!queued_request) {
                 const { error } = await supabase
-                .from('spreadsheet')
-                .delete()
-                .eq('spreadsheet_id', spreadsheet_id)
+                    .from('spreadsheet')
+                    .delete()
+                    .eq('spreadsheet_id', spreadsheet_id)
                 console.log("Error in deleting", error)
                 return
             }
@@ -134,16 +137,16 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                             />
                         </Input.Wrapper>
                     </Flex>
-                    <Flex mt={10} className = "flex-1 w-full flex-col">
-                    <Checkbox
-                    icon={() => <></>}
-                    checked={gatherReviews}
-                    onChange={(event) => setGatherReviews(event.currentTarget.checked)}
-                    label="Gather reviews to populate this current space"
-                    />
+                    <Flex mt={10} className="flex-1 w-full flex-col">
+                        <Checkbox
+                            icon={() => <></>}
+                            checked={gatherReviews}
+                            onChange={(event) => setGatherReviews(event.currentTarget.checked)}
+                            label="Gather reviews to populate this current space"
+                        />
                     </Flex>
-                    {gatherReviews ? 
-                            <Flex key="app_name" className="w-full mb-5 mt-3">
+                    {gatherReviews ?
+                        <Flex key="app_name" className="w-full mb-5 mt-3">
                             <Input.Wrapper label="App Name" className="w-full">
                                 <Input
                                     id="appName"
@@ -155,83 +158,83 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                             </Input.Wrapper>
                         </Flex>
                         : null
-                }
-                 <Flex mt={10} mb={20} className = "flex-1 w-full flex-col">
-                <Checkbox
-                    icon={() => <></>}
-                    checked={generatePainPoints}
-                    onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
-                    label="Autogenerate Painpoints"
-                    />
-                    </Flex>
-
-                {generatePainPoints ? 
-                <div>
-                <Box className="w-full flex flex-col items-center gap-2 mb-2">
-                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
-                <Text className="w-full mb-5 text-gray-300" size="xs">
-                    Enter the max number of painpoints you wish to extract.
-                </Text>
-            </Box>
-            <Flex mt={10} className = "flex-1 w-full flex-col">
-                <Input
-                    type="number"
-                    min={1}
-                    max={9}
-                    value={numberOfPainPoints.toString()}
-                    onChange={handleNumberOfPainPointsChange}
-                    className="w-full"
-                />
-            </Flex>
-            </div>
-            : 
-            <div>
-            <Box  className="w-full flex flex-col items-center gap-2 mb-2">
-                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
-                <Text className="w-full mb-5 text-gray-300" size="xs">
-                    Enter the painpoints you wish to extract from reviews.
-                </Text>
-            </Box>
-
-            <Flex className="flex-1 w-full flex-col">
-                {insightAreas.map((area, index) => (
-                    <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
-                        <Input
-                            className="mt-0.5 flex-1"
-                            placeholder={`Painpoint ${index + 1}`}
-                            value={area}
-                            onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
+                    }
+                    <Flex mt={10} mb={20} className="flex-1 w-full flex-col">
+                        <Checkbox
+                            icon={() => <></>}
+                            checked={generatePainPoints}
+                            onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
+                            label="Autogenerate Painpoints"
                         />
-
-                        <ActionIcon
-                            onClick={() => handleDeleteInsightArea(index)}
-                            size="md"
-                            color="red"
-                            variant="gradient"
-                            gradient={{ from: 'red', to: 'pink', deg: 255 }}
-                            mb={4}
-                        >
-                            <FaTrashAlt size={14} />
-                        </ActionIcon>
-
                     </Flex>
-                ))}
-            </Flex>
 
-            <Flex mt={10} gap="xs">
-                        <Button unstyled
-                            leftSection={<FaPlus size="14px" />}
-                            classNames={{
-                                section: "h-[14px]",
-                                inner: "flex items-center justify-center gap-2"
-                            }}
-                            onClick={addInsightArea}
-                            className="border border-gray-400 text-gray-400 rounded-md border-dashed bg-transparent px-3 py-1.5 text-xs cursor-pointer hover:bg-gray-100 w-full">
-                            Add more
-                        </Button>
-                    </Flex>
-            </div>}
-            
+                    {generatePainPoints ?
+                        <div>
+                            <Box className="w-full flex flex-col items-center gap-2 mb-2">
+                                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
+                                <Text className="w-full mb-5 text-gray-300" size="xs">
+                                    Enter the max number of painpoints you wish to extract.
+                                </Text>
+                            </Box>
+                            <Flex mt={10} className="flex-1 w-full flex-col">
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={9}
+                                    value={numberOfPainPoints.toString()}
+                                    onChange={handleNumberOfPainPointsChange}
+                                    className="w-full"
+                                />
+                            </Flex>
+                        </div>
+                        :
+                        <div>
+                            <Box className="w-full flex flex-col items-center gap-2 mb-2">
+                                <Text className="w-full" size="18px" fw="bold">Pain Points</Text>
+                                <Text className="w-full mb-5 text-gray-300" size="xs">
+                                    Enter the painpoints you wish to extract from reviews.
+                                </Text>
+                            </Box>
+
+                            <Flex className="flex-1 w-full flex-col">
+                                {insightAreas.map((area, index) => (
+                                    <Flex key={index} className="w-full mb-3" gap="10px" align="flex-end">
+                                        <Input
+                                            className="mt-0.5 flex-1"
+                                            placeholder={`Painpoint ${index + 1}`}
+                                            value={area}
+                                            onChange={(event) => updateInsightArea(index, event.currentTarget.value)}
+                                        />
+
+                                        <ActionIcon
+                                            onClick={() => handleDeleteInsightArea(index)}
+                                            size="md"
+                                            color="red"
+                                            variant="gradient"
+                                            gradient={{ from: 'red', to: 'pink', deg: 255 }}
+                                            mb={4}
+                                        >
+                                            <FaTrashAlt size={14} />
+                                        </ActionIcon>
+
+                                    </Flex>
+                                ))}
+                            </Flex>
+
+                            <Flex mt={10} gap="xs">
+                                <Button unstyled
+                                    leftSection={<FaPlus size="14px" />}
+                                    classNames={{
+                                        section: "h-[14px]",
+                                        inner: "flex items-center justify-center gap-2"
+                                    }}
+                                    onClick={addInsightArea}
+                                    className="border border-gray-400 text-gray-400 rounded-md border-dashed bg-transparent px-3 py-1.5 text-xs cursor-pointer hover:bg-gray-100 w-full">
+                                    Add more
+                                </Button>
+                            </Flex>
+                        </div>}
+
 
 
                     <Flex mt={20} gap="xs">

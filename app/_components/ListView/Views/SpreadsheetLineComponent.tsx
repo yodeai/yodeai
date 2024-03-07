@@ -4,7 +4,7 @@ import { Divider, Text, Flex, Grid } from "@mantine/core";
 import Link from "next/link";
 import { timeAgo } from "@utils/index";
 import { Tables } from "app/_types/supabase";
-import { FaFileExcel } from "react-icons/fa";
+import { FaFileExcel } from "@react-icons/all-files/fa/FaFileExcel";
 
 interface SpreadsheetLineComponentProps {
   spreadsheet: Tables<"spreadsheet">;

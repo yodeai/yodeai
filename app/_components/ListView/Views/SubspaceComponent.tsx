@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/core';
 import BlockComponent from './BlockComponent';
-import { PiCaretUpBold, PiCaretDownBold, PiCaretRightBold } from "react-icons/pi";
 import LoadingSkeleton from '../../LoadingSkeleton';
 import { useRouter } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
@@ -9,6 +8,9 @@ import { Lens, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 import { useAppContext } from "@contexts/context";
 import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
+
+import { PiCaretDownBold } from "@react-icons/all-files/pi/PiCaretDownBold";
+import { PiCaretRightBold } from "@react-icons/all-files/pi/PiCaretRightBold";
 
 type SubspaceComponentProps = {
   subspace: Subspace | Lens;
@@ -37,7 +39,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
       if (isExpanded) {
         try {
           let googleUserId = await getUserInfo();
-          
+
           const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks/${googleUserId}`);
           if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
 

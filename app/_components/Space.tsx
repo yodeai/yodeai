@@ -1,18 +1,15 @@
-import Link from "next/link";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useContext } from "react";
+import { useState, useEffect, ChangeEvent} from "react";
 import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { Pencil2Icon, TrashIcon, PlusIcon, Share1Icon, CheckIcon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
-import ShareLensComponent from "@components/ShareLensComponent";
+
 import toast from "react-hot-toast";
-import { FaCheck, FaPlus, FaThLarge, FaTrashAlt } from "react-icons/fa";
-import { Divider, Flex, Button, Text, TextInput, ActionIcon, Tooltip } from "@mantine/core";
+import { Flex } from "@mantine/core";
 import { getUserInfo } from "@utils/googleUtils";
 
 
