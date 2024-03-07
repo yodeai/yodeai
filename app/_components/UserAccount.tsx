@@ -1,18 +1,21 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+import { FaAngleDown } from 'react-icons/fa';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
-import { Button, Flex, Text } from '@mantine/core';
+import { Button, Flex, Menu, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
-
+import { useAppContext } from '@contexts/context';
 
 const UserAccountHandler = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAppContext();
+
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
+
   const openGoogleAuthWindow = () => {
     const authWindow = window.open(redirectUri);
 
@@ -38,25 +41,7 @@ const UserAccountHandler = () => {
 
   useEffect(() => {
     let isMounted = true;
-
-    const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (isMounted) {
-          if (error && error.status === 401) {
-            setUser(null);
-          } else if (user) {
-            setUser(user);
-          }
-        }
-      }
-    };
-
     const fetchAndCheckGoogle = async () => {
-      await fetchData();
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected);
       const response = await fetch(`/api/google/redirectURI`)
@@ -69,9 +54,7 @@ const UserAccountHandler = () => {
       }
     };
 
-
     fetchAndCheckGoogle();
-
     return () => {
       isMounted = false;
     };
@@ -80,35 +63,40 @@ const UserAccountHandler = () => {
   return (
     <nav className="w-full">
       <Flex align={"center"} justify={"flex-end"}>
-        {user && user.email ? (
-          <div className="flex gap-4 items-center">
-            <Text
-              size='sm'
-              c={"gray.8"}
-              fw={500}
-            >
-              Hey, {user.email}!
-            </Text>
-            {googleAccountConnected ?
-              <Button onClick={removeGoogleAccount} color="red" size="xs" variant="light">
-                Remove Google Account
-              </Button> :
-              <Button onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
-                Connect Google Account
+        {user && user.email
+          ? <Menu>
+            <Menu.Target>
+              <Button variant="outline" color="gray" className="flex gap-3 text-center align-middle">
+                <Text
+                  size='sm'
+                  c={"gray.8"}
+                  fw={500}
+                >
+                  {user.email}
+                </Text>
+                <FaAngleDown size={18} className="ml-1 text-gray-500" />
               </Button>
-            }
-            <LogoutButton />
-          </div>
-        ) : (
-          <Link href="/login">
+            </Menu.Target>
+            <Menu.Dropdown>
+              {googleAccountConnected && <Menu.Item onClick={removeGoogleAccount} color="red" variant="light">
+                Remove Google Account
+              </Menu.Item>}
+              {!googleAccountConnected &&
+                <Menu.Item onClick={openGoogleAuthWindow} color="blue" variant="light">
+                  Connect Google Account
+                </Menu.Item>}
+              <Menu.Item>
+                <LogoutButton />
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          : <Link href="/login">
             <Button type="submit" color="blue" size="xs" variant="light">
               Login
             </Button>
-          </Link>
-        )}
-
+          </Link>}
       </Flex>
-    </nav>
+    </nav >
   );
 };
 
