@@ -27,6 +27,9 @@ const NotesSection: React.FC = () => {
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
         ],
         content,
+        onUpdate: ({ editor }) => {
+            setContent(editor?.getHTML());
+        },
     });
 
     return (
