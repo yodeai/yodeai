@@ -22,7 +22,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
     const [name, updateName] = useState("")
     const [appName, updateAppName] = useState("");
     const [insightAreas, setInsightAreas] = useState<string[]>([]);
-    const [numberOfPainPoints, setNumberOfPainPoints] = useState<number>(0); // New state for the number of pain points
+    const [numberOfPainPoints, setNumberOfPainPoints] = useState<number>(1); // New state for the number of pain points
     const [generatePainPoints, setGeneratePainPoints] = useState(false);
     const [gatherReviews, setGatherReviews] = useState(false);
 
@@ -134,14 +134,14 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                             />
                         </Input.Wrapper>
                     </Flex>
-                    <Flex mt={10} className="flex-1 w-full flex-col">
+                    {/* <Flex mt={10} className="flex-1 w-full flex-col">
                         <Checkbox
                             icon={() => <></>}
                             checked={gatherReviews}
                             onChange={(event) => setGatherReviews(event.currentTarget.checked)}
                             label="Gather reviews to populate this current space"
                         />
-                    </Flex>
+                    </Flex> */}
                     {gatherReviews ?
                         <Flex key="app_name" className="w-full mb-5 mt-3">
                             <Input.Wrapper label="App Name" className="w-full">
@@ -160,7 +160,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                         <Checkbox
                             icon={() => <></>}
                             checked={generatePainPoints}
-                            onChange={(event) => setGeneratePainPoints(event.currentTarget.checked)}
+                            onChange={(event) => {setGeneratePainPoints(event.currentTarget.checked); setNumberOfPainPoints(1); setInsightAreas([])}}
                             label="Autogenerate Painpoints"
                         />
                     </Flex>
