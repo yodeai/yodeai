@@ -55,7 +55,6 @@ export default function Block({ params }: { params: { id: string } }) {
     }
     fetchPresignedUrl();
 
-    if(block?.lens_id) setLensId(block.lens_id.toString())
     setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
     return () => {
       setLensId(null);
@@ -89,8 +88,6 @@ export default function Block({ params }: { params: { id: string } }) {
       console.error('Error updating block:', updateError.message);
     }
   };
-
-
 
   if (loading || !block) {
     return (
