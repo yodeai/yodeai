@@ -40,7 +40,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [edgeMenu, setEdgeMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
 
-    const { setLensId, setBreadcrumbActivePage } = useAppContext();
+    const { setLensId, setBreadcrumbActivePage, layoutRefs } = useAppContext();
 
     const getInitialLockState = () => {
         if (data.plugin) return true;
@@ -180,6 +180,11 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         setEdgeMenu(null);
         setNodeMenu(null);
     }, [setEdgeMenu, setNodeMenu]);
+
+    useEffect(() => {
+        const mainHeight = layoutRefs?.main?.current?.getBoundingClientRect().height;
+        $whiteboard.current.style.height = `${mainHeight - 180}px`;
+    }, [])
 
     return <FlowWrapper
         whiteboard={whiteboard}
