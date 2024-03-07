@@ -1,10 +1,9 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { FaAngleDown } from 'react-icons/fa';
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { User } from '@supabase/supabase-js';
 import { Button, Flex, Menu, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 import { useAppContext } from '@contexts/context';

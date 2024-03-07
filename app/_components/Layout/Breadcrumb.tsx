@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import LoadingSkeleton from "../LoadingSkeleton"
-import { FaHome } from "react-icons/fa"
+import { FaHome } from "@react-icons/all-files/fa/FaHome"
 import { Text, Breadcrumbs, Box, AppShell, Burger } from "@mantine/core"
 import { Fragment } from "react"
 import Link from "next/link"

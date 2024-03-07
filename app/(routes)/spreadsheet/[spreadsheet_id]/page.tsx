@@ -6,8 +6,8 @@ import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { SpreadsheetDataSource, SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { Result } from "@components/Result";
-import { FaCircleNotch, FaSpinner } from "react-icons/fa";
-import { MdError } from "react-icons/md";
+import { FaCircleNotch } from "@react-icons/all-files/fa/FaCircleNotch";
+import { MdError } from "@react-icons/all-files/md/MdError";
 
 export const dynamic = "force-dynamic";
 
