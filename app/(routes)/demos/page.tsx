@@ -11,7 +11,7 @@ export default function Demo() {
     <Flex direction="column" pt={0} h="100%">
       <Flex align={"center"} className="flex items-stretch flex-col h-full">
         <div className="demo-video-container">
-          <Title mt={20} mb={10} size="h3">User Insights</Title>
+          <Title mt={20} mb={10} size="h3">User Insights Analyzer</Title>
           <iframe
             width="560"
             height="315"
@@ -24,7 +24,7 @@ export default function Demo() {
         </div>
 
         <div className="demo-video-container">
-          <Title mt={20} mb={10} size="h3">Pain Point Tracker</Title>
+          <Title mt={20} mb={10} size="h3">User Feedback Tracker</Title>
           <iframe
             width="560"
             height="315"

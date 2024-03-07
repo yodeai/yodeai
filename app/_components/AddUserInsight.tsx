@@ -134,7 +134,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
   };
   return (
     <Container className="max-w-3xl absolute">
-      <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New User Analysis</Text>} centered>
+      <Modal zIndex={299} closeOnClickOutside={true} opened={opened} onClose={close} title={<Text size='md' fw={600}>New User Insight Analyzer</Text>} centered>
         <Modal.Body p={2} pt={0}>
           <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
           
@@ -151,7 +151,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
 
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
-            <Text className="w-full" size="18px" fw="bold">User Insight Areas</Text>
+            <Text className="w-full" size="18px" fw="bold">User Insight Topics</Text>
             <Text className="w-full mb-5 text-gray-300" size="xs">
               Enter the topics you wish to extract from these user interviews. If left blank, then topics will be auto extracted.
             </Text>
