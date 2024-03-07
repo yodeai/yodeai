@@ -10,7 +10,7 @@ import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
 
 import { Tables } from "app/_types/supabase";
-import { Breadcrumb } from "../Breadcrumb";
+import { Breadcrumb } from "../Layout/Breadcrumb";
 import { WhiteboardPluginParams } from "app/_types/whiteboard";
 
 import {
@@ -20,12 +20,13 @@ import {
   SpreadsheetIconItem
 } from "./_views/index";
 
-import { ViewController } from "../LayoutController";
+import { ViewController } from "../Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { useProgressRouter } from "@utils/nprogress";
 import { WidgetIconItem } from "./_views/Widget";
 import { usePathname } from "next/navigation";
+import { AppShell, ScrollArea } from '@mantine/core';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -424,8 +425,7 @@ export default function IconLayoutComponent({
   return <div className="flex flex-col justify-between z-50">
     <div ref={$gridContainer} style={{
       transform: `scale(${zoomLevel / 100}) translateZ(0)`,
-      transformOrigin: 'top left',
-      height: "calc(100vh - 180px)"
+      transformOrigin: 'top left'
     }}>
       <ResponsiveReactGridLayout
         maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
@@ -446,5 +446,5 @@ export default function IconLayoutComponent({
         {layoutItems}
       </ResponsiveReactGridLayout>
     </div>
-  </div >
+  </div>
 }

@@ -11,7 +11,7 @@ import BlockEditor from '@components/Block/BlockEditor';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
-import { Box, Button, Divider, Flex, Text, Tooltip } from "@mantine/core";
+import { AppShell, Box, Button, Divider, Flex, Text, Tooltip, ScrollArea } from '@mantine/core';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
@@ -56,7 +56,7 @@ export default function Block({ params }: { params: { id: string } }) {
     }
     fetchPresignedUrl();
 
-    if(block?.lens_id) setLensId(block.lens_id.toString())
+    if (block?.lens_id) setLensId(block.lens_id.toString())
     setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
     return () => {
       setLensId(null);
@@ -216,9 +216,9 @@ export default function Block({ params }: { params: { id: string } }) {
     </div>
   </div >
 
-  return (
-    <main>
-      <Flex direction="column" pt={0}>
+  return (<>
+    <Flex direction="column" pt={0}>
+      <AppShell.Section>
         <BlockHeader
           title={block.title}
           accessType={block.accessLevel}
@@ -226,36 +226,36 @@ export default function Block({ params }: { params: { id: string } }) {
           onDelete={onDelete}
           rightItem={rightEditButton}
         />
-        <Box p={16} className="mx-auto w-[800px] overflow-scroll h-full">
-          {isEditing
-            // this recreates the entire block view but allows for editing
-            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-            ? <BlockEditor
-              withHeader={true}
-              refs={{ saveButton: $saveButton }}
-              block={block} onSave={onSave}
-              />
-            : <>
-              <div className="flex flex-col py-4">
-                <div>
-                  <Text size="sm" c="gray">
-                    Created {timeAgo(block.created_at)}
-                  </Text>
-                </div>
-                <div>
-                  <Text size="sm" c="gray">
-                    Updated {timeAgo(block.updated_at)}
-                  </Text>
-                </div>
+      </AppShell.Section>
+      <AppShell.Section className="w-[800px] mx-auto h-full" p={16} component={ScrollArea}>
+        {isEditing
+          // this recreates the entire block view but allows for editing
+          // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+          ? <BlockEditor
+            withHeader={true}
+            refs={{ saveButton: $saveButton }}
+            block={block} onSave={onSave}
+          />
+          : <>
+            <div className="flex flex-col py-4">
+              <div>
+                <Text size="sm" c="gray">
+                  Created {timeAgo(block.created_at)}
+                </Text>
               </div>
-              {renderContent()}
-            </>
-          }
-          {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
-        </Box>
-      </Flex>
-      <FinishedOnboardingModal />
-    </main >
-
+              <div>
+                <Text size="sm" c="gray">
+                  Updated {timeAgo(block.updated_at)}
+                </Text>
+              </div>
+            </div>
+            {renderContent()}
+          </>
+        }
+        {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+      </AppShell.Section>
+    </Flex>
+    <FinishedOnboardingModal />
+  </>
   );
 }

@@ -34,6 +34,7 @@ export type contextType = {
   setAccessType: React.Dispatch<React.SetStateAction<string>>;
 
   layoutRefs: {
+    main: React.RefObject<HTMLDivElement>;
     sidebar: React.RefObject<HTMLDivElement>;
   },
 
@@ -48,6 +49,9 @@ export type contextType = {
   painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
   iconItemDisclosure: ReturnType<typeof useDisclosure>;
   widgetFormDisclosure: ReturnType<typeof useDisclosure>;
+
+  navbarDisclosure: ReturnType<typeof useDisclosure>;
+  toolbarDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -88,6 +92,7 @@ const defaultValue: contextType = {
   setAccessType: () => { },
 
   layoutRefs: {
+    main: React.createRef<HTMLDivElement>(),
     sidebar: React.createRef<HTMLDivElement>(),
   },
 
@@ -102,6 +107,9 @@ const defaultValue: contextType = {
   painPointTrackerModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   widgetFormDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+
+  navbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  toolbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -158,6 +166,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
   const widgetFormDisclosure = useDisclosure(false);
+
+  const navbarDisclosure = useDisclosure(false);
+  const toolbarDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
@@ -228,6 +239,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
+    main: React.createRef<HTMLDivElement>()
   }
 
   const getAllLenses = async () => {
@@ -285,6 +297,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     getAllLenses();
     getPinnedLenses();
     getUserId();
+
+    navbarDisclosure[1].close();
+    toolbarDisclosure[1].close();
   }, [pathname]);
 
   // This useEffect will run whenever lensId changes
@@ -322,7 +337,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const memoizedZoomLevel = useMemo(() => {
     return getZoomLevelFromLocalStorage(lensId || "default") || 100;
-  }, [zoomLevel, lensId])
+  }, [zoomLevel, lensId]);
 
   return (
     <context.Provider value={{
@@ -339,6 +354,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       spreadsheetModalDisclosure, iconItemDisclosure,
       painPointTrackerModalDisclosure,
       widgetFormDisclosure,
+      navbarDisclosure, toolbarDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,

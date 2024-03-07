@@ -5,9 +5,9 @@ import React, { useState, FormEvent, useMemo } from 'react';
 import { ChatMessage } from 'app/_types/chat';
 import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
-import { Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
+import { AppShell, Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
-import ToolbarHeader from './ToolbarHeader';
+import ToolbarHeader from './Layout/Headers/ToolbarHeader';
 import { timeAgo } from '@utils/index';
 import LoadingSkeleton from './LoadingSkeleton';
 import { cn } from '@utils/style';
@@ -175,7 +175,9 @@ export default function LensChat() {
             direction={"column"}
             className="h-full w-full"
             justify={"space-between"}>
-            <Box>
+
+            {/* headaer */}
+            <AppShell.Section>
                 <ToolbarHeader>
                     <Flex align="center" direction="row">
                         <Text size="sm">
@@ -186,8 +188,12 @@ export default function LensChat() {
                         <InfoPopover infoText={`This chat is for communicating with other users on the "${lensName}" space.`} />
                     </Flex>
                 </ToolbarHeader>
+            </AppShell.Section>
 
-                <div className="h-[calc(100vh-225px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
+
+            {/* content */}
+            <AppShell.Section grow component={ScrollArea}>
+                <Box className="flex flex-col-reverse gap-3 p-3">
                     {messages.map((message, index) => {
                         return <MessageBox key={index} message={message} />
                     })}
@@ -196,9 +202,13 @@ export default function LensChat() {
                     {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
                         label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
                         labelPosition="center" />}
-                </div>
-            </Box>
-            <Box className="relative">
+                </Box>
+            </AppShell.Section>
+
+
+            {/* footer */}
+
+            <AppShell.Section>
                 <Flex p={10} pt={0} direction={"column"}>
                     <Flex justify={'center'} pt={5} pb={0} direction={"column"}>
                         <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
@@ -217,7 +227,7 @@ export default function LensChat() {
                         </form>
                     </Flex>
                 </Flex>
-            </Box>
+            </AppShell.Section>
         </Flex>
     );
 };
@@ -236,7 +246,7 @@ const MessageBox = (props: MessageBoxProps) => {
     }>
         <Gravatar email={message.users.email} size={32} className="rounded-md" />
         <div className={cn(
-            "flex flex-col w-full max-w-[250px] p-2 border",
+            "flex flex-col w-full p-2 border",
             selfMessage
                 ? "bg-indigo-600 border-indigo-700 text-gray-200 rounded-s-xl rounded-se-xl"
                 : "bg-gray-200 border-gray-300 text-gray-800 rounded-e-xl rounded-es-xl"

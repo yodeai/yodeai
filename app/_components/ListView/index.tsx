@@ -1,6 +1,6 @@
 
 import { useMemo } from "react";
-import { Flex, Text, ScrollArea, Divider } from "@mantine/core";
+import { Flex, Text, ScrollArea, Divider, AppShell } from "@mantine/core";
 import { Block } from "app/_types/block";
 import { Subspace, Lens } from "app/_types/lens";
 

@@ -13,17 +13,17 @@ import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { FaAngleDown, FaMagnifyingGlassPlus, FaUserGroup } from "react-icons/fa6";
 import { useDisclosure } from "@mantine/hooks";
-import LoadingSkeleton from "./LoadingSkeleton";
+import LoadingSkeleton from "../../LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
 
-import AddWhiteBoard from "./AddWhiteboard";
-import AddUserInsight from "./AddUserInsight";
-import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
+import AddWhiteBoard from "../../AddWhiteboard";
+import AddUserInsight from "../../AddUserInsight";
+import AddCompetitiveAnalysis from "../../AddCompetitiveAnalysis";
 
 import AddSubspace from "@components/AddSubspace";
 import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheet";
-import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
-import AddWidget from "./Widgets/ModalForm";
+import AddPainPointTracker from "../../Spreadsheet/AddPainPointTracker";
+import AddWidget from "../../Widgets/ModalForm";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,

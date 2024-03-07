@@ -3,17 +3,16 @@ import "./globals.css";
 import 'mantine-contextmenu/styles.css';
 
 import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import HeadingBar from "@components/HeadingBar";
 
-import { MantineProvider, ColorSchemeScript, Flex } from '@mantine/core';
+import { MantineProvider, ColorSchemeScript, Flex, AppShellHeader, AppShell } from '@mantine/core';
 import { ContextMenuProvider } from 'mantine-contextmenu';
 import { ModalsProvider } from "@mantine/modals";
+import AppLayout from '@components/Layout';
+import { LensProvider } from '@contexts/context';
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Yodeai",
   description: "Created at the UC, Berkeley School of Information",
@@ -24,7 +23,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en" >
       <head>
@@ -35,13 +33,11 @@ export default async function RootLayout({
         <MantineProvider defaultColorScheme="light">
           <ModalsProvider>
             <ContextMenuProvider>
-              <header>
-                <HeadingBar />
-              </header>
-              <Toaster />
-              <Flex direction='column' w='100%' className="h-[calc(100%-60px)]">
-                {children}
-              </Flex>
+              <LensProvider>
+                <AppLayout>
+                  {children}
+                </AppLayout>
+              </LensProvider>
             </ContextMenuProvider>
           </ModalsProvider>
         </MantineProvider>

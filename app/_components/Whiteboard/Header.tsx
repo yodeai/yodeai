@@ -12,10 +12,11 @@ type WhiteboardHeaderProps = {
     accessType: "owner" | "editor" | "reader";
     onSave: (title: string) => Promise<Response>
     onDelete: () => Promise<Response>
+    rightSection?: React.ReactNode
 }
 
 export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
-    const { title, accessType, onSave, onDelete } = props;
+    const { title, accessType, rightSection, onSave, onDelete } = props;
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -51,7 +52,7 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
     });
 
     return <>
-        <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
+        <Flex className="bg-white opacity-100 border-b border-gray-200 px-4 py-2" justify="space-between">
             <Box className="flex items-center">
                 <Menu>
                     {isEditing && <>
@@ -92,6 +93,10 @@ export default function WhiteboardHeader(props: WhiteboardHeaderProps) {
                         <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
+            </Box>
+
+            <Box>
+                {rightSection}
             </Box>
         </Flex>
     </>

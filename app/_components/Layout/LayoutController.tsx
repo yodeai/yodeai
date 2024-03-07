@@ -1,10 +1,10 @@
 
 import { Block } from "app/_types/block";
 import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
-import IconLayoutComponent from "./IconView";
+import IconLayoutComponent from "../IconView";
 import React from "react";
 import { Flex, Text } from "@mantine/core";
-import ListLayoutComponent from "./ListView";
+import ListLayoutComponent from "../ListView";
 import { Tables } from "app/_types/supabase";
 
 export type ViewController = {
@@ -74,18 +74,15 @@ export default function LayoutController(props: LayoutControllerProps) {
                 spreadsheets={spreadsheets}
             />
         case "icon":
-            return <div className="w-full h-full overflow-scroll">
-                <IconLayoutComponent
-                    subspaces={subspaces}
-                    layouts={layout.icon_layout}
-                    onChangeLayout={onChangeLayout}
-                    blocks={blocks || []}
-                    whiteboards={whiteboards || []}
-                    spreadsheets={spreadsheets || []}
-                    widgets={widgets || []}
-
-                    {...props}
-                />
-            </div>
+            return <IconLayoutComponent
+                subspaces={subspaces}
+                layouts={layout.icon_layout}
+                onChangeLayout={onChangeLayout}
+                blocks={blocks || []}
+                whiteboards={whiteboards || []}
+                spreadsheets={spreadsheets || []}
+                widgets={widgets || []}
+                {...props}
+            />
     }
 }

@@ -11,7 +11,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Flex, Box, Paper, Text } from "@mantine/core";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/SpaceHeader";
+import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 

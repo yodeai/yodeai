@@ -3,29 +3,24 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { IoMdClose } from "react-icons/io";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
-import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
+import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaSquare, FaPlus } from "react-icons/fa";
 import { FaHouse } from "react-icons/fa6";
-import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
-import { ActionIcon } from "@mantine/core";
-import LoadingSkeleton from "./LoadingSkeleton";
-
-import { Database } from "app/_types/supabase";
+import { AppShell, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text, ActionIcon } from "@mantine/core";
 import { RiPushpinFill } from "react-icons/ri";
-import OnboardingPopover from "./Onboarding/OnboardingPopover";
 
-const supabase = createClientComponentClient<Database>()
+import LoadingSkeleton from "../LoadingSkeleton";
+import OnboardingPopover from "../Onboarding/OnboardingPopover";
 
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
+    lensId, setLensId, reloadLenses, setActiveComponent,
     pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
-    resetOnboarding, onboardingStep, onboardingIsComplete, goToNextOnboardingStep
+    onboardingStep, onboardingIsComplete, goToNextOnboardingStep
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -107,7 +102,7 @@ export default function Navbar() {
     }
   };
 
-  return <>
+  return <AppShell.Navbar>
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
@@ -126,7 +121,8 @@ export default function Navbar() {
             >
               <Button
                 onClick={togglePopover}
-                style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+                className="w-full"
+                style={{ width: "100%", height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
                 leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
                 color="gray"
                 variant="gradient"
@@ -138,7 +134,7 @@ export default function Navbar() {
             :
             <Button
               onClick={togglePopover}
-              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+              style={{ width: "100%", height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
               leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
               color="gray"
               variant="gradient"
@@ -235,8 +231,8 @@ export default function Navbar() {
         {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
-            <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
-              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{size: 20}}></LoadingOverlay>
+            <Box key={lens.lens_id} pos="relative">
+              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{ size: 20 }}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}
                 rightSection={
@@ -252,6 +248,6 @@ export default function Navbar() {
           ))}
       </ScrollArea.Autosize>
     </Flex>
-  </>
+  </AppShell.Navbar>
 }
 

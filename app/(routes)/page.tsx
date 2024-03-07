@@ -4,11 +4,11 @@ import { Lens } from "app/_types/lens";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Flex, Box } from "@mantine/core";
+import { Flex, Box, AppShell, ScrollArea } from '@mantine/core';
 
-import SpaceHeader from "@components/SpaceHeader";
+import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
 import LoadingSkeleton from "@components/LoadingSkeleton";
-import LayoutController from 'app/_components/LayoutController';
+import LayoutController from '@components/Layout/LayoutController';
 import { LensLayout } from "app/_types/lens";
 import { useAppContext } from "@contexts/context";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
@@ -161,28 +161,32 @@ export default function Home() {
 
   return (
     <Flex direction="column" pt={0} h="100%">
-      <SpaceHeader
-        staticZoomLevel={false}
-        title="Home"
-        selectedLayoutType={selectedLayoutType}
-        handleChangeLayoutView={handleChangeLayoutView}
-      />
-      <Box className="flex items-stretch flex-col h-full">
-        {loading && <div className="p-3">
-          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
-        </div>}
-        <LayoutController
-          itemIcons={{}}
-          subspaces={sortedLenses}
-          layout={layoutData}
-          layoutView={selectedLayoutType}
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          handleLensDelete={handleLensDelete}
-          handleLensChangeName={handleLensChangeName}
-          onChangeLayout={onChangeLensLayout}
+      <AppShell.Section>
+        <SpaceHeader
+          staticZoomLevel={false}
+          title="Home"
+          selectedLayoutType={selectedLayoutType}
+          handleChangeLayoutView={handleChangeLayoutView}
         />
-      </Box>
+      </AppShell.Section>
+      <AppShell.Section grow component={ScrollArea}>
+        <Box className="flex items-stretch flex-col h-full">
+          {loading && <div className="p-3">
+            <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+          </div>}
+          <LayoutController
+            itemIcons={{}}
+            subspaces={sortedLenses}
+            layout={layoutData}
+            layoutView={selectedLayoutType}
+            handleBlockChangeName={handleBlockChangeName}
+            handleBlockDelete={handleBlockDelete}
+            handleLensDelete={handleLensDelete}
+            handleLensChangeName={handleLensChangeName}
+            onChangeLayout={onChangeLensLayout}
+          />
+        </Box>
+      </AppShell.Section>
       <FinishedOnboardingModal />
     </Flex >
   );

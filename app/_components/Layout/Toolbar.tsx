@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
+import { Box, Flex, Button, Menu, Text, Anchor, AppShell } from '@mantine/core';
 import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { IoIosChatbubbles } from 'react-icons/io';
@@ -10,11 +10,11 @@ import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
 
-import ConditionalTooltip from './ConditionalTooltip';
-import LensChat from './LensChat';
+import ConditionalTooltip from '../ConditionalTooltip';
+import LensChat from '../LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname, useRouter } from 'next/navigation';
-import OnboardingPopover from './Onboarding/OnboardingPopover';
+import OnboardingPopover from '../Onboarding/OnboardingPopover';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -43,7 +43,8 @@ export default function Toolbar() {
     const {
         accessType, subspaceModalDisclosure, lensId,
         whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
-        painPointTrackerModalDisclosure, widgetFormDisclosure
+        painPointTrackerModalDisclosure, widgetFormDisclosure,
+        toolbarDisclosure: [toolbarOpened, toolbarDisclosure]
     } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
@@ -65,11 +66,16 @@ export default function Toolbar() {
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
+        toolbarDisclosure.close();
     }
 
     const switchComponent = (component: contextType["activeToolbarComponent"]) => {
-        if (activeToolbarComponent === component) return closeComponent();
+        if (activeToolbarComponent === component) {
+            toolbarDisclosure.close();
+            return closeComponent();
+        }
         setActiveToolbarComponent(component);
+        toolbarDisclosure.open();
     }
 
     useEffect(() => {
@@ -125,9 +131,9 @@ export default function Toolbar() {
         if (!lensId && activeToolbarComponent === "social") closeComponent();
     }, [lensId])
 
-    return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
+    return <AppShell.Aside className="flex !flex-row">
         { /*toolbar buttons*/}
-        <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
+        <Box component='div' className="h-full bg-white">
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
                     {(onboardingStep === 2 && !onboardingIsComplete)
@@ -257,7 +263,7 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box >
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeToolbarComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
+        <Box component='div' className="border-l border-l-[#eeeeee] w-full">
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,
@@ -267,5 +273,5 @@ export default function Toolbar() {
                 {activeToolbarComponent === "social" && <LensChat />}
             </context.Provider>
         </Box>
-    </Flex >
+    </AppShell.Aside>
 }

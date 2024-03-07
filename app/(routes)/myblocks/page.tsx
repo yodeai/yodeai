@@ -9,7 +9,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/SpaceHeader";
+import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 
 export default function MyBlocks() {

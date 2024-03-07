@@ -25,7 +25,7 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
       <NavLink
         classNames={{ section: "!contents" }}
         component="div"
-        label={<Text lh={1.2} size={"sm"} className="max-w-[150px]">{lens.name}</Text>}
+        label={<Text lh={1.2} size={"sm"}>{lens.name}</Text>}
         description={<>
           <Text c="gray" fw={400} size="xs">Last update {formatDate(lens.updated_at)}</Text>
           {!compact && <>

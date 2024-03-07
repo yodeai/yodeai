@@ -5,13 +5,13 @@ import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "
 import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
+import DynamicSpaceHeader from '@components/Layout/Headers/DynamicSpaceHeader';
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
-import LayoutController from "@components/LayoutController";
+import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { Box, Flex } from "@mantine/core";
+import { AppShell, Box, Flex, ScrollArea } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 type LensProps = {
@@ -323,7 +323,7 @@ export default function Lens(props: LensProps) {
     );
   }, []);
 
- const addWidget = useCallback((payload) => {
+  const addWidget = useCallback((payload) => {
     let widget_id = payload["new"]["widget_id"]
     console.log("Added a widget", widget_id);
     let newWidget = payload["new"]
@@ -603,10 +603,10 @@ export default function Lens(props: LensProps) {
     } else if ("block_id" in item) {
       return "block";
     } else if ("whiteboard_id" in item) {
-      if(item.plugin) return "whiteboard_plugin";
+      if (item.plugin) return "whiteboard_plugin";
       return "whiteboard";
     } else if ("spreadsheet_id" in item) {
-      if(item.plugin) return "spreadsheet_plugin";
+      if (item.plugin) return "spreadsheet_plugin";
       return "spreadsheet";
     } else {
       return "lens";
@@ -669,7 +669,7 @@ export default function Lens(props: LensProps) {
       whiteboards={whiteboards}
       subspaces={subspaces}
       spreadsheets={spreadsheets}>
-      <Flex direction="column" pt={0} h="100%">
+      <AppShell.Section>
         <DynamicSpaceHeader
           loading={loading}
           lens={lens}
@@ -685,37 +685,36 @@ export default function Lens(props: LensProps) {
           selectedLayoutType={selectedLayoutType}
           handleChangeLayoutView={handleChangeLayoutView}
         />
-        <Box className="flex items-stretch flex-col h-full">
-          {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-          {!loading && <LayoutController
-            handleBlockChangeName={handleBlockChangeName}
-            handleBlockDelete={handleBlockDelete}
-            handleLensChangeName={handleLensChangeName}
-            handleLensDelete={handleLensDelete}
-            handleWhiteboardDelete={handleWhiteboardDelete}
-            handleWhiteboardChangeName={handleWhiteboardChangeName}
-            handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-            handleSpreadsheetDelete={handleSpreadsheetDelete}
-            handleWidgetChangeName={handleWidgetChangeName}
-            handleWidgetDelete={handleWidgetDelete}
-            onChangeLayout={onChangeLensLayout}
-            handleItemSettings={handleItemSettings}
-            layout={layoutData}
-            blocks={sortedBlocks}
-            subspaces={sortedSubspaces}
-            whiteboards={sortedWhiteboards}
-            spreadsheets={sortedSpreadsheets}
-            widgets={sortedWidgets}
-
-            itemIcons={itemIcons}
-            layoutView={selectedLayoutType} />}
-        </Box>
-        <IconItemSettingsModal
-          item_icons={itemIcons}
-          item={$settingsItem.current}
-          lens_id={lens_id}
-          modalController={iconItemDisclosure} />
-      </Flex>
+      </AppShell.Section>
+      <AppShell.Section grow component={ScrollArea}>
+        {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
+        {!loading && <LayoutController
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
+          handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
+          handleWidgetChangeName={handleWidgetChangeName}
+          handleWidgetDelete={handleWidgetDelete}
+          onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          layout={layoutData}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          spreadsheets={sortedSpreadsheets}
+          widgets={sortedWidgets}
+          itemIcons={itemIcons}
+          layoutView={selectedLayoutType} />}
+      </AppShell.Section>
+      <IconItemSettingsModal
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
     </ContentProvider>
   );
 }

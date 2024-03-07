@@ -9,12 +9,12 @@ import {
 } from "@mantine/core";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
-import AddWhiteBoard from "./AddWhiteboard";
-import AddUserInsight from "./AddUserInsight";
-import AddCompetitiveAnalysis from "./AddCompetitiveAnalysis";
-import AddSpreadsheetModal from "./Spreadsheet/AddSpreadsheet";
-import AddPainPointTracker from "./Spreadsheet/AddPainPointTracker";
-import AddWidgetModal from "./Widgets/ModalForm";
+import AddWhiteBoard from "../../AddWhiteboard";
+import AddUserInsight from "../../AddUserInsight";
+import AddCompetitiveAnalysis from "../../AddCompetitiveAnalysis";
+import AddSpreadsheetModal from "../../Spreadsheet/AddSpreadsheet";
+import AddPainPointTracker from "../../Spreadsheet/AddPainPointTracker";
+import AddWidgetModal from "../../Widgets/ModalForm";
 
 type SpaceHeaderProps = {
     title: string;
