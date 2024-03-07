@@ -42,12 +42,18 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const router = useRouter();
     const $dataSource = useRef<SpreadsheetDataSourceObject>(spreadsheet.dataSource);
 
+    const isSpreadsheetProtected = useMemo(() => {
+        if (["owner", "editor"].includes(access_type)) return false;
+        return true;
+    }, [access_type]);
+
+
     const onHandleResize = useCallback(() => {
         const eSheetPanel = $container.current.querySelector<HTMLDivElement>('.e-sheet-panel');
         if (!eSheetPanel) return;
 
-        eSheetPanel.style.height = `${$container.current.clientHeight - 210}px`;
-    }, [$spreadsheet, $container]);
+        eSheetPanel.style.height = `${$container.current.clientHeight + (isSpreadsheetProtected ? 35 : 15)}px`;
+    }, [$spreadsheet, $container, isSpreadsheetProtected]);
 
     useEffect(() => {
         onHandleResize();
@@ -153,11 +159,6 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
             $spreadsheet.current.protectSheet();
         }
     }, [access_type, $spreadsheet])
-
-    const isSpreadsheetProtected = useMemo(() => {
-        if (["owner", "editor"].includes(access_type)) return false;
-        return true;
-    }, [access_type]);
 
     const spreadsheetContainer = useMemo(() => <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
         <SpreadsheetComponent
