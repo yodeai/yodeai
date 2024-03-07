@@ -4,8 +4,8 @@ import { Tables } from 'app/_types/supabase';
 import { Box, Title } from '@mantine/core';
 import { useDebouncedCallback } from '@utils/hooks';
 import Link from 'next/link';
-import { FaFolder } from 'react-icons/fa';
 import { Node } from 'reactflow';
+import { FaFolder } from '@react-icons/all-files/fa/FaFolder';
 
 type LensElementProps = {
     lens_id: Tables<"lens">["lens_id"]

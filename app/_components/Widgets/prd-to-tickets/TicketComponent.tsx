@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import {  useMemo, useState } from 'react';
 import { Ticket } from './index';
 import { Input, Button, LoadingOverlay, Text, Overlay } from '@mantine/core';
-import { FaCheck, FaPen } from 'react-icons/fa6';
-import { FaCheckCircle, FaLink, FaSave } from 'react-icons/fa';
+
+import { FaCheck } from '@react-icons/all-files/fa6/FaCheck';
+import { FaPen } from '@react-icons/all-files/fa6/FaPen';
+import { FaCheckCircle } from '@react-icons/all-files/fa/FaCheckCircle';
+import { FaLink } from '@react-icons/all-files/fa/FaLink';
+import { FaSave } from '@react-icons/all-files/fa/FaSave';
 
 import 'easymde/dist/easymde.min.css';
 import DynamicSimpleMDE from 'react-simplemde-editor';

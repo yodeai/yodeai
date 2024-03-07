@@ -4,7 +4,7 @@ import { Tables } from 'app/_types/supabase';
 import { Box, Title } from '@mantine/core';
 import { useDebouncedCallback } from '@utils/hooks';
 import Link from 'next/link';
-import { BiSolidChalkboard } from 'react-icons/bi';
+import { BiSolidChalkboard } from '@react-icons/all-files/bi/BiSolidChalkboard';
 import { Node } from 'reactflow';
 
 type WhiteboardElementProps = {

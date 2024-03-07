@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import Messages from '@lib/messages'
 import { Button, Flex, PasswordInput, Text, TextInput } from '@mantine/core'
-import { IconAt } from '@tabler/icons-react';
+import { FaAt } from '@react-icons/all-files/fa/FaAt'
 import { useEffect } from 'react';
 import { clearCookies } from '@utils/googleUtils';
 
@@ -24,7 +24,7 @@ export default function Login() {
           <TextInput
             miw={300}
             leftSectionPointerEvents="none"
-            rightSection={<IconAt size={17} />}
+            rightSection={<FaAt size={17} />}
             name="email"
             label="Email"
             placeholder="Your email"
