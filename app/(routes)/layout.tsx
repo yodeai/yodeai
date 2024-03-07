@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <ExplorerProvider>
           <div style={{ flex: 1 }} className="flex flex-col sm:flex-row">
             {/* Left Side bar */}
-            <Flex component="nav" className="flex flex-col h-full bg-white border-r border-r-[#eeeeee] top-0 sticky"
+            <Flex maw={190} component="nav" className="flex flex-col h-full bg-white border-r border-r-[#eeeeee] top-0 sticky"
               display={{ base: 'none', sm: 'flex' }}>
               <Navbar />
             </Flex>

@@ -89,14 +89,6 @@ const UserAccountHandler = () => {
             >
               Hey, {user.email}!
             </Text>
-            {googleAccountConnected ?
-              <Button onClick={removeGoogleAccount} color="red" size="xs" variant="light">
-                Remove Google Account
-              </Button> :
-              <Button onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
-                Connect Google Account
-              </Button>
-            }
             <LogoutButton />
           </div>
         ) : (

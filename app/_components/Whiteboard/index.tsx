@@ -38,8 +38,6 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [whiteboard, setWhiteboard] = useState(data);
 
     const getInitialLockState = () => {
-        if (data.plugin) return true;
-        if (["owner", "editor"].includes(data.accessType) === false) return true;
         return false;
     }
     const canBeUnlocked = useMemo(() => {

@@ -184,39 +184,6 @@ export default function Toolbar() {
                         </Button>
                     }
                 </Box>
-                <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
-                    <Box>
-                        <Menu.Target>
-                            <Button
-                                variant="subtle"
-                                c="gray.6"
-                                onClick={handlePlusIconClick}
-                            >
-                                <FaPlus size={18} />
-                            </Button>
-                        </Menu.Target>
-                    </Box>
-                    <Menu.Dropdown>
-                        <ConditionalTooltip visible={"block" in disabledItems} label={disabledItems.block}>
-                            <Link href="/new" className={cn(
-                                "no-underline block decoration-transparent text-inherit bg-gray h-full w-full",
-                                "block" in disabledItems && "pointer-events-none" || "")}>
-                                <Menu.Item disabled={"block" in disabledItems}>
-                                    New Page
-                                </Menu.Item>
-                            </Link>
-                        </ConditionalTooltip>
-                        <ConditionalTooltip visible={"subspace" in disabledItems} label={disabledItems.subspace}>
-                            <Menu.Item disabled={"subspace" in disabledItems} onClick={subspaceModalController.open}>New Space</Menu.Item>
-                        </ConditionalTooltip>
-                        <ConditionalTooltip visible={"whiteboard" in disabledItems} label={disabledItems.whiteboard}>
-                            <Menu.Item disabled={"whiteboard" in disabledItems} onClick={whiteboardModalController.open}>New Whiteboard</Menu.Item>
-                        </ConditionalTooltip>
-                        <ConditionalTooltip visible={"spreadsheet" in disabledItems} label={disabledItems.spreadsheet}>
-                            <Menu.Item disabled={"spreadsheet" in disabledItems} onClick={spreadsheetModalController.open}>New Spreadsheet</Menu.Item>
-                        </ConditionalTooltip>
-                    </Menu.Dropdown>
-                </Menu>
                 <Menu position="left" opened={widgetMenuOpened} onChange={setWidgetsMenuOpened}>
                     <Box>
                         <Menu.Target>
@@ -256,7 +223,6 @@ export default function Toolbar() {
                     <Menu.Dropdown>
                         <Menu.Item onClick={userInsightsModalController.open}>User Insight</Menu.Item>
                         <Menu.Item onClick={painPointTrackerModalController.open}>Pain Point Tracker</Menu.Item>
-                        <Menu.Item onClick={competitiveAnalysisModalController.open}>Competitive Analysis</Menu.Item>
                         <Menu.Item onClick={() => router.push(`/demos`)}>HELP: Widget Tutorials</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
@@ -291,28 +257,9 @@ export default function Toolbar() {
                         </Button>
                     }
                 </Box>
-                <Box>
-                    <Button
-                        disabled={!lensId}
-                        variant={activeToolbarComponent === "social" ? "light" : "subtle"}
-                        c="gray.6"
-                        onClick={switchComponent.bind(null, "social")}>
-                        <IoIosChatbubbles size={18} />
-                    </Button>
-                </Box>
-                {/* <Box>
-                    <Button variant="transparent">
-                        <FaHand size={18} />
-                    </Button>
-                </Box>
-                <Box>
-                    <Button variant="transparent">
-                        <FaInfo size={18} />
-                    </Button>
-                </Box> */}
             </Flex>
         </Box >
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeToolbarComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
+        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeToolbarComponent ? "min-w-[500px] max-w-[500px]" : "w-[0px]")}>
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,

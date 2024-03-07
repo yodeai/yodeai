@@ -17,7 +17,8 @@ export type StickyNoteValueType = {
 export const defaultValues: StickyNoteProps["data"] = {
     text: "Sticky Note",
     color: "#ffd43b",
-    fontSize: 9
+    fontSize: 12,
+    fontWeight: 500
 }
 
 export const defaultNodeProps: {
@@ -31,7 +32,7 @@ export const defaultNodeProps: {
     width: 200,
     style: {
         lineHeight: 1.5,
-        fontSize: 9
+        fontSize: 12
     }
 }
 
