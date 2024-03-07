@@ -181,11 +181,6 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         setNodeMenu(null);
     }, [setEdgeMenu, setNodeMenu]);
 
-    useEffect(() => {
-        const mainHeight = layoutRefs?.main?.current?.getBoundingClientRect().height;
-        $whiteboard.current.style.height = `${mainHeight - 180}px`;
-    }, [])
-
     return <FlowWrapper
         whiteboard={whiteboard}
         isSaving={isSaving}
