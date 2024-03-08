@@ -3,7 +3,7 @@
 import ReactMarkdown from 'react-markdown';
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
@@ -18,6 +18,7 @@ import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
+import LoadingSkeleton from '@components/LoadingSkeleton';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -35,15 +36,15 @@ export default function Block({ params }: { params: { id: string } }) {
       .then((response) => {
         if (!response.ok) {
           console.log("Error fetching url")
-          setLoading(false);
           router.push("/notFound")
         } else {
           response.json().then((data) => {
             setBlock(data.data);
-            setLoading(false);
           })
         }
-      })
+      }).finally(() => {
+        setLoading(false);
+      });
   }, [params.id]);
 
   useEffect(() => {
@@ -55,7 +56,6 @@ export default function Block({ params }: { params: { id: string } }) {
     }
     fetchPresignedUrl();
 
-    if(block?.lens_id) setLensId(block.lens_id.toString())
     setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
     return () => {
       setLensId(null);
@@ -89,16 +89,6 @@ export default function Block({ params }: { params: { id: string } }) {
       console.error('Error updating block:', updateError.message);
     }
   };
-
-
-
-  if (loading || !block) {
-    return (
-      <div className="skeleton-container p-8 mt-12 ">
-        <div className="skeleton line  "></div>
-      </div>
-    );
-  }
 
   const handleEditing = async (startEditing) => {
     try {
@@ -200,56 +190,69 @@ export default function Block({ params }: { params: { id: string } }) {
     })
   }
 
-  const rightEditButton = <div className="flex justify-between items-center w-full">
-    <div className="flex gap-2">
-      {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
-        <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
-          <Button size="xs" variant="subtle" leftSection={
-            isEditing ? <FaCheck /> : <FaPen />
-          }
-            onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
-            {isEditing ? "Save" : "Edit"}
-          </Button>
-        </Tooltip>
-        || ""}
+  const rightEditButton = useMemo(() => {
+    if (!block) return null
+    return <div className="flex justify-between items-center w-full">
+      <div className="flex gap-2">
+        {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
+          <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
+            <Button size="xs" variant="subtle" leftSection={
+              isEditing ? <FaCheck /> : <FaPen />
+            }
+              onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
+              {isEditing ? "Save" : "Edit"}
+            </Button>
+          </Tooltip>
+          || ""}
+      </div>
     </div>
-  </div >
+  }, [block])
 
   return (
     <main>
       <Flex direction="column" pt={0}>
         <BlockHeader
-          title={block.title}
-          accessType={block.accessLevel}
+          loading={loading}
+          title={block?.title}
+          accessType={block?.accessLevel}
           onSave={onSaveTitle}
           onDelete={onDelete}
           rightItem={rightEditButton}
         />
         <Box p={16} className="mx-auto w-[800px] overflow-scroll h-full">
-          {!block.content && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
-          {isEditing
-            // this recreates the entire block view but allows for editing
-            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-            ? <BlockEditor
-              withHeader={true}
-              refs={{ saveButton: $saveButton }}
-              block={block} onSave={onSave}
+          {!loading && block && <>
+            {isEditing
+              // this recreates the entire block view but allows for editing
+              // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+              ? <BlockEditor
+                withHeader={true}
+                refs={{ saveButton: $saveButton }}
+                block={block} onSave={onSave}
               />
-            : <>
-              <div className="flex flex-row justify-between py-4">
-                <div>
-                  <Text size="sm" c="gray">
-                    Created {timeAgo(block.created_at)}
-                  </Text>
+              : <>
+                <div className="flex flex-col py-4">
+                  <div>
+                    <Text size="sm" c="gray">
+                      Created {timeAgo(block.created_at)}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="gray">
+                      Updated {timeAgo(block.updated_at)}
+                    </Text>
+                  </div>
                 </div>
-                <div>
-                  <Text size="sm" c="gray">
-                    Updated {timeAgo(block.updated_at)}
-                  </Text>
-                </div>
-              </div>
-              {renderContent()}
-            </>
+                {renderContent()}
+              </>
+            }
+            {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+          </>}
+
+          {
+            !block && loading && <Box className="flex flex-col gap-[10px] mt-8">
+              <LoadingSkeleton w={"40%"} boxCount={2} m={3} lineHeight={15} />
+              <LoadingSkeleton w={"100%"} boxCount={20} m={3} lineHeight={15} />
+            </Box>
           }
         </Box>
       </Flex>

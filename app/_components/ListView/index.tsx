@@ -4,7 +4,7 @@ import { Flex, Text, ScrollArea, Divider } from "@mantine/core";
 import { Block } from "app/_types/block";
 import { Subspace, Lens } from "app/_types/lens";
 
-import BlockHeader from "@components/ListView/Views/BlockHeader";
+import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
 import SubspaceComponent from "@components/ListView/Views/SubspaceComponent";
 
@@ -12,24 +12,26 @@ import { Tables } from "app/_types/supabase";
 import { useAppContext } from "@contexts/context";
 import WhiteboardLineComponent from "@components/ListView/Views/WhiteboardLineComponent";
 import SpreadsheetLineComponent from "./Views/SpreadsheetLineComponent";
+import WidgetLineComponent from "./Views/WidgetLineComponent";
 
 type ListLayoutComponentProps = {
     blocks?: Block[];
     whiteboards?: Tables<"whiteboard">[];
     spreadsheets?: Tables<"spreadsheet">[];
     subspaces?: (Subspace | Lens)[];
+    widgets: Tables<"widget">[];
 }
-type ItemType = Block | Tables<"whiteboard"> | Tables<"spreadsheet">;
+type ItemType = Block | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget">;
 export default function ListLayoutComponent(props: ListLayoutComponentProps) {
     const {
-        blocks = [], subspaces = [], whiteboards = [], spreadsheets = []
+        blocks = [], subspaces = [], whiteboards = [], spreadsheets = [], widgets = []
     } = props;
 
     const { sortingOptions } = useAppContext();
 
     const items = useMemo(() =>
-        [...blocks, ...whiteboards, ...spreadsheets]
-        , [blocks, whiteboards, spreadsheets]);
+        [...blocks, ...whiteboards, ...spreadsheets, ...widgets]
+        , [blocks, whiteboards, spreadsheets, widgets]);
 
     const sortedItems = useMemo(() => {
         if (sortingOptions.sortBy === null) return items;
@@ -63,12 +65,15 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
         if ("block_id" in item) {
             return <BlockComponent key={item.block_id} block={item} />
         }
+        if("widget_id" in item) {
+            return <WidgetLineComponent key={item.widget_id} widget={item} />
+        }
     }
 
     return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
         {(blocks || whiteboards) && (sortedItems.length > 0
             ? <>
-                <BlockHeader />
+                <BlockColumnHeader />
                 {sortedItems.map(itemRenderer)}
             </>
             : <Flex align="center" justify="center">

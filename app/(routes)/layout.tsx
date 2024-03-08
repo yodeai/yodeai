@@ -29,21 +29,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Navbar />
             </Flex>
             {/* Main content area */}
-            <Flex mah='100%' w={'100%'} direction={{ base: 'row' }}>
+            <Flex mah='100%' w={'100%'} className="sm:max-w-[calc(100%-240px)]" direction={{ base: 'row' }}>
               <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
                 <MobileNavbar />
               </Flex>
-              <Box className="flex flex-col w-full h-full">
-                <Box className="grow w-full sm:w-[calc(100vw-290px)] h-[calc(100vh-180px)]">
-                  {children}
-                </Box>
-                <Box className="h-[60px]">
+              <Box className="flex flex-col w-full h-[calc(100vh-60px)] overflow-scroll p-0 m-01">
+                {children}
+                <Box className="h-[60px] w-full">
                   <Breadcrumb />
                 </Box>
               </Box>
 
               {/* QuestionAnswerForm with a left border */}
-              <Box h="100%" w="100%" className="z-50">
+              <Box h="100%" className="z-50 max-w-[550px]">
                 <Toolbar />
               </Box>
             </Flex>

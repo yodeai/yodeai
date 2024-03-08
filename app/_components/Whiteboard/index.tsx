@@ -8,13 +8,15 @@ import ReactFlow, {
     Controls, Background, Node, Edge, MiniMap
 } from 'reactflow';
 import WhiteboardDock from "./Helpers/Dock";
-import ContextMenu from './Helpers/ContextMenu';
+import NodeContextMenu from './Helpers/ContextMenu/Node';
+import EdgeContextMenu from './Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "@utils/hooks";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
+import edgeTypes from './Edges';
 import WhiteboardHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
@@ -34,10 +36,11 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges as any || []);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [menu, setMenu] = useState(null);
+    const [nodeMenu, setNodeMenu] = useState(null);
+    const [edgeMenu, setEdgeMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
 
-    const { setLensId, setBreadcrumbActivePage } = useAppContext();
+    const { setLensId, setBreadcrumbActivePage, layoutRefs } = useAppContext();
 
     const getInitialLockState = () => {
         if (data.plugin) return true;
@@ -89,13 +92,27 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             event.preventDefault();
 
             const pane = $whiteboard.current.getBoundingClientRect();
-            setMenu({
+            setNodeMenu({
                 id: node.id,
                 top: (event.clientY - pane.top) + 10,
                 left: (event.clientX - pane.left) + 10
             });
         },
-        [setMenu],
+        [setNodeMenu],
+    );
+
+    const onEdgeContextMenu = useCallback(
+        (event, edge) => {
+            event.preventDefault();
+
+            const pane = $whiteboard.current.getBoundingClientRect();
+            setEdgeMenu({
+                id: edge.id,
+                top: (event.clientY - pane.top) + 10,
+                left: (event.clientX - pane.left) + 10
+            });
+        },
+        [setEdgeMenu],
     );
 
     const syncWhiteboard = useDebouncedCallback(async (nodes: Node[], edges: Edge[]) => {
@@ -159,7 +176,10 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         }
     }, [whiteboard.lens_id])
 
-    const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+    const onPaneClick = useCallback(() => {
+        setEdgeMenu(null);
+        setNodeMenu(null);
+    }, [setEdgeMenu, setNodeMenu]);
 
     return <FlowWrapper
         whiteboard={whiteboard}
@@ -190,14 +210,17 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodeContextMenu={onNodeContextMenu}
+                onEdgeContextMenu={onEdgeContextMenu}
                 onPaneClick={onPaneClick}
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}>
                 <Controls onInteractiveChange={() => setIsLocked(!isLocked)} showInteractive={canBeUnlocked} />
                 <Background gap={12} size={1} />
-                {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+                {nodeMenu && <NodeContextMenu onClick={onPaneClick} {...nodeMenu} />}
+                {edgeMenu && <EdgeContextMenu onClick={onPaneClick} {...edgeMenu} />}
                 <MiniMap />
             </ReactFlow>
             {!isLocked && <WhiteboardDock />}

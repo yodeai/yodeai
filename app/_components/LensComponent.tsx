@@ -27,7 +27,7 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
         component="div"
         label={<Text lh={1.2} size={"sm"} className="max-w-[150px]">{lens.name}</Text>}
         description={<>
-          <Text c="gray" fw={400} size="xs">{formatDate(lens.updated_at)}</Text>
+          <Text c="gray" fw={400} size="xs">Last update {formatDate(lens.updated_at)}</Text>
           {!compact && <>
             {lens.shared && (
               <Text c="blue" size="xs">

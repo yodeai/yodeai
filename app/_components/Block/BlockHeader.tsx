@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, } from "react";
+import { useState, useRef, useEffect, } from "react";
 import { Flex, Text, Box, Input, ActionIcon, Menu, UnstyledButton } from "@mantine/core";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
@@ -8,9 +8,11 @@ import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
 import { useDebouncedCallback } from '@utils/hooks';
+import LoadingSkeleton from "@components/LoadingSkeleton";
 
 type BlockHeaderProps = {
     title: string
+    loading?: boolean
     accessType: string
     isEditing?: boolean;
     onSave: (title: string) => Promise<Response>
@@ -19,13 +21,17 @@ type BlockHeaderProps = {
 }
 
 export default function BlockHeader(props: BlockHeaderProps) {
-    const { title, accessType, rightItem, onSave, onDelete } = props;
+    const { title, loading, accessType, rightItem, onSave, onDelete } = props;
 
     const [isEditing, setIsEditing] = useState(false);
 
     const [newTitle, setNewTitle] = useState(title);
     const titleInputRef = useRef(null);
 
+    useEffect(() => {
+        setNewTitle(title);
+    }, [title]);
+    
     const onClickSave = useDebouncedCallback(async () => {
         const savePromise = onSave(newTitle);
         await load(savePromise, {
@@ -65,7 +71,7 @@ export default function BlockHeader(props: BlockHeaderProps) {
         <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
             <Box className="flex items-center">
                 <Menu>
-                    {isEditing && <>
+                    {!loading && isEditing && <>
                         <Input
                             classNames={{
                                 wrapper: "w-[500px]",
@@ -92,24 +98,28 @@ export default function BlockHeader(props: BlockHeaderProps) {
                             <FaCheck size={14} />
                         </ActionIcon>
                     </> || ""}
-                    {!isEditing && <div className="flex justify-center align-middle">
-                        <Text span={true} c={"gray.7"} size="xl" fw={700}>{title}</Text>
-                        <Menu.Target>
-                            <UnstyledButton>
-                                <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
-                            </UnstyledButton>
-                        </Menu.Target>
-                    </div> || ""}
+                    {!loading && !isEditing && <>
+                        <div className="flex justify-center align-middle">
+                            <Text span={true} c={"gray.7"} size="xl" fw={700}>{title}</Text>
+                            <Menu.Target>
+                                <UnstyledButton>
+                                    <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
+                                </UnstyledButton>
+                            </Menu.Target>
+                        </div>
+                        <Menu.Dropdown>
+                            <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={() => setIsEditing(true)}>Rename</Menu.Item>
+                            <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
+                        </Menu.Dropdown>
+                    </> || ""}
 
-                    <Menu.Dropdown>
-                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)} onClick={() => setIsEditing(true)}>Rename</Menu.Item>
-                        <Menu.Item disabled={!["owner", "editor"].includes(accessType)} color="red" onClick={openDeleteModal}>Delete</Menu.Item>
-                    </Menu.Dropdown>
+                    {loading && <LoadingSkeleton w={"150px"} boxCount={1} m={3} lineHeight={30} /> || ""}
                 </Menu>
             </Box>
 
             <Box className="flex items-center">
-                {rightItem}
+                {!loading && rightItem}
+                {loading && <LoadingSkeleton w={"80px"} boxCount={1} m={3} lineHeight={30} /> || ""}
             </Box>
         </Flex>
     </>
