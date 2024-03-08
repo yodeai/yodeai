@@ -1,19 +1,23 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { AiOutlineLoading } from "react-icons/ai";
+
+import { AiOutlineLoading } from "@react-icons/all-files/ai/AiOutlineLoading";
+import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
+import { FaShare } from "@react-icons/all-files/fa/FaShare";
+import { FaLink } from "@react-icons/all-files/fa6/FaLink";
+import { FaRegTrashCan } from "@react-icons/all-files/fa6/FaRegTrashCan";
+import { RiUnpinFill } from "@react-icons/all-files/ri/RiUnpinFill";
+import { RiPushpinFill } from "@react-icons/all-files/ri/RiPushpinFill";
 
 import { Text, Flex, Box, Textarea, Anchor } from '@mantine/core';
 import { useRouter } from 'next/navigation'
 import 'react-grid-layout/css/styles.css';
 import { Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
-import { FaICursor, FaShare } from "react-icons/fa";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 
 import ShareLensComponent from '../../ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
-import { FaRegTrashCan, FaLink } from "react-icons/fa6";
-import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
 import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
 type SubspaceIconItemProps = {

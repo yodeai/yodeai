@@ -16,9 +16,10 @@ import SpreadsheetHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from '@utils/hooks';
-import { convertDataSource } from './utils';
-import { ImSpinner8 } from 'react-icons/im';
+import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
+
 import { Text } from '@mantine/core';
+import { useAppContext } from '@contexts/context';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
@@ -32,6 +33,8 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const supabase = createClientComponentClient<Database>();
     const [spreadsheet, setSpreadsheet] = useState<SpreadsheetProps["spreadsheet"]>(_spreadsheet);
     const [isSaving, setIsSaving] = useState(false);
+
+    const { setBreadcrumbActivePage, setLensId } = useAppContext();
 
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
@@ -73,6 +76,16 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
             }
         };
     }, [spreadsheet.spreadsheet_id]);
+
+    useEffect(() => {
+        setLensId(spreadsheet.lens_id.toString())
+        setBreadcrumbActivePage({ title: spreadsheet.name, href: `/spreadsheet/${spreadsheet.spreadsheet_id}` })
+
+        return () => {
+            setBreadcrumbActivePage(null);
+        }
+    }, [spreadsheet])
+
 
     const handleSaveTitle = async (name: string) => {
         return fetch(`/api/spreadsheet/${spreadsheet.spreadsheet_id}`, {

@@ -30,7 +30,6 @@ export const withNodeController = <P extends object>(Component: React.ComponentT
             })
 
             // console.log(storeApi.getState().nodeInternals.get(nodeId))
-
         };
 
         const updateNodeSelf = (payload) => {

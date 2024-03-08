@@ -3,7 +3,6 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest } from "next/server";
 import { cookies } from 'next/headers';
 import apiClient from '@utils/apiClient';
-import { getUserID } from "utils/getUserID";
 
 export const dynamic = 'force-dynamic';
 

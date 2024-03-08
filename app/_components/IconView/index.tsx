@@ -34,9 +34,9 @@ interface IconLayoutComponentProps extends ViewController {
 }
 
 type IconViewItemType = Block | Subspace | Lens
-  | Tables<"whiteboard"> & {
+  | (Tables<"whiteboard"> & {
     plugin?: WhiteboardPluginParams
-  }
+  })
   | (Tables<"spreadsheet"> & {
     plugin?: SpreadsheetPluginParams
   })
@@ -65,16 +65,16 @@ export default function IconLayoutComponent({
   handleWidgetDelete,
   handleItemSettings
 }: IconLayoutComponentProps) {
-  const pathname = usePathname();
   const router = useProgressRouter();
   const [breakpoint, setBreakpoint] = useState<string>("lg");
   const $lastClick = useRef<number>(0);
   const $gridContainer = useRef<HTMLDivElement>(null);
   const {
-    lensName, lensId, layoutRefs,
+    lensId, layoutRefs,
     pinnedLenses, setPinnedLenses,
     sortingOptions, setDraggingNewBlock,
-    zoomLevel
+    zoomLevel,
+    setBreadcrumbActivePage
   } = useAppContext();
 
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
@@ -83,81 +83,10 @@ export default function IconLayoutComponent({
   const breakpoints = useMemo(() => ({ xlg: 1200, lg: 996, md: 768, sm: 576, xs: 480, xxs: 240, xxxs: 120 }), []);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
-  const [breadcrumbLoading, setBreadcrumbLoading] = useState(true);
-  const [breadcrumbData, setBreadcrumbData] = useState<{ lens_id: number, name: string }[]>(null);
-
   const items: IconViewItemType[] = useMemo(() => [].concat(blocks, subspaces, whiteboards, spreadsheets, widgets),
     [blocks, subspaces, whiteboards, spreadsheets, widgets])
 
-  const breadcrumbs = useMemo<{ title: string, href?: string }[]>(() => {
-    let elements = [].concat(
-      [{ name: 'Spaces', lens_id: null }],
-      (pathname !== "/" && breadcrumbData) || lensId && [{ lens_id: lensId, name: lensName }] || []
-    )
-    elements = elements.reduce((acc, lens, index, arr) => {
-      return [...acc,
-      { title: lens.name, href: lens.lens_id ? `/lens/${lens.lens_id}` : "/" }
-      ]
-    }, []);
-
-    if (selectedItems.length === 0) {
-      return elements;
-    } else if (selectedItems.length === 1) {
-      const selectedItem = items.find(item => {
-        if ("whiteboard_id" in item) return selectedItems[0] === item.whiteboard_id;
-        if ("block_id" in item) return selectedItems[0] === item.block_id;
-        if ("spreadsheet_id" in item) return selectedItems[0] === item.spreadsheet_id;
-        if ("widget_id" in item) return selectedItems[0] === item.widget_id;
-        if ("lens_id" in item) return selectedItems[0] === item.lens_id;
-      });
-      if (!selectedItem) return elements;
-
-      let href = "";
-      if ("whiteboard_id" in selectedItem) href = `/whiteboard/${selectedItem.whiteboard_id}`;
-      if ("spreadsheet_id" in selectedItem) href = `/spreadsheet/${selectedItem.spreadsheet_id}`;
-      if ("widget_id" in selectedItem) href = `/widget/${selectedItem.widget_id}`;
-      if ("block_id" in selectedItem) href = `/block/${selectedItem.block_id}`;
-      if ("lens_id" in selectedItem) href = `/lens/${selectedItem.lens_id}`;
-
-      elements.push({
-        title: "lens_id" in selectedItem ? selectedItem.name : selectedItem.title,
-        href: href
-      })
-    } else if (selectedItems.length > 1) {
-      elements.push({ title: `${selectedItems.length} items selected` })
-    }
-
-    return elements;
-  }, [breadcrumbData, items, lensName, lensId, selectedItems, pathname])
-
-  const getLensParents = useCallback((lens_id) => {
-    if (!lens_id) {
-      setBreadcrumbLoading(false);
-      setBreadcrumbData([]);
-      return;
-    }
-    return fetch(`/api/lens/${lens_id}/getParents`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Couldn't get parents of the lens.")
-        } else {
-          return res.json();
-        }
-      })
-      .then(res => {
-        setBreadcrumbData(res.data)
-      })
-      .catch(err => {
-        console.log(err.message);
-      })
-      .finally(() => {
-        setBreadcrumbLoading(false);
-      })
-  }, [])
-
   useEffect(() => {
-    getLensParents(lensId)
-
     if ($gridContainer.current) {
       const [container, grid] = [$gridContainer.current, $gridContainer.current.children[0]];
       if (container.clientHeight < grid.clientHeight) {
@@ -165,6 +94,9 @@ export default function IconLayoutComponent({
       }
     }
 
+    return () => {
+      setBreadcrumbActivePage(null);
+    }
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
@@ -200,6 +132,34 @@ export default function IconLayoutComponent({
 
     return true;
   }
+
+  const onDragStart: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
+    const [itemType, itemId] = newItem.i.split("_") as [IconViewItemChars, number];
+
+    const selectedItem = items.find(item => {
+      if ("whiteboard_id" in item) return Number(itemId) === item.whiteboard_id;
+      if ("spreadsheet_id" in item) return Number(itemId) === item.spreadsheet_id;
+      if ("widget_id" in item) return Number(itemId) === item.widget_id;
+      if ("block_id" in item) return Number(itemId) === item.block_id;
+      if ("lens_id" in item) return Number(itemId) === item.lens_id;
+    });
+
+    calculateDoubleClick(layout, oldItem, newItem, placeholder, event, element);
+    if (!selectedItem) {
+      setBreadcrumbActivePage(null);
+      return;
+    }
+
+    let title = "", href = "";
+    if ("block_id" in selectedItem) { href = `/block/${itemId}`; title = selectedItem.title }
+    if ("spreadsheet_id" in selectedItem) { href = `/spreadsheet/${itemId}`; title = selectedItem.name }
+    if ("widget_id" in selectedItem) { href = `/widget/${itemId}`; title = selectedItem.name }
+    if ("whiteboard_id" in selectedItem) { href = `/whiteboard/${itemId}`; title = selectedItem.name }
+    if ("name" in selectedItem) { href = `/lens/${itemId}`; title = selectedItem.name }
+
+    setBreadcrumbActivePage({ title, href });
+
+  }, [selectedItems])
 
   const calculateDoubleClick: ItemCallback = useCallback((layout, oldItem, newItem, placeholder, event, element) => {
     const [itemType, itemId] = newItem.i.split("_") as [IconViewItemChars, number];
@@ -266,8 +226,8 @@ export default function IconLayoutComponent({
 
     let _sorted_items = [...items].sort((a, b) => {
       if (sortingOptions.sortBy === "name") {
-        let aName = "lens_id" in a ? a.name : a.title;
-        let bName = "lens_id" in b ? b.name : b.title;
+        let aName = "block_id" in a ? a.title : a.name;
+        let bName = "block_id" in b ? b.title : b.name;
         return aName.localeCompare(bName);
       } else if (sortingOptions.sortBy === "createdAt") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -465,7 +425,7 @@ export default function IconLayoutComponent({
     <div ref={$gridContainer} style={{
       transform: `scale(${zoomLevel / 100}) translateZ(0)`,
       transformOrigin: 'top left',
-      height: "calc(100vh - 160px)"
+      height: "calc(100vh - 180px)"
     }}>
       <ResponsiveReactGridLayout
         maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
@@ -477,7 +437,7 @@ export default function IconLayoutComponent({
         onLayoutChange={onLayoutChange}
         isResizable={false}
         onWidthChange={onWidthChange}
-        onDragStart={calculateDoubleClick}
+        onDragStart={onDragStart}
         onDrag={onDrag}
         onDragStop={onDragStop}
         preventCollision={true}
@@ -486,6 +446,5 @@ export default function IconLayoutComponent({
         {layoutItems}
       </ResponsiveReactGridLayout>
     </div>
-    <Breadcrumb loading={breadcrumbLoading} breadcrumbs={breadcrumbs} />
   </div >
 }

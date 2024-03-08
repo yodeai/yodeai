@@ -1,8 +1,13 @@
-import { FaLayerGroup, FaStickyNote } from "react-icons/fa";
-import { FaA, FaFile } from "react-icons/fa6";
-import { Tooltip } from "@mantine/core";
 import React from 'react';
-import { useReactFlow, useNodeId, Node } from 'reactflow';
+import { useReactFlow, Node } from 'reactflow';
+
+import { Tooltip } from "@mantine/core";
+
+import { FaLayerGroup } from "@react-icons/all-files/fa/FaLayerGroup";
+import { FaStickyNote } from "@react-icons/all-files/fa/FaStickyNote";
+import { FaA } from "@react-icons/all-files/fa6/FaA";
+import { FaFile } from "@react-icons/all-files/fa6/FaFile";
+
 
 export default function WhiteboardDock() {
     const reactFlow = useReactFlow();

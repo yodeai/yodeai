@@ -2,7 +2,7 @@ import { Flex, Grid, Text } from "@mantine/core";
 
 export default function BlockColumnHeader() {
     return (
-        <Grid>
+        <Grid className="sticky top-0 bg-white py-3 z-50">
             <Grid.Col span={9}>
                 {/* <Text ml={2} size={"sm"} fw={500} c="gray.6">{"Name"}</Text> */}
             </Grid.Col>

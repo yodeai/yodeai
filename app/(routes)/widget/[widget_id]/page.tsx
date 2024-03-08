@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import widgets, { WidgetComponentProps, WidgetComponentType, WidgetType } from '@components/Widgets';
 import { Result } from "@components/Result";
-import { MdError } from "react-icons/md";
+import { MdError } from "@react-icons/all-files/md/MdError";
 import { WidgetData } from "app/_types/widget";
 
 type PageProps = {
@@ -52,6 +52,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     const accessType = accessTypeResponse.data as "owner" | "editor" | "reader";
     return <Widget
         widget_id={widget_id}
+        lens_id={data.lens_id}
         name={data.name}
         input={data.input}
         output={data.output}
