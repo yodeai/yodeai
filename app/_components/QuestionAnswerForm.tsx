@@ -11,6 +11,7 @@ import ToolbarHeader from './ToolbarHeader';
 import LoadingSkeleton from './LoadingSkeleton';
 import { getUserInfo } from '@utils/googleUtils';
 import OnboardingPopover from './Onboarding/OnboardingPopover';
+import { useDebouncedCallback } from '@utils/hooks';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
@@ -76,7 +77,7 @@ const QuestionAnswerForm: React.FC = () => {
         }
     }, [lensId])
 
-    const fetchLensQuestions = useCallback(async () => {
+    const fetchLensQuestions = useDebouncedCallback(async () => {
         setIsLoading(true);
         try {
             const data = await fetch(`/api/lens/${lensId}/questions`, { method: "GET" })
@@ -105,7 +106,7 @@ const QuestionAnswerForm: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [lensId, questionHistory])
+    }, 100, [lensId, questionHistory])
 
     const updateQuestion = (question: Question, diff: number) => {
         let newRelatedQuestions: Question[] = [...relatedQuestions]
