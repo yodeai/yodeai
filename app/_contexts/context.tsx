@@ -282,9 +282,6 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     }
 
     // Get all the lenses that this user has
-    getAllLenses();
-    getPinnedLenses();
-    getUserId();
   }, [pathname]);
 
   // This useEffect will run whenever lensId changes
@@ -303,9 +300,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     };
 
     fetchLensName();
-    getAllLenses();
-
   }, [lensId]);
+
+  useEffect(() => {
+    getAllLenses();
+    getPinnedLenses();
+    getUserId();
+  }, [])
 
   useEffect(() => {
     setSortingOptionsToLocalStorage(sortingOptions);
