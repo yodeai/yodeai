@@ -49,7 +49,15 @@ export const useSort = <T extends {}>(props: UseSortProps<T>) => {
             } else if (sortingOptions.sortBy === "updatedAt") {
                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
             } else if (sortingOptions.sortBy === "type") {
-                return typeOrder[getType(a)] - typeOrder[getType(b)];
+                let aType = getType(a);
+                let bType = getType(b);
+                if (aType === bType) {
+                    let aName = "block_id" in a ? a.title : a.name;
+                    let bName = "block_id" in b ? b.title : b.name;
+                    return aName.localeCompare(bName);
+                } else {
+                    return typeOrder[aType] - typeOrder[bType];
+                }
             }
         });
 
