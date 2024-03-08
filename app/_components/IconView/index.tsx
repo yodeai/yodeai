@@ -1,6 +1,4 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
-import { Block } from "app/_types/block";
-
 import { Layout, Layouts } from "react-grid-layout";
 
 import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
@@ -9,9 +7,12 @@ import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { useAppContext } from "@contexts/context";
 import { useDebouncedCallback } from "@utils/hooks";
 
+import { useSort } from "app/_hooks/useSort";
+
 import { Tables } from "app/_types/supabase";
-import { Breadcrumb } from "../Breadcrumb";
+import { Block } from "app/_types/block";
 import { WhiteboardPluginParams } from "app/_types/whiteboard";
+import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 
 import {
   BlockIconItem,
@@ -22,16 +23,9 @@ import {
 
 import { ViewController } from "../LayoutController";
 import fileTypeIcons from "./_icons/index";
-import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
 import { useProgressRouter } from "@utils/nprogress";
 import { WidgetIconItem } from "./_views/Widget";
-import { usePathname } from "next/navigation";
 
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
-
-interface IconLayoutComponentProps extends ViewController {
-  layouts: LensLayout["icon_layout"]
-}
 
 type IconViewItemType = Block | Subspace | Lens
   | (Tables<"whiteboard"> & {
@@ -41,6 +35,13 @@ type IconViewItemType = Block | Subspace | Lens
     plugin?: SpreadsheetPluginParams
   })
   | Tables<"widget">;
+
+
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
+interface IconLayoutComponentProps extends ViewController {
+  layouts: LensLayout["icon_layout"]
+}
 
 type IconViewItemChars = "bl" | "ss" | "wb" | "sp" | "wd";
 
@@ -195,55 +196,7 @@ export default function IconLayoutComponent({
     setBreakpoint(breakpoint[0])
   }
 
-  const typeOrder = {
-    "whiteboard": 1,
-    "whiteboard_plugin": 2,
-    "spreadsheet": 3,
-    "spreadsheet_plugin": 4,
-    "widget": 5,
-    "lens": 6,
-    "block": 7
-  };
-
-  const getType = (item: Tables<"block"> | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget"> | Lens | Subspace | Block) => {
-    if ("widget_id" in item) {
-      return "widget";
-    } else if ("block_id" in item) {
-      return "block";
-    } else if ("whiteboard_id" in item) {
-      if ((item.plugin as any)?.name) return "whiteboard_plugin";
-      return "whiteboard";
-    } else if ("spreadsheet_id" in item) {
-      if ((item.plugin as any)?.name) return "spreadsheet_plugin";
-      return "spreadsheet";
-    } else {
-      return "lens";
-    }
-  }
-
-  const sortedItems = useMemo(() => {
-    if (sortingOptions.sortBy === null) return items;
-
-    let _sorted_items = [...items].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        let aName = "block_id" in a ? a.title : a.name;
-        let bName = "block_id" in b ? b.title : b.name;
-        return aName.localeCompare(bName);
-      } else if (sortingOptions.sortBy === "createdAt") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      } else if (sortingOptions.sortBy === "type") {
-        return typeOrder[getType(a)] - typeOrder[getType(b)];
-      }
-    });
-
-    if (sortingOptions.order === "desc") {
-      _sorted_items = _sorted_items.reverse();
-    }
-    return _sorted_items;
-
-  }, [items, sortingOptions]);
+  const sortedItems = useSort<IconViewItemType>({ sortingOptions, items });
 
   const layoutItems = useMemo(() => sortedItems.map((item, index) => {
     const defaultDataGrid = {

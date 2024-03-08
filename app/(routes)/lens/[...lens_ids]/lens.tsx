@@ -2,7 +2,7 @@
 
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
-import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
+import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
@@ -16,22 +16,12 @@ import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
   lens_id: number;
-  lensData: Lens & {
-    lens_users: { user_id: string, access_type: string }[],
-    user_to_access_type: { [key: string]: string }
-    blocks: Block[],
-    subspaces: Subspace[],
-    spreadsheets: Tables<"spreadsheet">[],
-    whiteboards: Tables<"whiteboard">[],
-    widgets: Tables<"widget">[],
-    layout: LensLayout
-  }
+  lensData: LensData;
   user: User
 }
 
 import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
-import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
 

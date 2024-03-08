@@ -1,5 +1,7 @@
 import { Layouts } from "react-grid-layout";
 import { Block } from "./block";
+import { Tables } from "./supabase";
+
 type LensUsers = {
   access_type: string;
 }
@@ -54,4 +56,15 @@ export type Whiteboard = {
 
 export type ItemIcons = {
   [key: string]: string;
+}
+
+export type LensData = Lens & {
+  lens_users: { user_id: string, access_type: string }[],
+  user_to_access_type: { [key: string]: string }
+  blocks: Block[],
+  subspaces: Subspace[],
+  spreadsheets: Tables<"spreadsheet">[],
+  whiteboards: Tables<"whiteboard">[],
+  widgets: Tables<"widget">[],
+  layout: LensLayout
 }
