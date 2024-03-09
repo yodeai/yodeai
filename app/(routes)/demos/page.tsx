@@ -4,8 +4,19 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Flex, Title } from "@mantine/core";
 import { Database } from "app/_types/supabase";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { useEffect } from 'react';
+import { useAppContext } from '@contexts/context';
 
 export default function Demo() {
+  const { setBreadcrumbActivePage, setLensId } = useAppContext();
+
+  useEffect(() => {
+    setLensId(null)
+    setBreadcrumbActivePage({ title: "Demos", href: "/demos" })
+    return () => {
+      setBreadcrumbActivePage(null);
+    }
+  }, [])
 
   return (
     <Flex direction="column" pt={0} h="100%">

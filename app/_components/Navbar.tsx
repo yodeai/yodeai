@@ -4,18 +4,26 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { IoMdClose } from "react-icons/io";
+
+import { IoMdClose } from "@react-icons/all-files/io/IoMdClose";
+import { FaHouse } from "@react-icons/all-files/fa6/FaHouse";
+import { RiPushpinFill } from "@react-icons/all-files/ri/RiPushpinFill";
+
+import { FaInbox } from "@react-icons/all-files/fa/FaInbox";
+import { FaThLarge } from "@react-icons/all-files/fa/FaThLarge";
+import { FaPlusSquare } from "@react-icons/all-files/fa/FaPlusSquare";
+import { FaCube } from "@react-icons/all-files/fa/FaCube";
+import { FaSquare } from "@react-icons/all-files/fa/FaSquare";
+import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
+
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
-import { FaInbox, FaThLarge, FaPlusSquare, FaCube, FaCubes, FaSquare, FaPlus } from "react-icons/fa";
-import { FaHouse } from "react-icons/fa6";
 import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "./LoadingSkeleton";
 
 import { Database } from "app/_types/supabase";
-import { RiPushpinFill } from "react-icons/ri";
 import OnboardingPopover from "./Onboarding/OnboardingPopover";
 
 const supabase = createClientComponentClient<Database>()
@@ -236,7 +244,7 @@ export default function Navbar() {
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
             <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
-              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{size: 20}}></LoadingOverlay>
+              <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{ size: 20 }}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}
                 rightSection={

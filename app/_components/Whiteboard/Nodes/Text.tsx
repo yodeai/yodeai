@@ -3,7 +3,7 @@ import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
-import { FaA } from 'react-icons/fa6'
+import { FaA } from '@react-icons/all-files/fa6/FaA'
 import { Handles } from '@components/Whiteboard/Helpers/Handles'
 import { useFlow } from '@components/Whiteboard/Helpers/FlowWrapper'
 

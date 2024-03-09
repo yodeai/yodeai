@@ -3,9 +3,7 @@
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
-import { FaAngleRight, FaPlus } from 'react-icons/fa';
 import NextImage from 'next/image';
-import { IoIosChatbubbles } from 'react-icons/io';
 import { HiDocumentText } from "react-icons/hi2";
 import { BiSolidWidget } from "react-icons/bi";
 import { FaSitemap } from "react-icons/fa";
@@ -21,7 +19,6 @@ import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname, useRouter } from 'next/navigation';
 import OnboardingPopover from './Onboarding/OnboardingPopover';
 import NotesSection from './NotesSection';
-import { on } from 'events';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform" | "notes";

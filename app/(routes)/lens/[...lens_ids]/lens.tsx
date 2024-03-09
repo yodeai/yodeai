@@ -24,7 +24,6 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
-import AddSpreadsheet from '@components/Spreadsheet/AddSpreadsheet';
 import { ContentProvider } from "@contexts/content";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 

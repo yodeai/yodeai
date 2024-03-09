@@ -11,8 +11,10 @@ import { WhiteboardPluginParams } from 'app/_types/whiteboard';
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon, MultiSelect } from '@mantine/core';
-import { FaTrashAlt, FaPlus } from 'react-icons/fa';
-import { getUserInfo } from '@utils/googleUtils';
+
+import { FaTrashAlt} from '@react-icons/all-files/fa/FaTrashAlt';
+import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
+
 import { useContentContext } from '@contexts/content';
 
 type AddUserInsightProps = {

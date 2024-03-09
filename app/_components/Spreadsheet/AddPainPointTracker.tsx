@@ -8,8 +8,11 @@ import toast from 'react-hot-toast';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ActionIcon } from '@mantine/core';
-import { FaTrashAlt, FaPlus } from 'react-icons/fa';
 import apiClient from '@utils/apiClient';
+
+import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
+import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
+
 type AddPainPointTrackerProps = {
     lensId: number;
     modalController: ReturnType<typeof useDisclosure>
@@ -156,7 +159,7 @@ export default function AddPainPointTracker({ lensId, modalController }: AddPain
                         </Flex>
                         : null
                     }
-                    <Flex mb={20} className="flex-1 w-full flex-col">
+                    <Flex mt={10} mb={20} className="flex-1 w-full flex-col">
                         <Checkbox
                             icon={() => <></>}
                             checked={generatePainPoints}

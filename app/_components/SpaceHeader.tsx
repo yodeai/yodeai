@@ -1,8 +1,11 @@
 'use client';
 
-import { FaArrowDown, FaArrowUp, FaList } from "react-icons/fa";
-import { FaMagnifyingGlassPlus } from "react-icons/fa6";
-import { BsFillGrid3X3GapFill } from 'react-icons/bs';
+import { FaArrowDown } from "@react-icons/all-files/fa/FaArrowDown";
+import { FaArrowUp } from "@react-icons/all-files/fa/FaArrowUp";
+import { FaList } from "@react-icons/all-files/fa/FaList";
+import { FaMagnifyingGlassPlus } from "@react-icons/all-files/fa6/FaMagnifyingGlassPlus";
+import { BsFillGrid3X3GapFill } from '@react-icons/all-files/bs/BsFillGrid3X3GapFill';
+
 import {
     Flex, Button, Text, Box,
     Select, HoverCard, Slider, SegmentedControl, Center
