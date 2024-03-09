@@ -26,21 +26,16 @@ const LensViewOnlyForm: React.FC<LensViewOnlyFormProps> = (props) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const scrollableDivRef = useRef<HTMLDivElement | null>(null);
 
+    const { user } = useAppContext();
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         const startTime = performance.now();
         try {
-            const supabase = createClientComponentClient()
 
-            let { data, error } = await supabase.auth.getUser();
-            if (error) {
-                console.error("error", error.message)
-                throw error;
-            }
-            
             // we CANNOT pass a null lensId to the backend server (python cannot accept it)
-            const dataToPost = { question: inputValue, lensID: lensId, activeComponent: 'lens', userID: data.user.id, published: true };            
+            const dataToPost = { question: inputValue, lensID: lensId, activeComponent: 'lens', userID: user.id, published: true };            
             const response = await apiClient('/answerFromLens', 'POST', dataToPost);
 
                       

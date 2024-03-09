@@ -16,14 +16,15 @@ import { useDebouncedCallback } from '@utils/hooks';
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
 const QuestionAnswerForm: React.FC = () => {
+    const { lensId, lensName, activeComponent, user, onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
     const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
     const [inputValue, setInputValue] = useState<string>('');
-    const { lensId, lensName, activeComponent, user, onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [relatedQuestions, setRelatedQuestions] = useState<Question[]>([])
     const [google_user_id, set_google_user_id] = useState(null);
+
     // useEffect(() => {
     //     const delayDebounceFn = setTimeout(async () => {
     //         try {

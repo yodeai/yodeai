@@ -253,7 +253,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       })
   }
 
-  const getUserId = async () => {
+  const getUser = async () => {
     supabase.auth.getUser().then((user) => {
       if (!user?.data?.user) return;
       setUser(user.data.user);
@@ -305,7 +305,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   useEffect(() => {
     getAllLenses();
     getPinnedLenses();
-    getUserId();
+    getUser();
   }, [])
 
   useEffect(() => {
