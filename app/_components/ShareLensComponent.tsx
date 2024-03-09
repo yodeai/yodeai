@@ -9,6 +9,7 @@ import Container from "@components/Container";
 import { Button, Flex, Group, List, ListItem, Modal, Select, Text, TextInput, LoadingOverlay } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
+import { useAppContext } from '@contexts/context';
 
 type ShareLensComponentProps = {
     lensId: number
@@ -25,6 +26,8 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     const [clicked, setClicked] = useState(false);
     const [publishInformation, setPublishInformation] = useState("");
     const [loading, setLoading] = useState(true);
+
+    const { user } = useAppContext();
 
     const [opened, { open, close }] = modalController;
 
@@ -96,8 +99,6 @@ export default function ShareLensComponent({ lensId, modalController }: ShareLen
     }
 
     const fetchCollaborators = async () => {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        // fetch current lens sharing information
         const { data: unacceptedInvites = [], error: unacceptedError } = await supabase.from('lens_invites').select("*, users(id), lens(owner_id)").eq("lens_id", lensId).eq("status", "sent")
         const { data: acceptedInvites = [], error: acceptedInvitesError } = await supabase.from('lens_users').select("*, users(email)").eq("lens_id", lensId)
         const allInvites = [];

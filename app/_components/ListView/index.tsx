@@ -13,6 +13,12 @@ import { useAppContext } from "@contexts/context";
 import WhiteboardLineComponent from "@components/ListView/Views/WhiteboardLineComponent";
 import SpreadsheetLineComponent from "./Views/SpreadsheetLineComponent";
 import WidgetLineComponent from "./Views/WidgetLineComponent";
+import { useSort } from "app/_hooks/useSort";
+
+export type ListViewItemType = Block | Subspace | Lens
+    | Tables<"whiteboard">
+    | Tables<"spreadsheet">
+    | Tables<"widget">;
 
 type ListLayoutComponentProps = {
     blocks?: Block[];
@@ -33,27 +39,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
         [...blocks, ...whiteboards, ...spreadsheets, ...widgets]
         , [blocks, whiteboards, spreadsheets, widgets]);
 
-    const sortedItems = useMemo(() => {
-        if (sortingOptions.sortBy === null) return items;
-
-        let _sorted_items = [...items].sort((a, b) => {
-            if (sortingOptions.sortBy === "name") {
-                let aName = "block_id" in a ? a.title : a.name;
-                let bName = "block_id" in b ? b.title : b.name;
-                return aName.localeCompare(bName);
-            } else if (sortingOptions.sortBy === "createdAt") {
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            } else if (sortingOptions.sortBy === "updatedAt") {
-                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-            }
-        });
-
-        if (sortingOptions.order === "desc") {
-            _sorted_items = _sorted_items.reverse();
-        }
-
-        return _sorted_items;
-    }, [items]);
+    const sortedItems = useSort<ListViewItemType>({ sortingOptions, items });
 
     const itemRenderer = (item: ItemType) => {
         if ("whiteboard_id" in item) {
@@ -65,13 +51,13 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
         if ("block_id" in item) {
             return <BlockComponent key={item.block_id} block={item} />
         }
-        if("widget_id" in item) {
+        if ("widget_id" in item) {
             return <WidgetLineComponent key={item.widget_id} widget={item} />
         }
     }
 
     return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
-        {(blocks || whiteboards) && (sortedItems.length > 0
+        {(sortedItems.length > 0
             ? <>
                 <BlockColumnHeader />
                 {sortedItems.map(itemRenderer)}
