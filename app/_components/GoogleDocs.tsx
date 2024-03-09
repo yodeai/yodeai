@@ -12,19 +12,16 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 export default function GoogleDocs() {
   const [selectedGoogleDriveFile, setSelectedGoogleDriveFile] = useState(null);
   const [openPicker, authResponse] = useDrivePicker(); 
-  const { lensId } = useAppContext();
+  const { lensId, user } = useAppContext();
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
-  const [user, setUser] = useState(null)
 
   useEffect(() => {
     const fetchAndCheckGoogle = async () => {
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected)
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
     };
     
     fetchAndCheckGoogle();

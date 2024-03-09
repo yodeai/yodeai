@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/core';
 import BlockComponent from './BlockComponent';
 import LoadingSkeleton from '../../LoadingSkeleton';
 import { useRouter } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
-import { Lens, Subspace } from 'app/_types/lens';
+import { Lens, LensData, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 import { useAppContext } from "@contexts/context";
 import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
 import { PiCaretDownBold } from "@react-icons/all-files/pi/PiCaretDownBold";
 import { PiCaretRightBold } from "@react-icons/all-files/pi/PiCaretRightBold";
+import WhiteboardLineComponent from './WhiteboardLineComponent';
+import SpreadsheetLineComponent from './SpreadsheetLineComponent';
+import WidgetLineComponent from './WidgetLineComponent';
+import { useSort } from 'app/_hooks/useSort';
+import { Tables } from 'app/_types/supabase';
+import { ListViewItemType } from '..';
+
+type ItemType = Block | Tables<"whiteboard"> | Tables<"spreadsheet"> | Tables<"widget"> | Subspace;
 
 type SubspaceComponentProps = {
   subspace: Subspace | Lens;
@@ -19,11 +27,11 @@ type SubspaceComponentProps = {
 export default function SubspaceComponent({ leftComponent, subspace }: SubspaceComponentProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [childSubspaces, setChildSubspaces] = useState([]);
+
+  const [lensData, setLensData] = useState<LensData>();
   const router = useRouter();
 
-  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding } = useAppContext();
+  const { onboardingStep, onboardingIsComplete, sortingOptions, goToNextOnboardingStep, completeOnboarding } = useAppContext();
 
   const handleSubspaceClick = () => {
     if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
@@ -35,20 +43,14 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   useEffect(() => {
     const fetchData = async () => {
       setFetching(true);
-
       if (isExpanded) {
         try {
-          let googleUserId = await getUserInfo();
+          const lensResponse = await fetch(`/api/lens/${subspace.lens_id}/getContent`);
+          if (lensResponse.ok) {
+            const lensData = await lensResponse.json();
+            setLensData(lensData.data);
 
-          const blocksResponse = await fetch(`/api/lens/${subspace.lens_id}/getBlocks/${googleUserId}`);
-          if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
-
-          const blocksData = await blocksResponse.json();
-          setBlocks(blocksData?.data);
-
-          const subspacesResponse = await fetch(`/api/lens/${subspace.lens_id}/getSubspaces`);
-          const subspacesData = await subspacesResponse.json();
-          setChildSubspaces(subspacesData?.data);
+          }
         } catch (error) {
           console.error("An error occurred:", error);
         } finally {
@@ -58,7 +60,59 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
     };
 
     fetchData();
-  }, [isExpanded, subspace.lens_id]);
+  }, [isExpanded]);
+
+  const items = useMemo(() => [
+    ...(lensData?.blocks || []),
+    ...(lensData?.whiteboards || []),
+    ...(lensData?.spreadsheets || []),
+    ...(lensData?.widgets || []),
+    ...(lensData?.subspaces || [])
+  ], [lensData]);
+
+  const sortedItems = useSort<ListViewItemType>({ sortingOptions, items });
+
+  const itemRenderer = (item: ItemType) => {
+    if ("whiteboard_id" in item) {
+      return <>
+        {leftComponent && leftComponent("whiteboard", item.whiteboard_id)}
+        <WhiteboardLineComponent key={item.whiteboard_id} whiteboard={item} />
+      </>
+    }
+    if ("spreadsheet_id" in item) {
+      return <>
+        {leftComponent && leftComponent("spreadsheet", item.spreadsheet_id)}
+        <SpreadsheetLineComponent key={item.spreadsheet_id} spreadsheet={item} />
+      </>
+    }
+    if ("block_id" in item) {
+      return <>
+        {leftComponent && leftComponent("block", item.block_id)}
+        <BlockComponent key={item.block_id} block={item} />
+      </>
+    }
+    if ("widget_id" in item) {
+      return <>
+        {leftComponent && leftComponent("widget", item.widget_id)}
+        <WidgetLineComponent key={item.widget_id} widget={item} />
+      </>
+    }
+    if ("lens_id" in item) {
+      return <>
+        {leftComponent && leftComponent("subspace", item.lens_id)}
+        <SubspaceComponent key={item.lens_id} subspace={item} leftComponent={leftComponent} />
+      </>
+    }
+  }
+
+  const expandedContent = useMemo(() => {
+    return (
+      <div>
+        {sortedItems.map(itemRenderer)}
+      </div>
+    )
+
+  }, [items, leftComponent, sortingOptions]);
 
   return (
     <div style={{ marginTop: 10 }} className="flex flex-col gap-1">
@@ -95,39 +149,9 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
       </div>
       <div style={{ marginLeft: 24 }}>
         {isExpanded && (
-          <>
-            {(blocks.length > 0) ?
-              <div>
-                {blocks.map((block) => (<div className="flex rounded-md">
-                  {leftComponent && leftComponent("block", block.block_id)}
-                  <div key={block.block_id} className="flex-1">
-                    <BlockComponent key={block.block_id} block={block} />
-                  </div>
-                </div>))}
-              </div>
-              :
-              <Flex direction={"column"}>
-                {fetching ?
-                  <>
-                    <LoadingSkeleton boxCount={3} lineHeight={15} />
-                  </>
-                  :
-                  <Text size="sm" fw={400} c="gray.6">{"No pages found within this subspace"}</Text>
-                }
-              </Flex>
-            }
-            <div>
-              {childSubspaces.map((childSubspace) => (<div className="flex rounded-md">
-                {leftComponent && leftComponent("lens", childSubspace.lens_id)}
-                <div className="flex-1">
-                  <SubspaceComponent
-                    leftComponent={leftComponent}
-                    key={childSubspace.lens_id} subspace={childSubspace} />
-                </div>
-              </div>
-              ))}
-            </div>
-          </>
+          fetching
+            ? <LoadingSkeleton boxCount={3} lineHeight={15} />
+            : (lensData && expandedContent || "")
         )}
       </div>
     </div>

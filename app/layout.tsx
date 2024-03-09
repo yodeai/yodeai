@@ -36,6 +36,7 @@ export default async function RootLayout({
           <ModalsProvider>
             <ContextMenuProvider>
               <header>
+                {/* @ts-expect-error Server Component */}
                 <HeadingBar />
               </header>
               <Toaster />

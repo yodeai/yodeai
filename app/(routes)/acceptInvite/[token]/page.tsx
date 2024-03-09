@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useEffect, useState } from "react";
 import { Button } from "@mantine/core";
+import { useAppContext } from "@contexts/context";
 
 
 export default function acceptInvite({ params }: { params: { token: string } }) {
@@ -11,13 +12,14 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
   const [intendedRecipient, setIntendedRecipient] = useState(false);
   const [accepted, setAccepted] = useState(false);
 
+  const { user } = useAppContext();
+
   const handleRefresh = () => {
     router.refresh();
   }
 
   useEffect(() => {
     const checkRecipient = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
       const { data, error } = await supabase
         .from('lens_invites')
         .select()
@@ -39,7 +41,6 @@ export default function acceptInvite({ params }: { params: { token: string } }) 
     // TODO: move the logic of this function to the parent component
     // and re-use this page component just to show result.
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       const { data: invites } = await supabase.from('lens_invites').select().eq('token', params.token);
 
       if (!invites || invites.length === 0) {
