@@ -4,8 +4,6 @@ import React, { useState, useEffect, createContext, useContext, useMemo } from '
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
 import NextImage from 'next/image';
-import { HiDocumentText } from "react-icons/hi2";
-import { BiSolidWidget } from "react-icons/bi";
 import { FaSitemap } from "react-icons/fa";
 import { BiSolidNotepad } from "react-icons/bi";
 

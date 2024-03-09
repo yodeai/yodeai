@@ -15,7 +15,7 @@ const NotesSection: React.FC = () => {
         return savedContent ? savedContent : `
         <h2 style="text-align: center;">Welcome to Yodeai</h2>
         <p>You are a <strong>product manager</strong> at <a href="https://notion.so/" rel="noopener noreferrer" target="_blank">Notion</a></p>
-        <p>You are doing review/interview analysis of Notion's users to come up with new feature proposals. Please follow these steps to complete the task!</p>
+        <p>You are doing review/interview analysis of Notion's users to come up with new feature/bug fix proposals. Please follow these steps to complete the task!</p>
         <p></p>
         <p><strong>Step 1: </strong>Please take 3 min to look over the documents for both the user interviews and the app store reviews to get a sense of their structure, format, and content.</p>
         <p></p>

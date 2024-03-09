@@ -31,7 +31,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
   const { accessType, zoomLevel } = useAppContext();
   const router = useRouter();
 
-  const [titleText, setTitleText] = useState<string>(block.title);
+  const [titleText, setTitleText] = useState<string>(`(${block.block_id}) ${block.title}`);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -44,7 +44,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
   }
 
   useEffect(() => {
-    setTitleText(block.title);
+    setTitleText(`(${block.block_id}) ${block.title}`);
   }, [block])
 
   const openDeleteModal = () => modals.openConfirmModal({
