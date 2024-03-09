@@ -24,7 +24,7 @@ export default function Demo() {
         </div>
 
         <div className="demo-video-container">
-          <Title mt={20} mb={10} size="h3">User Feedback Tracker</Title>
+          <Title mt={20} mb={10} size="h3">Pain Points Tracker</Title>
           <iframe
             width="560"
             height="315"
