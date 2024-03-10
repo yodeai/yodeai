@@ -57,7 +57,7 @@ export const Breadcrumb = () => {
         return elements.concat(breadcrumbActivePage ? [breadcrumbActivePage] : [])
     }, [data, breadcrumbActivePage])
 
-    return <Box className="fixed bottom-0 w-full flex flex-row gap-2 px-5 py-5 items-center align-middle bg-white border-t border-t-[#dddddd] ">
+    return <Box className="fixed bottom-0 w-full flex flex-row gap-2 px-5 py-3 items-center align-middle bg-white border-t border-t-[#dddddd] ">
         {loading && <LoadingSkeleton boxCount={1} lineHeight={22} w={"300px"} />}
         {!loading && breadcrumbs.length && <>
             <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />

@@ -8,11 +8,14 @@ import { Button, Flex, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 
 
-const UserAccountHandler = () => {
-  const [user, setUser] = useState<User | null>(null);
+type UserAccountHandlerProps = {
+  user: User | null;
+}
+const UserAccountHandler = ({user}: UserAccountHandlerProps) => {
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
+
   const openGoogleAuthWindow = () => {
     const authWindow = window.open(redirectUri);
 
@@ -39,24 +42,7 @@ const UserAccountHandler = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (isMounted) {
-          if (error && error.status === 401) {
-            setUser(null);
-          } else if (user) {
-            setUser(user);
-          }
-        }
-      }
-    };
-
     const fetchAndCheckGoogle = async () => {
-      await fetchData();
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected);
       const response = await fetch(`/api/google/redirectURI`)
@@ -69,13 +55,12 @@ const UserAccountHandler = () => {
       }
     };
 
-
     fetchAndCheckGoogle();
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
 
   return (
     <nav className="w-full">

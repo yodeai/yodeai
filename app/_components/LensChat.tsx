@@ -60,7 +60,7 @@ export default function LensChat() {
                 setIsLoading(false);
                 $fetching.current = false;
             })
-    }, 50, [lensId, $offset])
+    }, 100, [lensId, $offset])
 
     const fetchMessage = async (payload) => {
         const { id } = payload.new;
