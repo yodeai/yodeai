@@ -19,7 +19,7 @@ const NotesSection: React.FC = () => {
         <p></p>
         <p><strong>Step 1: </strong>Please take 3 min to look over the documents for both the user interviews and the app store reviews to get a sense of their structure, format, and content.</p>
         <p></p>
-        <p><strong>Step 2: </strong>Then, using the user insights widget, pick the top 6 new feature/bug fix proposals. Feel free to generate as many widgets as you would like, with a mix of predefined areas or auto-generated ones.</p>
+    <p><strong>Step 2: </strong>Pick the top 6 new feature/bug fix proposals. You can only use the <strong> user insights widget, pain point tracker widget, and the Q&A </strong>, as well as the reviews/interviews themselves. Feel free to generate as many widgets as you would like, with a mix of predefined areas or auto-generated ones.</p>
         <ul>
             <li>Feature 1</li>
             <li>Feature 2</li>
@@ -29,7 +29,7 @@ const NotesSection: React.FC = () => {
             <li>Feature 6</li>
         </ul>
         <p></p>
-        <p><strong>Step 3: </strong>Now, using the pain point tracker widget and the Q&A, as well as the user insights widget, narrow the features/bug fixes down to the top 3. Again, feel free to generate as many widgets as you would like. Please add explanations and citations to each proposed feature.</p>
+        <p><strong>Step 3: </strong>Now, narrow the features/bug fixes down to the top 3. You can only use <strong> the user insights widget, pain point tracker widget, and the Q&A </strong>, as well as the reviews/interviews themselves. Again, feel free to generate as many widgets as you would like. Please add explanations and citations to each proposed feature.</p>
         <ul>
             <li>Feature 1</li>
             <li>Feature 2</li>
