@@ -12,8 +12,7 @@ import { User } from '@supabase/auth-helpers-nextjs';
 type UserAccountHandlerProps = {
   user: User | null;
 }
-const UserAccountHandler = ({user}: UserAccountHandlerProps) => {
-  const supabase = createClientComponentClient();
+const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
 

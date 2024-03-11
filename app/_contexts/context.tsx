@@ -133,13 +133,16 @@ const context = createContext<contextType>(defaultValue);
 // Define the type for the provider props
 type LensProviderProps = {
   children: ReactNode;
+  initialState?: {
+    user: contextType["user"];
+  }
 };
 
 export const useAppContext = () => {
   return useContext(context);
 };
 
-export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+export const LensProvider: React.FC<LensProviderProps> = ({ children, initialState }) => {
   const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
@@ -154,7 +157,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User>(initialState?.user || null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
 

@@ -9,6 +9,7 @@ export default function HeadingBar() {
     const {
         navbarDisclosure: [openedNavbar, navbarActions],
         toolbarDisclosure: [openedToolbar, toolbarActions],
+        user
     } = useAppContext();
 
     return (
@@ -26,7 +27,7 @@ export default function HeadingBar() {
                 <Link href="/">
                     <Image src="/yodeai.png" h={32} alt="yodeai logo" />
                 </Link>
-                <UserAccountHandler />
+                <UserAccountHandler user={user} />
             </nav>
         </AppShell.Header>
     );

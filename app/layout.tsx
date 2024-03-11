@@ -2,15 +2,13 @@ import '@mantine/core/styles.css';
 import "./globals.css";
 import 'mantine-contextmenu/styles.css';
 
-import { Inter } from "next/font/google";
-
-import { MantineProvider, ColorSchemeScript, Flex, AppShellHeader, AppShell } from '@mantine/core';
+import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { ContextMenuProvider } from 'mantine-contextmenu';
 import { ModalsProvider } from "@mantine/modals";
 import AppLayout from '@components/Layout';
 import { LensProvider } from '@contexts/context';
-
-const inter = Inter({ subsets: ["latin"] });
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -23,6 +21,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = createServerComponentClient({ cookies });
+  const user = await supabase.auth.getUser();
+
   return (
     <html lang="en" >
       <head>
@@ -33,7 +34,7 @@ export default async function RootLayout({
         <MantineProvider defaultColorScheme="light">
           <ModalsProvider>
             <ContextMenuProvider>
-              <LensProvider>
+              <LensProvider initialState={{ user: user?.data?.user }}>
                 <AppLayout>
                   {children}
                 </AppLayout>
