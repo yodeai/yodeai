@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Navbar />
             </Flex>
             {/* Main content area */}
-            <Flex mah='100%' w={'100%'} className="sm:max-w-[calc(100%)]" direction={{ base: 'row' }}>
+            <Flex mah='100%' w={'100%'} className="sm:max-w-[calc(100%-240px)]" direction={{ base: 'row' }}>
               <Flex mih={'100%'} align={"flex-start"} justify={"flex-start"} display={{ base: 'block', sm: 'none' }} direction={"column"} style={{ backgroundColor: '#fff', borderRightWidth: 1, borderRightColor: '#eee' }}>
                 <MobileNavbar />
               </Flex>
