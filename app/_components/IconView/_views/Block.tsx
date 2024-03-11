@@ -15,8 +15,6 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { FaRegTrashCan } from "@react-icons/all-files/fa6/FaRegTrashCan";
 import { FaLink } from "@react-icons/all-files/fa6/FaLink";
 
-import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
-
 type BlockIconItemProps = {
   icon: JSX.Element,
   block: Block
@@ -36,10 +34,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
   const [loading, setLoading] = useState<boolean>(false);
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
-  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
-
   const onClickBlock = () => {
-    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
     router.push(`/block/${block.block_id}`)
   }
 
@@ -167,96 +162,41 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
 
   return (
     <>
-      {((block.title === "About Pages and Spaces" || block.title === "About Blocks and Spaces") && onboardingStep === 1 && !onboardingIsComplete)
-        ?
-        <OnboardingPopover
-          width={400}
-          stepToShow={1}
-          position="right-start"
-          popoverContent={
-            <>
-              <Text size="sm" mb={10}>This is a <b>page</b>, a unit of information in Yodeai.</Text>
-              <Text size="sm">Click <b>About pages and spaces.</b></Text>
-            </>
+      <Flex
+        onContextMenu={onContextMenu}
+        onMouseEnter={(event) => {
+          $mouseEnter.current = true;
+          onMouseEnter(event, true)
+        }}
+        onMouseDown={() => setShowPreview(false)}
+        onMouseMove={() => {
+          if ($mouseEnter.current) setShowPreview(false)
+        }}
+        onMouseLeave={(event) => {
+          $mouseEnter.current = false;
+          onMouseEnter(event, false)
+        }}
+        mih={100} gap="6px"
+        align="center" justify="flex-end"
+        direction="column" wrap="nowrap">
+        {blockPreviewContent}
+        <Box w={70} h={40} variant="unstyled" className="text-center">
+          {editMode
+            ? <Textarea
+              rows={1}
+              className="z-50 block-input leading-4 w-full"
+              maxRows={2}
+              ref={$textarea}
+              variant="unstyled" ta="center" c="dimmed"
+              onKeyDown={onKeyDown}
+              size={`${7 * 200 / zoomLevel}px`}
+              p={0} m={0}
+              h={20}
+              onChange={onChangeTitle} placeholder="Title" value={titleText} />
+            : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
           }
-        >
-          <Flex
-            onClick={onClickBlock}
-            onContextMenu={onContextMenu}
-            onMouseEnter={(event) => {
-              $mouseEnter.current = true;
-              onMouseEnter(event, true)
-            }}
-            onMouseDown={() => setShowPreview(false)}
-            onMouseMove={() => {
-              if ($mouseEnter.current) setShowPreview(false)
-            }}
-            onMouseLeave={(event) => {
-              $mouseEnter.current = false;
-              onMouseEnter(event, false)
-            }}
-            mih={100} gap="6px"
-            align="center" justify="flex-end"
-            direction="column" wrap="nowrap">
-            {blockPreviewContent}
-            <Box w={70} h={40} variant="unstyled" className="text-center">
-              {editMode
-                ? <Textarea
-                  rows={1}
-                  className="z-50 block-input leading-4 w-full"
-                  maxRows={2}
-                  ref={$textarea}
-                  variant="unstyled" ta="center" c="dimmed"
-                  onKeyDown={onKeyDown}
-                  size={`${7 * 200 / zoomLevel}px`}
-                  p={0} m={0}
-                  h={20}
-                  onChange={onChangeTitle} placeholder="Title" value={titleText} />
-                : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
-              }
-            </Box>
-          </Flex>
-
-        </OnboardingPopover>
-
-        :
-
-        <Flex
-          onContextMenu={onContextMenu}
-          onMouseEnter={(event) => {
-            $mouseEnter.current = true;
-            onMouseEnter(event, true)
-          }}
-          onMouseDown={() => setShowPreview(false)}
-          onMouseMove={() => {
-            if ($mouseEnter.current) setShowPreview(false)
-          }}
-          onMouseLeave={(event) => {
-            $mouseEnter.current = false;
-            onMouseEnter(event, false)
-          }}
-          mih={100} gap="6px"
-          align="center" justify="flex-end"
-          direction="column" wrap="nowrap">
-          {blockPreviewContent}
-          <Box w={70} h={40} variant="unstyled" className="text-center">
-            {editMode
-              ? <Textarea
-                rows={1}
-                className="z-50 block-input leading-4 w-full"
-                maxRows={2}
-                ref={$textarea}
-                variant="unstyled" ta="center" c="dimmed"
-                onKeyDown={onKeyDown}
-                size={`${7 * 200 / zoomLevel}px`}
-                p={0} m={0}
-                h={20}
-                onChange={onChangeTitle} placeholder="Title" value={titleText} />
-              : <Text inline={true} size={`${7 * 200 / zoomLevel}px`} ta="center" c="dimmed" className="break-words line-clamp-2 leading-none select-none whitespace-break-spaces">{titleText}</Text>
-            }
-          </Box>
-        </Flex>
-      }
+        </Box>
+      </Flex>
     </>
   );
 }
