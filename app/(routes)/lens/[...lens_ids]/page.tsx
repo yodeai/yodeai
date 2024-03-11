@@ -5,8 +5,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Database } from "app/_types/supabase";
 
-import { LensProps } from "./lens";
-
 type LensPageProps = {
     params: { lens_ids: string[] }
     searchParams: { [key: string]: string | string[] | undefined }
