@@ -21,7 +21,7 @@ export default function Inbox() {
   const [unacceptedInvites, setUnacceptedInvites] = useState([]);
   const [googleUserId, setGoogleUserId] = useState("")
 
-  const { setLensId } = useAppContext();
+  const { setLensId, user } = useAppContext();
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -80,7 +80,6 @@ export default function Inbox() {
   };
 
   const fetchInvites = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('lens_invites')
       .select()

@@ -1,5 +1,6 @@
 import { Input, Text } from '@mantine/core';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import {
     BaseEdge,
     EdgeLabelRenderer,
@@ -22,6 +23,7 @@ export default function CustomEdge({
     markerEnd,
 }: EdgeProps) {
     const { setEdges } = useReactFlow();
+
     const [edgePath, labelX, labelY] = getBezierPath({
         sourceX,
         sourceY,
@@ -55,7 +57,7 @@ export default function CustomEdge({
     }
 
     useEffect(() => {
-        if($label.current === label) return;
+        if ($label.current === label) return;
         setIsEditing(Boolean(label));
     }, [label]);
 
@@ -71,19 +73,12 @@ export default function CustomEdge({
         setIsEditing(true);
     }
 
-    const onClickInput = (event: React.MouseEvent<HTMLInputElement>) => {
-        // checking if the click is outside the input
-        if ($input.current && !$input.current.contains(event.target)) {
-            setIsEditing(false);
-        }
-    }
-
     return (
         <>
             <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
             <EdgeLabelRenderer>
-                <div onDoubleClick={switchEditable}
-                    className="max-w-[150px] text-center bg-white opacity-80 rounded-md"
+                <div
+                    className="rounded-md"
                     style={{
                         position: 'absolute',
                         pointerEvents: 'all',
@@ -91,7 +86,12 @@ export default function CustomEdge({
                         zIndex: 9999
                     }}>
                     {isEditing
-                        ? <Input onClick={onClickInput} ref={$input} unstyled value={label.toString()} onKeyDown={onKeyDown} onChange={onChangeText} />
+                        ? <Input className="bg-transparent"
+                            classNames={{
+                                wrapper: 'bg-transparent',
+                                input: 'bg-transparent text-center'
+                            }}
+                            ref={$input} unstyled value={label.toString()} onKeyDown={onKeyDown} onChange={onChangeText} />
                         : label && <Text onClick={onClickText} classNames={{ root: '!py-1 !px-1', }}> {label.toString().trim()}</Text>}
                 </div>
             </EdgeLabelRenderer>

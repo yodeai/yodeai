@@ -7,10 +7,12 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button, Flex, Menu, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 import { useAppContext } from '@contexts/context';
+import { User } from '@supabase/auth-helpers-nextjs';
 
-const UserAccountHandler = () => {
-  const { user } = useAppContext();
-
+type UserAccountHandlerProps = {
+  user: User | null;
+}
+const UserAccountHandler = ({user}: UserAccountHandlerProps) => {
   const supabase = createClientComponentClient();
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
@@ -40,6 +42,7 @@ const UserAccountHandler = () => {
 
   useEffect(() => {
     let isMounted = true;
+
     const fetchAndCheckGoogle = async () => {
       const connected = await checkGoogleAccountConnected();
       setGoogleAccountConnected(connected);
@@ -57,7 +60,7 @@ const UserAccountHandler = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
 
   return (
     <nav className="w-full">

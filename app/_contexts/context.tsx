@@ -265,7 +265,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       })
   }
 
-  const getUserId = async () => {
+  const getUser = async () => {
     supabase.auth.getUser().then((user) => {
       if (!user?.data?.user) return;
       setUser(user.data.user);
@@ -294,12 +294,6 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     }
 
     // Get all the lenses that this user has
-    getAllLenses();
-    getPinnedLenses();
-    getUserId();
-
-    navbarDisclosure[1].close();
-    toolbarDisclosure[1].close();
   }, [pathname]);
 
   // This useEffect will run whenever lensId changes
@@ -318,9 +312,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     };
 
     fetchLensName();
-    getAllLenses();
-
   }, [lensId]);
+
+  useEffect(() => {
+    getAllLenses();
+    getPinnedLenses();
+    getUser();
+  }, [])
 
   useEffect(() => {
     setSortingOptionsToLocalStorage(sortingOptions);

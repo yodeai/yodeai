@@ -3,7 +3,7 @@
 import ReactMarkdown from 'react-markdown';
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
@@ -18,6 +18,7 @@ import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
+import LoadingSkeleton from '@components/LoadingSkeleton';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -35,15 +36,15 @@ export default function Block({ params }: { params: { id: string } }) {
       .then((response) => {
         if (!response.ok) {
           console.log("Error fetching url")
-          setLoading(false);
           router.push("/notFound")
         } else {
           response.json().then((data) => {
             setBlock(data.data);
-            setLoading(false);
           })
         }
-      })
+      }).finally(() => {
+        setLoading(false);
+      });
   }, [params.id]);
 
   useEffect(() => {
@@ -55,7 +56,6 @@ export default function Block({ params }: { params: { id: string } }) {
     }
     fetchPresignedUrl();
 
-    if (block?.lens_id) setLensId(block.lens_id.toString())
     setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
     return () => {
       setLensId(null);
@@ -89,16 +89,6 @@ export default function Block({ params }: { params: { id: string } }) {
       console.error('Error updating block:', updateError.message);
     }
   };
-
-
-
-  if (loading || !block) {
-    return (
-      <div className="skeleton-container p-8 mt-12 ">
-        <div className="skeleton line  "></div>
-      </div>
-    );
-  }
 
   const handleEditing = async (startEditing) => {
     try {
@@ -200,27 +190,31 @@ export default function Block({ params }: { params: { id: string } }) {
     })
   }
 
-  const rightEditButton = <div className="flex justify-between items-center w-full">
-    <div className="flex gap-2">
-      {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
-        <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
-          <Button size="xs" variant="subtle" leftSection={
-            isEditing ? <FaCheck /> : <FaPen />
-          }
-            onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
-            {isEditing ? "Save" : "Edit"}
-          </Button>
-        </Tooltip>
-        || ""}
+  const rightEditButton = useMemo(() => {
+    if (!block) return null
+    return <div className="flex justify-between items-center w-full">
+      <div className="flex gap-2">
+        {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
+          <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
+            <Button size="xs" variant="subtle" leftSection={
+              isEditing ? <FaCheck /> : <FaPen />
+            }
+              onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
+              {isEditing ? "Save" : "Edit"}
+            </Button>
+          </Tooltip>
+          || ""}
+      </div>
     </div>
-  </div >
+  }, [block])
 
   return (<>
     <Flex direction="column" pt={0}>
       <AppShell.Section>
         <BlockHeader
-          title={block.title}
-          accessType={block.accessLevel}
+          loading={loading}
+          title={block?.title}
+          accessType={block?.accessLevel}
           onSave={onSaveTitle}
           onDelete={onDelete}
           rightItem={rightEditButton}

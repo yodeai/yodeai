@@ -2,7 +2,7 @@
 
 import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
-import { Lens, LensLayout, Subspace, Whiteboard } from "app/_types/lens";
+import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/Layout/Headers/DynamicSpaceHeader';
@@ -14,29 +14,30 @@ import toast from "react-hot-toast";
 import { AppShell, Box, Flex, ScrollArea } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
-type LensProps = {
+export type LensProps = {
   lens_id: number;
-  lensData: Lens;
+  lensData: LensData;
   user: User
 }
 
 import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
-import { getUserInfo } from "@utils/googleUtils";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const [lens, setLens] = useState<Lens | null>(lensData);
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [subspaces, setSubspaces] = useState<Subspace[]>([]);
-  const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>([]);
-  const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>([]);
-  const [widgets, setWidgets] = useState<Tables<"widget">[]>([]);
-  const [layoutData, setLayoutData] = useState<LensLayout>({})
+  const [lens, setLens] = useState<Lens>(lensData);
+
+  const [blocks, setBlocks] = useState<Block[]>(lensData.blocks);
+  const [subspaces, setSubspaces] = useState<Subspace[]>(lensData.subspaces);
+  const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>(lensData.whiteboards);
+  const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>(lensData.spreadsheets);
+  const [widgets, setWidgets] = useState<Tables<"widget">[]>(lensData.widgets);
+  const [layoutData, setLayoutData] = useState<LensLayout>(lensData.layout)
+
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
   const [editingLensName, setEditingLensName] = useState("");
@@ -69,23 +70,23 @@ export default function Lens(props: LensProps) {
   }, [])
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await Promise.all([
-        getLensBlocks(lens_id),
-        getLensSubspaces(lens_id),
-        getLensWhiteboards(lens_id),
-        getLensWidgets(lens_id),
-        getLensLayout(lens_id),
-        getLensSpreadsheets(lens_id)
-      ])
-        .then(() => {
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching lens data:', error);
-        })
-    })();
+    // (async () => {
+    //   setLoading(true);
+    //   await Promise.all([
+    //     // getLensBlocks(lens_id),
+    //     // getLensSubspaces(lens_id),
+    //     // getLensWhiteboards(lens_id),
+    //     // getLensWidgets(lens_id),
+    //     // getLensLayout(lens_id),
+    //     // getLensSpreadsheets(lens_id)
+    //   ])
+    //     .then(() => {
+    //       setLoading(false);
+    //     })
+    //     .catch((error) => {
+    //       console.error('Error fetching lens data:', error);
+    //     })
+    // })();
 
     if (window.location.hash === "#newLens") {
       setIsEditingLensName(true);
@@ -121,81 +122,6 @@ export default function Lens(props: LensProps) {
       })
       .catch((error) => {
         console.error('Error fetching lens:', error);
-      })
-  }
-
-  const getLensSubspaces = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getSubspaces`)
-      .then((response) => response.json())
-      .then((data) => {
-        setSubspaces(data?.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching subspaces:', error);
-      })
-  }
-
-  const getLensWhiteboards = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getWhiteboards`)
-      .then((response) => response.json())
-      .then((data) => {
-        setWhiteboards(data?.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching whiteboards:', error);
-      })
-  }
-
-  const getLensSpreadsheets = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getSpreadsheets`)
-      .then((response) => response.json())
-      .then((data) => {
-        setSpreadsheets(data?.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching spreadsheets:', error);
-      })
-  }
-
-  const getLensBlocks = async (lensId: number) => {
-    let googleUserId = await getUserInfo();
-    return fetch(`/api/lens/${lensId}/getBlocks/${googleUserId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setBlocks(data.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching blocks:', error);
-      })
-  }
-
-  const getLensLayout = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/layout`, { method: "GET" })
-      .then(response => {
-        if (!response.ok) {
-          console.log('No default layout found, using default.');
-          return;
-        } else {
-          return response.json();
-        }
-      }).then(res => {
-        setLayoutData({
-          block_layout: res?.data?.block_layout,
-          icon_layout: res?.data?.icon_layout,
-          list_layout: res?.data?.list_layout
-        });
-        setItemIcons(res?.data?.item_icons || {});
-      })
-  }
-
-  const getLensWidgets = async (lensId: number) => {
-    return fetch(`/api/lens/${lensId}/getWidgets`)
-      .then((response) => response.json())
-      .then((data) => {
-        setWidgets(data.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching widgets:', error);
       })
   }
 

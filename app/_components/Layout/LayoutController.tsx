@@ -6,6 +6,7 @@ import React from "react";
 import { Flex, Text } from "@mantine/core";
 import ListLayoutComponent from "../ListView";
 import { Tables } from "app/_types/supabase";
+import widgets from '@components/Widgets';
 
 export type ViewController = {
     blocks?: Block[]
@@ -72,6 +73,7 @@ export default function LayoutController(props: LayoutControllerProps) {
                 subspaces={subspaces}
                 whiteboards={whiteboards}
                 spreadsheets={spreadsheets}
+                widgets={widgets}
             />
         case "icon":
             return <IconLayoutComponent
