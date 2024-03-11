@@ -44,6 +44,7 @@ export const useSheetChart = ({ dataSource }: useSheetCharttProps) => {
             width: range.colIndex * 101,
             top: (range.rowIndex * 20) + 20,
             left: 230,
+            isSeriesInRows: true,
             markerSettings: {
                 shape: "Circle",
                 size: 5,
