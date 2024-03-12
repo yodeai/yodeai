@@ -53,7 +53,7 @@ const QuestionAnswerForm: React.FC = () => {
     }
 
     useEffect(() => {
-        if (onboardingStep === 3 && !onboardingIsComplete) {
+        if (onboardingStep === 2 && !onboardingIsComplete) {
             setInputValue('What is Yodeai?');
         }
     }, [onboardingStep]);
@@ -122,8 +122,6 @@ const QuestionAnswerForm: React.FC = () => {
         setIsSubmitting(true);
         const startTime = performance.now();
 
-        if (onboardingStep === 3 && !onboardingIsComplete) goToNextOnboardingStep();
-
         try {
             const supabase = createClientComponentClient()
             console.log("asking a question")
@@ -149,6 +147,8 @@ const QuestionAnswerForm: React.FC = () => {
                     })
                 );
             }
+
+            if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
 
             setQuestionHistory((prevQuestionHistory) => {
                 if (response && response.answer) {
@@ -231,11 +231,11 @@ const QuestionAnswerForm: React.FC = () => {
                     <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
-                                {(onboardingStep === 3 && !onboardingIsComplete)
+                                {(onboardingStep === 2 && !onboardingIsComplete)
                                     ?
                                     <OnboardingPopover
                                         width={400}
-                                        stepToShow={3}
+                                        stepToShow={2}
                                         position="left-start"
                                         popoverContent={
                                             <>

@@ -59,7 +59,7 @@ export default function Toolbar() {
     const [menuOpened, setMenuOpened] = useState(false);
 
     const handlePlusIconClick = () => {
-        if (onboardingStep === 4 && !onboardingIsComplete) {
+        if (onboardingStep === 3 && !onboardingIsComplete) {
             goToNextOnboardingStep();
         }
         setMenuOpened(true); // Open the menu programmatically
@@ -132,11 +132,11 @@ export default function Toolbar() {
         <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
-                    {(onboardingStep === 2 && !onboardingIsComplete)
+                    {(onboardingStep === 1 && !onboardingIsComplete)
                         ?
                         <OnboardingPopover
                             width={300}
-                            stepToShow={2}
+                            stepToShow={1}
                             position="left-start"
                             popoverContent={
                                 <>
@@ -149,7 +149,7 @@ export default function Toolbar() {
                                 variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
                                 onClick={() => {
                                     switchComponent("questionform");
-                                    if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                                    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
                                 }}
                                 c="gray.6">
                                 <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
@@ -160,7 +160,7 @@ export default function Toolbar() {
                             variant={activeToolbarComponent === "questionform" ? "light" : "subtle"}
                             onClick={() => {
                                 switchComponent("questionform");
-                                if (onboardingStep === 2 && !onboardingIsComplete) goToNextOnboardingStep();
+                                if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
                             }}
                             c="gray.6">
                             <NextImage src="/yodeai.png" alt="yodeai" width={18} height={18} />
@@ -170,11 +170,11 @@ export default function Toolbar() {
                 <Menu position="left" opened={menuOpened} onChange={setMenuOpened}>
                     <Box>
                         <Menu.Target>
-                            {(onboardingStep === 4 && !onboardingIsComplete)
+                            {(onboardingStep === 3 && !onboardingIsComplete)
                                 ?
                                 <OnboardingPopover
                                     width={400}
-                                    stepToShow={4}
+                                    stepToShow={3}
                                     position="left-start"
                                     popoverContent={
                                         <>
