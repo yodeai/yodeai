@@ -1,6 +1,6 @@
 import { SupabaseClient, createClientComponentClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from "app/_types/supabase";
-import HomePage from '@components/Pages/Home';
+import Home from '@components/Pages/Home';
 import { cookies } from 'next/headers';
 
 const supabase = createServerComponentClient<Database>({cookies})
@@ -33,11 +33,8 @@ type HomePageProps = {
   searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export default async function Home(props: HomePageProps) {
+export default async function HomePage(props: HomePageProps) {
   const data = await getHomeData(supabase);
 
-  return <HomePage
-    lenses={data.lenses}
-    layoutData={{}}
-  />
+  return <Home lenses={data.lenses} layoutData={{}} />
 }

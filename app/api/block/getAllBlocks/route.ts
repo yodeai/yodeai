@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
             lens_blocks!fk_block (
                 lens: lens!fk_lens (lens_id, name)
             )
-        `).in('google_user_id', [user_metadata?.google_user_id, 'global']).eq('lens_blocks.direct_child', true).order('updated_at', { ascending: false });
+        `)
+            .in('google_user_id', [user_metadata?.google_user_id, 'global'])
+            .eq('lens_blocks.direct_child', true)
+            .order('updated_at', { ascending: false });
 
         const blocksWithLenses = (blocks || []).map(block => ({
             ...block,

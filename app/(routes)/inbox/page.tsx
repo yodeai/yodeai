@@ -1,155 +1,48 @@
-"use client";
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import Inbox from '@components/Pages/Inbox';
 
-import { notFound } from "next/navigation";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
-import { Block } from "app/_types/block";
-import { useState, useEffect } from "react";
-import LoadingSkeleton from '@components/LoadingSkeleton';
-import { useAppContext } from "@contexts/context";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+const supabase = createServerComponentClient({ cookies })
 
-import { Flex, Box, Paper, Text } from "@mantine/core";
-import LensInviteComponent from "@components/LensInviteComponent";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/SpaceHeader";
-import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+const getBlocks = async () => {
+  try {
+    const user = await supabase.auth.getUser()
+    const user_metadata = user?.data?.user?.user_metadata;
 
-export default function Inbox() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+    const { data: blocks, error } = await supabase
+      .from('block')
+      .select(`
+    *,
+    lens_blocks!fk_block (
+        lens: lens!fk_lens (lens_id, name)
+    )`)
+      .in('google_user_id', [user_metadata?.google_user_id, 'global'])
+      .eq('lens_blocks.direct_child', true)
+      .order('updated_at', { ascending: false })
 
-  const { setLensId, user } = useAppContext();
-  const supabase = createClientComponentClient()
+    const blocksWithLenses = (blocks || []).map(block => ({
+      ...block,
+      inLenses: block.lens_blocks
+        .filter(lb => lb.lens)  // This will filter out lens_blocks with lens set to null
+        .map(lb => ({
+          lens_id: lb.lens.lens_id,
+          name: lb.lens.name
+        }))
+    }));
 
-  useEffect(() => {
-    const updateBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      setBlocks(prevBlocks =>
-        prevBlocks.map(item => {
-          if (item.block_id === block_id) {
-            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
-          }
-          return item;
-        })
-      );
-    };
-
-    const addBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Added a block", block_id)
-      let newBlock = payload["new"]
-      if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([newBlock, ...blocks]);
-      }
-    }
-
-    const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-
-    }
-
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
-      .subscribe();
-
-    return () => {
-      if (channel) channel.unsubscribe();
-    };
-  }, [blocks]);
-
-
-  const fetchBlocks = () => {
-    fetch(`/api/inbox/getBlocks`)
-      .then((response) => response.json())
-      .then((data) => {
-        setBlocks(data.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching block:", error);
-        notFound();
-      });
-  };
-
-  const fetchInvites = async () => {
-    const { data, error } = await supabase
-      .from('lens_invites')
-      .select()
-      .eq('recipient', user.email).eq("status", "sent")
-    if (error) {
-      console.error("error getting lens invites:", error.message)
-    }
-    setUnacceptedInvites(data);
+    return blocksWithLenses;
+  } catch (err) {
+    console.log("Error fetching blocks", err)
+    return [];
   }
+}
 
-  useEffect(() => {
-    const fetchBlocksAndInfo = async () => {
-      fetchInvites();
-      setLensId(null);
-      fetchBlocks();
-    }
-    fetchBlocksAndInfo();
+type InboxPageProps = {
+  searchParams: { [key: string]: string | string[] | undefined }
+}
 
-  }, []);
+export default async function InboxPage(props: InboxPageProps) {
+  const blocks = await getBlocks();
 
-  return (
-    <Flex direction="column" pt={0}>
-      <SpaceHeader
-        title="Inbox"
-        selectedLayoutType="block"
-        handleChangeLayoutView={() => { }}
-        staticLayout={true}
-        staticSortBy={true}
-      />
-      <Box p={16}>
-        <Paper mb={10}>
-          <Text size="lg" fw={600} c={"gray.7"}>Invitations</Text>
-          {
-            unacceptedInvites?.length > 0 ? (
-              unacceptedInvites.map((invite) => (
-                <div key={invite.lens_id} >
-                  <LensInviteComponent invite={invite}></LensInviteComponent>
-                </div>
-              ))
-            ) : (
-              <Text c={"gray.6"} mt={5} size="md">
-                No unaccepted invites!
-              </Text>
-            )
-          }
-        </Paper>
-
-        <BlockColumnHeader />
-
-        <Text size="lg" fw={600} c={"gray.7"}>Latest Pages</Text>
-
-        {
-          loading ? (
-            <div className="mt-2">
-              <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-            </div>
-          ) : blocks?.length > 0 && user?.user_metadata?.google_user_id != "" ? (
-            blocks.map((block) => (
-              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
-            ))
-          ) : (
-            <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-              Nothing to show here. As you add pages they will initially show up in your Inbox.
-            </Text>
-          )
-        }
-
-        {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
-      </Box>
-      <FinishedOnboardingModal />
-    </Flex >
-  );
+  return <Inbox blocks={blocks} />
 }

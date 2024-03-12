@@ -1,5 +1,5 @@
 import { notOk } from "@lib/ok";
-import Lens from "./lens";
+import Lens from "app/_components/Pages/Lens";
 import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

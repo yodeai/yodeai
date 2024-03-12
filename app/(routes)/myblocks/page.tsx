@@ -1,134 +1,70 @@
-"use client";
-import { useState, useEffect, useMemo } from "react";
-import { notFound } from "next/navigation";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
-import { Block } from "app/_types/block";
-import LoadingSkeleton from '@components/LoadingSkeleton';
-import { useAppContext } from "@contexts/context";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import MyBlocks from '@components/Pages/MyBlocks';
 
-import { Flex, Text, Box } from "@mantine/core";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/SpaceHeader";
+const supabase = createServerComponentClient({ cookies });
 
-export default function MyBlocks() {
-  const supabase = createClientComponentClient()
+const getBlocks = async () => {
+  try {
 
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { sortingOptions, setLensId } = useAppContext();
+    const user = await supabase.auth.getUser()
+    const user_metadata = user?.data?.user?.user_metadata;
 
+    // Fetch all blocks associated with the given lens_id, and their related lenses
+    const { data: inboxBlocks, error } = await supabase
+      .from('inbox')
+      .select(`
+        *,
+        block!inbox_block_id_fkey (
+            block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
+            lens_blocks!fk_block (
+                lens: lens!fk_lens (lens_id, name)
+            ) 
+        )
+    `).in('block.google_user_id', [user_metadata.google_user_id, 'global']).eq("block.lens_blocks.direct_child", true)
+    if (error) {
+      throw error;
+    }
 
-
-  useEffect(() => {
-    const updateBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      setBlocks(prevBlocks =>
-        prevBlocks.map(item => {
-          if (item.block_id === block_id) {
-            return { ...payload['new'], inLenses: item.inLenses, lens_blocks: item.lens_blocks };
+    // Extract the associated blocks from the lensBlocks data and add their lenses
+    const blocksForLens = inboxBlocks
+      ? inboxBlocks
+        .map((inboxBlock) => {
+          if (inboxBlock.block && inboxBlock.block.lens_blocks) {
+            return {
+              ...inboxBlock.block,
+              inLenses: inboxBlock.block.lens_blocks.map((lb: any) => ({
+                lens_id: lb.lens.lens_id,
+                name: lb.lens.name,
+              }))
+            };
           }
-          return item;
+          return null;
         })
-      );
-    };
+        .filter(block => block !== null)
+      : [];
 
-    const addBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Added a block", block_id)
-      let newBlock = payload["new"]
-      if (!blocks.some(item => item.block_id === block_id)) {
-        setBlocks([newBlock, ...blocks]);
-      }
-    }
 
-    const deleteBlocks = (payload) => {
-      let block_id = payload["new"]["block_id"]
-      console.log("Deleting block", block_id);
-      setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
 
-    }
-
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'block' }, addBlocks)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'block' }, updateBlocks)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'block' }, deleteBlocks)
-      .subscribe();
-
-    return () => {
-      if (channel) channel.unsubscribe();
-    };
-  }, [blocks]);
-
-  const fetchBlocks = () => {
-    fetch(`/api/block/getAllBlocks`)
-      .then((response) => response.json())
-      .then((data) => {
-        setBlocks(data.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching block:", error);
-        notFound();
-      });
-  };
-
-  useEffect(() => {
-    const fetchBlocksAndInfo = async() => {
-      fetchBlocks();
-      setLensId(null);
-    }
-    fetchBlocksAndInfo();
-  }, []);
-
-  const sortedBlocks = useMemo(() => {
-    if (sortingOptions.sortBy === null) return blocks;
-
-    let _sorted_blocks = [...blocks].sort((a, b) => {
-      if (sortingOptions.sortBy === "name") {
-        return a.title.localeCompare(b.title);
-      } else if (sortingOptions.sortBy === "createdAt") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortingOptions.sortBy === "updatedAt") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
+    blocksForLens.sort((a, b) => {
+      if (a.updated_at > b.updated_at) return -1;
+      if (a.updated_at < b.updated_at) return 1;
+      return 0;
     });
 
-    if (sortingOptions.order === "desc") {
-      _sorted_blocks = _sorted_blocks.reverse();
-    }
+    return blocksForLens;
+  } catch (error) {
+    console.error("Error retrieving the inbox's pages:", error);
+    return []
+  }
+}
 
-    return _sorted_blocks;
-  }, [sortingOptions, blocks]);
+type MyBlockPageProps = {
+  searchParams: { [key: string]: string | string[] | undefined }
+}
 
-  return (
-    <Flex direction="column" pt={0}>
-      <SpaceHeader
-        title="My Pages"
-        selectedLayoutType="block"
-        staticLayout={true}
-      />
-      {loading && <div className="p-3">
-        <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-      </div> || ""
-      }
+export default async function MyBlocksPage(props: MyBlockPageProps) {
+  const blocks = await getBlocks();
 
-      {!loading && sortedBlocks.length > 0 &&
-        <Box p={16}>
-          <BlockColumnHeader />
-          {sortedBlocks.map((block) =>
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
-          )}
-        </Box> || ""
-      }
-
-      {!loading && sortedBlocks?.length == 0 &&
-        <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-          Nothing to show here. As you add pages they will initially show up in your Inbox.
-        </Text> || ""
-      }
-
-    </Flex >
-  );
+  return <MyBlocks blocks={blocks} />
 }
