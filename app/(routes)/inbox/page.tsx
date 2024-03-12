@@ -12,14 +12,12 @@ import { Flex, Box, Paper, Text } from "@mantine/core";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
-import { getUserInfo } from "@utils/googleUtils";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [unacceptedInvites, setUnacceptedInvites] = useState([]);
-  const [googleUserId, setGoogleUserId] = useState("")
 
   const { setLensId, user } = useAppContext();
   const supabase = createClientComponentClient()
@@ -66,8 +64,8 @@ export default function Inbox() {
   }, [blocks]);
 
 
-  const fetchBlocks = (googleUserId) => {
-    fetch(`/api/inbox/getBlocks/${googleUserId}`)
+  const fetchBlocks = () => {
+    fetch(`/api/inbox/getBlocks`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -94,9 +92,7 @@ export default function Inbox() {
     const fetchBlocksAndInfo = async () => {
       fetchInvites();
       setLensId(null);
-      const googleUserId = await getUserInfo();
-      setGoogleUserId(googleUserId)
-      fetchBlocks(googleUserId);
+      fetchBlocks();
     }
     fetchBlocksAndInfo();
 
@@ -138,9 +134,9 @@ export default function Inbox() {
             <div className="mt-2">
               <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
             </div>
-          ) : blocks?.length > 0 && googleUserId != "" ? (
+          ) : blocks?.length > 0 && user?.user_metadata?.google_user_id != "" ? (
             blocks.map((block) => (
-              <BlockComponent googleUserId={googleUserId} key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
+              <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
             ))
           ) : (
             <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>

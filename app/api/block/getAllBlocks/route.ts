@@ -4,19 +4,15 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-type ListofLensesforBlock = {
-    lens: {
-        lens_id: number;
-        name: string;
-    };
-};
 
-export async function GET(request: NextRequest,  { params }: { params: { googleUserId: string }; }) {
+export async function GET(request: NextRequest) {
     console.log("getting all blocks");
     try {
         const supabase = createServerComponentClient({
             cookies,
         })
+        const user = await supabase.auth.getUser()
+        const user_metadata = user?.data?.user?.user_metadata;
 
         const { data: blocks, error } = await supabase
             .from('block')
@@ -25,7 +21,7 @@ export async function GET(request: NextRequest,  { params }: { params: { googleU
             lens_blocks!fk_block (
                 lens: lens!fk_lens (lens_id, name)
             )
-        `).in('google_user_id', [params.googleUserId, 'global']).eq('lens_blocks.direct_child', true).order('updated_at', { ascending: false });
+        `).in('google_user_id', [user_metadata?.google_user_id, 'global']).eq('lens_blocks.direct_child', true).order('updated_at', { ascending: false });
 
         const blocksWithLenses = (blocks || []).map(block => ({
             ...block,

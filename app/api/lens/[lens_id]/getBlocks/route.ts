@@ -6,11 +6,14 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest, { params }: { params: { lens_id: string, googleUserId: string }; }) {
+export async function GET(request: NextRequest, { params }) {
     try {
         const supabase = createServerComponentClient({
             cookies,
         });
+
+        const user = await supabase.auth.getUser()
+        const user_metadata = user?.data?.user?.user_metadata;
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: lensBlocks, error } = await supabase
@@ -24,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
                     )
                 ) 
             `)
-            .in('block.google_user_id', [params.googleUserId, 'global'])
+            .in('block.google_user_id', [user_metadata?.google_user_id, 'global'])
             .eq('lens_id', params.lens_id)
             .eq("direct_child", true)
             .eq('block.lens_blocks.direct_child', true); // Use direct_child condition directly here

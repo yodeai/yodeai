@@ -7,6 +7,7 @@ import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSor
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 import { usePathname } from 'next/navigation';
+import { getUserInfo } from '@utils/googleUtils';
 
 // Update the type for the context value
 export type contextType = {
@@ -258,6 +259,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       if (!user?.data?.user) return;
       setUser(user.data.user);
     })
+
+    // setting google user id
+    getUserInfo().then((googleUser) => {
+      supabase.auth.updateUser({
+        data: {
+          google_user_id: googleUser
+        }
+      })
+    });
   }
 
   useEffect(() => {

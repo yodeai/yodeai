@@ -10,7 +10,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Flex, Text, Box } from "@mantine/core";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
-import { getUserInfo } from "@utils/googleUtils";
 
 export default function MyBlocks() {
   const supabase = createClientComponentClient()
@@ -62,8 +61,8 @@ export default function MyBlocks() {
     };
   }, [blocks]);
 
-  const fetchBlocks = (googleUserId) => {
-    fetch(`/api/block/getAllBlocks/${googleUserId}`)
+  const fetchBlocks = () => {
+    fetch(`/api/block/getAllBlocks`)
       .then((response) => response.json())
       .then((data) => {
         setBlocks(data.data);
@@ -77,8 +76,7 @@ export default function MyBlocks() {
 
   useEffect(() => {
     const fetchBlocksAndInfo = async() => {
-      let googleUserId = await getUserInfo();
-      fetchBlocks(googleUserId);
+      fetchBlocks();
       setLensId(null);
     }
     fetchBlocksAndInfo();

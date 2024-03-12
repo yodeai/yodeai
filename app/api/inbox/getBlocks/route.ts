@@ -6,12 +6,15 @@ export const dynamic = 'force-dynamic';
 
 
 
-export async function GET(request: NextRequest, { params }: { params: { googleUserId: string }; }) {
+export async function GET(request: NextRequest) {
 
     try {
         const supabase = createServerComponentClient({
             cookies,
         });
+
+        const user = await supabase.auth.getUser()
+        const user_metadata = user?.data?.user?.user_metadata;
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: inboxBlocks, error } = await supabase
@@ -24,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: { googleUs
                     lens: lens!fk_lens (lens_id, name)
                 ) 
             )
-        `).in('block.google_user_id', [params.googleUserId, 'global']).eq("block.lens_blocks.direct_child", true)
+        `).in('block.google_user_id', [user_metadata.google_user_id, 'global']).eq("block.lens_blocks.direct_child", true)
         if (error) {
             throw error;
         }
