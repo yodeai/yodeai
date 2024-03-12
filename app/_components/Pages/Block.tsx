@@ -1,7 +1,6 @@
 "use client";
 
 import ReactMarkdown from 'react-markdown';
-import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 
 import { useState, useRef, useMemo } from 'react';
 import { Block } from 'app/_types/block';
@@ -18,6 +17,7 @@ import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 
 type BlockProps = {
     block: Block;

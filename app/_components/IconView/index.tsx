@@ -101,13 +101,13 @@ export default function IconLayoutComponent({
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
-    if (itemType === "bl") return router.push(`/block/${itemId}`);
+    if (itemType === "bl") return router.push(`/block/${itemId}?`);
 
     if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
 
     if (itemType === "ss") {
-      if (window.location.pathname === "/") return router.push(`/lens/${itemId}`);
-      return router.push(`${window.location.pathname}/${itemId}`);
+      if (window.location.pathname === "/") return router.push(`/lens/${itemId}?`);
+      return router.push(`${window.location.pathname}/${itemId}?`);
     }
 
     if (itemType === "wd") return router.push(`/widget/${itemId}`)
