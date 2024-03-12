@@ -56,7 +56,7 @@ export default function BlockEditor({ refs, withHeader = false, block: initialBl
   const [isLoadingContent, setIsLoadingContent] = useState(false);
 
   const googleUserId = useMemo(() => {
-    return user.user_metadata?.google_user_id || "global";
+    return user?.user_metadata?.google_user_id || "global";
   }, [user])
 
   useEffect(() => {
