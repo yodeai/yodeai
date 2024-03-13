@@ -20,7 +20,7 @@ import {
 import ShareLensComponent from "@components/ShareLensComponent";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import LoadingSkeleton from "../../LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
 
@@ -49,6 +49,7 @@ type DynamicSpaceHeaderProps = {
     handleChangeLayoutView: any
 }
 export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
+    const matchMobileView = useMediaQuery("(max-width: 768px)");
     const {
         loading,
         lens,
@@ -129,7 +130,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     }, [isEditingLensName])
 
     return <>
-        <Flex className="border-b border-gray-200 px-4 py-2" justify="space-between">
+        <Flex className="border-b border-gray-200 px-4 py-2" direction={matchMobileView ? "column" : "row"} rowGap="sm" justify="space-between">
             <Menu shadow="md" position="bottom-start" width={150}>
                 <Box className="flex items-center">
                     {
@@ -159,31 +160,36 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                         </> || ""
                     }
                     {
-                        !loading && !isEditingLensName && <div className="flex justify-center align-middle">
-                            <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
+                        !loading && !isEditingLensName && <div className="w-full flex flex-row justify-between">
+                            <Box className="grow">
+                                <Text span={true} c={"gray.7"} size="xl" fw={700}>{lensName}</Text>
 
-                            {!loading && <Menu.Target>
-                                <UnstyledButton>
-                                    <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
-                                </UnstyledButton>
-                            </Menu.Target> || ""}
-                            {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
-                            {lens.public && <>
-                                <Tooltip position="bottom" offset={0} label="Public Space">
-                                    <UnstyledButton onClick={shareModalController.open}>
-                                        <CiGlobe size={18} className="mt-2 ml-[5px]" />
-                                    </UnstyledButton>
-                                </Tooltip>
-                            </> || ""}
-                            {!lens.public && lens.shared && <>
-                                <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${accessType}`}>
+                                {!loading && <Menu.Target>
                                     <UnstyledButton>
-                                        <FaUserGroup size={18} className="mt-2 ml-[5px] text-gray-600" />
+                                        <FaAngleDown size={18} className="mt-2 ml-1 text-gray-500" />
                                     </UnstyledButton>
-                                </Tooltip>
-                            </> || ""}
+                                </Menu.Target> || ""}
+                            </Box>
+                            <Box>
+                                {(lens.public || lens.shared) && <Divider orientation="vertical" className="mx-3" /> || ""}
+                                {lens.public && <>
+                                    <Tooltip position="bottom" offset={0} label="Public Space">
+                                        <UnstyledButton onClick={shareModalController.open}>
+                                            <CiGlobe size={20} className="mt-2 ml-[5px]" />
+                                        </UnstyledButton>
+                                    </Tooltip>
+                                </> || ""}
+                                {!lens.public && lens.shared && <>
+                                    <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${accessType}`}>
+                                        <UnstyledButton>
+                                            <FaUserGroup size={20} className="mt-2 ml-[5px] text-gray-600" />
+                                        </UnstyledButton>
+                                    </Tooltip>
+                                </> || ""}
+                            </Box>
                         </div> || ""
                     }
+
                     {loading && <LoadingSkeleton w={"150px"} boxCount={1} m={3} lineHeight={30} /> || ""}
                 </Box>
 
@@ -202,7 +208,7 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 {!loading && <>
                     <Select
                         variant="filled"
-                        className="inline w-[150px]"
+                        className="inline grow"
                         leftSection={<Box>
                             <Button
                                 size="xs"
@@ -235,19 +241,19 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                         }}
                     />
                     <SegmentedControl
-                        className="ml-3"
+                        className="ml-3 grow"
                         value={selectedLayoutType}
                         onChange={handleChangeLayoutView}
                         data={[{
                             value: "block", label: (
                                 <Center className="gap-[10px]">
-                                    <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"}  size={18} />
+                                    <FaList color={selectedLayoutType === "block" ? "#228be6" : "#555"} size={18} />
                                 </Center>
                             )
                         }, {
                             value: "icon", label: (
                                 <Center className="gap-[10px]">
-                                    <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"}  size={18} />
+                                    <BsFillGrid3X3GapFill color={selectedLayoutType === "icon" ? "#228be6" : "#555"} size={18} />
                                 </Center>
                             )
                         }]}
