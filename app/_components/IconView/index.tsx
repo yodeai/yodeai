@@ -101,16 +101,16 @@ export default function IconLayoutComponent({
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
-    if (itemType === "bl") return router.push(`/block/${itemId}?`);
+    if (itemType === "bl") return router.push(`/block/${itemId}?${Math.random().toString(36).substring(7)}`)
 
-    if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
+    if (itemType === "wb") return router.push(`/whiteboard/${itemId}?${Math.random().toString(36).substring(7)}`);
 
     if (itemType === "ss") {
-      if (window.location.pathname === "/") return router.push(`/lens/${itemId}?`);
-      return router.push(`${window.location.pathname}/${itemId}?`);
+      if (window.location.pathname === "/") return router.push(`/lens/${itemId}?${Math.random().toString(36).substring(7)}`);
+      return router.push(`${window.location.pathname}/${itemId}?${Math.random().toString(36).substring(7)}`);
     }
 
-    if (itemType === "wd") return router.push(`/widget/${itemId}`)
+    if (itemType === "wd") return router.push(`/widget/${itemId}?${Math.random().toString(36).substring(7)}`)
 
     if (itemType === "sp") return router.push(`/spreadsheet/${itemId}?${Math.random().toString(36).substring(7)}`);
   }

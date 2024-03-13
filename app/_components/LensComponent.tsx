@@ -21,7 +21,7 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
     : <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
 
   return (
-    <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline w-min">
+    <Link href={`/lens/${lens.lens_id}?${Math.random().toString(36).substring(7)}`} className="no-underline w-min">
       <NavLink
         classNames={{ section: "!contents" }}
         component="div"
