@@ -101,29 +101,18 @@ export default function IconLayoutComponent({
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
-    if (itemType === "bl") return router.push(`/block/${itemId}?${Math.random().toString(36).substring(7)}`)
+    if (itemType === "bl") return router.push(`/block/${itemId}?`)
 
-    if (itemType === "wb") return router.push(`/whiteboard/${itemId}?${Math.random().toString(36).substring(7)}`);
+    if (itemType === "wb") return router.push(`/whiteboard/${itemId}?`);
 
     if (itemType === "ss") {
-      if (window.location.pathname === "/") return router.push(`/lens/${itemId}?${Math.random().toString(36).substring(7)}`);
-      return router.push(`${window.location.pathname}/${itemId}?${Math.random().toString(36).substring(7)}`);
+      if (window.location.pathname === "/") return router.push(`/lens/${itemId}?`);
+      return router.push(`${window.location.pathname}/${itemId}?`);
     }
 
-    if (itemType === "wd") return router.push(`/widget/${itemId}?${Math.random().toString(36).substring(7)}`)
+    if (itemType === "wd") return router.push(`/widget/${itemId}?`)
 
-    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}?${Math.random().toString(36).substring(7)}`);
-  }
-
-  const onHoverItem = (itemType: IconViewItemChars, itemId: number) => {
-    if (itemType === "bl") return router.prefetch(`/block/${itemId}`);
-    if (itemType === "wb") return router.prefetch(`/whiteboard/${itemId}`);
-    if (itemType === "ss") {
-      if (window.location.pathname === "/") return router.prefetch(`/lens/${itemId}`);
-      return router.prefetch(`${window.location.pathname}/${itemId}`);
-    }
-    if (itemType === "wd") return router.prefetch(`/widget/${itemId}`);
-    if (itemType === "sp") return router.prefetch(`/spreadsheet/${itemId}`);
+    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}?`);
   }
 
   const checkIfClickable = (itemType: IconViewItemChars, itemId: number, item: IconViewItemType) => {
@@ -298,7 +287,6 @@ export default function IconLayoutComponent({
     }
 
     return <div key={key} data-grid={dataGrid}
-      onMouseEnter={() => onHoverItem(key.split("_")[0] as IconViewItemChars, item_id)}
       className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {content}
     </div>
