@@ -206,7 +206,7 @@ export default function Block({ params }: { params: { id: string } }) {
           || ""}
       </div>
     </div>
-  }, [block])
+  }, [block]);
 
   return (<>
     <Flex direction="column" pt={0}>
@@ -221,31 +221,33 @@ export default function Block({ params }: { params: { id: string } }) {
         />
       </AppShell.Section>
       <AppShell.Section className="w-[800px] mx-auto h-full" p={16} component={ScrollArea}>
-        {isEditing
-          // this recreates the entire block view but allows for editing
-          // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-          ? <BlockEditor
-            withHeader={true}
-            refs={{ saveButton: $saveButton }}
-            block={block} onSave={onSave}
-          />
-          : <>
-            <div className="flex flex-col py-4">
-              <div>
-                <Text size="sm" c="gray">
-                  Created {timeAgo(block.created_at)}
-                </Text>
+        {!loading && block && <>
+          {isEditing
+            // this recreates the entire block view but allows for editing
+            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+            ? <BlockEditor
+              withHeader={true}
+              refs={{ saveButton: $saveButton }}
+              block={block} onSave={onSave}
+            />
+            : <>
+              <div className="flex flex-col py-4">
+                <div>
+                  <Text size="sm" c="gray">
+                    Created {timeAgo(block.created_at)}
+                  </Text>
+                </div>
+                <div>
+                  <Text size="sm" c="gray">
+                    Updated {timeAgo(block.updated_at)}
+                  </Text>
+                </div>
               </div>
-              <div>
-                <Text size="sm" c="gray">
-                  Updated {timeAgo(block.updated_at)}
-                </Text>
-              </div>
-            </div>
-            {renderContent()}
-          </>
-        }
-        {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+              {renderContent()}
+            </>
+          }
+          {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+        </>}
       </AppShell.Section>
     </Flex>
     <FinishedOnboardingModal />
