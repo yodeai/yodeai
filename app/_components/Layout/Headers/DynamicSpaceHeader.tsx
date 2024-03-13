@@ -204,6 +204,8 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                 </Menu.Dropdown >
             </Menu>
 
+            <Divider />
+
             <Box className="flex flex-row items-center align-middle">
                 {!loading && <>
                     <Select
