@@ -18,6 +18,7 @@ import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingMo
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
+import { revalidate } from '@utils/revalidate';
 
 type BlockProps = {
     block: Block;
@@ -149,6 +150,8 @@ export default function Block(props: BlockProps) {
         setIsEditing(false);
         handleEditing(false)
         setBlock(block);
+
+        revalidate(`/block/${block.block_id}`)
     }
 
     const onSaveTitle = async (title: string) => {

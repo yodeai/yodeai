@@ -11,6 +11,7 @@ import { Flex, Text, Box } from "@mantine/core";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { useSort } from "app/_hooks/useSort";
+import { revalidate } from "@utils/revalidate";
 
 type MyBlocksProps = {
     blocks: Block[];
@@ -32,6 +33,8 @@ export default function MyBlocks(props: MyBlocksProps) {
                     return item;
                 })
             );
+
+            revalidate(`/myblocks`)
         };
 
         const addBlocks = (payload) => {
@@ -41,13 +44,14 @@ export default function MyBlocks(props: MyBlocksProps) {
             if (!blocks.some(item => item.block_id === block_id)) {
                 setBlocks([newBlock, ...blocks]);
             }
+            revalidate(`/myblocks`)
         }
 
         const deleteBlocks = (payload) => {
             let block_id = payload["new"]["block_id"]
             console.log("Deleting block", block_id);
             setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-
+            revalidate(`/myblocks`)
         }
 
         const channel = supabase
