@@ -25,6 +25,7 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
 import { revalidate } from "@utils/revalidate";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -657,6 +658,7 @@ export default function Lens(props: LensProps) {
           lens_id={lens_id}
           modalController={iconItemDisclosure} />
       </Flex>
+      <FinishedOnboardingModal />
     </ContentProvider>
   );
 }

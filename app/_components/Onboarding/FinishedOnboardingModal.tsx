@@ -16,7 +16,7 @@ export default function FinishedOnboardingModal() {
     const [opened, { open, close }] = useDisclosure(true);
 
     useEffect(() => {
-        if (onboardingStep === 6) {
+        if (onboardingStep === 4) {
             open();
         }
     }, [onboardingStep]);
@@ -27,7 +27,7 @@ export default function FinishedOnboardingModal() {
 
     return (
         <Modal
-            opened={opened && onboardingStep === 6}
+            opened={opened && onboardingStep === 4}
             onClose={dismissOnboarding}
             centered
             withCloseButton={true}
