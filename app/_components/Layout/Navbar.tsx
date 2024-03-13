@@ -24,14 +24,15 @@ import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "../LoadingSkeleton";
 
 import OnboardingPopover from "../Onboarding/OnboardingPopover";
+import { Database } from "app/_types/supabase";
 
 
 export default function Navbar() {
   const router = useRouter();
   const {
-    lensId, setLensId, reloadLenses, setActiveComponent,
+    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
     pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
-    onboardingStep, onboardingIsComplete, goToNextOnboardingStep
+    onboardingStep, onboardingIsComplete
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -107,10 +108,6 @@ export default function Navbar() {
   const togglePopover = () => {
     const newState = !opened;
     setOpened(newState);
-
-    if (newState && onboardingStep === 5 && !onboardingIsComplete) {
-      goToNextOnboardingStep();
-    }
   };
 
   return <AppShell.Navbar>

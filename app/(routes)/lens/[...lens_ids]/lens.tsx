@@ -24,6 +24,7 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
