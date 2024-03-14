@@ -1,14 +1,9 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient, SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Block from '@components/Pages/Block';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-const supabase = createServerComponentClient({ cookies });
-
-const getBlock = async (id: string) => {
+const getBlock = async (supabase: SupabaseClient, id: string) => {
   const block_id = Number(id);
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -48,8 +43,9 @@ type BlockPageProps = {
 }
 
 export default async function BlockPage(props: BlockPageProps) {
+  const supabase = createServerComponentClient({ cookies });
   const { id } = props.params;
-  const block = await getBlock(id);
+  const block = await getBlock(supabase, id);
 
   return <Block block={block} />
 }

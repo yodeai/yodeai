@@ -1,10 +1,9 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { SupabaseClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Inbox from '@components/Pages/Inbox';
 
-const supabase = createServerComponentClient({ cookies })
 
-const getBlocks = async () => {
+const getBlocks = async (supabase: SupabaseClient) => {
   try {
     const user = await supabase.auth.getUser()
     const user_metadata = user?.data?.user?.user_metadata;
@@ -42,7 +41,8 @@ type InboxPageProps = {
 }
 
 export default async function InboxPage(props: InboxPageProps) {
-  const blocks = await getBlocks();
+  const supabase = createServerComponentClient({ cookies })
+  const blocks = await getBlocks(supabase);
 
   return <Inbox blocks={blocks} />
 }

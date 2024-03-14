@@ -3,8 +3,6 @@ import { Database } from "app/_types/supabase";
 import Home from '@components/Pages/Home';
 import { cookies } from 'next/headers';
 
-const supabase = createServerComponentClient<Database>({cookies})
-
 const getHomeData = async (supabase: SupabaseClient) => {
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -34,6 +32,7 @@ type HomePageProps = {
 }
 
 export default async function HomePage(props: HomePageProps) {
+  const supabase = createServerComponentClient<Database>({cookies})
   const data = await getHomeData(supabase);
 
   return <Home lenses={data.lenses} layoutData={{}} />
