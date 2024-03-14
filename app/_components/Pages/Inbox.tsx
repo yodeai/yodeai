@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -13,6 +13,8 @@ import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
+import { useInViewport } from "@mantine/hooks";
 
 type InboxProps = {
     blocks: Block[];
@@ -21,6 +23,11 @@ type InboxProps = {
 export default function Inbox(props: InboxProps) {
     const [blocks, setBlocks] = useState<Block[]>(props.blocks);
     const [unacceptedInvites, setUnacceptedInvites] = useState([]);
+
+    const $pagination = useRef({ limit: 30, offset: 30 });
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const { ref, inViewport } = useInViewport();
 
     const { setLensId, user } = useAppContext();
     const supabase = createClientComponentClient()
@@ -67,18 +74,6 @@ export default function Inbox(props: InboxProps) {
     }, [blocks]);
 
 
-    const fetchBlocks = () => {
-        fetch(`/api/inbox/getBlocks`)
-            .then((response) => response.json())
-            .then((data) => {
-                setBlocks(data.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching block:", error);
-                notFound();
-            });
-    };
-
     const fetchInvites = async () => {
         const { data, error } = await supabase
             .from('lens_invites')
@@ -94,11 +89,35 @@ export default function Inbox(props: InboxProps) {
         const fetchBlocksAndInfo = async () => {
             fetchInvites();
             setLensId(null);
-            fetchBlocks();
         }
         fetchBlocksAndInfo();
 
     }, []);
+
+    const loadMore = useDebouncedCallback(async () => {
+        setIsLoadingMore(true);
+        fetch(`/api/inbox/getBlocks?limit=${$pagination.current.limit}&offset=${$pagination.current.offset}`)
+            .then(async (res) => {
+                const data = await res.json();
+                if (data.data.length !== $pagination.current.limit) {
+                    setHasMore(false);
+                }
+                setBlocks([...blocks, ...data.data]);
+                setIsLoadingMore(false);
+                $pagination.current.offset += $pagination.current.limit;
+            })
+    }, 100, []);
+
+    useEffect(() => {
+        if (inViewport && hasMore && !isLoadingMore) {
+            loadMore();
+            console.log("Fetching more blocks")
+        }
+    }, [inViewport]);
+
+    const onBlockArchive = (block: Block) => {
+        setBlocks((blocks) => blocks.filter((b) => b.block_id !== block.block_id));
+    }
 
     return (
         <Flex direction="column" pt={0}>
@@ -132,9 +151,18 @@ export default function Inbox(props: InboxProps) {
                 <Text size="lg" fw={600} c={"gray.7"}>Latest Pages</Text>
 
                 {blocks?.length > 0 && user?.user_metadata?.google_user_id != "" ? (
-                    blocks.map((block) => (
-                        <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={fetchBlocks} />
-                    ))
+                    <>
+                        {blocks.map((block) => (
+                            <BlockComponent key={block.block_id} block={block} hasArchiveButton={true} onArchive={onBlockArchive} />
+                        ))}
+                        {hasMore && <>
+                            <div ref={ref} className="w-full h-[1px]" />
+                            <LoadingSkeleton
+                                boxCount={3}
+                                lineHeight={75}
+                            />
+                        </>}
+                    </>
                 ) : (
                     <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
                         Nothing to show here. As you add pages they will initially show up in your Inbox.

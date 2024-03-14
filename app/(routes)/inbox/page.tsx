@@ -8,28 +8,45 @@ const getBlocks = async (supabase: SupabaseClient) => {
     const user = await supabase.auth.getUser()
     const user_metadata = user?.data?.user?.user_metadata;
 
-    const { data: blocks, error } = await supabase
-      .from('block')
+    const { data: inboxBlocks, error } = await supabase
+      .from('inbox')
       .select(`
-    *,
-    lens_blocks!fk_block (
-        lens: lens!fk_lens (lens_id, name)
-    )`)
-      .in('google_user_id', [user_metadata?.google_user_id, 'global'])
-      .eq('lens_blocks.direct_child', true)
-      .order('updated_at', { ascending: false })
+      *,
+      block!inbox_block_id_fkey (
+          block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
+          lens_blocks!fk_block (
+              lens: lens!fk_lens (lens_id, name)
+          ) 
+      )
+  `).
+      in('block.google_user_id', [user_metadata.google_user_id, 'global'])
+      .eq("block.lens_blocks.direct_child", true)
+      .limit(30);
 
-    const blocksWithLenses = (blocks || []).map(block => ({
-      ...block,
-      inLenses: block.lens_blocks
-        .filter(lb => lb.lens)  // This will filter out lens_blocks with lens set to null
-        .map(lb => ({
-          lens_id: lb.lens.lens_id,
-          name: lb.lens.name
-        }))
-    }));
+    if (error) {
+      throw error;
+    }
 
-    return blocksWithLenses;
+    // Extract the associated blocks from the lensBlocks data and add their lenses
+    const blocksForLens = inboxBlocks
+      ? inboxBlocks
+        .map((inboxBlock) => {
+          if (inboxBlock.block && inboxBlock.block.lens_blocks) {
+            return {
+              ...inboxBlock.block,
+              inLenses: inboxBlock.block.lens_blocks.map((lb: any) => ({
+                lens_id: lb.lens.lens_id,
+                name: lb.lens.name,
+              }))
+            };
+          }
+          return null;
+        })
+        .filter(block => block !== null)
+      : [];
+
+
+    return blocksForLens;
   } catch (err) {
     console.log("Error fetching blocks", err)
     return [];

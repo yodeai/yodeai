@@ -1,9 +1,7 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
-import { notFound } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
-import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -12,6 +10,9 @@ import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 import SpaceHeader from "@components/SpaceHeader";
 import { useSort } from "app/_hooks/useSort";
 import { revalidateRouterCache } from "@utils/revalidate";
+import { useInViewport } from '@mantine/hooks';
+import LoadingSkeleton from "@components/LoadingSkeleton";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 type MyBlocksProps = {
     blocks: Block[];
@@ -19,8 +20,13 @@ type MyBlocksProps = {
 export default function MyBlocks(props: MyBlocksProps) {
     const supabase = createClientComponentClient()
     const { sortingOptions, setLensId } = useAppContext();
-    const [blocks, setBlocks] = useState<Block[]>(props.blocks);
 
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [blocks, setBlocks] = useState<Block[]>(props.blocks);
+    const $pagination = useRef({ limit: 30, offset: 30 });
+    const [hasMore, setHasMore] = useState(true);
+
+    const { ref, inViewport } = useInViewport();
 
     useEffect(() => {
         const updateBlocks = (payload) => {
@@ -66,10 +72,30 @@ export default function MyBlocks(props: MyBlocksProps) {
         };
     }, [blocks]);
 
-
     useEffect(() => {
         setLensId(null);
     }, []);
+
+    const loadMore = useDebouncedCallback(async () => {
+        setIsLoadingMore(true);
+        fetch(`/api/block/getAllBlocks?limit=${$pagination.current.limit}&offset=${$pagination.current.offset}`)
+            .then(async (res) => {
+                const data = await res.json();
+                if (data.data.length !== $pagination.current.limit) {
+                    setHasMore(false);  
+                }
+                setBlocks([...blocks, ...data.data]);
+                setIsLoadingMore(false);
+                $pagination.current.offset += $pagination.current.limit;
+            })
+    }, 100, []);
+
+    useEffect(() => {
+        if (inViewport && hasMore && !isLoadingMore) {
+            loadMore();
+            console.log("Fetching more blocks")
+        }
+    }, [inViewport])
 
     const sortedBlocks = useSort({ items: blocks, sortingOptions })
 
@@ -79,6 +105,10 @@ export default function MyBlocks(props: MyBlocksProps) {
                 title="My Pages"
                 selectedLayoutType="block"
                 staticLayout={true}
+                defaultSortingOption={{
+                    sortBy: "createdAt",
+                    order: "desc"
+                }}
             />
 
             {sortedBlocks.length > 0 &&
@@ -87,6 +117,14 @@ export default function MyBlocks(props: MyBlocksProps) {
                     {sortedBlocks.map((block) =>
                         <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
                     )}
+                    {hasMore && <>
+                        <div ref={ref} className="w-full h-[1px]" />
+                        <LoadingSkeleton
+                            boxCount={3}
+                            lineHeight={75}
+                        />
+                    </>}
+
                 </Box> || ""
             }
 

@@ -4,53 +4,38 @@ import MyBlocks from '@components/Pages/MyBlocks';
 
 const getBlocks = async (supabase: SupabaseClient) => {
   try {
-
     const user = await supabase.auth.getUser()
     const user_metadata = user?.data?.user?.user_metadata;
 
     // Fetch all blocks associated with the given lens_id, and their related lenses
-    const { data: inboxBlocks, error } = await supabase
-      .from('inbox')
+    const { data: blocks, error } = await supabase
+      .from('block')
       .select(`
         *,
-        block!inbox_block_id_fkey (
-            block_id, created_at, updated_at, block_type, is_file, parent_id, owner_id, title, status, preview, public,
-            lens_blocks!fk_block (
-                lens: lens!fk_lens (lens_id, name)
-            ) 
-        )
-    `).in('block.google_user_id', [user_metadata.google_user_id, 'global']).eq("block.lens_blocks.direct_child", true)
+        lens_blocks!fk_block (
+            lens: lens!fk_lens (lens_id, name)
+        )`)
+      .in('google_user_id', [user_metadata.google_user_id, 'global'])
+      .eq('lens_blocks.direct_child', true)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
     if (error) {
       throw error;
     }
 
     // Extract the associated blocks from the lensBlocks data and add their lenses
-    const blocksForLens = inboxBlocks
-      ? inboxBlocks
-        .map((inboxBlock) => {
-          if (inboxBlock.block && inboxBlock.block.lens_blocks) {
-            return {
-              ...inboxBlock.block,
-              inLenses: inboxBlock.block.lens_blocks.map((lb: any) => ({
-                lens_id: lb.lens.lens_id,
-                name: lb.lens.name,
-              }))
-            };
-          }
-          return null;
-        })
-        .filter(block => block !== null)
-      : [];
+    const blocksWithLenses = (blocks || []).map(block => ({
+      ...block,
+      inLenses: block.lens_blocks
+          .filter(lb => lb.lens)  // This will filter out lens_blocks with lens set to null
+          .map(lb => ({
+              lens_id: lb.lens.lens_id,
+              name: lb.lens.name
+          }))
+  }));
 
-
-
-    blocksForLens.sort((a, b) => {
-      if (a.updated_at > b.updated_at) return -1;
-      if (a.updated_at < b.updated_at) return 1;
-      return 0;
-    });
-
-    return blocksForLens;
+    return blocksWithLenses;
   } catch (error) {
     console.error("Error retrieving the inbox's pages:", error);
     return []

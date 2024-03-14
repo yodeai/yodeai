@@ -6,13 +6,16 @@ export const dynamic = 'force-dynamic';
 
 
 export async function GET(request: NextRequest) {
-    console.log("getting all blocks");
     try {
         const supabase = createServerComponentClient({
             cookies,
         })
         const user = await supabase.auth.getUser()
         const user_metadata = user?.data?.user?.user_metadata;
+
+        const requestUrl = new URL(request.url)
+        const limit = requestUrl.searchParams.get('limit') || 30;
+        const offset = requestUrl.searchParams.get('offset') || 0;
 
         const { data: blocks, error } = await supabase
             .from('block')
@@ -24,7 +27,8 @@ export async function GET(request: NextRequest) {
         `)
             .in('google_user_id', [user_metadata?.google_user_id, 'global'])
             .eq('lens_blocks.direct_child', true)
-            .order('updated_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .range(Number(offset), Number(offset) + Number(limit) - 1)
 
         const blocksWithLenses = (blocks || []).map(block => ({
             ...block,
@@ -35,8 +39,6 @@ export async function GET(request: NextRequest) {
                     name: lb.lens.name
                 }))
         }));
-
-
 
         return new NextResponse(
             JSON.stringify({ data: blocksWithLenses }),

@@ -19,7 +19,7 @@ interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
-  onArchive?: () => void;
+  onArchive?: (block: Block) => void;
   hierarchy?: number
 }
 
@@ -45,7 +45,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       success: "Archived!",
       error: "Failed to archive.",
     });
-    onArchive();
+    onArchive(block);
   };
 
   const retryProcessBlock = async () => {

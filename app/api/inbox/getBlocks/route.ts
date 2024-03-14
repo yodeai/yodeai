@@ -7,14 +7,15 @@ export const dynamic = 'force-dynamic';
 
 
 export async function GET(request: NextRequest) {
-
     try {
-        const supabase = createServerComponentClient({
-            cookies,
-        });
+        const supabase = createServerComponentClient({ cookies });
 
         const user = await supabase.auth.getUser()
         const user_metadata = user?.data?.user?.user_metadata;
+
+        const requestUrl = new URL(request.url)
+        const limit = requestUrl.searchParams.get('limit') || 30;
+        const offset = requestUrl.searchParams.get('offset') || 0;
 
         // Fetch all blocks associated with the given lens_id, and their related lenses
         const { data: inboxBlocks, error } = await supabase
@@ -27,12 +28,14 @@ export async function GET(request: NextRequest) {
                     lens: lens!fk_lens (lens_id, name)
                 ) 
             )
-        `).in('block.google_user_id', [user_metadata.google_user_id, 'global']).eq("block.lens_blocks.direct_child", true)
+        `)
+            .in('block.google_user_id', [user_metadata.google_user_id, 'global'])
+            .eq("block.lens_blocks.direct_child", true)
+            .range(Number(offset), Number(offset) + Number(limit) - 1)
+
         if (error) {
             throw error;
         }
-
-
 
         // Extract the associated blocks from the lensBlocks data and add their lenses
         const blocksForLens = inboxBlocks
@@ -51,8 +54,6 @@ export async function GET(request: NextRequest) {
                 })
                 .filter(block => block !== null)
             : [];
-
-
 
         blocksForLens.sort((a, b) => {
             if (a.updated_at > b.updated_at) return -1;
