@@ -30,7 +30,6 @@ import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingMo
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData, path } = props;
-  const [loading, setLoading] = useState(false);
 
   const [lens, setLens] = useState<Lens>(lensData);
 
@@ -588,7 +587,7 @@ export default function Lens(props: LensProps) {
       spreadsheets={spreadsheets}>
       <Flex direction="column" pt={0} h="100%">
         <DynamicSpaceHeader
-          loading={loading}
+          loading={false}
           lens={lens}
           lensName={lensName}
           editingLensName={editingLensName}
@@ -603,8 +602,7 @@ export default function Lens(props: LensProps) {
           handleChangeLayoutView={handleChangeLayoutView}
         />
         <Box className="flex items-stretch flex-col h-full">
-          {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-          {!loading && <LayoutController
+          <LayoutController
             handleBlockChangeName={handleBlockChangeName}
             handleBlockDelete={handleBlockDelete}
             handleLensChangeName={handleLensChangeName}
@@ -625,7 +623,7 @@ export default function Lens(props: LensProps) {
             widgets={sortedWidgets}
 
             itemIcons={itemIcons}
-            layoutView={selectedLayoutType} />}
+            layoutView={selectedLayoutType} />
         </Box>
         <IconItemSettingsModal
           item_icons={itemIcons}
