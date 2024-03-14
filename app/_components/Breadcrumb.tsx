@@ -68,7 +68,7 @@ export const Breadcrumb = () => {
                     breadcrumbs.map(({ title, href }, index) => (
                         <Fragment key={index}>
                             {href
-                                ? <Link href={href} className="no-underline hover:underline text-inherit" prefetch>
+                                ? <Link href={href} className="no-underline hover:underline text-inherit" prefetch={false}>
                                     <Text size="sm">{title}</Text>
                                 </Link>
                                 : <Text size="sm">{title}</Text>

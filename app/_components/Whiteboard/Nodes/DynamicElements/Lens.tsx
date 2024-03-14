@@ -49,7 +49,7 @@ export const LensElement = ({ lens_id, node }: LensElementProps) => {
                 <Box p={0} m={0} className="flex flex-col gap-2 overflow-hidden">
                     <div className="flex gap-2 items-center">
                         <FaFolder size={16} color="gray" />
-                        <Link href={`/lens/${data.lens_id}`} className="text-inherit no-underline hover:underline" prefetch>
+                        <Link href={`/lens/${data.lens_id}`} className="text-inherit no-underline hover:underline" prefetch={false}>
                             <Title order={5} className="text-gray-600 leading-3">{data.name}</Title>
                         </Link>
                     </div>
