@@ -2,7 +2,7 @@ import { notOk } from "@lib/ok";
 import Lens from "app/_components/Pages/Lens";
 import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { Database } from "app/_types/supabase";
 
 type LensPageProps = {
@@ -79,7 +79,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
         const parent_ids_from_db = lensData.parents.slice(0, -1).filter(el => Number(el) > 0).reverse().join('/')
 
         if (lens_ids_from_route !== parent_ids_from_db) {
-            return redirect(`/lens/${parent_ids_from_db}/${lens_id}`)
+            return redirect(`/lens/${parent_ids_from_db}/${lens_id}`, RedirectType.replace)
         }
     }
 
@@ -87,5 +87,6 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
         lensData={lensData}
         user={user}
         lens_id={lens_id}
+        path={`/lens/${lens_ids.join('/')}`}
     />
 }

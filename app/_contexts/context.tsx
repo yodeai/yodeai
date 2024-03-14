@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useMe
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
+import { clearPagePathVersions, getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 import { usePathname } from 'next/navigation';
@@ -316,6 +316,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     getAllLenses();
     getPinnedLenses();
     getUser();
+    clearPagePathVersions();
   }, [])
 
   useEffect(() => {

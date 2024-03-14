@@ -16,6 +16,7 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 
 import { Database } from "app/_types/supabase";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { revalidateRouterCache } from "@utils/revalidate";
 const supabase = createClientComponentClient<Database>()
 
 type HomePageProps = {
@@ -89,12 +90,14 @@ export default function HomePage(props: HomePageProps) {
         if (!lenses.some(item => item.lens_id === lens_id)) {
             setLenses(prevSubspaces => [newSubspace, ...prevSubspaces]);
         }
+        revalidateRouterCache(`/`)
     }, [lenses]);
 
     const deleteSubspace = useCallback((payload) => {
         let lens_id = payload["old"]["lens_id"]
         console.log("Deleting space", payload);
         setLenses((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
+        revalidateRouterCache(`/`)
     }, []);
 
     const handleLensChangeName = async (lens_id: number, newLensName: string) => {
