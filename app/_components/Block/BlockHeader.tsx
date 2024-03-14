@@ -7,7 +7,7 @@ import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import LoadingSkeleton from "@components/LoadingSkeleton";
 
 type BlockHeaderProps = {

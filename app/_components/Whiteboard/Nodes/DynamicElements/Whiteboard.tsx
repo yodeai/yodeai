@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { cn } from '@utils/style'
 import { Tables } from 'app/_types/supabase';
 import { Box, Title } from '@mantine/core';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import Link from 'next/link';
 import { BiSolidChalkboard } from '@react-icons/all-files/bi/BiSolidChalkboard';
 import { Node } from 'reactflow';

@@ -15,7 +15,7 @@ import usePlugin from './Plugins';
 import SpreadsheetHeader from './Header';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
 
 import { Text } from '@mantine/core';

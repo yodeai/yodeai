@@ -10,7 +10,7 @@ import InfoPopover from './InfoPopover';
 import ToolbarHeader from './ToolbarHeader';
 import LoadingSkeleton from './LoadingSkeleton';
 import OnboardingPopover from './Onboarding/OnboardingPopover';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 

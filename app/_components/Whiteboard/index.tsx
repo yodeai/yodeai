@@ -12,7 +12,7 @@ import NodeContextMenu from './Helpers/ContextMenu/Node';
 import EdgeContextMenu from './Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import { Text } from "@mantine/core";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';

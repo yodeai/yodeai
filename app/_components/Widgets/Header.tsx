@@ -6,7 +6,7 @@ import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 
 type WidgetHeaderProps = {
     title: string

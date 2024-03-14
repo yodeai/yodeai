@@ -5,7 +5,7 @@ import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { useAppContext } from "@contexts/context";
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 import { useSort } from "app/_hooks/useSort";
 
@@ -23,7 +23,7 @@ import {
 
 import { ViewController } from "../LayoutController";
 import fileTypeIcons from "./_icons/index";
-import { useProgressRouter } from "@utils/nprogress";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { WidgetIconItem } from "./_views/Widget";
 
 

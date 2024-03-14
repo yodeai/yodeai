@@ -6,7 +6,7 @@ import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { modals } from "@mantine/modals";
 import load from "@lib/load";
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import { useRouter } from "next/navigation";
 
 type SpreadsheetProps = {
