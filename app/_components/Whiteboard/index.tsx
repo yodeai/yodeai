@@ -23,6 +23,7 @@ import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 import { useAppContext } from '@contexts/context';
 import { FlowWrapper } from './Helpers/FlowWrapper';
+import { revalidateRouterCache } from '@utils/revalidate';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -162,6 +163,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     useEffect(() => {
         if (isLocked && (data.plugin ? data.plugin?.rendered === true : true)) return;
         syncWhiteboard(nodes, edges);
+        revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
     }, [nodes, edges]);
 
     useEffect(() => {

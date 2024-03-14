@@ -4,7 +4,6 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
-import LoadingSkeleton from '@components/LoadingSkeleton';
 import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";

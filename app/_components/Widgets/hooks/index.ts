@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Tables } from "app/_types/supabase";
 import { useAppContext } from "@contexts/context";
+import { revalidateRouterCache } from "@utils/revalidate";
 
 export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     input: K;
@@ -26,6 +27,7 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     }, [widgetData.lens_id])
 
     const updateTitle = async (newTitle: string) => {
+        revalidateRouterCache(`/widget/${data.widget_id}`)
         return fetch(`/api/widget/${data.widget_id}`, {
             method: 'PUT',
             body: JSON.stringify({ name: newTitle }),
@@ -38,6 +40,7 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     }
 
     const updateWidget = async (newData: Partial<Tables<"widget">>) => {
+        revalidateRouterCache(`/widget/${data.widget_id}`)
         return fetch(`/api/widget/${data.widget_id}`, {
             method: 'PUT',
             body: JSON.stringify(newData),

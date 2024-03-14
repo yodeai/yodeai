@@ -20,6 +20,7 @@ import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
 
 import { Text } from '@mantine/core';
 import { useAppContext } from '@contexts/context';
+import { revalidateRouterCache } from '@utils/revalidate';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
@@ -60,6 +61,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const handleUpdateSpreadsheet = useCallback((payload) => {
         if (payload.new.name === spreadsheet.name) return;
         setSpreadsheet((prev) => ({ ...prev, name: payload.new.name }))
+        revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
     }, []);
 
     useEffect(() => {
@@ -114,6 +116,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                 'Content-Type': 'application/json'
             }
         }).finally(() => {
+            revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
             setIsSaving(false);
         });
     }, 1000, []);
