@@ -1,4 +1,3 @@
-import { NavigateOptions } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 

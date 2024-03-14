@@ -72,24 +72,6 @@ export default function Lens(props: LensProps) {
   }, [])
 
   useEffect(() => {
-    // (async () => {
-    //   setLoading(true);
-    //   await Promise.all([
-    //     // getLensBlocks(lens_id),
-    //     // getLensSubspaces(lens_id),
-    //     // getLensWhiteboards(lens_id),
-    //     // getLensWidgets(lens_id),
-    //     // getLensLayout(lens_id),
-    //     // getLensSpreadsheets(lens_id)
-    //   ])
-    //     .then(() => {
-    //       setLoading(false);
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error fetching lens data:', error);
-    //     })
-    // })();
-
     if (window.location.hash === "#newLens") {
       setIsEditingLensName(true);
       window.location.hash = "";
@@ -162,7 +144,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidate(`/lens/${lens_id}`);
+    revalidate(`/(routes)/lens/[...lens_ids]`);
   }, []);
 
   const addBlocks = useCallback((payload) => {
@@ -172,14 +154,14 @@ export default function Lens(props: LensProps) {
     if (!blocks.some(item => item.block_id === block_id)) {
       setBlocks(prevBlocks => [newBlock, ...prevBlocks]);
     }
-    revalidate(`/lens/${lens_id}`);
+    revalidate(`/(routes)/lens/[...lens_ids]`);
   }, [blocks])
 
   const deleteBlocks = useCallback((payload) => {
     let block_id = payload["old"]["block_id"]
     console.log("Deleting block", block_id);
     setBlocks((prevBlocks) => prevBlocks.filter((block) => block.block_id !== block_id))
-    revalidate(`/lens/${lens_id}`);
+    revalidate(`/(routes)/lens/[...lens_ids]`);
   }, [blocks]);
 
   const addSubspaces = useCallback((payload) => {
@@ -189,14 +171,14 @@ export default function Lens(props: LensProps) {
     if (!subspaces.some(item => item.lens_id === new_lens_id)) {
       setSubspaces(prevSubspaces => [newSubspace, ...prevSubspaces]);
     }
-    revalidate(`/lens/${lens_id}`);
+    revalidate(`/(routes)/lens/[...lens_ids]`);
   }, [subspaces]);
 
   const deleteSubspace = useCallback((payload) => {
     let old_lens_id = payload["old"]["lens_id"]
     console.log("Deleting lens", payload);
     setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== old_lens_id))
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const addWhiteBoard = useCallback((payload) => {
@@ -206,7 +188,7 @@ export default function Lens(props: LensProps) {
     if (!whiteboards.some(item => item.whiteboard_id === whiteboard_id)) {
       setWhiteboards(prevWhiteboards => [newWhiteboard, ...prevWhiteboards]);
     }
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
 
@@ -214,7 +196,7 @@ export default function Lens(props: LensProps) {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
     setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const updateWhiteboard = useCallback((payload) => {
@@ -228,7 +210,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const addSpreadsheet = useCallback((payload) => {
@@ -238,14 +220,14 @@ export default function Lens(props: LensProps) {
     if (!spreadsheets.some(item => item.spreadsheet_id === spreadsheet_id)) {
       setSpreadsheets(prevSpreadsheets => [newSpreadsheet, ...prevSpreadsheets]);
     }
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const deleteSpreadsheet = useCallback((payload) => {
     let spreadsheet_id = payload["old"]["spreadsheet_id"]
     console.log("Deleting spreadsheet", spreadsheet_id);
     setSpreadsheets((prevSpreadsheets) => prevSpreadsheets.filter((spreadsheet) => spreadsheet.spreadsheet_id !== spreadsheet_id))
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const updateSpreadsheet = useCallback((payload) => {
@@ -259,7 +241,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const addWidget = useCallback((payload) => {
@@ -269,14 +251,14 @@ export default function Lens(props: LensProps) {
     if (!widgets.some(item => item.widget_id === widget_id)) {
       setWidgets(prevWidgets => [newWidget, ...prevWidgets]);
     }
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const deleteWidget = useCallback((payload) => {
     let widget_id = payload["old"]["widget_id"]
     console.log("Deleting widget", widget_id);
     setWidgets((prevWidgets) => prevWidgets.filter((widget) => widget.widget_id !== widget_id))
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const updateWidget = useCallback((payload) => {
@@ -290,7 +272,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidate(`/lens/${lens_id}`)
+    revalidate(`/(routes)/lens/[...lens_ids]`)
   }, []);
 
   const updateLensLayout = useCallback((payload) => {

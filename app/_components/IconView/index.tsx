@@ -115,6 +115,17 @@ export default function IconLayoutComponent({
     if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
   }
 
+  const onHoverItem = (itemType: IconViewItemChars, itemId: number) => {
+    if (itemType === "bl") return router.prefetch(`/block/${itemId}`);
+    if (itemType === "wb") return router.prefetch(`/whiteboard/${itemId}`);
+    if (itemType === "ss") {
+      if (window.location.pathname === "/") return router.prefetch(`/lens/${itemId}`);
+      return router.prefetch(`${window.location.pathname}/${itemId}`);
+    }
+    if (itemType === "wd") return router.prefetch(`/widget/${itemId}`);
+    if (itemType === "sp") return router.prefetch(`/spreadsheet/${itemId}`);
+  }
+
   const checkIfClickable = (itemType: IconViewItemChars, itemId: number, item: IconViewItemType) => {
     if ("whiteboard_id" in item && item?.plugin && item?.plugin?.state?.status !== "success") {
       return false;
@@ -287,6 +298,7 @@ export default function IconLayoutComponent({
     }
 
     return <div key={key} data-grid={dataGrid}
+      onMouseEnter={() => onHoverItem(key.split("_")[0] as IconViewItemChars, item_id)}
       className={`block-item ${selectedItems.includes(item_id) ? "bg-gray-100" : ""}`}>
       {content}
     </div>
