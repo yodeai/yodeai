@@ -12,7 +12,7 @@ registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 import { Database, Tables } from 'app/_types/supabase';
 import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
 import usePlugin from './Plugins';
-import SpreadsheetHeader from './Header';
+import SpreadsheetHeader from '@components/Layout/Headers/SpreadsheetHeader';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from '@utils/hooks';

@@ -17,7 +17,7 @@ import { Text } from "@mantine/core";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import edgeTypes from './Edges';
-import WhiteboardHeader from './Header';
+import WhiteboardHeader from '@components/Layout/Headers/WhiteboardHeader';
 import { useRouter } from 'next/navigation';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'

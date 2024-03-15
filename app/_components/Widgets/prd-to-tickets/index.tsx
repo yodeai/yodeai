@@ -5,7 +5,7 @@ import { WidgetType } from '../index';
 import { Card } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
 
-import WidgetHeader from '@components/Widgets/Header';
+import WidgetHeader from '@components/Layout/Headers/WidgetHeader';
 import { useWidget } from '../hooks';
 import load from '@lib/load';
 import { useRouter } from 'next/navigation';

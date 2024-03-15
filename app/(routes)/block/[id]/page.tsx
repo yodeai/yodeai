@@ -9,16 +9,15 @@ import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
-import { AppShell, Box, Button, Divider, Flex, Text, Tooltip, ScrollArea } from '@mantine/core';
+import { Button, Flex, Text, Tooltip } from '@mantine/core';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
-import BlockHeader from "@components/Block/BlockHeader";
+import BlockHeader from "@components/Layout/Headers/BlockHeader";
 import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
-import LoadingSkeleton from '@components/LoadingSkeleton';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -210,17 +209,15 @@ export default function Block({ params }: { params: { id: string } }) {
 
   return (<>
     <Flex direction="column" pt={0}>
-      <AppShell.Section>
-        <BlockHeader
-          loading={loading}
-          title={block?.title}
-          accessType={block?.accessLevel}
-          onSave={onSaveTitle}
-          onDelete={onDelete}
-          rightItem={rightEditButton}
-        />
-      </AppShell.Section>
-      <AppShell.Section className="w-[800px] mx-auto h-full" p={16} component={ScrollArea}>
+      <BlockHeader
+        loading={loading}
+        title={block?.title}
+        accessType={block?.accessLevel}
+        onSave={onSaveTitle}
+        onDelete={onDelete}
+        rightItem={rightEditButton}
+      />
+      <div className="w-[800px] mx-auto h-full p-[16px]">
         {!loading && block && <>
           {isEditing
             // this recreates the entire block view but allows for editing
@@ -248,7 +245,7 @@ export default function Block({ params }: { params: { id: string } }) {
           }
           {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
         </>}
-      </AppShell.Section>
+      </div>
     </Flex>
     <FinishedOnboardingModal />
   </>
