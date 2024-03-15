@@ -596,7 +596,6 @@ export default function Lens(props: LensProps) {
       whiteboards={whiteboards}
       subspaces={subspaces}
       spreadsheets={spreadsheets}>
-      <AppShell.Section>
         <DynamicSpaceHeader
           loading={loading}
           lens={lens}
@@ -612,8 +611,6 @@ export default function Lens(props: LensProps) {
           selectedLayoutType={selectedLayoutType}
           handleChangeLayoutView={handleChangeLayoutView}
         />
-      </AppShell.Section>
-      <AppShell.Section grow component={ScrollArea}>
         {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
         {!loading && <LayoutController
           handleBlockChangeName={handleBlockChangeName}
@@ -636,7 +633,6 @@ export default function Lens(props: LensProps) {
           widgets={sortedWidgets}
           itemIcons={itemIcons}
           layoutView={selectedLayoutType} />}
-      </AppShell.Section>
       <IconItemSettingsModal
         item_icons={itemIcons}
         item={$settingsItem.current}

@@ -25,7 +25,7 @@ import { ViewController } from "../Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { useProgressRouter } from "@utils/nprogress";
 import { WidgetIconItem } from "./_views/Widget";
-
+import { getInnerHeight, getInnerWidth } from "@utils/style";
 
 type IconViewItemType = Block | Subspace | Lens
   | (Tables<"whiteboard"> & {
@@ -374,29 +374,35 @@ export default function IconLayoutComponent({
 
   const ROW_HEIGHT = 100;
 
-  return <div className="flex flex-col justify-between z-50">
-    <div ref={$gridContainer} style={{
-      transform: `scale(${zoomLevel / 100}) translateZ(0)`,
-      transformOrigin: 'top left'
-    }}>
-      <ResponsiveReactGridLayout
-        maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
-        layouts={layouts}
-        cols={cols}
-        breakpoint={breakpoint}
-        breakpoints={breakpoints}
-        rowHeight={ROW_HEIGHT}
-        onLayoutChange={onLayoutChange}
-        isResizable={false}
-        onWidthChange={onWidthChange}
-        onDragStart={onDragStart}
-        onDrag={onDrag}
-        onDragStop={onDragStop}
-        preventCollision={true}
-        verticalCompact={false}
-        transformScale={zoomLevel / 100}>
-        {layoutItems}
-      </ResponsiveReactGridLayout>
-    </div>
+  useEffect(() => {
+    if($gridContainer.current){
+      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.main.current) - 60}px`;
+    }
+  }, [$gridContainer]);
+
+  return <div ref={$gridContainer} style={{ overflowY: "scroll" }}>
+    <ResponsiveReactGridLayout
+      layouts={layouts}
+      cols={cols}
+      breakpoint={breakpoint}
+      style={{
+        transform: `scale(${zoomLevel / 100}) translateZ(0)`,
+        transformOrigin: 'top left',
+        height: `${getInnerHeight(layoutRefs.main.current) - 40}px`,
+        overflow: "scroll"
+      }}
+      breakpoints={breakpoints}
+      rowHeight={ROW_HEIGHT}
+      onLayoutChange={onLayoutChange}
+      isResizable={false}
+      onWidthChange={onWidthChange}
+      onDragStart={onDragStart}
+      onDrag={onDrag}
+      onDragStop={onDragStop}
+      preventCollision={true}
+      verticalCompact={false}
+      transformScale={zoomLevel / 100}>
+      {layoutItems}
+    </ResponsiveReactGridLayout>
   </div>
 }
