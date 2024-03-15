@@ -13,7 +13,7 @@ export default function HeadingBar() {
     } = useAppContext();
 
     return (
-        <AppShell.Header className="flex items-center align-middle">
+        <AppShell.Header className="flex items-center align-middle px-2">
             {user &&
                 <Burger
                     opened={openedNavbar}
@@ -25,7 +25,7 @@ export default function HeadingBar() {
                     size="sm"
                 />}
             <nav className="flex justify-between items-center w-full bg-white p-[12px] h-[60px] border-b border-b-[#eeeeee]">
-                <Link href="/">
+                <Link href="/" className="hidden sm:block">
                     <Image src="/yodeai.png" h={32} alt="yodeai logo" />
                 </Link>
                 <UserAccountHandler user={user} />

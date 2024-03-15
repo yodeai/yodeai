@@ -77,7 +77,9 @@ export const Breadcrumb = () => {
         </>
 
         return breadcrumbs.length && <>
-            <FaHome size={18} className="inline p-0 m-0 mr-1 text-gray-400" />
+            <Link href="/" className="inline p-0 m-0 mr-1 h-[18px]">
+                <FaHome size={18} className="text-gray-400" />
+            </Link>
             <Breadcrumbs classNames={{
                 separator: "!text-gray-400",
                 breadcrumb: "!text-gray-500 font-semibold",
@@ -101,18 +103,5 @@ export const Breadcrumb = () => {
             {loading && <LoadingSkeleton boxCount={1} lineHeight={22} w={"300px"} />}
             {!loading && breadcrumView}
         </Box>
-
-        <Box>
-            <Burger
-                opened={toolbarOpened}
-                onClick={() => {
-                    toolbarActions.toggle();
-                    navbarActions.close();
-                }}
-                hiddenFrom="sm"
-                size="sm"
-            />
-        </Box>
-
     </AppShell.Footer>
 }

@@ -8,7 +8,7 @@ import { BsFillGrid3X3GapFill } from '@react-icons/all-files/bs/BsFillGrid3X3Gap
 
 import {
     Flex, Button, Text, Box,
-    Select, HoverCard, Slider, SegmentedControl, Center
+    Select, HoverCard, Slider, SegmentedControl, Center, Divider
 } from "@mantine/core";
 import AddSubspace from "@components/AddSubspace";
 import { useAppContext, contextType } from "@contexts/context";
@@ -139,6 +139,9 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                     </HoverCard.Dropdown>
                 </HoverCard>}
                 {rightItem}
+
+                <Divider orientation="vertical" className="mx-3 block sm:hidden" />
+                <div id="toolbar_mobile_button" className="block sm:hidden"></div>
             </Box>
         </Flex>
 

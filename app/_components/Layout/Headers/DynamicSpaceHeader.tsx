@@ -130,9 +130,9 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
     }, [isEditingLensName])
 
     return <>
-        <Flex className="border-b border-gray-200 px-4 py-2" direction={matchMobileView ? "column" : "row"} rowGap="sm" justify="space-between">
+        <Flex className="border-b border-gray-200 py-2" direction={matchMobileView ? "column" : "row"} rowGap="sm" justify="space-between">
             <Menu shadow="md" position="bottom-start" width={150}>
-                <Box className="flex items-center">
+                <Box className="flex items-center px-4">
                     {
                         !loading && isEditingLensName && <>
                             <Input
@@ -206,11 +206,11 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
 
             <Divider />
 
-            <Box className="flex flex-row items-center align-middle">
+            <Box className="flex flex-row items-center align-middle px-4">
                 {!loading && <>
                     <Select
                         variant="filled"
-                        className="inline grow"
+                        className="inline"
                         leftSection={<Box>
                             <Button
                                 size="xs"
@@ -290,6 +290,9 @@ export default function DynamicSpaceHeader(props: DynamicSpaceHeaderProps) {
                             />
                         </HoverCard.Dropdown>
                     </HoverCard>
+
+                    <Divider orientation="vertical" className="mx-3 block sm:hidden" />
+                    <div id="toolbar_mobile_button" className="block sm:hidden"></div>
                 </> || ""}
                 {loading && <LoadingSkeleton w={"200px"} boxCount={1} m={3} lineHeight={30} /> || ""}
             </Box>
