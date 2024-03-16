@@ -146,6 +146,7 @@ export default function Toolbar() {
         return <MantineProvider>
             <Button
                 variant="subtle"
+                className="h-full w-full"
                 onClick={() => {
                     switchComponent("questionform");
                     if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();

@@ -4,9 +4,8 @@ import { Lens } from "app/_types/lens";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Flex, Box, AppShell, ScrollArea } from '@mantine/core';
+import { Flex, Box, Select, Button, SegmentedControl, Center, HoverCard, Slider } from '@mantine/core';
 
-import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import LayoutController from '@components/Layout/LayoutController';
 import { LensLayout } from "app/_types/lens";
@@ -15,6 +14,13 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 
 import { Database } from "app/_types/supabase";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { PageHeader } from "@components/Layout/PageHeader";
+import { FaMagnifyingGlassPlus } from '@react-icons/all-files/fa6/FaMagnifyingGlassPlus';
+
+import { Sort } from "@components/Layout/PageHeader/Sort";
+import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
+import { Zoom } from "@components/Layout/PageHeader/Zoom";
+
 const supabase = createClientComponentClient<Database>()
 
 export default function Home() {
@@ -25,7 +31,10 @@ export default function Home() {
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
 
-  const { sortingOptions, setLensId, setLensName } = useAppContext();
+  const {
+    sortingOptions, setSortingOptions, setLensId, setLensName,
+    zoomLevel, setZoomLevel
+  } = useAppContext();
 
   const getLenses = async () => {
     return fetch(`/api/lens/getAll`)
@@ -159,34 +168,41 @@ export default function Home() {
     return _sorted_lenses;
   }, [sortingOptions, lenses]);
 
+  const headerActions = useMemo(() => {
+    return <Box className="flex flex-row items-center align-middle">
+      <Sort sortingOptions={sortingOptions} setSortingOptions={setSortingOptions} />
+      <LayoutSwitcher selectedLayoutType={selectedLayoutType} handleChangeLayoutView={handleChangeLayoutView} />
+      <Zoom zoomLevel={zoomLevel} setZoomLevel={val => setZoomLevel(val, "default")} />
+    </Box>
+  }, [
+    sortingOptions,
+    selectedLayoutType,
+    zoomLevel
+  ])
+
   return (
     <Flex direction="column" pt={0} h="100%">
-      <AppShell.Section>
-        <SpaceHeader
-          staticZoomLevel={false}
-          title="Home"
-          selectedLayoutType={selectedLayoutType}
-          handleChangeLayoutView={handleChangeLayoutView}
+      <PageHeader
+        title="Home"
+        loading={loading}
+        actions={headerActions}
+      />
+      <Box className="flex items-stretch flex-col h-full">
+        {loading && <div className="p-3">
+          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+        </div>}
+        <LayoutController
+          itemIcons={{}}
+          subspaces={sortedLenses}
+          layout={layoutData}
+          layoutView={selectedLayoutType}
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          handleLensDelete={handleLensDelete}
+          handleLensChangeName={handleLensChangeName}
+          onChangeLayout={onChangeLensLayout}
         />
-      </AppShell.Section>
-      <AppShell.Section grow component={ScrollArea}>
-        <Box className="flex items-stretch flex-col h-full">
-          {loading && <div className="p-3">
-            <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
-          </div>}
-          <LayoutController
-            itemIcons={{}}
-            subspaces={sortedLenses}
-            layout={layoutData}
-            layoutView={selectedLayoutType}
-            handleBlockChangeName={handleBlockChangeName}
-            handleBlockDelete={handleBlockDelete}
-            handleLensDelete={handleLensDelete}
-            handleLensChangeName={handleLensChangeName}
-            onChangeLayout={onChangeLensLayout}
-          />
-        </Box>
-      </AppShell.Section>
+      </Box>
       <FinishedOnboardingModal />
     </Flex >
   );

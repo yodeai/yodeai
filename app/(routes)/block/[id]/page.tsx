@@ -9,15 +9,17 @@ import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
 import PDFViewerIframe from "@components/PDFViewer";
 import { useRouter } from "next/navigation";
-import { Button, Flex, Text, Tooltip } from '@mantine/core';
+import { Button, Flex, Menu, Text, Tooltip } from '@mantine/core';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
-import BlockHeader from "@components/Layout/Headers/BlockHeader";
 import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
+import { PageHeader } from '@components/Layout/PageHeader';
+import { modals } from '@mantine/modals';
+import load from '@lib/load';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -191,31 +193,71 @@ export default function Block({ params }: { params: { id: string } }) {
 
   const rightEditButton = useMemo(() => {
     if (!block) return null
-    return <div className="flex justify-between items-center w-full">
-      <div className="flex gap-2">
-        {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
-          <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
-            <Button size="xs" variant="subtle" leftSection={
-              isEditing ? <FaCheck /> : <FaPen />
-            }
-              onClick={() => { isEditing ? $saveButton?.current?.click() : handleEditing(true) }} >
-              {isEditing ? "Save" : "Edit"}
-            </Button>
-          </Tooltip>
-          || ""}
-      </div>
+    return <div className="flex gap-2">
+      {["owner", "editor"].includes(block.accessLevel) && block.block_type === "note" &&
+        <Tooltip color="blue" label={isEditing ? "Save" : "Edit"}>
+          <Button size="xs" variant="subtle" leftSection={
+            isEditing ? <FaCheck /> : <FaPen />
+          }
+            onClick={() => {
+              isEditing ? $saveButton?.current?.click() : handleEditing(true)
+            }} >
+            {isEditing ? "Save" : "Edit"}
+          </Button>
+        </Tooltip>
+        || ""}
     </div>
-  }, [block]);
+  }, [block, isEditing]);
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm page deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this block? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete page', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: () => {
+      const deletePromise = onDelete();
+      load(deletePromise, {
+        loading: "Deleting page...",
+        success: "Page deleted.",
+        error: "Failed to delete page."
+      });
+    }
+  });
+
+  const handleSaveTitle = (title: string) => {
+    const saveTitlePromise = onSaveTitle(title);
+    load(saveTitlePromise, {
+      loading: "Saving page...",
+      success: "Page saved.",
+      error: "Failed to save page."
+    });
+  }
 
   return (<>
     <Flex direction="column" pt={0}>
-      <BlockHeader
-        loading={loading}
+      <PageHeader
         title={block?.title}
-        accessType={block?.accessLevel}
-        onSave={onSaveTitle}
-        onDelete={onDelete}
-        rightItem={rightEditButton}
+        onSaveTitle={handleSaveTitle}
+        editMode={isEditing}
+        loading={loading}
+        dropdownItems={[
+          {
+            label: "Rename", onClick: () => setIsEditing(true),
+            disabled: !["owner", "editor"].includes(block?.accessLevel)
+          },
+          {
+            label: "Delete", onClick: openDeleteModal,
+            disabled: !["owner", "editor"].includes(block?.accessLevel),
+            color: "red"
+          }
+        ]}
+        actions={rightEditButton}
       />
       <div className="w-full lg:w-[800px] mx-auto h-full p-[16px]">
         {!loading && block && <>

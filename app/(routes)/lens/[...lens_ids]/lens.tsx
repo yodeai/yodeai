@@ -5,13 +5,12 @@ import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "
 import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import DynamicSpaceHeader from '@components/Layout/Headers/DynamicSpaceHeader';
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { AppShell, Box, Flex, ScrollArea } from "@mantine/core";
+import { Box, Text } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
@@ -24,7 +23,13 @@ import { useDebouncedCallback } from "@utils/hooks";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
-import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { PageHeader } from "@components/Layout/PageHeader";
+import { modals } from "@mantine/modals";
+import { useDisclosure } from "@mantine/hooks";
+import ShareLensComponent from "@components/ShareLensComponent";
+import { Sort } from "@components/Layout/PageHeader/Sort";
+import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
+import { Zoom } from "@components/Layout/PageHeader/Zoom";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -38,6 +43,9 @@ export default function Lens(props: LensProps) {
   const [spreadsheets, setSpreadsheets] = useState<Tables<"spreadsheet">[]>(lensData.spreadsheets);
   const [widgets, setWidgets] = useState<Tables<"widget">[]>(lensData.widgets);
   const [layoutData, setLayoutData] = useState<LensLayout>(lensData.layout)
+
+  const shareModalDisclosure = useDisclosure(false);
+  const [shareModalState, shareModalController] = shareModalDisclosure;
 
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
@@ -54,8 +62,9 @@ export default function Lens(props: LensProps) {
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
-    accessType, setAccessType, sortingOptions,
-    iconItemDisclosure
+    accessType, setAccessType,
+    sortingOptions, setSortingOptions, zoomLevel, setZoomLevel,
+    iconItemDisclosure, pinnedLenses, setPinnedLenses
   } = useAppContext();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
@@ -506,6 +515,47 @@ export default function Lens(props: LensProps) {
     iconItemDisclosure[1].open();
   }
 
+
+  const onPinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
+      if (pinResponse.ok) {
+        console.log("Pinned spaces", lens.lens_id)
+        setPinnedLenses(pinnedLenses => [...pinnedLenses, lens])
+      }
+      if (!pinResponse.ok) console.error("Failed to pin lens");
+    } catch (error) {
+      console.error("Error pinning spaces:", error);
+    }
+  }
+
+  const onUnpinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "DELETE" });
+      if (pinResponse.ok) {
+        console.log("Unpinned lens", lens.lens_id)
+        setPinnedLenses(pinnedLenses => pinnedLenses.filter(pinnedLens => pinnedLens.lens_id !== lens.lens_id))
+      }
+      if (!pinResponse.ok) console.error("Failed to unpin spaces");
+    } catch (error) {
+      console.error("Error unpinning spaces:", error);
+    }
+  }
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm page deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this block? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete page', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: handleDeleteLens
+  });
+
   if (!lens && !loading) {
     return (
       <div className="flex flex-col p-4 flex-grow">
@@ -590,54 +640,83 @@ export default function Lens(props: LensProps) {
     return sortItems(widgets, sortingOptions.sortBy, sortingOptions.order);
   }, [sortingOptions, widgets]);
 
+  const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
+
+  const headerDropdownItems = useMemo(() => {
+    return [
+      {
+        label: "Rename",
+        onClick: () => setIsEditingLensName(true),
+        disabled: !["owner", "editor"].includes(accessType)
+      },
+      {
+        label: "Share",
+        onClick: shareModalController.open,
+        disabled: !["owner", "editor"].includes(accessType)
+      },
+      {
+        label: isPinned ? "Unpin" : "Pin",
+        onClick: isPinned ? onUnpinLens : onPinLens,
+      },
+      {
+        label: "Delete",
+        onClick: openDeleteModal,
+        disabled: !["owner", "editor"].includes(accessType),
+        color: "red"
+      }
+    ]
+  }, [isPinned, accessType])
+
+  const headerActions = useMemo(() => {
+    return <Box className="flex flex-row items-center align-middle">
+      <Sort sortingOptions={sortingOptions} setSortingOptions={setSortingOptions} />
+      <LayoutSwitcher selectedLayoutType={selectedLayoutType} handleChangeLayoutView={handleChangeLayoutView} />
+      <Zoom zoomLevel={zoomLevel} setZoomLevel={val => setZoomLevel(val, lens_id.toString())} />
+    </Box>
+  }, [sortingOptions, selectedLayoutType, zoomLevel])
+
   return (
     <ContentProvider
       blocks={blocks}
       whiteboards={whiteboards}
       subspaces={subspaces}
       spreadsheets={spreadsheets}>
-        <DynamicSpaceHeader
-          loading={loading}
-          lens={lens}
-          lensName={lensName}
-          editingLensName={editingLensName}
-          isEditingLensName={isEditingLensName}
-          setIsEditingLensName={setIsEditingLensName}
-          handleNameChange={handleNameChange}
-          handleKeyPress={handleKeyPress}
-          saveNewLensName={saveNewLensName}
-          handleDeleteLens={handleDeleteLens}
-          accessType={accessType}
-          selectedLayoutType={selectedLayoutType}
-          handleChangeLayoutView={handleChangeLayoutView}
-        />
-        {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-        {!loading && <LayoutController
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          handleLensChangeName={handleLensChangeName}
-          handleLensDelete={handleLensDelete}
-          handleWhiteboardDelete={handleWhiteboardDelete}
-          handleWhiteboardChangeName={handleWhiteboardChangeName}
-          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-          handleSpreadsheetDelete={handleSpreadsheetDelete}
-          handleWidgetChangeName={handleWidgetChangeName}
-          handleWidgetDelete={handleWidgetDelete}
-          onChangeLayout={onChangeLensLayout}
-          handleItemSettings={handleItemSettings}
-          layout={layoutData}
-          blocks={sortedBlocks}
-          subspaces={sortedSubspaces}
-          whiteboards={sortedWhiteboards}
-          spreadsheets={sortedSpreadsheets}
-          widgets={sortedWidgets}
-          itemIcons={itemIcons}
-          layoutView={selectedLayoutType} />}
+      <PageHeader
+        title={lensName}
+        onSaveTitle={saveNewLensName}
+        editMode={isEditingLensName}
+        loading={loading}
+        dropdownItems={headerDropdownItems}
+        actions={headerActions}
+      />
+      {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
+      {!loading && <LayoutController
+        handleBlockChangeName={handleBlockChangeName}
+        handleBlockDelete={handleBlockDelete}
+        handleLensChangeName={handleLensChangeName}
+        handleLensDelete={handleLensDelete}
+        handleWhiteboardDelete={handleWhiteboardDelete}
+        handleWhiteboardChangeName={handleWhiteboardChangeName}
+        handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+        handleSpreadsheetDelete={handleSpreadsheetDelete}
+        handleWidgetChangeName={handleWidgetChangeName}
+        handleWidgetDelete={handleWidgetDelete}
+        onChangeLayout={onChangeLensLayout}
+        handleItemSettings={handleItemSettings}
+        layout={layoutData}
+        blocks={sortedBlocks}
+        subspaces={sortedSubspaces}
+        whiteboards={sortedWhiteboards}
+        spreadsheets={sortedSpreadsheets}
+        widgets={sortedWidgets}
+        itemIcons={itemIcons}
+        layoutView={selectedLayoutType} />}
       <IconItemSettingsModal
         item_icons={itemIcons}
         item={$settingsItem.current}
         lens_id={lens_id}
         modalController={iconItemDisclosure} />
+      {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
     </ContentProvider>
   );
 }
