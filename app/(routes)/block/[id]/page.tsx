@@ -217,7 +217,7 @@ export default function Block({ params }: { params: { id: string } }) {
         onDelete={onDelete}
         rightItem={rightEditButton}
       />
-      <div className="w-[800px] mx-auto h-full p-[16px]">
+      <div className="w-full lg:w-[800px] mx-auto h-full p-[16px]">
         {!loading && block && <>
           {isEditing
             // this recreates the entire block view but allows for editing
