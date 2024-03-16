@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
+import { createRoot } from 'react-dom/client';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu, Text, Anchor, AppShell, Portal, Divider } from '@mantine/core';
+import { Box, Flex, Button, Menu, Text, Anchor, AppShell, Portal, Divider, MantineProvider } from '@mantine/core';
 import NextImage from 'next/image';
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
@@ -17,6 +18,8 @@ import OnboardingPopover from '../Onboarding/OnboardingPopover';
 import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
 import { IoIosChatbubbles } from '@react-icons/all-files/io/IoIosChatbubbles';
+import { render } from 'react-dom';
+import { usePortal } from 'app/_hooks/usePortal';
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -137,7 +140,26 @@ export default function Toolbar() {
 
     useEffect(() => {
         if (!lensId && activeToolbarComponent === "social") closeComponent();
-    }, [lensId])
+    }, [lensId]);
+
+    const toolbarMobileButton = useMemo(() => {
+        return <MantineProvider>
+            <Button
+                variant="subtle"
+                onClick={() => {
+                    switchComponent("questionform");
+                    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
+                }}
+                c="gray.6">
+                <NextImage src="/yodeai.png" alt="yodeai" width={22} height={22} />
+            </Button>
+        </MantineProvider>
+    }, []);
+
+    usePortal({
+        children: toolbarMobileButton,
+        containerSelector: "#toolbar_mobile_button",
+    }, [pathname])
 
     return <AppShell.Aside className="flex !flex-row">
         { /*toolbar buttons*/}
@@ -271,18 +293,6 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box >
-
-        <Portal target="#toolbar_mobile_button">
-            <Button
-                variant="subtle"
-                onClick={() => {
-                    switchComponent("questionform");
-                    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
-                }}
-                c="gray.6">
-                <NextImage src="/yodeai.png" alt="yodeai" width={22} height={22} />
-            </Button>
-        </Portal>
 
         <Box component='div' className="border-l border-l-[#eeeeee] w-full">
             { /* toolbar content with context */}
