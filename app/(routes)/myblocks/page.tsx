@@ -70,7 +70,6 @@ export default function MyBlocks() {
       })
       .catch((error) => {
         console.error("Error fetching block:", error);
-        notFound();
       });
   };
 

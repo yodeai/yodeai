@@ -26,7 +26,7 @@ import { ContentProvider } from "@contexts/content";
 import { PageHeader } from "@components/Layout/PageHeader";
 import { modals } from "@mantine/modals";
 import { useDisclosure } from "@mantine/hooks";
-import ShareLensComponent from "@components/ShareLensComponent";
+import ShareLensComponent from "@components/Modals/ShareLensComponent";
 import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";

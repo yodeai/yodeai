@@ -17,21 +17,21 @@ import {
     Flex, Button, Text, Input, ActionIcon, Tooltip, Box,
     Menu, UnstyledButton, Divider, Select, HoverCard, Slider, SegmentedControl, Center
 } from "@mantine/core";
-import ShareLensComponent from "@components/ShareLensComponent";
+import ShareLensComponent from "@components/Modals/ShareLensComponent";
 import { modals } from '@mantine/modals';
 import { Lens } from "app/_types/lens";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import { useAppContext, contextType } from "@contexts/context";
 
-import AddWhiteBoard from "@components/AddWhiteboard";
-import AddUserInsight from "@components/AddUserInsight";
-import AddCompetitiveAnalysis from "@components/AddCompetitiveAnalysis";
+import AddWhiteBoard from "@components/Modals/AddWhiteboard";
+import AddUserInsight from "@components/Modals/AddUserInsight";
+import AddCompetitiveAnalysis from "@components/Modals/AddCompetitiveAnalysis";
 
-import AddSubspace from "@components/AddSubspace";
-import AddSpreadsheet from "@components/Spreadsheet/AddSpreadsheet";
-import AddPainPointTracker from "@components/Spreadsheet/AddPainPointTracker";
-import AddWidget from "@components/Widgets/ModalForm";
+import AddSubspace from "@components/Modals/AddSubspace";
+import AddSpreadsheet from "@components/Modals/AddSpreadsheet";
+import AddPainPointTracker from "@components/Modals/AddPainPointTracker";
+import AddWidget from "@components/Modals/AddWidget";
 
 type DynamicSpaceHeaderProps = {
     loading: boolean,

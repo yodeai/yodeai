@@ -42,6 +42,7 @@ export type contextType = {
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
+  shareModalDisclosure: ReturnType<typeof useDisclosure>;
   subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
   whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
   userInsightsDisclosure: ReturnType<typeof useDisclosure>;
@@ -101,6 +102,7 @@ const defaultValue: contextType = {
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
+  shareModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
@@ -163,6 +165,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
   const [zoomLevel, setZoomLevel] = useState(100);
   const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
 
+  const shareModalDisclosure = useDisclosure(false);
   const subspaceModalDisclosure = useDisclosure(false);
   const whiteboardModelDisclosure = useDisclosure(false);
   const userInsightsDisclosure = useDisclosure(false);
@@ -353,6 +356,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
+      shareModalDisclosure,
       subspaceModalDisclosure, whiteboardModelDisclosure,
       userInsightsDisclosure, competitiveAnalysisDisclosure,
       spreadsheetModalDisclosure, iconItemDisclosure,
