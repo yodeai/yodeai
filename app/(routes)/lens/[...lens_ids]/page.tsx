@@ -14,8 +14,6 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
     const user = await supabase.auth.getUser()
     const user_metadata = user?.data?.user?.user_metadata;
 
-    console.log({user_metadata})
-
     const { data: lens, error } = await supabase
         .from('lens')
         .select(`
