@@ -44,7 +44,7 @@ export const WhiteboardElement = ({ whiteboard_id, node }: WhiteboardElementProp
 
         {!loading && data?.whiteboard_id && whiteboard_id &&
             <div className={cn("flex flex-col p-5 items-center justify-center")}>
-                <Link href={`/whiteboard/${whiteboard_id}`} className="text-inherit no-underline hover:underline" prefetch={false}>
+                <Link href={`/whiteboard/${whiteboard_id}`} className="text-inherit no-underline hover:underline" prefetch>
                     <Title order={4} c="gray.7">{data.name}</Title>
                 </Link>
                 <BiSolidChalkboard size={80} color="gray" />

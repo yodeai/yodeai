@@ -156,7 +156,7 @@ export default function Navbar() {
     </Popover>
 
     <Flex direction="column" gap={5} mt={10}>
-      <Link href="/" className="no-underline" prefetch={false}>
+      <Link href="/" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="Home"
@@ -166,7 +166,7 @@ export default function Navbar() {
           active
         />
       </Link>
-      <Link href="/myblocks" className="no-underline" prefetch={false}>
+      <Link href="/myblocks" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="My Pages"
@@ -176,7 +176,7 @@ export default function Navbar() {
           active
         />
       </Link>
-      <Link href="/inbox" className="no-underline" prefetch={false}>
+      <Link href="/inbox" className="no-underline" prefetch>
         <NavLink
           component="div"
           label="Inbox"
