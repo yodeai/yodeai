@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 type PageHeaderProps = {
     title: string;
+    secondaryItem?: JSX.Element;
     onSaveTitle?: (newTitle: string) => void;
     editMode?: boolean;
     loading?: boolean;
@@ -22,6 +23,7 @@ type PageHeaderProps = {
 }
 export const PageHeader = ({
     title,
+    secondaryItem,
     onSaveTitle,
     editMode = false,
     loading = false,
@@ -76,6 +78,11 @@ export const PageHeader = ({
                             </UnstyledButton>
                         </Menu.Target>}
                     </Box> || ""}
+                    {secondaryItem && <Box>
+                        <Divider orientation="vertical" className="mx-3" />
+                        {secondaryItem}
+                    </Box>}
+
                     {editMode && <> <Input
                         classNames={{
                             wrapper: "w-[300px]",

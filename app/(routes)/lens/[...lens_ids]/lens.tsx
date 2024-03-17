@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { Box, Text } from "@mantine/core";
+import { Box, Divider, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
@@ -31,6 +31,8 @@ import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
 import { PageContent } from "@components/Layout/Content";
+import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
+import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -45,8 +47,6 @@ export default function Lens(props: LensProps) {
   const [widgets, setWidgets] = useState<Tables<"widget">[]>(lensData.widgets);
   const [layoutData, setLayoutData] = useState<LensLayout>(lensData.layout)
 
-  const shareModalDisclosure = useDisclosure(false);
-  const [shareModalState, shareModalController] = shareModalDisclosure;
 
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
@@ -65,8 +65,13 @@ export default function Lens(props: LensProps) {
     reloadLenses, setActiveComponent,
     accessType, setAccessType,
     sortingOptions, setSortingOptions, zoomLevel, setZoomLevel,
+    shareModalDisclosure,
     iconItemDisclosure, pinnedLenses, setPinnedLenses
   } = useAppContext();
+
+  const [iconItemModalState, iconItemController] = iconItemDisclosure;
+  const [shareModalState, shareModalController] = shareModalDisclosure;
+
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
 
@@ -513,7 +518,7 @@ export default function Lens(props: LensProps) {
 
   const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
     $settingsItem.current = item;
-    iconItemDisclosure[1].open();
+    iconItemController.open();
   }
 
 
@@ -544,15 +549,15 @@ export default function Lens(props: LensProps) {
   }
 
   const openDeleteModal = () => modals.openConfirmModal({
-    title: 'Confirm page deletion',
+    title: 'Confirm space deletion',
     centered: true,
     confirmProps: { color: 'red' },
     children: (
       <Text size="sm">
-        Are you sure you want to delete this block? This action cannot be undone.
+        Are you sure you want to delete this space? This action cannot be undone.
       </Text>
     ),
-    labels: { confirm: 'Delete page', cancel: "Cancel" },
+    labels: { confirm: 'Delete space', cancel: "Cancel" },
     onCancel: () => console.log('Canceled deletion'),
     onConfirm: handleDeleteLens
   });
@@ -653,10 +658,10 @@ export default function Lens(props: LensProps) {
       {
         label: "Share",
         onClick: shareModalController.open,
-        disabled: !["owner", "editor"].includes(accessType)
+        disabled: !["owner"].includes(accessType)
       },
       {
-        label: isPinned ? "Unpin" : "Pin",
+        label: isPinned ? "Unpin this space" : "Pin this space",
         onClick: isPinned ? onUnpinLens : onPinLens,
       },
       {
@@ -676,6 +681,25 @@ export default function Lens(props: LensProps) {
     </Box>
   }, [sortingOptions, selectedLayoutType, zoomLevel])
 
+  const titleSecondaryItem = useMemo(() => {
+    return <>
+      {lens.public && <>
+        <Tooltip position="bottom" offset={0} label="Public Space">
+          <UnstyledButton onClick={shareModalController.open}>
+            <CiGlobe size={20} className="mt-2 ml-[5px]" />
+          </UnstyledButton>
+        </Tooltip>
+      </> || ""}
+      {!lens.public && lens.shared && <>
+        <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${accessType}`}>
+          <UnstyledButton onClick={shareModalController.open} disabled={!accessType || accessType !== "owner"}>
+            <FaUserGroup size={20} className="mt-2 ml-[5px] text-gray-600" />
+          </UnstyledButton>
+        </Tooltip>
+      </> || ""}
+    </>
+  }, [lens, accessType])
+
   return (
     <ContentProvider
       blocks={blocks}
@@ -684,6 +708,7 @@ export default function Lens(props: LensProps) {
       spreadsheets={spreadsheets}>
       <PageHeader
         title={lensName}
+        secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
         loading={loading}
@@ -719,7 +744,6 @@ export default function Lens(props: LensProps) {
         item={$settingsItem.current}
         lens_id={lens_id}
         modalController={iconItemDisclosure} />
-      {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={lens?.lens_id} />}
     </ContentProvider>
   );
 }
