@@ -106,6 +106,13 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   }
 
   const expandedContent = useMemo(() => {
+    if (sortedItems.length === 0) {
+      return (
+        <Flex mt={10}>
+          <Text size="sm" fw={400} c="gray.6">No pages found within this subspace.</Text>
+        </Flex>
+      )
+    }
     return (
       <div>
         {sortedItems.map(itemRenderer)}

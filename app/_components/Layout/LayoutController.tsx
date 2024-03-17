@@ -6,7 +6,6 @@ import React from "react";
 import { Flex, Text } from "@mantine/core";
 import ListLayoutComponent from "../ListView";
 import { Tables } from "app/_types/supabase";
-import widgets from '@components/Widgets';
 
 export type ViewController = {
     blocks?: Block[]
@@ -15,13 +14,13 @@ export type ViewController = {
     spreadsheets?: Tables<"spreadsheet">[]
     widgets?: Tables<"widget">[]
 
-    onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
-    layout: LensLayout,
-    itemIcons: Lens["item_icons"];
+    onChangeLayout?: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
+    layout?: LensLayout,
+    itemIcons?: Lens["item_icons"];
     layoutView: "block" | "icon",
-    handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
-    handleBlockDelete: (block_id: number) => Promise<any>
-    handleLensDelete: (lens_id: number) => Promise<any>
+    handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
+    handleBlockDelete?: (block_id: number) => Promise<any>
+    handleLensDelete?: (lens_id: number) => Promise<any>
     handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
@@ -33,7 +32,7 @@ export type ViewController = {
 }
 
 export type LayoutControllerProps = ViewController & {
-    layout: LensLayout,
+    layout?: LensLayout,
     layoutView: "block" | "icon",
 }
 

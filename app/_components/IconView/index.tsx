@@ -374,22 +374,14 @@ export default function IconLayoutComponent({
 
   const ROW_HEIGHT = 100;
 
-  useEffect(() => {
-    if($gridContainer.current){
-      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.main.current) - 60}px`;
-    }
-  }, [$gridContainer]);
-
-  return <div ref={$gridContainer} style={{ overflowY: "scroll" }}>
+  return <div style={{ overflowY: "scroll" }}>
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
       breakpoint={breakpoint}
       style={{
         transform: `scale(${zoomLevel / 100}) translateZ(0)`,
-        transformOrigin: 'top left',
-        height: `${getInnerHeight(layoutRefs.main.current) - 40}px`,
-        overflow: "scroll"
+        transformOrigin: 'top left'
       }}
       breakpoints={breakpoints}
       rowHeight={ROW_HEIGHT}

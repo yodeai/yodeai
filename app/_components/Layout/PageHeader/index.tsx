@@ -1,7 +1,8 @@
 import LoadingSkeleton from "@components/LoadingSkeleton";
-import { Box, Divider, Flex, MantineColor, Menu, Text, UnstyledButton } from "@mantine/core";
+import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, UnstyledButton } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { useEffect, useRef, useState } from "react";
 
 type PageHeaderProps = {
@@ -57,9 +58,9 @@ export const PageHeader = ({
         </Flex>
     }
 
-    return <Flex className="border-b border-gray-200" direction={matchMobileView ? "column" : "row"} justify="space-between">
+    return <Flex className="sticky top-0 border-b border-gray-200" direction={matchMobileView ? "column" : "row"} justify="space-between">
         <Menu shadow="md" position="bottom-start" width={150}>
-            <Flex align="center" gap="sm" className="px-4 py-2">
+            <Flex align="center" gap="xs" className="px-4 py-2 h-[60px]">
                 {!editMode && <Box className="grow">
                     <Text span={true} c={"gray.7"} size="xl" fw={700}>{title}</Text>
                     {dropdownItems && <Menu.Target>
@@ -68,12 +69,31 @@ export const PageHeader = ({
                         </UnstyledButton>
                     </Menu.Target>}
                 </Box> || ""}
-                {editMode &&
-                    <input ref={titleInputRef} className="border-0 bg-transparent text-xl font-bold w-[450px]"
-                        value={titleValue}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyPress}
-                    />}
+                {editMode && <> <Input
+                    classNames={{
+                        wrapper: "w-[300px]",
+                        input: "w-full inline-block text-xl border border-gray-400 rounded-md outline-none focus:border-gray-500"
+                    }}
+                    ref={titleInputRef}
+                    unstyled
+                    fw={700}
+                    c={"gray.7"}
+                    size="xl"
+                    value={titleValue}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyPress}
+                />
+                    <ActionIcon
+                        size="md"
+                        color="green"
+                        variant="gradient"
+                        gradient={{ from: 'green', to: 'lime', deg: 116 }}
+                        onClick={() => onSaveTitle(titleValue)}
+                    >
+                        <FaCheck size={14} />
+                    </ActionIcon>
+                </>
+                }
             </Flex>
             {dropdownItems && Array.isArray(dropdownItems) && <Menu.Dropdown>
                 {dropdownItems.map((item, i) => <Menu.Item key={i} color={item.color} disabled={item.disabled} onClick={item.onClick}>{item.label}</Menu.Item>)}
@@ -82,8 +102,8 @@ export const PageHeader = ({
 
         <Divider />
 
-        <Flex justify="flex-end">
-            <div className="p-2">
+        <Flex justify="flex-end" align="center" className="h-[60px]">
+            <div className="grow px-4">
                 {actions}
             </div>
             <Divider orientation="vertical" className="block sm:hidden" />

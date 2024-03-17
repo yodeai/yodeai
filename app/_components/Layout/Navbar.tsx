@@ -110,7 +110,7 @@ export default function Navbar() {
     setOpened(newState);
   };
 
-  return <AppShell.Navbar>
+  return <AppShell.Navbar ref={layoutRefs.navbar}>
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>

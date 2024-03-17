@@ -1,5 +1,5 @@
 import Navbar from "@components/Layout/Navbar";
-import Toolbar from '@components/Layout/Toolbar'
+import Toolbar from '@components/Layout/Aside/Toolbar'
 import { LensProvider } from "@contexts/context";
 import ExplorerProvider from "@contexts/explorer";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'

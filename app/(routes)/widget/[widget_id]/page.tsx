@@ -1,10 +1,10 @@
 
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { Database, Tables } from "app/_types/supabase";
+import { Database } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 
-import widgets, { WidgetComponentProps, WidgetComponentType, WidgetType } from '@components/Widgets';
+import widgets, { WidgetComponentType } from '@components/Widgets';
 import { Result } from "@components/Result";
 import { MdError } from "@react-icons/all-files/md/MdError";
 import { WidgetData } from "app/_types/widget";

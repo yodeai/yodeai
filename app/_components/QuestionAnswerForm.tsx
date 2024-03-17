@@ -7,7 +7,7 @@ import QuestionComponent from './QuestionComponent';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AppShell, Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
-import ToolbarHeader from './Layout/Headers/ToolbarHeader';
+import ToolbarHeader from './Layout/Aside/ToolbarHeader';
 import LoadingSkeleton from './LoadingSkeleton';
 import { getUserInfo } from '@utils/googleUtils';
 import OnboardingPopover from './Onboarding/OnboardingPopover';

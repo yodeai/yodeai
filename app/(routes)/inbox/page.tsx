@@ -11,9 +11,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Flex, Box, Paper, Text } from "@mantine/core";
 import LensInviteComponent from "@components/LensInviteComponent";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
 import { getUserInfo } from "@utils/googleUtils";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
+import { PageHeader } from "@components/Layout/PageHeader";
+import { PageContent } from "@components/Layout/Content";
 
 export default function Inbox() {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -104,18 +105,12 @@ export default function Inbox() {
 
   return (
     <Flex direction="column" pt={0}>
-      <SpaceHeader
-        title="Inbox"
-        selectedLayoutType="block"
-        handleChangeLayoutView={() => { }}
-        staticLayout={true}
-        staticSortBy={true}
-      />
-      <Box p={16}>
-        <Paper mb={10}>
-          <Text size="lg" fw={600} c={"gray.7"}>Invitations</Text>
-          {
-            unacceptedInvites?.length > 0 ? (
+      <PageHeader title="Inbox" />
+      <PageContent>
+        <Box p={16}>
+          <Paper mb={10}>
+            <Text size="lg" fw={600} c={"gray.7"}>Invitations</Text>
+            {unacceptedInvites?.length > 0 ? (
               unacceptedInvites.map((invite) => (
                 <div key={invite.lens_id} >
                   <LensInviteComponent invite={invite}></LensInviteComponent>
@@ -125,16 +120,11 @@ export default function Inbox() {
               <Text c={"gray.6"} mt={5} size="md">
                 No unaccepted invites!
               </Text>
-            )
-          }
-        </Paper>
-
-        <BlockColumnHeader />
-
-        <Text size="lg" fw={600} c={"gray.7"}>Latest Pages</Text>
-
-        {
-          loading ? (
+            )}
+          </Paper>
+          <BlockColumnHeader />
+          <Text size="lg" fw={600} c={"gray.7"}>Latest Pages</Text>
+          {loading ? (
             <div className="mt-2">
               <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
             </div>
@@ -146,13 +136,9 @@ export default function Inbox() {
             <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
               Nothing to show here. As you add pages they will initially show up in your Inbox.
             </Text>
-          )
-        }
-
-        {/* <Flex direction={"column"} justify={"flex-end"}>
-        <QuestionAnswerForm />
-      </Flex> */}
-      </Box>
+          )}
+        </Box>
+      </PageContent>
       <FinishedOnboardingModal />
     </Flex >
   );

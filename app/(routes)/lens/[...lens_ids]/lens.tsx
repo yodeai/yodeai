@@ -30,6 +30,7 @@ import ShareLensComponent from "@components/ShareLensComponent";
 import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
+import { PageContent } from "@components/Layout/Content";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData } = props;
@@ -690,27 +691,29 @@ export default function Lens(props: LensProps) {
         actions={headerActions}
       />
       {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
-      {!loading && <LayoutController
-        handleBlockChangeName={handleBlockChangeName}
-        handleBlockDelete={handleBlockDelete}
-        handleLensChangeName={handleLensChangeName}
-        handleLensDelete={handleLensDelete}
-        handleWhiteboardDelete={handleWhiteboardDelete}
-        handleWhiteboardChangeName={handleWhiteboardChangeName}
-        handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-        handleSpreadsheetDelete={handleSpreadsheetDelete}
-        handleWidgetChangeName={handleWidgetChangeName}
-        handleWidgetDelete={handleWidgetDelete}
-        onChangeLayout={onChangeLensLayout}
-        handleItemSettings={handleItemSettings}
-        layout={layoutData}
-        blocks={sortedBlocks}
-        subspaces={sortedSubspaces}
-        whiteboards={sortedWhiteboards}
-        spreadsheets={sortedSpreadsheets}
-        widgets={sortedWidgets}
-        itemIcons={itemIcons}
-        layoutView={selectedLayoutType} />}
+      <PageContent>
+        {!loading && <LayoutController
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
+          handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
+          handleWidgetChangeName={handleWidgetChangeName}
+          handleWidgetDelete={handleWidgetDelete}
+          onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          layout={layoutData}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          spreadsheets={sortedSpreadsheets}
+          widgets={sortedWidgets}
+          itemIcons={itemIcons}
+          layoutView={selectedLayoutType} />}
+      </PageContent>
       <IconItemSettingsModal
         item_icons={itemIcons}
         item={$settingsItem.current}

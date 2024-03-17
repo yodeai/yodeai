@@ -20,6 +20,7 @@ import { FaPen } from '@react-icons/all-files/fa6/FaPen';
 import { PageHeader } from '@components/Layout/PageHeader';
 import { modals } from '@mantine/modals';
 import load from '@lib/load';
+import { PageContent } from '@components/Layout/Content';
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
@@ -259,35 +260,37 @@ export default function Block({ params }: { params: { id: string } }) {
         ]}
         actions={rightEditButton}
       />
-      <div className="w-full lg:w-[800px] mx-auto h-full p-[16px]">
-        {!loading && block && <>
-          {isEditing
-            // this recreates the entire block view but allows for editing
-            // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
-            ? <BlockEditor
-              withHeader={true}
-              refs={{ saveButton: $saveButton }}
-              block={block} onSave={onSave}
-            />
-            : <>
-              <div className="flex flex-col py-4">
-                <div>
-                  <Text size="sm" c="gray">
-                    Created {timeAgo(block.created_at)}
-                  </Text>
+      <PageContent>
+        <div className="w-full lg:w-[800px] mx-auto h-full p-[16px]">
+          {!loading && block && <>
+            {isEditing
+              // this recreates the entire block view but allows for editing
+              // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
+              ? <BlockEditor
+                withHeader={true}
+                refs={{ saveButton: $saveButton }}
+                block={block} onSave={onSave}
+              />
+              : <>
+                <div className="flex flex-col py-4">
+                  <div>
+                    <Text size="sm" c="gray">
+                      Created {timeAgo(block.created_at)}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="gray">
+                      Updated {timeAgo(block.updated_at)}
+                    </Text>
+                  </div>
                 </div>
-                <div>
-                  <Text size="sm" c="gray">
-                    Updated {timeAgo(block.updated_at)}
-                  </Text>
-                </div>
-              </div>
-              {renderContent()}
-            </>
-          }
-          {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
-        </>}
-      </div>
+                {renderContent()}
+              </>
+            }
+            {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
+          </>}
+        </div>
+      </PageContent>
     </Flex>
     <FinishedOnboardingModal />
   </>

@@ -12,7 +12,7 @@ export const LayoutSwitcher = ({
     handleChangeLayoutView
 }: LayoutSwitcherProps) => {
     return <SegmentedControl
-        className="ml-3"
+        className="ml-3 grow"
         value={selectedLayoutType}
         onChange={handleChangeLayoutView}
         data={[{

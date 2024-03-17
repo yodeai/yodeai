@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { WidgetType } from '../index';
-import { Card } from '@mantine/core';
+import { Card, Text } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
 
-import WidgetHeader from '@components/Layout/Headers/WidgetHeader';
 import { useWidget } from '../hooks';
 import load from '@lib/load';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@components/Layout/PageHeader';
+import { modals } from '@mantine/modals';
+import { useAppContext } from '@contexts/context';
+import { PageContent } from '@components/Layout/Content';
 
 /** 
  * @name PRDTickets
@@ -29,7 +32,7 @@ export type Ticket = {
     };
 }
 
-type WidgetInputProps = { }
+type WidgetInputProps = {}
 type WidgetOutputProps = {
     tickets: Ticket[];
 }
@@ -46,7 +49,9 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
     } = useWidget<WidgetInputProps, WidgetOutputProps>(props);
     const router = useRouter();
 
-    const [data, setData] = useState(props);
+    const { layoutRefs } = useAppContext();
+
+    const [isEditing, setIsEditing] = useState(false);
     const [tickets, setTickets] = useState(output.tickets);
 
     const updateTicket = (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket, ticketIndex: number) => {
@@ -85,24 +90,57 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
         })
     }
 
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm widget deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this widget? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete widget', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: handleDeleteWidget
+    });
+
+
+    const headerDropdownItems = useMemo(() => {
+        return [
+            {
+                label: "Rename",
+                onClick: () => setIsEditing(true),
+                disabled: !["owner", "editor"].includes(props.access_type)
+            },
+            {
+                label: "Delete",
+                onClick: openDeleteModal,
+                disabled: !["owner", "editor"].includes(props.access_type),
+                color: "red"
+            }
+        ]
+    }, [isEditing])
+
     return <div>
-        <WidgetHeader
+        <PageHeader
             title={name}
-            accessType={props.access_type}
-            onSave={updateTitle}
-            onDelete={handleDeleteWidget}
+            editMode={isEditing}
+            onSaveTitle={updateTitle}
+            dropdownItems={headerDropdownItems}
         />
 
-        <div className="sm:w-[80%] w-full mx-auto flex flex-col my-[20px] gap-[20px]">
-            {tickets.map((ticket, index) => (
-                <Card key={index} shadow="xs" padding="lg" radius="md">
-                    <TicketComponent
-                        handleChange={(...args) => updateTicket(...args, index)}
-                        handleUpdate={handleUpdateWidget}
-                        onExport={exportToJira} data={ticket} />
-                </Card>
-            ))}
-        </div>
+        <PageContent>
+            <div className="sm:w-[80%] w-full mx-auto flex flex-col my-[20px] gap-[20px]">
+                {tickets.map((ticket, index) => (
+                    <Card key={index} shadow="xs" padding="lg" radius="md">
+                        <TicketComponent
+                            handleChange={(...args) => updateTicket(...args, index)}
+                            handleUpdate={handleUpdateWidget}
+                            onExport={exportToJira} data={ticket} />
+                    </Card>
+                ))}
+            </div>
+        </PageContent>
     </div>
 }
 

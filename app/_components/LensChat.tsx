@@ -7,7 +7,7 @@ import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
 import { AppShell, Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
 import InfoPopover from './InfoPopover';
-import ToolbarHeader from './Layout/Headers/ToolbarHeader';
+import ToolbarHeader from './Layout/Aside/ToolbarHeader';
 import { timeAgo } from '@utils/index';
 import LoadingSkeleton from './LoadingSkeleton';
 import { cn } from '@utils/style';
@@ -189,7 +189,6 @@ export default function LensChat() {
                     </Flex>
                 </ToolbarHeader>
             </AppShell.Section>
-
 
             {/* content */}
             <AppShell.Section grow component={ScrollArea}>

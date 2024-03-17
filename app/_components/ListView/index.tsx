@@ -1,6 +1,6 @@
 
-import { useMemo } from "react";
-import { Flex, Text, ScrollArea, Divider, AppShell } from "@mantine/core";
+import { useEffect, useMemo, useRef } from "react";
+import { Flex, Text, ScrollArea, Divider, AppShell, Box } from "@mantine/core";
 import { Block } from "app/_types/block";
 import { Subspace, Lens } from "app/_types/lens";
 
@@ -14,6 +14,7 @@ import WhiteboardLineComponent from "@components/ListView/Views/WhiteboardLineCo
 import SpreadsheetLineComponent from "./Views/SpreadsheetLineComponent";
 import WidgetLineComponent from "./Views/WidgetLineComponent";
 import { useSort } from "app/_hooks/useSort";
+import { cn, getInnerHeight } from "@utils/style";
 
 export type ListViewItemType = Block | Subspace | Lens
     | Tables<"whiteboard">
@@ -33,7 +34,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
         blocks = [], subspaces = [], whiteboards = [], spreadsheets = [], widgets = []
     } = props;
 
-    const { sortingOptions } = useAppContext();
+    const { sortingOptions, layoutRefs } = useAppContext();
 
     const items = useMemo(() =>
         [...blocks, ...whiteboards, ...spreadsheets, ...widgets]
@@ -56,7 +57,7 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
         }
     }
 
-    return <ScrollArea type={"scroll"} w={'100%'} p={12} scrollbarSize={8} h="100%">
+    return <Box pl={12}>
         {(sortedItems.length > 0
             ? <>
                 <BlockColumnHeader />
@@ -75,5 +76,5 @@ export default function ListLayoutComponent(props: ListLayoutComponentProps) {
                 <Text size="sm" c={"gray.7"} ta={"center"} my={20}> No subspaces.</Text>
             </Flex>
         }
-    </ScrollArea>
+    </Box>
 }

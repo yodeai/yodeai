@@ -1,5 +1,5 @@
 import { Flex, Box, UnstyledButton } from '@mantine/core';
-import { useToolbarContext } from '../Toolbar';
+import { useToolbarContext } from './Toolbar';
 import { IoMdClose } from '@react-icons/all-files/io/IoMdClose';
 
 type ToolbarHeaderProps = {

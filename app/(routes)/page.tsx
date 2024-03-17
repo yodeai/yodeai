@@ -4,7 +4,7 @@ import { Lens } from "app/_types/lens";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Flex, Box, Select, Button, SegmentedControl, Center, HoverCard, Slider } from '@mantine/core';
+import { Flex, Box } from '@mantine/core';
 
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import LayoutController from '@components/Layout/LayoutController';
@@ -15,11 +15,11 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 import { Database } from "app/_types/supabase";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 import { PageHeader } from "@components/Layout/PageHeader";
-import { FaMagnifyingGlassPlus } from '@react-icons/all-files/fa6/FaMagnifyingGlassPlus';
 
 import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
+import { PageContent } from "@components/Layout/Content";
 
 const supabase = createClientComponentClient<Database>()
 
@@ -187,22 +187,24 @@ export default function Home() {
         loading={loading}
         actions={headerActions}
       />
-      <Box className="flex items-stretch flex-col h-full">
-        {loading && <div className="p-3">
-          <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
-        </div>}
-        <LayoutController
-          itemIcons={{}}
-          subspaces={sortedLenses}
-          layout={layoutData}
-          layoutView={selectedLayoutType}
-          handleBlockChangeName={handleBlockChangeName}
-          handleBlockDelete={handleBlockDelete}
-          handleLensDelete={handleLensDelete}
-          handleLensChangeName={handleLensChangeName}
-          onChangeLayout={onChangeLensLayout}
-        />
-      </Box>
+
+      <PageContent>
+        <Box className="flex items-stretch flex-col h-full">
+          {loading && <div className="p-3">
+            <LoadingSkeleton boxCount={10} lineHeight={80} m={0} />
+          </div>}
+          <LayoutController
+            subspaces={sortedLenses}
+            layout={layoutData}
+            layoutView={selectedLayoutType}
+            handleBlockChangeName={handleBlockChangeName}
+            handleBlockDelete={handleBlockDelete}
+            handleLensDelete={handleLensDelete}
+            handleLensChangeName={handleLensChangeName}
+            onChangeLayout={onChangeLensLayout}
+          />
+        </Box>
+      </PageContent>
       <FinishedOnboardingModal />
     </Flex >
   );

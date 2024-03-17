@@ -9,11 +9,11 @@ import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
 
-import ConditionalTooltip from '../ConditionalTooltip';
-import LensChat from '../LensChat';
+import ConditionalTooltip from '../../ConditionalTooltip';
+import LensChat from '../../LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname, useRouter } from 'next/navigation';
-import OnboardingPopover from '../Onboarding/OnboardingPopover';
+import OnboardingPopover from '../../Onboarding/OnboardingPopover';
 
 import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';

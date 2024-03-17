@@ -11,7 +11,7 @@ type SortProps = {
 export const Sort = ({ sortingOptions, setSortingOptions }: SortProps) => {
     return <Select
         variant="filled"
-        className="inline"
+        className="inline grow"
         leftSection={<Box>
             <Button
                 size="xs"

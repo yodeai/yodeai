@@ -12,14 +12,17 @@ registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 import { Database, Tables } from 'app/_types/supabase';
 import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
 import usePlugin from './Plugins';
-import SpreadsheetHeader from '@components/Layout/Headers/SpreadsheetHeader';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from '@utils/hooks';
 import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
 
-import { Text } from '@mantine/core';
+import { Box, Text } from '@mantine/core';
 import { useAppContext } from '@contexts/context';
+import { PageHeader } from '@components/Layout/PageHeader';
+import { modals } from '@mantine/modals';
+import load from '@lib/load';
+import { PageContent } from '@components/Layout/Content';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
@@ -33,6 +36,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const supabase = createClientComponentClient<Database>();
     const [spreadsheet, setSpreadsheet] = useState<SpreadsheetProps["spreadsheet"]>(_spreadsheet);
     const [isSaving, setIsSaving] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const { setBreadcrumbActivePage, setLensId } = useAppContext();
 
@@ -92,15 +96,20 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         }
     }, [spreadsheet])
 
-
     const handleSaveTitle = async (name: string) => {
-        return fetch(`/api/spreadsheet/${spreadsheet.spreadsheet_id}`, {
+        const savePromise = fetch(`/api/spreadsheet/${spreadsheet.spreadsheet_id}`, {
             method: 'PUT',
             body: JSON.stringify({ name }),
             headers: {
                 'Content-Type': 'application/json'
             }
-        })
+        });
+        await load(savePromise, {
+            loading: "Changing name...",
+            success: "Name changed.",
+            error: "Failed to change name."
+        });
+        setIsEditing(false);
     }
 
     const handleDelete = async () => {
@@ -123,6 +132,29 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
             setIsSaving(false);
         });
     }, 1000, []);
+
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm spreadsheet deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this spreadsheet? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete spreadsheet', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: () => {
+            const deletePromise = handleDelete();
+            load(deletePromise, {
+                loading: "Deleting spreadsheet...",
+                success: "Spreadsheet deleted.",
+                error: "Failed to delete spreadsheet."
+            }).then(() => {
+                router.back();
+            })
+        }
+    });
 
     const onCellUpdate: EmitType<BeforeCellUpdateArgs> = useCallback(({ rowIndex, colIndex, cell }: BeforeCellUpdateArgs) => {
         let currentDataSource = $dataSource.current;
@@ -160,35 +192,56 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         }
     }, [access_type, $spreadsheet])
 
-    const spreadsheetContainer = useMemo(() => <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
-        <SpreadsheetComponent
-            saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
-            beforeCellUpdate={onCellUpdate}
-            beforeDataBound={beforeDataBound}
-            created={onSheetCreated.bind(this)}
-            isProtected={isSpreadsheetProtected}
-            ref={$spreadsheet}>
-            {document}
-        </SpreadsheetComponent>
-    </div>, []);
+    const spreadsheetContainer = useMemo(() =>
+        <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
+            <SpreadsheetComponent
+                saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
+                beforeCellUpdate={onCellUpdate}
+                beforeDataBound={beforeDataBound}
+                created={onSheetCreated.bind(this)}
+                isProtected={isSpreadsheetProtected}
+                ref={$spreadsheet}>
+                {document}
+            </SpreadsheetComponent>
+        </div>, []);
 
-    return (
-        <div className='root-spreadsheet control-pane h-full overflow-hidden'>
-            <SpreadsheetHeader
-                title={spreadsheet.name}
-                accessType={access_type}
-                onSave={handleSaveTitle}
-                onDelete={handleDelete}
-                rightSection={<>
-                    {isSaving && <div className="flex flex-row items-center gap-2">
-                        <ImSpinner8 size={14} className="animate-spin" />
-                        <Text size="sm" c="gray.7" m={0} p={0}>Auto-save...</Text>
-                    </div> || ""}
-                </>}
-            />
+    const headerActions = useMemo(() => {
+        return <>{
+            isSaving && <div className="flex flex-row align-middle gap-2">
+                <ImSpinner8 size={14} className="animate-spin" />
+                <Text size="sm" c="gray.7" m={0} p={0}>Auto-save...</Text>
+            </div> || ""
+        }</>
+    }, [isSaving]);
+
+    const headerDropdownItems = useMemo(() => {
+        return [
+            {
+                label: "Rename",
+                onClick: () => setIsEditing(true),
+                disabled: !["owner", "editor"].includes(access_type)
+            },
+            {
+                label: "Delete",
+                onClick: openDeleteModal,
+                disabled: !["owner", "editor"].includes(access_type),
+                color: "red"
+            }
+        ]
+    }, [])
+
+    return <Box className="flex flex-col justify-between align-middle">
+        <PageHeader
+            title={spreadsheet.name}
+            editMode={isEditing}
+            onSaveTitle={handleSaveTitle}
+            actions={headerActions}
+            dropdownItems={headerDropdownItems}
+        />
+        <PageContent>
             {spreadsheetContainer}
-        </div >
-    )
+        </PageContent>
+    </Box>
 }
 
 export default Spreadsheet;

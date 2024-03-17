@@ -1,25 +1,24 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { notFound } from "next/navigation";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
 import { Block } from "app/_types/block";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-import { Flex, Text, Box } from "@mantine/core";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/Layout/Headers/SpaceHeader";
+import { Flex } from "@mantine/core";
 import { getUserInfo } from "@utils/googleUtils";
+import { PageHeader } from "@components/Layout/PageHeader";
+import { Sort } from "@components/Layout/PageHeader/Sort";
+import LayoutController from "@components/Layout/LayoutController";
+import { PageContent } from "@components/Layout/Content";
 
 export default function MyBlocks() {
   const supabase = createClientComponentClient()
 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
-  const { sortingOptions, setLensId } = useAppContext();
-
-
+  const { sortingOptions, setSortingOptions, setLensId } = useAppContext();
 
   useEffect(() => {
     const updateBlocks = (payload) => {
@@ -76,7 +75,7 @@ export default function MyBlocks() {
   };
 
   useEffect(() => {
-    const fetchBlocksAndInfo = async() => {
+    const fetchBlocksAndInfo = async () => {
       let googleUserId = await getUserInfo();
       fetchBlocks(googleUserId);
       setLensId(null);
@@ -104,32 +103,29 @@ export default function MyBlocks() {
     return _sorted_blocks;
   }, [sortingOptions, blocks]);
 
+  const headerActions = useMemo(() => {
+    return <>
+      <Sort sortingOptions={sortingOptions} setSortingOptions={setSortingOptions} />
+    </>
+  }, [sortingOptions]);
+
   return (
     <Flex direction="column" pt={0}>
-      <SpaceHeader
-        title="My Pages"
-        selectedLayoutType="block"
-        staticLayout={true}
+      <PageHeader
+        title="My Blocks"
+        loading={loading}
+        actions={headerActions}
       />
-      {loading && <div className="p-3">
-        <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
-      </div> || ""
-      }
+      <PageContent>
+        {loading && <div className="p-3">
+          <LoadingSkeleton boxCount={8} lineHeight={80} m={0} />
+        </div> || ""}
 
-      {!loading && sortedBlocks.length > 0 &&
-        <Box p={16}>
-          <BlockColumnHeader />
-          {sortedBlocks.map((block) =>
-            <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
-          )}
-        </Box> || ""
-      }
-
-      {!loading && sortedBlocks?.length == 0 &&
-        <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-          Nothing to show here. As you add pages they will initially show up in your Inbox.
-        </Text> || ""
-      }
+        {!loading && <LayoutController
+          blocks={sortedBlocks}
+          layoutView="block"
+        />}
+      </PageContent>
 
     </Flex >
   );

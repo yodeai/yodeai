@@ -36,6 +36,7 @@ export type contextType = {
   layoutRefs: {
     main: React.RefObject<HTMLDivElement>;
     sidebar: React.RefObject<HTMLDivElement>;
+    navbar: React.RefObject<HTMLDivElement>;
   },
 
   draggingNewBlock: boolean;
@@ -94,6 +95,7 @@ const defaultValue: contextType = {
   layoutRefs: {
     main: React.createRef<HTMLDivElement>(),
     sidebar: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   },
 
   draggingNewBlock: false,
@@ -242,7 +244,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
-    main: React.createRef<HTMLDivElement>()
+    main: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   }
 
   const getAllLenses = async () => {
