@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
-import { createRoot } from 'react-dom/client';
 import QuestionAnswerForm from '@components/QuestionAnswerForm'
 import { Box, Flex, Button, Menu, Text, Anchor, AppShell, Portal, Divider, MantineProvider } from '@mantine/core';
 import NextImage from 'next/image';
@@ -18,7 +17,6 @@ import OnboardingPopover from '../../Onboarding/OnboardingPopover';
 import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
 import { IoIosChatbubbles } from '@react-icons/all-files/io/IoIosChatbubbles';
-import { render } from 'react-dom';
 import { usePortal } from 'app/_hooks/usePortal';
 
 type contextType = {

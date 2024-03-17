@@ -1,7 +1,5 @@
-import { MantineProvider } from '@mantine/core';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { render } from 'react-dom';
-import { createRoot } from 'react-dom/client';
 
 type usePortalProps = {
     children: JSX.Element;
@@ -9,11 +7,24 @@ type usePortalProps = {
 }
 export const usePortal = ({ children, containerSelector }: usePortalProps, dependencies: any[]) => {
     useEffect(() => {
-        if (document.querySelector(containerSelector)) {
-            const container = document.querySelector(containerSelector);
+        const container = document.querySelector(containerSelector);
+        if (container) {
             render(children, container);
         }
-    }, [dependencies])
+
+        const observer = new MutationObserver(() => {
+            const updatedContainer = document.querySelector(containerSelector);
+            if (updatedContainer) {
+                render(children, updatedContainer);
+            }
+        });
+
+        observer.observe(document.body, { childList: true });
+
+        return () => {
+            observer.disconnect();
+        };
+    }, dependencies);
 
     return null;
 }
