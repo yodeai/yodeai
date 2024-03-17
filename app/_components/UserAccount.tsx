@@ -1,66 +1,94 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { Button, Flex, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
+import toast from 'react-hot-toast';
+import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+import { useLocalStorage } from '@mantine/hooks';
+import { usePathname } from 'next/navigation';
 
 type UserAccountHandlerProps = {
   user: User | null;
 }
-const UserAccountHandler = ({user}: UserAccountHandlerProps) => {
+const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
   const supabase = createClientComponentClient();
-  const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
-  const [redirectUri, setRedirectUri] = useState("")
+  const [loading, setLoading] = useState(false);
+  const pathname = usePathname();
+  const [currentPageBeforeAuth, setCurrentPageBeforeAuth] = useLocalStorage({ key: 'currentPageBeforeAuth', defaultValue: '/', });
 
-  const openGoogleAuthWindow = () => {
-    const authWindow = window.open(redirectUri);
+  const isGoogleAccountConnected = useMemo(() => {
+    return user?.user_metadata?.google_user_id || false;
+  }, [user])
 
-    // Add event listener for beforeunload when the window is closed
-    window.addEventListener('beforeunload', async () => {
-      try {
-        const connected = await checkGoogleAccountConnected();
-        setGoogleAccountConnected(connected);
-        console.log("Set connected", connected)
-      } catch (error) {
-        console.error('Error checking Google account connection:', error);
-      }
+  const openGoogleAuthWindow = async () => {
+    setLoading(true);
+    let authWindow: Window | null = null;
 
-      // Clean up event listener
-      window.removeEventListener('beforeunload', () => { });
-    });
+    const response = await fetch(`/api/google/redirectURI`);
+    if (response.ok) {
+      const content = await response.json();
+      setCurrentPageBeforeAuth(pathname)
+      window.location.replace(content.uri);
+      // authWindow.onbeforeunload = async (event) => {
+
+      //   alert('closed');
+      //   try {
+      //     const connected = await checkGoogleAccountConnected();
+      //     if (connected) {
+      //       window.location.reload();
+      //     } else {
+      //       setLoading(false);
+      //       toast.error("Failed to connect Google account")
+      //     }
+      //   } catch (error) {
+      //     console.error('Error checking Google account connection:', error);
+      //     setLoading(false);
+      //     toast.error("Failed to connect Google account")
+      //   }
+      //   return false;
+      // }
+    } else {
+      console.error("Failed to fetch Google redirect uri", response.statusText);
+      toast.error("Failed to fetch Google redirect uri")
+    }
   };
 
-  const removeGoogleAccount = () => {
-    clearCookies();
-    setGoogleAccountConnected(false);
+  const removeGoogleAccount = async () => {
+    setLoading(true);
+    await clearCookies();
+    await supabase.auth.updateUser({ data: { google_user_id: null } })
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000)
   }
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    const fetchAndCheckGoogle = async () => {
-      const connected = await checkGoogleAccountConnected();
-      setGoogleAccountConnected(connected);
-      const response = await fetch(`/api/google/redirectURI`)
-      if (response.ok) {
-        // Assuming the document content is in plain text
-        const content = await response.json();
-        setRedirectUri(content.uri)
-      } else {
-        console.error("Failed to fetch Google redirect uri", response.statusText);
-      }
-    };
+  //   const fetchAndCheckGoogle = async () => {
+  //     const connected = await checkGoogleAccountConnected();
+  //     setGoogleAccountConnected(connected);
+  //     const response = await fetch(`/api/google/redirectURI`)
+  //     if (response.ok) {
+  //       // Assuming the document content is in plain text
+  //       const content = await response.json();
+  //       setRedirectUri(content.uri)
+  //     } else {
+  //       console.error("Failed to fetch Google redirect uri", response.statusText);
+  //     }
+  //   };
 
-    fetchAndCheckGoogle();
+  //   fetchAndCheckGoogle();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, [user]);
 
   return (
     <nav className="w-full">
@@ -74,12 +102,15 @@ const UserAccountHandler = ({user}: UserAccountHandlerProps) => {
             >
               Hey, {user.email}!
             </Text>
-            {googleAccountConnected ?
-              <Button onClick={removeGoogleAccount} color="red" size="xs" variant="light">
-                Remove Google Account
+            {isGoogleAccountConnected ?
+              <Button disabled={loading} onClick={removeGoogleAccount} color="red" size="xs" variant="light"
+                className="flex justify-center align-middle gap-2">
+                {loading && <ImSpinner8 size={12} className="animate-spin mr-2" />}
+                <Text size="sm">Remove Google Account</Text>
               </Button> :
-              <Button onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
-                Connect Google Account
+              <Button disabled={loading} onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
+                {loading && <ImSpinner8 size={12} className="animate-spin mr-2" />}
+                <Text size="sm">Connect Google Account</Text>
               </Button>
             }
             <LogoutButton />
