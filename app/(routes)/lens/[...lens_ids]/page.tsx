@@ -11,6 +11,11 @@ type LensPageProps = {
 }
 
 const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
+    const user = await supabase.auth.getUser()
+    const user_metadata = user?.data?.user?.user_metadata;
+
+    console.log({user_metadata})
+
     const { data: lens, error } = await supabase
         .from('lens')
         .select(`
@@ -37,6 +42,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
         )`)
         .eq('lens_id', lens_id)
         .eq('blocks.direct_child', true)
+        .in('lens_blocks.block.google_user_id', [user_metadata?.google_user_id, 'global'])
 
     if (error) {
         console.log(error);
@@ -54,7 +60,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
 
     lens[0].blocks = lens[0].blocks.map(block => {
         return block.block;
-    })
+    }).filter(Boolean);
 
     return lens[0];
 }
