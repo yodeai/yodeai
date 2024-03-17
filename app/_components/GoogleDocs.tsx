@@ -3,7 +3,7 @@ import { Button } from '@mantine/core';
 import useDrivePicker from 'react-google-drive-picker'
 import { useAppContext } from "@contexts/context";
 import { useRouter } from "next/navigation";
-import { checkGoogleAccountConnected, getUserInfo, fetchGoogleDocContent } from "@utils/googleUtils";
+import { checkGoogleAccountConnected, fetchGoogleDocContent } from "@utils/googleUtils";
 import toast from "react-hot-toast";
 import load from "@lib/load";
 import { RequestBodyType } from "@api/types";
@@ -97,7 +97,7 @@ export default function GoogleDocs() {
     }
 
     // get the current user id
-    let user_id = await getUserInfo();
+    let user_id = user.user_metadata?.google_user_id;
     // get file content
     let content = await fetchGoogleDocContent(selectedGoogleDriveFile.id)
     // call create/process block on it

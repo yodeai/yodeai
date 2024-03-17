@@ -3,7 +3,6 @@ import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/c
 import BlockComponent from './BlockComponent';
 import LoadingSkeleton from '../../LoadingSkeleton';
 import { useRouter } from 'next/navigation';
-import { getUserInfo } from '@utils/googleUtils';
 import { Lens, LensData, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 import { useAppContext } from "@contexts/context";

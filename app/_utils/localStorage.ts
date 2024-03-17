@@ -91,3 +91,30 @@ export function setZoomLevelToLocalStorage(lensIdOrTitle: string, zoomLevel: num
         );
     }
 }
+
+export const getPagePathVersion = (path: string) => {
+    if (global.localStorage) {
+        const pagePaths = JSON.parse(global.localStorage.getItem("pagePaths") || "{}");
+        return pagePaths[path];
+    }
+    return null;
+}
+
+export const setPagePathVersion = (path: string, version: string) => {
+    if (global.localStorage) {
+        const pagePaths = JSON.parse(global.localStorage.getItem("pagePaths") || "{}");
+        global.localStorage.setItem(
+            "pagePaths",
+            JSON.stringify({
+                ...pagePaths,
+                [path]: version
+            })
+        );
+    }
+}
+
+export const clearPagePathVersions = () => {
+    if (global.localStorage) {
+        global.localStorage.setItem("pagePaths", "{}");
+    }
+}

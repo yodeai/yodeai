@@ -3,7 +3,7 @@
 import { useExplorer } from '@contexts/explorer';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, Input, CloseButton, Box, Text, Chip, ScrollArea, Button, FocusTrap } from '@mantine/core';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import BlockColumnHeader from '@components/Block/BlockColumnHeader';
 import toast from 'react-hot-toast';

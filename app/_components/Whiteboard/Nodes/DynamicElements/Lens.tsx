@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { cn } from '@utils/style'
 import { Tables } from 'app/_types/supabase';
 import { Box, Title } from '@mantine/core';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import Link from 'next/link';
 import { Node } from 'reactflow';
 import { FaFolder } from '@react-icons/all-files/fa/FaFolder';

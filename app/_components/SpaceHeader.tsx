@@ -26,7 +26,11 @@ type SpaceHeaderProps = {
     staticZoomLevel?: boolean;
     selectedLayoutType: "block" | "icon",
     handleChangeLayoutView?: any,
-    rightItem?: JSX.Element
+    rightItem?: JSX.Element;
+    defaultSortingOption?: {
+        sortBy: contextType["sortingOptions"]["sortBy"],
+        order: contextType["sortingOptions"]["order"]
+    }
 }
 
 export default function SpaceHeader(props: SpaceHeaderProps) {
@@ -37,7 +41,8 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
         staticZoomLevel = true,
         selectedLayoutType,
         handleChangeLayoutView,
-        rightItem
+        rightItem,
+        defaultSortingOption = null
     } = props;
 
     const {
@@ -59,19 +64,21 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                 {staticSortBy === false && <Select
                     variant="filled"
                     className="inline w-[150px]"
+                    disabled={defaultSortingOption ? true : false}
                     leftSection={<Box>
                         <Button
                             size="xs"
                             variant="subtle"
                             px={8}
                             mr={5}
+                            disabled={defaultSortingOption ? true : false}
                             onClick={() => {
                                 setSortingOptions({
                                     ...sortingOptions,
                                     order: sortingOptions.order === "asc" ? "desc" : "asc"
                                 })
                             }}>
-                            {sortingOptions.order === "asc"
+                            {(defaultSortingOption ? defaultSortingOption.order : sortingOptions.order) === "asc"
                                 ? <FaArrowDown size={12} className="text-gray-500" />
                                 : <FaArrowUp size={12} className="text-gray-500" />}
                         </Button>
@@ -85,7 +92,7 @@ export default function SpaceHeader(props: SpaceHeaderProps) {
                         { value: "type", label: "Type" }
                     ]}
                     allowDeselect={true}
-                    value={sortingOptions.sortBy}
+                    value={defaultSortingOption ? defaultSortingOption.sortBy : sortingOptions.sortBy}
                     onChange={(value: contextType["sortingOptions"]["sortBy"]) => {
                         setSortingOptions({ ...sortingOptions, sortBy: value })
                     }}

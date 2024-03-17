@@ -14,7 +14,7 @@ import { cn } from '@utils/style';
 import Gravatar from 'react-gravatar';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useDebouncedCallback } from '../_utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 
 const MESSAGE_LIMIT = 25;
 

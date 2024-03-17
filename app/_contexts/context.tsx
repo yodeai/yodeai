@@ -3,10 +3,11 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useMe
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
+import { clearPagePathVersions, getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 import { usePathname } from 'next/navigation';
+import { getUserInfo } from '@utils/googleUtils';
 
 // Update the type for the context value
 export type contextType = {
@@ -258,6 +259,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       if (!user?.data?.user) return;
       setUser(user.data.user);
     })
+
+    // setting google user id
+    getUserInfo().then((googleUser) => {
+      supabase.auth.updateUser({
+        data: {
+          google_user_id: googleUser
+        }
+      })
+    });
   }
 
   useEffect(() => {
@@ -306,6 +316,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
     getAllLenses();
     getPinnedLenses();
     getUser();
+    clearPagePathVersions();
   }, [])
 
   useEffect(() => {

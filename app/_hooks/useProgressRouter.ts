@@ -1,5 +1,6 @@
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { getPagePathVersion } from '../_utils/localStorage';
 
 export const useProgressRouter = () => {
     const router = useRouter();
@@ -7,6 +8,10 @@ export const useProgressRouter = () => {
 
     router.push = (href, options) => {
         NProgress.start();
+
+        const getPagePathVersionValue = getPagePathVersion(href);
+        href = getPagePathVersionValue ? `${href}?v=${getPagePathVersionValue}` : href;
+
         push(href, options);
         return new Promise((resolve, reject) => {
             setTimeout(() => {
