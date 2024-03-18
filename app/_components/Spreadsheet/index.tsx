@@ -24,6 +24,7 @@ import { modals } from '@mantine/modals';
 import load from '@lib/load';
 import { PageContent } from '@components/Layout/Content';
 import { revalidateRouterCache } from '@utils/revalidate';
+import { getInnerHeight } from '@utils/style';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
@@ -39,7 +40,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const [isSaving, setIsSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
-    const { setBreadcrumbActivePage, setLensId } = useAppContext();
+    const { setBreadcrumbActivePage, setLensId, layoutRefs } = useAppContext();
 
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
@@ -54,11 +55,16 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
 
 
     const onHandleResize = useCallback(() => {
-        const eSheetPanel = $container.current.querySelector<HTMLDivElement>('.e-sheet-panel');
+        const eSheetPanel = $container.current?.querySelector<HTMLDivElement>('.e-sheet-panel');
         if (!eSheetPanel) return;
 
-        eSheetPanel.style.height = `${$container.current.clientHeight + (isSpreadsheetProtected ? 35 : 15)}px`;
-    }, [$spreadsheet, $container, isSpreadsheetProtected]);
+        const spreadsheetHeaderHeight = (isSpreadsheetProtected ? 120 : 170);
+        const headerHeight = 60;
+
+        eSheetPanel.style.height = `${getInnerHeight(layoutRefs.navbar.current) - (
+            spreadsheetHeaderHeight + headerHeight
+        )}px`;
+    }, [layoutRefs.navbar, $dataSource, isSpreadsheetProtected]);
 
     useEffect(() => {
         onHandleResize();
@@ -178,6 +184,9 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         syncSpreadsheetData(currentDataSource);
     }, []);
 
+    const onBeforeDataBound = useCallback(() => {
+        onHandleResize() ;
+    }, []);
 
     const {
         onCreated = () => { },
@@ -196,17 +205,20 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     }, [access_type, $spreadsheet])
 
     const spreadsheetContainer = useMemo(() =>
-        <div ref={$container} className='control-section spreadsheet-control !h-full p-2'>
+        <div ref={$container} className='control-section spreadsheet-control p-2'>
             <SpreadsheetComponent
                 saveUrl='https://services.syncfusion.com/react/production/api/spreadsheet/save'
                 beforeCellUpdate={onCellUpdate}
-                beforeDataBound={beforeDataBound}
+                beforeDataBound={(...args) => {
+                    beforeDataBound(...args);
+                    onBeforeDataBound();
+                }}
                 created={onSheetCreated.bind(this)}
                 isProtected={isSpreadsheetProtected}
                 ref={$spreadsheet}>
                 {document}
             </SpreadsheetComponent>
-        </div>, []);
+        </div>, [layoutRefs]);
 
     const headerActions = useMemo(() => {
         return <>{

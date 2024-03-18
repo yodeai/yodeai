@@ -17,7 +17,7 @@ export const PageContent = ({ children }: PageContentProps) => {
       if($container.current){
         $container.current.style.height = `${getInnerHeight(layoutRefs.navbar.current) - 60}px`;
       }
-    }, [$container]);
+    }, [$container, layoutRefs]);
 
     return <Box
         ref={$container}
