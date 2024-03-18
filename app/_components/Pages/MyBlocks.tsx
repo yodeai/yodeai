@@ -1,28 +1,33 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import BlockComponent from "@components/ListView/Views/BlockComponent";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Block } from "app/_types/block";
 import { useAppContext } from "@contexts/context";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
-import BlockColumnHeader from "@components/Block/BlockColumnHeader";
-import SpaceHeader from "@components/SpaceHeader";
 import { useSort } from "app/_hooks/useSort";
 import { revalidateRouterCache } from "@utils/revalidate";
 import { useInViewport } from '@mantine/hooks';
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
+import { PageHeader } from "@components/Layout/PageHeader";
+import { Sort } from "@components/Layout/PageHeader/Sort";
+import LayoutController from "@components/Layout/LayoutController";
+import { PageContent } from "@components/Layout/Content";
+import BlockComponent from "@components/ListView/Views/BlockComponent";
+import BlockColumnHeader from "@components/Block/BlockColumnHeader";
+
 type MyBlocksProps = {
     blocks: Block[];
 }
 export default function MyBlocks(props: MyBlocksProps) {
     const supabase = createClientComponentClient()
-    const { sortingOptions, setLensId } = useAppContext();
+    const { sortingOptions, setSortingOptions, setLensId } = useAppContext();
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [blocks, setBlocks] = useState<Block[]>(props.blocks);
+
     const $pagination = useRef({ limit: 30, offset: 30 });
     const [hasMore, setHasMore] = useState(true);
 
@@ -82,7 +87,7 @@ export default function MyBlocks(props: MyBlocksProps) {
             .then(async (res) => {
                 const data = await res.json();
                 if (data.data.length !== $pagination.current.limit) {
-                    setHasMore(false);  
+                    setHasMore(false);
                 }
                 setBlocks([...blocks, ...data.data]);
                 setIsLoadingMore(false);
@@ -99,41 +104,41 @@ export default function MyBlocks(props: MyBlocksProps) {
 
     const sortedBlocks = useSort({ items: blocks, sortingOptions })
 
+    const headerActions = useMemo(() => {
+        return <>
+            <Sort sortingOptions={sortingOptions} setSortingOptions={setSortingOptions} />
+        </>
+    }, [sortingOptions]);
+
     return (
         <Flex direction="column" pt={0}>
-            <SpaceHeader
-                title="My Pages"
-                selectedLayoutType="block"
-                staticLayout={true}
-                defaultSortingOption={{
-                    sortBy: "createdAt",
-                    order: "desc"
-                }}
+            <PageHeader
+                title="My Blocks"
+                actions={headerActions}
             />
-
-            {sortedBlocks.length > 0 &&
+            <PageContent>
                 <Box p={16}>
                     <BlockColumnHeader />
-                    {sortedBlocks.map((block) =>
-                        <BlockComponent key={block.block_id} block={block} hasArchiveButton={false} />
+                    {blocks?.length > 0 ? (
+                        <>
+                            {sortedBlocks.map((block) => (
+                                <BlockComponent key={block.block_id} block={block} />
+                            ))}
+                            {hasMore && <>
+                                <div ref={ref} className="w-full h-[1px]" />
+                                <LoadingSkeleton
+                                    boxCount={3}
+                                    lineHeight={75}
+                                />
+                            </>}
+                        </>
+                    ) : (
+                        <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
+                            Nothing to show here. As you add pages they will initially show up in your Inbox.
+                        </Text>
                     )}
-                    {hasMore && <>
-                        <div ref={ref} className="w-full h-[1px]" />
-                        <LoadingSkeleton
-                            boxCount={3}
-                            lineHeight={75}
-                        />
-                    </>}
-
-                </Box> || ""
-            }
-
-            {sortedBlocks?.length == 0 &&
-                <Text size={"sm"} c={"gray.7"} ta={"center"} mt={30}>
-                    Nothing to show here. As you add pages they will initially show up in your Inbox.
-                </Text> || ""
-            }
-
+                </Box>
+            </PageContent>
         </Flex >
     );
 }
