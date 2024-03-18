@@ -19,7 +19,7 @@ const getBlocks = async (supabase: SupabaseClient) => {
           ) 
       )
   `).
-      in('block.google_user_id', [user_metadata.google_user_id, 'global'])
+      in('block.google_user_id', [user_metadata?.google_user_id, 'global'])
       .eq("block.lens_blocks.direct_child", true)
       .limit(30);
 

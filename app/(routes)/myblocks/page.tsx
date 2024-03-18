@@ -15,7 +15,7 @@ const getBlocks = async (supabase: SupabaseClient) => {
         lens_blocks!fk_block (
             lens: lens!fk_lens (lens_id, name)
         )`)
-      .in('google_user_id', [user_metadata.google_user_id, 'global'])
+      .in('google_user_id', [user_metadata?.google_user_id, 'global'])
       .eq('lens_blocks.direct_child', true)
       .order('created_at', { ascending: false })
       .limit(30);
