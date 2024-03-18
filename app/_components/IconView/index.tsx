@@ -374,7 +374,13 @@ export default function IconLayoutComponent({
 
   const ROW_HEIGHT = 100;
 
-  return <div style={{ overflowY: "scroll" }}>
+  useEffect(() => {
+    if (layoutRefs.navbar.current) {
+      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.navbar.current)}px`
+    }
+  }, [layoutRefs.navbar])
+
+  return <div ref={$gridContainer}>
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
