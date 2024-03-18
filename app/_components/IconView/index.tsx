@@ -5,7 +5,7 @@ import { ItemCallback, Responsive, WidthProvider } from "react-grid-layout";
 import 'react-grid-layout/css/styles.css';
 import { LensLayout, Subspace, Lens } from "app/_types/lens";
 import { useAppContext } from "@contexts/context";
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 import { useSort } from "app/_hooks/useSort";
 
@@ -23,7 +23,7 @@ import {
 
 import { ViewController } from "../Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
-import { useProgressRouter } from "@utils/nprogress";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { WidgetIconItem } from "./_views/Widget";
 import { getInnerHeight, getInnerWidth } from "@utils/style";
 
@@ -101,7 +101,7 @@ export default function IconLayoutComponent({
   }, [lensId]);
 
   const onDoubleClick = (itemType: IconViewItemChars, itemId: number) => {
-    if (itemType === "bl") return router.push(`/block/${itemId}`);
+    if (itemType === "bl") return router.push(`/block/${itemId}`)
 
     if (itemType === "wb") return router.push(`/whiteboard/${itemId}`);
 
@@ -112,7 +112,7 @@ export default function IconLayoutComponent({
 
     if (itemType === "wd") return router.push(`/widget/${itemId}`)
 
-    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}?${Math.random().toString(36).substring(7)}`);
+    if (itemType === "sp") return router.push(`/spreadsheet/${itemId}`);
   }
 
   const onHoverItem = (itemType: IconViewItemChars, itemId: number) => {

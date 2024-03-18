@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
@@ -8,6 +8,11 @@ import { Button, Flex, Menu, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
 import { useAppContext } from '@contexts/context';
 import { User } from '@supabase/auth-helpers-nextjs';
+import toast from 'react-hot-toast';
+import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
+
+import { useLocalStorage } from '@mantine/hooks';
+import { usePathname } from 'next/navigation';
 
 type UserAccountHandlerProps = {
   user: User | null;
@@ -15,28 +20,55 @@ type UserAccountHandlerProps = {
 const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
   const [redirectUri, setRedirectUri] = useState("")
+  const supabase = createClientComponentClient();
+  const [loading, setLoading] = useState(false);
+  const pathname = usePathname();
+  const [currentPageBeforeAuth, setCurrentPageBeforeAuth] = useLocalStorage({ key: 'currentPageBeforeAuth', defaultValue: '/', });
 
-  const openGoogleAuthWindow = () => {
-    const authWindow = window.open(redirectUri);
+  const isGoogleAccountConnected = useMemo(() => {
+    return user?.user_metadata?.google_user_id || false;
+  }, [user])
 
-    // Add event listener for beforeunload when the window is closed
-    window.addEventListener('beforeunload', async () => {
-      try {
-        const connected = await checkGoogleAccountConnected();
-        setGoogleAccountConnected(connected);
-        console.log("Set connected", connected)
-      } catch (error) {
-        console.error('Error checking Google account connection:', error);
-      }
+  const openGoogleAuthWindow = async () => {
+    setLoading(true);
+    let authWindow: Window | null = null;
 
-      // Clean up event listener
-      window.removeEventListener('beforeunload', () => { });
-    });
+    const response = await fetch(`/api/google/redirectURI`);
+    if (response.ok) {
+      const content = await response.json();
+      setCurrentPageBeforeAuth(pathname)
+      window.location.replace(content.uri);
+      // authWindow.onbeforeunload = async (event) => {
+
+      //   alert('closed');
+      //   try {
+      //     const connected = await checkGoogleAccountConnected();
+      //     if (connected) {
+      //       window.location.reload();
+      //     } else {
+      //       setLoading(false);
+      //       toast.error("Failed to connect Google account")
+      //     }
+      //   } catch (error) {
+      //     console.error('Error checking Google account connection:', error);
+      //     setLoading(false);
+      //     toast.error("Failed to connect Google account")
+      //   }
+      //   return false;
+      // }
+    } else {
+      console.error("Failed to fetch Google redirect uri", response.statusText);
+      toast.error("Failed to fetch Google redirect uri")
+    }
   };
 
-  const removeGoogleAccount = () => {
-    clearCookies();
-    setGoogleAccountConnected(false);
+  const removeGoogleAccount = async () => {
+    setLoading(true);
+    await clearCookies();
+    await supabase.auth.updateUser({ data: { google_user_id: null } })
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000)
   }
 
   useEffect(() => {

@@ -10,7 +10,6 @@ import { useAppContext } from "@contexts/context";
 
 import toast from "react-hot-toast";
 import { Flex } from "@mantine/core";
-import { getUserInfo } from "@utils/googleUtils";
 
 
 export default function Lens({ params }: { params: { lens_id: string } }) {
@@ -22,7 +21,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
   const router = useRouter();
-  const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent } = useAppContext();
+  const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent, user } = useAppContext();
   const searchParams = useSearchParams();
 
   const supabase = createClientComponentClient()
@@ -51,13 +50,12 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
 
   const fetchBlocks = async(lensId: string) => {
     let apiurl;
-    let googleUserId = await getUserInfo();
     if (lensId == "allBlocks") {
-      apiurl = `/api/block/getAllBlocks/${googleUserId}`;
+      apiurl = `/api/block/getAllBlocks`;
     } else if (lensId == "inbox") {
-      apiurl = `/api/inbox/getBlocks/${googleUserId}`;
+      apiurl = `/api/inbox/getBlocks`;
     } else {
-      apiurl = `/api/lens/${lensId}/getBlocks/${googleUserId}`;
+      apiurl = `/api/lens/${lensId}/getBlocks`;
     }
     return fetch(apiurl)
         .then(response => response.json())

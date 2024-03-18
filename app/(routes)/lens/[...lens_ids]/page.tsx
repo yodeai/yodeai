@@ -1,11 +1,9 @@
 import { notOk } from "@lib/ok";
-import Lens from "./lens";
+import Lens from "app/_components/Pages/Lens";
 import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { Database } from "app/_types/supabase";
-
-import { LensProps } from "./lens";
 
 type LensPageProps = {
     params: { lens_ids: string[] }
@@ -13,6 +11,9 @@ type LensPageProps = {
 }
 
 const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
+    const user = await supabase.auth.getUser()
+    const user_metadata = user?.data?.user?.user_metadata;
+
     const { data: lens, error } = await supabase
         .from('lens')
         .select(`
@@ -39,6 +40,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
         )`)
         .eq('lens_id', lens_id)
         .eq('blocks.direct_child', true)
+        .in('lens_blocks.block.google_user_id', [user_metadata?.google_user_id, 'global'])
 
     if (error) {
         console.log(error);
@@ -56,7 +58,7 @@ const getLensData = async (supabase: SupabaseClient, lens_id: number) => {
 
     lens[0].blocks = lens[0].blocks.map(block => {
         return block.block;
-    })
+    }).filter(Boolean);
 
     return lens[0];
 }
@@ -81,7 +83,7 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
         const parent_ids_from_db = lensData.parents.slice(0, -1).filter(el => Number(el) > 0).reverse().join('/')
 
         if (lens_ids_from_route !== parent_ids_from_db) {
-            return redirect(`/lens/${parent_ids_from_db}/${lens_id}`)
+            return redirect(`/lens/${parent_ids_from_db}/${lens_id}`, RedirectType.replace)
         }
     }
 
@@ -89,5 +91,6 @@ export default async function LensPage({ params, searchParams }: LensPageProps) 
         lensData={lensData}
         user={user}
         lens_id={lens_id}
+        path={`/lens/${lens_ids.join('/')}`}
     />
 }

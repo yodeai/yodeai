@@ -5,8 +5,7 @@ import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box, Checkbox, Select } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
-import MockData from '../Widgets/mock.json';
-import { getUserInfo } from '@utils/googleUtils';
+
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import apiClient from '@utils/apiClient';
 import { useContentContext } from '@contexts/content';

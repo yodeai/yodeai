@@ -4,22 +4,22 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
-import LoadingSkeleton from '@components/LoadingSkeleton';
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { Box, Divider, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import { Box, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
   lens_id: number;
   lensData: LensData;
   user: User
+  path: string;
 }
 
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
@@ -33,10 +33,11 @@ import { Zoom } from "@components/Layout/PageHeader/Zoom";
 import { PageContent } from "@components/Layout/Content";
 import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
 import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
+import { revalidateRouterCache } from "@utils/revalidate";
+import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
-  const { lens_id, user, lensData } = props;
-  const [loading, setLoading] = useState(false);
+  const { lens_id, user, lensData, path } = props;
 
   const [lens, setLens] = useState<Lens>(lensData);
 
@@ -86,24 +87,6 @@ export default function Lens(props: LensProps) {
   }, [])
 
   useEffect(() => {
-    // (async () => {
-    //   setLoading(true);
-    //   await Promise.all([
-    //     // getLensBlocks(lens_id),
-    //     // getLensSubspaces(lens_id),
-    //     // getLensWhiteboards(lens_id),
-    //     // getLensWidgets(lens_id),
-    //     // getLensLayout(lens_id),
-    //     // getLensSpreadsheets(lens_id)
-    //   ])
-    //     .then(() => {
-    //       setLoading(false);
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error fetching lens data:', error);
-    //     })
-    // })();
-
     if (window.location.hash === "#newLens") {
       setIsEditingLensName(true);
       window.location.hash = "";
@@ -176,6 +159,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    revalidateRouterCache(path);
   }, []);
 
   const addBlocks = useCallback((payload) => {
@@ -185,27 +169,31 @@ export default function Lens(props: LensProps) {
     if (!blocks.some(item => item.block_id === block_id)) {
       setBlocks(prevBlocks => [newBlock, ...prevBlocks]);
     }
+    revalidateRouterCache(path);
   }, [blocks])
 
   const deleteBlocks = useCallback((payload) => {
     let block_id = payload["old"]["block_id"]
     console.log("Deleting block", block_id);
     setBlocks((prevBlocks) => prevBlocks.filter((block) => block.block_id !== block_id))
+    revalidateRouterCache(path);
   }, [blocks]);
 
   const addSubspaces = useCallback((payload) => {
-    let lens_id = payload["new"]["lens_id"]
-    console.log("Added a subspace", lens_id)
+    let new_lens_id = payload["new"]["lens_id"]
+    console.log("Added a subspace", new_lens_id)
     let newSubspace = payload["new"]
-    if (!subspaces.some(item => item.lens_id === lens_id)) {
+    if (!subspaces.some(item => item.lens_id === new_lens_id)) {
       setSubspaces(prevSubspaces => [newSubspace, ...prevSubspaces]);
     }
+    revalidateRouterCache(path);
   }, [subspaces]);
 
   const deleteSubspace = useCallback((payload) => {
-    let lens_id = payload["old"]["lens_id"]
+    let old_lens_id = payload["old"]["lens_id"]
     console.log("Deleting lens", payload);
-    setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
+    setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== old_lens_id))
+    revalidateRouterCache(path)
   }, []);
 
   const addWhiteBoard = useCallback((payload) => {
@@ -215,6 +203,7 @@ export default function Lens(props: LensProps) {
     if (!whiteboards.some(item => item.whiteboard_id === whiteboard_id)) {
       setWhiteboards(prevWhiteboards => [newWhiteboard, ...prevWhiteboards]);
     }
+    revalidateRouterCache(path)
   }, []);
 
 
@@ -222,6 +211,7 @@ export default function Lens(props: LensProps) {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
     setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
+    revalidateRouterCache(path)
   }, []);
 
   const updateWhiteboard = useCallback((payload) => {
@@ -235,6 +225,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    revalidateRouterCache(path)
   }, []);
 
   const addSpreadsheet = useCallback((payload) => {
@@ -244,12 +235,14 @@ export default function Lens(props: LensProps) {
     if (!spreadsheets.some(item => item.spreadsheet_id === spreadsheet_id)) {
       setSpreadsheets(prevSpreadsheets => [newSpreadsheet, ...prevSpreadsheets]);
     }
+    revalidateRouterCache(path)
   }, []);
 
   const deleteSpreadsheet = useCallback((payload) => {
     let spreadsheet_id = payload["old"]["spreadsheet_id"]
     console.log("Deleting spreadsheet", spreadsheet_id);
     setSpreadsheets((prevSpreadsheets) => prevSpreadsheets.filter((spreadsheet) => spreadsheet.spreadsheet_id !== spreadsheet_id))
+    revalidateRouterCache(path)
   }, []);
 
   const updateSpreadsheet = useCallback((payload) => {
@@ -263,6 +256,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    revalidateRouterCache(path)
   }, []);
 
   const addWidget = useCallback((payload) => {
@@ -272,12 +266,14 @@ export default function Lens(props: LensProps) {
     if (!widgets.some(item => item.widget_id === widget_id)) {
       setWidgets(prevWidgets => [newWidget, ...prevWidgets]);
     }
+    revalidateRouterCache(path)
   }, []);
 
   const deleteWidget = useCallback((payload) => {
     let widget_id = payload["old"]["widget_id"]
     console.log("Deleting widget", widget_id);
     setWidgets((prevWidgets) => prevWidgets.filter((widget) => widget.widget_id !== widget_id))
+    revalidateRouterCache(path)
   }, []);
 
   const updateWidget = useCallback((payload) => {
@@ -291,6 +287,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    revalidateRouterCache(path)
   }, []);
 
   const updateLensLayout = useCallback((payload) => {
@@ -521,7 +518,6 @@ export default function Lens(props: LensProps) {
     iconItemController.open();
   }
 
-
   const onPinLens = async () => {
     try {
       const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
@@ -561,14 +557,6 @@ export default function Lens(props: LensProps) {
     onCancel: () => console.log('Canceled deletion'),
     onConfirm: handleDeleteLens
   });
-
-  if (!lens && !loading) {
-    return (
-      <div className="flex flex-col p-4 flex-grow">
-        <p>Error fetching space data.</p>
-      </div>
-    );
-  }
 
   const typeOrder = {
     "whiteboard": 1,
@@ -711,13 +699,11 @@ export default function Lens(props: LensProps) {
         secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
-        loading={loading}
         dropdownItems={headerDropdownItems}
         actions={headerActions}
       />
-      {loading && <LoadingSkeleton boxCount={8} lineHeight={80} m={10} />}
       <PageContent>
-        {!loading && <LayoutController
+        <LayoutController
           handleBlockChangeName={handleBlockChangeName}
           handleBlockDelete={handleBlockDelete}
           handleLensChangeName={handleLensChangeName}
@@ -737,13 +723,13 @@ export default function Lens(props: LensProps) {
           spreadsheets={sortedSpreadsheets}
           widgets={sortedWidgets}
           itemIcons={itemIcons}
-          layoutView={selectedLayoutType} />}
+          layoutView={selectedLayoutType} />
       </PageContent>
       <IconItemSettingsModal
         item_icons={itemIcons}
         item={$settingsItem.current}
         lens_id={lens_id}
         modalController={iconItemDisclosure} />
-    </ContentProvider>
+    </ContentProvider >
   );
 }

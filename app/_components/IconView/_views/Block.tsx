@@ -10,7 +10,7 @@ import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 import { FaRegTrashCan } from "@react-icons/all-files/fa6/FaRegTrashCan";
 import { FaLink } from "@react-icons/all-files/fa6/FaLink";

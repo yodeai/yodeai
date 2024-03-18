@@ -12,7 +12,7 @@ import NodeContextMenu from './Helpers/ContextMenu/Node';
 import EdgeContextMenu from './Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
-import { useDebouncedCallback } from "@utils/hooks";
+import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 import { Text } from "@mantine/core";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
@@ -26,6 +26,7 @@ import { PageHeader } from '@components/Layout/PageHeader';
 import load from '@lib/load';
 import { modals } from '@mantine/modals';
 import { PageContent } from '@components/Layout/Content';
+import { revalidateRouterCache } from '@utils/revalidate';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -185,6 +186,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     useEffect(() => {
         if (isLocked && (data.plugin ? data.plugin?.rendered === true : true)) return;
         syncWhiteboard(nodes, edges);
+        revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
     }, [nodes, edges]);
 
     useEffect(() => {

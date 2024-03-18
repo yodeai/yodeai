@@ -2,6 +2,7 @@ import { useAppContext } from "@contexts/context";
 import { useMediaQuery } from "@mantine/hooks";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
+import { getPagePathVersion } from '../_utils/localStorage';
 
 export const useProgressRouter = () => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
@@ -16,6 +17,10 @@ export const useProgressRouter = () => {
 
     router.push = (href, options) => {
         NProgress.start();
+
+        const getPagePathVersionValue = getPagePathVersion(href);
+        href = getPagePathVersionValue ? `${href}?v=${getPagePathVersionValue}` : href;
+
         push(href, options);
         if (matchMobileView) {
             navbarActions.close();

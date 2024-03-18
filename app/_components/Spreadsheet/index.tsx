@@ -14,7 +14,7 @@ import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types
 import usePlugin from './Plugins';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useDebouncedCallback } from '@utils/hooks';
+import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
 
 import { Box, Text } from '@mantine/core';
@@ -23,6 +23,7 @@ import { PageHeader } from '@components/Layout/PageHeader';
 import { modals } from '@mantine/modals';
 import load from '@lib/load';
 import { PageContent } from '@components/Layout/Content';
+import { revalidateRouterCache } from '@utils/revalidate';
 
 type SpreadsheetProps = {
     spreadsheet: Tables<"spreadsheet"> & {
@@ -70,6 +71,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const handleUpdateSpreadsheet = useCallback((payload) => {
         if (payload.new.name === spreadsheet.name) return;
         setSpreadsheet((prev) => ({ ...prev, name: payload.new.name }))
+        revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
     }, []);
 
     useEffect(() => {
@@ -129,6 +131,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                 'Content-Type': 'application/json'
             }
         }).finally(() => {
+            revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
             setIsSaving(false);
         });
     }, 1000, []);
