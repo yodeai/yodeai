@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
                 ) 
             )
         `)
-            .in('block.google_user_id', [user_metadata.google_user_id, 'global'])
+            .in('block.google_user_id', [user_metadata?.google_user_id, 'global'])
             .eq("block.lens_blocks.direct_child", true)
             .range(Number(offset), Number(offset) + Number(limit) - 1)
 
