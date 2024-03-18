@@ -4,7 +4,7 @@ import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, Unstyl
 import { useMediaQuery } from "@mantine/hooks";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type PageHeaderProps = {
     title: string;
@@ -67,7 +67,12 @@ export const PageHeader = ({
         <ModalsContainer
             accessType={accessType}
         />
-        <Flex className="sticky top-0 border-b border-gray-200" direction={matchMobileView ? "column" : "row"} justify="space-between">
+        <Flex
+            className="sticky top-0 border-b border-gray-200"
+            direction={
+                matchMobileView && (actions || secondaryItem) ? "column" : "row"
+            }
+            justify="space-between">
             <Menu shadow="md" position="bottom-start" width={150}>
                 <Flex align="center" gap="xs" className="px-4 py-2 h-[60px]">
                     {!editMode && <Box className="grow">
