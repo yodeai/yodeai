@@ -41,7 +41,7 @@ dependencies:
     specifier: ^7.2.0
     version: 7.2.2(@mantine/core@7.2.2)(@mantine/hooks@7.6.2)(react-dom@18.2.0)(react@18.2.0)
   '@mantine/nprogress':
-    specifier: ^7.2.0
+    specifier: ^7.2.2
     version: 7.2.2(@mantine/core@7.2.2)(@mantine/hooks@7.6.2)(react-dom@18.2.0)(react@18.2.0)
   '@mantine/spotlight':
     specifier: ^7.2.0
@@ -175,9 +175,6 @@ dependencies:
   npm:
     specifier: ^10.1.0
     version: 10.2.4
-  nprogress:
-    specifier: ^0.2.0
-    version: 0.2.0
   openai:
     specifier: ^4.0.0
     version: 4.20.1(encoding@0.1.13)
@@ -261,9 +258,6 @@ devDependencies:
   '@types/node':
     specifier: 20.2.4
     version: 20.2.4
-  '@types/nprogress':
-    specifier: ^0.2.3
-    version: 0.2.3
   '@types/react':
     specifier: 18.2.7
     version: 18.2.7
@@ -2249,6 +2243,7 @@ packages:
 
   /@types/nprogress@0.2.3:
     resolution: {integrity: sha512-k7kRA033QNtC+gLc4VPlfnue58CM1iQLgn1IMAU8VPHGOj7oIHPp9UlhedEnD/Gl8evoCjwkZjlBORtZ3JByUA==}
+    dev: false
 
   /@types/object.omit@3.0.3:
     resolution: {integrity: sha512-xrq4bQTBGYY2cw+gV4PzoG2Lv3L0pjZ1uXStRRDQoATOYW1lCsFQHhQ+OkPhIcQoqLjAq7gYif7D14Qaa6Zbew==}
