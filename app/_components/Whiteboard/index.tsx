@@ -17,7 +17,7 @@ import { Text } from "@mantine/core";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
 import edgeTypes from './Edges';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 import { useAppContext } from '@contexts/context';
@@ -59,7 +59,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [isLocked, setIsLocked] = useState(getInitialLockState());
 
     const $whiteboard = useRef(null);
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const onConnect = useCallback((params) => {
         setEdges((eds) => addEdge(params, eds))

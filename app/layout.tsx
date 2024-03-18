@@ -1,6 +1,7 @@
 import '@mantine/core/styles.css';
 import "./globals.css";
 import 'mantine-contextmenu/styles.css';
+import '@mantine/nprogress/styles.css';
 
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { ContextMenuProvider } from 'mantine-contextmenu';

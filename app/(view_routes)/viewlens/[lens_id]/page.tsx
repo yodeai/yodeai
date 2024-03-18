@@ -10,14 +10,14 @@ import load from "@lib/load";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 //import { useRouter } from 'next/router';
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import QuestionAnswerForm from "@components/QuestionAnswerForm";
 import LensViewOnlyForm from "@components/LensViewOnlyForm";
 
 export default function ViewLens({ params }: { params: { lens_id: string } }) {
   const supabase = createClientComponentClient()
   const [published, setPublished] = useState(false);
-  const router = useRouter();
+  const router = useProgressRouter();
   useEffect(()=> {
     const checkPublishedLens = async() => {
       const { data: lens, error } = await supabase

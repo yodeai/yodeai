@@ -7,7 +7,7 @@ import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
 import PDFViewerIframe from "@components/PDFViewer";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { Box, Button, Flex, Text, Tooltip } from "@mantine/core";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
@@ -32,7 +32,7 @@ export default function Block(props: BlockProps) {
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-    const router = useRouter();
+    const router = useProgressRouter();
     const supabase = createClientComponentClient()
     const $saveButton = useRef<HTMLButtonElement>()
 

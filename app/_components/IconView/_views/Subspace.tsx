@@ -9,7 +9,7 @@ import { RiUnpinFill } from "@react-icons/all-files/ri/RiUnpinFill";
 import { RiPushpinFill } from "@react-icons/all-files/ri/RiPushpinFill";
 
 import { Text, Flex, Box, Textarea, Anchor } from '@mantine/core';
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
@@ -30,7 +30,7 @@ type SubspaceIconItemProps = {
 }
 export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeName, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
-  const router = useRouter();
+  const router = useProgressRouter();
   const { pinnedLenses, accessType, zoomLevel, setPinnedLenses } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);

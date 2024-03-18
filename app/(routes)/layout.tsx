@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Breadcrumb } from "@components/Layout/Breadcrumb";
 import { Main } from "@components/Layout/Main";
+import { NavigationProgress } from '@mantine/nprogress';
 
 export default async function AppLayout({ children }: { children: React.ReactNode; }) {
   const supabase = createServerComponentClient({ cookies })
@@ -17,6 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <>
+      <NavigationProgress />
       <ExplorerProvider>
         <Navbar /> {/* Mantine.Navbar */}
         <Main>
@@ -24,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </Main>
         <Toolbar /> {/* Mantine.Aside */}
         <Breadcrumb /> {/* Mantine.Footer */}
-      </ExplorerProvider>
+      </ExplorerProvider >
     </>
   );
 }

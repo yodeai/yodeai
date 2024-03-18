@@ -17,6 +17,7 @@ import { RequestBodyType } from '@api/types';
 import { FaCheck } from '@react-icons/all-files/fa/FaCheck';
 import { FaCheckCircle } from '@react-icons/all-files/fa/FaCheckCircle';
 import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 const DynamicSimpleMDE = dynamic(
   () => import('react-simplemde-editor').then(mod => mod.SimpleMdeReact),
@@ -38,7 +39,7 @@ type BlockEditorProps = {
 }
 
 export default function BlockEditor({ refs, withHeader = false, block: initialBlock, onSave }: BlockEditorProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const pathname = usePathname();
 
   const [block, setBlock] = useState<Block | undefined>(initialBlock);

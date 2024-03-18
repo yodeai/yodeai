@@ -34,6 +34,7 @@ import { PageContent } from "@components/Layout/Content";
 import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
 import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
 import { revalidateRouterCache } from "@utils/revalidate";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
@@ -60,7 +61,7 @@ export default function Lens(props: LensProps) {
     Lens | Subspace | Tables<"block"> | Tables<"whiteboard">
   >(null);
 
-  const router = useRouter();
+  const router = useProgressRouter();
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
@@ -730,6 +731,7 @@ export default function Lens(props: LensProps) {
         item={$settingsItem.current}
         lens_id={lens_id}
         modalController={iconItemDisclosure} />
+        <FinishedOnboardingModal />
     </ContentProvider >
   );
 }

@@ -2,7 +2,7 @@
 import Button from "@components/Button";
 import load from "@lib/load";
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { ChangeEvent, FormEventHandler, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Block } from "app/_types/block";
@@ -71,7 +71,7 @@ async function upload(data: UploadData): Promise<Block> {
 
 
 export default function UploadBlocks() {
-  const router = useRouter();
+  const router = useProgressRouter();
   const [block, setBlock] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const { lensId } = useAppContext();

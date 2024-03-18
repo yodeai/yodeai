@@ -7,7 +7,7 @@ import { TicketComponent } from './TicketComponent';
 
 import { useWidget } from '../hooks';
 import load from '@lib/load';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { PageHeader } from '@components/Layout/PageHeader';
 import { modals } from '@mantine/modals';
 import { useAppContext } from '@contexts/context';
@@ -47,7 +47,7 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
         updateWidget,
         deleteWidget
     } = useWidget<WidgetInputProps, WidgetOutputProps>(props);
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const { layoutRefs } = useAppContext();
 

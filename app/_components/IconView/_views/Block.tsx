@@ -4,7 +4,7 @@ import { AiOutlineLoading } from "@react-icons/all-files/ai/AiOutlineLoading";
 
 import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
 
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
@@ -27,7 +27,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
   const { showContextMenu } = useContextMenu();
   const $textarea = useRef<HTMLTextAreaElement>(null);
   const { accessType, zoomLevel } = useAppContext();
-  const router = useRouter();
+  const router = useProgressRouter();
 
   const [titleText, setTitleText] = useState<string>(block.title);
   const [editMode, setEditMode] = useState<boolean>(false);

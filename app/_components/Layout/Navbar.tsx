@@ -24,11 +24,10 @@ import { ActionIcon } from "@mantine/core";
 import LoadingSkeleton from "../LoadingSkeleton";
 
 import OnboardingPopover from "../Onboarding/OnboardingPopover";
-import { Database } from "app/_types/supabase";
-
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 export default function Navbar() {
-  const router = useRouter();
+  const router = useProgressRouter();
   const {
     lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
     pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,

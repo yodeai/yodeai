@@ -9,7 +9,7 @@ import { MdCancel } from "@react-icons/all-files/md/MdCancel";
 
 import { Text, Flex, Box, Textarea } from '@mantine/core';
 
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { modals } from '@mantine/modals';
@@ -45,7 +45,7 @@ export const WhiteboardIconItem = ({
   const $textarea = useRef<HTMLTextAreaElement>(null);
 
   // const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
+  const router = useProgressRouter();
 
   useEffect(() => {
     setLoading(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));

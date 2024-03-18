@@ -2,7 +2,7 @@
 import { Anchor, Avatar, Button, Container, Flex, Grid, Image, Text, TextInput, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import React, { use, useState } from 'react';
 
 const featureData = [
@@ -88,7 +88,7 @@ const teamMembers = [
 
 export default function Landing() {
 
-  const router = useRouter();
+  const router = useProgressRouter();
 
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);

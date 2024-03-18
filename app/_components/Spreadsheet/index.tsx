@@ -12,7 +12,7 @@ registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 import { Database, Tables } from 'app/_types/supabase';
 import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
 import usePlugin from './Plugins';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
 import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
@@ -45,7 +45,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const useSpreadsheetPlugin = usePlugin(spreadsheet?.plugin?.name);
     const $spreadsheet = useRef<SpreadsheetComponent>();
     const $container = useRef<HTMLDivElement>();
-    const router = useRouter();
+    const router = useProgressRouter();
     const $dataSource = useRef<SpreadsheetDataSourceObject>(spreadsheet.dataSource);
 
     const isSpreadsheetProtected = useMemo(() => {

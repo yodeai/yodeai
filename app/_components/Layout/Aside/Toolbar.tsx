@@ -18,6 +18,7 @@ import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
 import { IoIosChatbubbles } from '@react-icons/all-files/io/IoIosChatbubbles';
 import { usePortal } from 'app/_hooks/usePortal';
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -37,7 +38,7 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 

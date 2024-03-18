@@ -7,7 +7,7 @@ import { FaLink } from "@react-icons/all-files/fa6/FaLink";
 import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { Tables } from "app/_types/supabase";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
@@ -35,7 +35,7 @@ export const SpreadsheetIconItem = ({
     const { showContextMenu } = useContextMenu();
     const $textarea = useRef<HTMLTextAreaElement>(null);
     const { accessType, zoomLevel } = useAppContext();
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const spreadsheetPlugin = useMemo(() => (spreadsheet?.plugin), [spreadsheet]);
     const spreadsheetPluginState = useMemo(() => spreadsheetPlugin?.state, [spreadsheetPlugin]);

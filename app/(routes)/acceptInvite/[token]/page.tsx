@@ -1,13 +1,12 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useEffect, useState } from "react";
 import { Button } from "@mantine/core";
 import { useAppContext } from "@contexts/context";
 
-
 export default function acceptInvite({ params }: { params: { token: string } }) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const supabase = createClientComponentClient()
   const [intendedRecipient, setIntendedRecipient] = useState(false);
   const [accepted, setAccepted] = useState(false);
