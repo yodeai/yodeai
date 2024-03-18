@@ -61,6 +61,19 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
     };
   }, [user]);
 
+  const onClickSignOut = async () => {
+    // redirect window to sign out page with POST
+    fetch('/api/auth/sign-out', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+    }).then(res => {
+      if (res.ok) window.location.href = '/login';
+    })
+  }
+
   return (
     <nav className="w-full">
       <Flex align={"center"} justify={"flex-end"}>
@@ -86,8 +99,8 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
                 <Menu.Item onClick={openGoogleAuthWindow} color="blue" variant="light">
                   Connect Google Account
                 </Menu.Item>}
-              <Menu.Item>
-                <LogoutButton />
+              <Menu.Item onClick={onClickSignOut}>
+                Logout
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
