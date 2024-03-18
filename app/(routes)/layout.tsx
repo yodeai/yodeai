@@ -5,7 +5,6 @@ import ExplorerProvider from "@contexts/explorer";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import NextTopLoader from 'nextjs-toploader';
 import { Breadcrumb } from "@components/Layout/Breadcrumb";
 import { Main } from "@components/Layout/Main";
 
@@ -18,7 +17,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      <NextTopLoader />
       <ExplorerProvider>
         <Navbar /> {/* Mantine.Navbar */}
         <Main>
