@@ -25,8 +25,6 @@ import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
 import { PageHeader } from "@components/Layout/PageHeader";
 import { modals } from "@mantine/modals";
-import { useDisclosure } from "@mantine/hooks";
-import ShareLensComponent from "@components/Modals/ShareLensComponent";
 import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
@@ -41,7 +39,6 @@ export default function Lens(props: LensProps) {
   const { lens_id, user, lensData, path } = props;
 
   const [lens, setLens] = useState<Lens>(lensData);
-
   const [blocks, setBlocks] = useState<Block[]>(lensData.blocks);
   const [subspaces, setSubspaces] = useState<Subspace[]>(lensData.subspaces);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>(lensData.whiteboards);
@@ -49,10 +46,8 @@ export default function Lens(props: LensProps) {
   const [widgets, setWidgets] = useState<Tables<"widget">[]>(lensData.widgets);
   const [layoutData, setLayoutData] = useState<LensLayout>(lensData.layout)
 
-
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
-  const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
@@ -76,10 +71,6 @@ export default function Lens(props: LensProps) {
 
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
-
-  useEffect(() => {
-    setEditingLensName(lensName);
-  }, [lensName]);
 
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
@@ -337,39 +328,24 @@ export default function Lens(props: LensProps) {
     return updatePromise;
   };
 
-  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditingLensName(e.target.value);
-  };
-
-  const saveNewLensName = async () => {
+  const saveNewLensName = async (newName: string) => {
     if (lens) {
       try {
-        if (editingLensName === "") {
-          throw new Error("Space title cannot be empty");
-        }
-        const updatePromise = updateLensName(lens.lens_id, editingLensName);
+        const updatePromise = updateLensName(lens.lens_id, newName);
         await load(updatePromise, {
           loading: "Updating space name...",
           success: "Space name updated!",
           error: "Failed to update space name.",
         });
-        setLens({ ...lens, name: editingLensName });
+        setLens({ ...lens, name: newName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
         reloadLenses();
-        router.push(`/lens/${lens.lens_id}`);
         return true;
       } catch (error) {
         console.log("error", error.message)
         toast.error('Failed to update space name: ' + error.message);
         return false;
       }
-    }
-  };
-
-  const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      saveNewLensName();
     }
   };
 
@@ -696,7 +672,7 @@ export default function Lens(props: LensProps) {
       subspaces={subspaces}
       spreadsheets={spreadsheets}>
       <PageHeader
-        title={lensName}
+        title={lens.name}
         secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
@@ -731,7 +707,7 @@ export default function Lens(props: LensProps) {
         item={$settingsItem.current}
         lens_id={lens_id}
         modalController={iconItemDisclosure} />
-        <FinishedOnboardingModal />
+      <FinishedOnboardingModal />
     </ContentProvider >
   );
 }

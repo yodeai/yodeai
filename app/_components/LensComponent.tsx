@@ -7,6 +7,7 @@ import { Lens } from "app/_types/lens";
 import { NavLink, Text } from "@mantine/core";
 import Link from "next/link";
 import icons from "./IconView/_icons";
+import { useMemo } from "react";
 
 interface LensProps {
   compact?: boolean;
@@ -20,8 +21,13 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
     ? <icons.shared_subspace transform="scale(0.6), translate(-10, 0)" fill="#999" />
     : <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
 
+  const lensHref = useMemo(() => {
+    const path = [...lens.parents?.filter(id => id > 0).reverse(), lens.lens_id];
+    return `/lens/${path?.join('/')}`;
+  }, [lens.parents]);
+
   return (
-    <Link href={`/lens/${lens.lens_id}`} prefetch className="no-underline w-min">
+    <Link href={lensHref} prefetch className="no-underline w-min">
       <NavLink
         classNames={{ section: "!contents" }}
         component="div"

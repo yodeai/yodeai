@@ -15,6 +15,7 @@ export type Lens = {
   updated_at: Date;
   children?: Lens[];  // Array of child Lens objects
   blocks?: Block[];   // Array of child Block objects
+  parents?: number[];
   shared: boolean;
   lens_users: LensUsers[]
   public: boolean;

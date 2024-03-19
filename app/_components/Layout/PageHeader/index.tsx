@@ -83,11 +83,6 @@ export const PageHeader = ({
                             </UnstyledButton>
                         </Menu.Target>}
                     </Box> || ""}
-                    {secondaryItem && <Box>
-                        <Divider orientation="vertical" className="mx-3" />
-                        {secondaryItem}
-                    </Box>}
-
                     {editMode && <> <Input
                         classNames={{
                             wrapper: "w-[300px]",
@@ -113,6 +108,10 @@ export const PageHeader = ({
                         </ActionIcon>
                     </>
                     }
+                    {secondaryItem && <Box>
+                        <Divider orientation="vertical" className="mx-3" />
+                        {secondaryItem}
+                    </Box>}
                 </Flex>
                 {dropdownItems && Array.isArray(dropdownItems) && <Menu.Dropdown>
                     {dropdownItems.map((item, i) => <Menu.Item key={i} color={item.color} disabled={item.disabled} onClick={item.onClick}>{item.label}</Menu.Item>)}
