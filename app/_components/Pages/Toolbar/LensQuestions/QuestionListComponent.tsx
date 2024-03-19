@@ -5,16 +5,17 @@ import { useAppContext } from "@contexts/context";
 import { useEffect } from "react";
 import QuestionComponent from './QuestionComponent';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { AppShell, Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
-import InfoPopover from './InfoPopover';
-import ToolbarHeader from './Layout/Aside/ToolbarHeader';
-import LoadingSkeleton from './LoadingSkeleton';
-import OnboardingPopover from './Onboarding/OnboardingPopover';
+import { AppShell, Button, Flex, Group, Image, Text, Textarea } from '@mantine/core';
+
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
+import InfoPopover from '@components/InfoPopover';
+import ToolbarHeader from '@components/Layout/Aside/ToolbarHeader';
+import LoadingSkeleton from '@components/LoadingSkeleton';
+import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
-const QuestionAnswerForm: React.FC = () => {
+const QuestionListComponent: React.FC = () => {
     const { lensId, lensName, activeComponent, user, onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
     const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
@@ -204,7 +205,7 @@ const QuestionAnswerForm: React.FC = () => {
             </AppShell.Section>
 
             {/* toolbar content */}
-            <div className="px-3 pt-3 flex gap-3 flex-col-reverse overflow-scroll">
+            <div className="grow px-3 pt-3 flex gap-3 flex-col-reverse overflow-scroll">
                 {!isLoading && questionHistory.length === 0 && (
                     <span className="text-center text-gray-400 text-sm">
                         No questions yet. Ask a question to get started.
@@ -299,4 +300,4 @@ const QuestionAnswerForm: React.FC = () => {
     );
 };
 
-export default QuestionAnswerForm;
+export default QuestionListComponent;

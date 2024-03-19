@@ -1,15 +1,15 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 
-import React, { useState, FormEvent, useMemo } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { ChatMessage } from 'app/_types/chat';
 import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
-import { AppShell, Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
-import InfoPopover from './InfoPopover';
-import ToolbarHeader from './Layout/Aside/ToolbarHeader';
+import { AppShell, Box, Button, Divider, Flex, Group, Text, Textarea } from '@mantine/core';
+import InfoPopover from '@components/InfoPopover';
+import ToolbarHeader from '@components/Layout/Aside/ToolbarHeader';
 import { timeAgo } from '@utils/index';
-import LoadingSkeleton from './LoadingSkeleton';
+import LoadingSkeleton from '@components/LoadingSkeleton';
 import { cn } from '@utils/style';
 import Gravatar from 'react-gravatar';
 
@@ -191,7 +191,7 @@ export default function LensChat() {
             </AppShell.Section>
 
             {/* content */}
-            <Box className="flex h-full flex-col-reverse gap-3 py-0 px-3 overflow-scroll">
+            <Box className="grow flex h-full flex-col-reverse gap-3 py-0 px-3 overflow-scroll">
                 {messages.map((message, index) => {
                     return <MessageBox key={index} message={message} />
                 })}

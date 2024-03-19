@@ -1,10 +1,9 @@
 // components/QuestionComponent.tsx
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
-import clsx from "clsx";
+import React, { useState, useCallback } from 'react';
 import apiClient from '@utils/apiClient';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Anchor, List, Paper, Text } from '@mantine/core';
+import { List, Paper, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { timeAgo } from '@utils/index';

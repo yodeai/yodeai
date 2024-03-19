@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
-import QuestionAnswerForm from '@components/QuestionAnswerForm'
+import QuestionAnswerForm from '@components/Pages/Toolbar/LensQuestions/QuestionListComponent'
 import { Box, Flex, Button, Menu, Text, Anchor, AppShell, Portal, Divider, MantineProvider } from '@mantine/core';
 import NextImage from 'next/image';
 import { useAppContext } from '@contexts/context';
@@ -9,7 +9,7 @@ import { cn } from '@utils/style';
 import Link from 'next/link';
 
 import ConditionalTooltip from '../../ConditionalTooltip';
-import LensChat from '../../LensChat';
+import LensChat from '../../Pages/Toolbar/LensChat';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
 import { usePathname, useRouter } from 'next/navigation';
 import OnboardingPopover from '../../Onboarding/OnboardingPopover';
