@@ -77,7 +77,7 @@ export default function LayoutController(props: LayoutControllerProps) {
         case "icon":
             return <IconLayoutComponent
                 subspaces={subspaces}
-                layouts={layout.icon_layout}
+                layouts={layout?.icon_layout}
                 onChangeLayout={onChangeLayout}
                 blocks={blocks || []}
                 whiteboards={whiteboards || []}
