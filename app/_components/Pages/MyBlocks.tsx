@@ -113,7 +113,7 @@ export default function MyBlocks(props: MyBlocksProps) {
     return (
         <Flex direction="column" pt={0}>
             <PageHeader
-                title="My Blocks"
+                title="My Pages"
                 actions={headerActions}
             />
             <PageContent>
