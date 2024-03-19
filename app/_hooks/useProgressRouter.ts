@@ -23,7 +23,7 @@ export const useProgressRouter = () => {
     }, [pathname, searchParams])
 
     router.push = (href, options) => {
-        nprogress.set(0);
+        nprogress.set(1);
         nprogress.start();
 
         const getPagePathVersionValue = getPagePathVersion(href);
