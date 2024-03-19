@@ -191,25 +191,21 @@ export default function LensChat() {
             </AppShell.Section>
 
             {/* content */}
-            <AppShell.Section grow component={ScrollArea}>
-                <Box className="flex flex-col-reverse gap-3 p-3">
-                    {messages.map((message, index) => {
-                        return <MessageBox key={index} message={message} />
-                    })}
-                    {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
-                    {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
-                    {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
-                        label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
-                        labelPosition="center" />}
-                </Box>
-            </AppShell.Section>
-
+            <Box className="flex h-full flex-col-reverse gap-3 py-0 px-3 overflow-scroll">
+                {messages.map((message, index) => {
+                    return <MessageBox key={index} message={message} />
+                })}
+                {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
+                {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
+                {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
+                    label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
+                    labelPosition="center" />}
+            </Box>
 
             {/* footer */}
-
             <AppShell.Section>
                 <Flex p={10} pt={0} direction={"column"}>
-                    <Flex justify={'center'} pt={5} pb={0} direction={"column"}>
+                    <Flex justify={'center'} pb={0} direction={"column"}>
                         <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                             <Textarea
                                 disabled={isSending}

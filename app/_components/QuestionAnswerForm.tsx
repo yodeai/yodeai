@@ -183,7 +183,7 @@ const QuestionAnswerForm: React.FC = () => {
             direction={"column"}
             className="h-full w-full"
             justify={"space-between"}>
-                
+
             {/*toolbar header  */}
             <AppShell.Section>
                 <ToolbarHeader>
@@ -204,33 +204,31 @@ const QuestionAnswerForm: React.FC = () => {
             </AppShell.Section>
 
             {/* toolbar content */}
-            <AppShell.Section grow component={ScrollArea}>
-                <div className="px-3 pt-3 flex gap-3 flex-col-reverse">
-                    {!isLoading && questionHistory.length === 0 && (
-                        <span className="text-center text-gray-400 text-sm">
-                            No questions yet. Ask a question to get started.
-                        </span>
-                    )}
-                    {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
-                    {questionHistory.map(({ question, answer, created_at, sources }, index) => (
-                        <QuestionComponent
-                            created_at={created_at}
-                            lensID={lensId}
-                            id={null}
-                            key={index}
-                            question={question}
-                            answer={answer}
-                            sources={sources}
-                            published={false}
-                        />
-                    ))}
-                </div>
-            </AppShell.Section>
+            <div className="px-3 pt-3 flex gap-3 flex-col-reverse overflow-scroll">
+                {!isLoading && questionHistory.length === 0 && (
+                    <span className="text-center text-gray-400 text-sm">
+                        No questions yet. Ask a question to get started.
+                    </span>
+                )}
+                {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
+                {questionHistory.map(({ question, answer, created_at, sources }, index) => (
+                    <QuestionComponent
+                        created_at={created_at}
+                        lensID={lensId}
+                        id={null}
+                        key={index}
+                        question={question}
+                        answer={answer}
+                        sources={sources}
+                        published={false}
+                    />
+                ))}
+            </div>
 
             {/* toolbar footer */}
             <AppShell.Section>
                 <Flex p={10} pt={0} direction={"column"}>
-                    <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
+                    <Flex justify={'center'} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                                 {(onboardingStep === 2 && !onboardingIsComplete)

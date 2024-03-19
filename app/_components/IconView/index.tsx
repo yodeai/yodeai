@@ -376,11 +376,15 @@ export default function IconLayoutComponent({
 
   useEffect(() => {
     if (layoutRefs.navbar.current) {
-      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.navbar.current)}px`
+      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.navbar.current) - 60}px`
     }
   }, [layoutRefs.navbar])
 
-  return <div ref={$gridContainer}>
+  return <div ref={$gridContainer}
+    style={{
+      height: `${getInnerHeight(layoutRefs.navbar.current) - 60}px`
+    }}
+  >
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
