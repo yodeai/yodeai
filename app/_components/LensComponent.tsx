@@ -22,9 +22,9 @@ export default function LensComponent({ lens, compact = false, rightSection }: L
     : <span className="pr-3"><icons.subspace size={18} fill="#999" /></span>
 
   const lensHref = useMemo(() => {
-    const path = [...lens.parents?.filter(id => id > 0).reverse(), lens.lens_id];
-    return `/lens/${path?.join('/')}`;
-  }, [lens.parents]);
+    const path = [...(lens?.parents?.filter(id => id > 0)?.reverse() || []), lens?.lens_id];
+    return `/lens/${path.join('/')}`;
+  }, [lens]);
 
   return (
     <Link href={lensHref} prefetch className="no-underline w-min">
