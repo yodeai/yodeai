@@ -8,10 +8,8 @@ import { useRef, useEffect } from "react";
 import { AppShell, Box, Button, Divider, Flex, Group, Text, Textarea } from '@mantine/core';
 import InfoPopover from '@components/InfoPopover';
 import ToolbarHeader from '@components/Layout/Aside/ToolbarHeader';
-import { timeAgo } from '@utils/index';
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { cn } from '@utils/style';
-import Gravatar from 'react-gravatar';
+import LensChatMessage from './LensChatMessage';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
@@ -193,7 +191,7 @@ export default function LensChat() {
             {/* content */}
             <Box className="grow flex h-full flex-col-reverse gap-3 py-0 px-3 overflow-scroll">
                 {messages.map((message, index) => {
-                    return <MessageBox key={index} message={message} />
+                    return <LensChatMessage key={index} message={message} />
                 })}
                 {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
                 {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
@@ -226,31 +224,3 @@ export default function LensChat() {
         </Flex>
     );
 };
-
-type MessageBoxProps = {
-    message: ChatMessage;
-}
-const MessageBox = (props: MessageBoxProps) => {
-    const { message } = props;
-    const { user } = useAppContext();
-
-    const selfMessage = message.users.id === user?.id;
-
-    return <div className={
-        cn("flex gap-1.5", selfMessage ? "justify-end" : "justify-start")
-    }>
-        <Gravatar email={message.users.email} size={32} className="rounded-md" />
-        <div className={cn(
-            "flex flex-col w-full p-2 border",
-            selfMessage
-                ? "bg-indigo-600 border-indigo-700 text-gray-200 rounded-s-xl rounded-se-xl"
-                : "bg-gray-200 border-gray-300 text-gray-800 rounded-e-xl rounded-es-xl"
-        )}>
-            <div className="flex items-center justify-between">
-                <span className="truncate text-sm font-semibold">{message.users.email}</span>
-                <span className="truncate text-sm font-normal ">{timeAgo(message.created_at)}</span>
-            </div>
-            <p className="text-sm font-normal whitespace-break-spaces">{message.message.trim()}</p>
-        </div>
-    </div>
-}

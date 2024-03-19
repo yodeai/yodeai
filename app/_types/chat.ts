@@ -1,5 +1,3 @@
-import { Layouts } from "react-grid-layout";
-import { Block } from "./block";
 import { User } from "./users";
 
 export type ChatMessage = {

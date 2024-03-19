@@ -177,7 +177,7 @@ const QuestionListComponent: React.FC = () => {
     const infoText = useMemo(() => {
         const defaultText = "using the data in your pages.";
         return `Ask a question and Yodeai will respond to it ${lensName ? `based on the pages in the space "${lensName}".` : defaultText}`
-    }, [lensName])
+    }, [lensName, lensId])
 
     return (
         <Flex

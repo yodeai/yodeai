@@ -49,7 +49,6 @@ export default function Block(props: BlockProps) {
 
         setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
         return () => {
-            setLensId(null);
             setBreadcrumbActivePage(null);
         }
     }, [block]);
