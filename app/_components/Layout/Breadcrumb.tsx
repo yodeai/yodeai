@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 
-import LoadingSkeleton from "../LoadingSkeleton"
+import LoadingSkeleton from "@components/LoadingSkeleton"
 import { FaHome } from "@react-icons/all-files/fa/FaHome"
 import { FaAngleLeft } from "@react-icons/all-files/fa/FaAngleLeft";
 import { Text, Breadcrumbs, Box, AppShell, Burger } from "@mantine/core"

@@ -21,7 +21,7 @@ import {
   SpreadsheetIconItem
 } from "./_views/index";
 
-import { ViewController } from "../Layout/LayoutController";
+import { ViewController } from "@components/Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { WidgetIconItem } from "./_views/Widget";

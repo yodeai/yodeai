@@ -21,9 +21,9 @@ import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
 import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text, AppShell } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
-import LoadingSkeleton from "../LoadingSkeleton";
+import LoadingSkeleton from "@components/LoadingSkeleton";
 
-import OnboardingPopover from "../Onboarding/OnboardingPopover";
+import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 export default function Navbar() {

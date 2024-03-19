@@ -16,7 +16,7 @@ import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 
-import ShareLensComponent from '../../Modals/ShareLensComponent';
+import ShareLensComponent from '@components/Modals/ShareLensComponent';
 import { useDisclosure } from "@mantine/hooks";
 import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 

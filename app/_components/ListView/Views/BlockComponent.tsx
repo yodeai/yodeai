@@ -7,7 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Text, Tooltip, Flex, ActionIcon, Grid, Anchor } from "@mantine/core";
-import InlineSpoiler from "../../InlineSpoiler";
+import InlineSpoiler from "@components/InlineSpoiler";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";

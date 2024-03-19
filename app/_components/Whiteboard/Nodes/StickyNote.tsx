@@ -3,8 +3,8 @@ import { NodeProps } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
-import { Handles } from '../Helpers/Handles'
-import { calculateStickyNoteBoxHeight } from '../Plugins/utils/index';
+import { Handles } from '@components/Whiteboard/Helpers/Handles'
+import { calculateStickyNoteBoxHeight } from '@components/Whiteboard/Plugins/utils';
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 

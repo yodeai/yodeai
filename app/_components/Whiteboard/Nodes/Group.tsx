@@ -1,9 +1,9 @@
 import React, { memo } from 'react'
-import { NodeProps, Handle, Position } from 'reactflow'
+import { NodeProps } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
+import { Handles } from '@components/Whiteboard/Helpers/Handles'
 import { cn } from '@utils/style'
-import { Handles } from '../Helpers/Handles'
 
 type GroupNodeProps = WrappedComponentType<NodeProps>;
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/core';
 import BlockComponent from './BlockComponent';
-import LoadingSkeleton from '../../LoadingSkeleton';
+import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { Lens, LensData, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';

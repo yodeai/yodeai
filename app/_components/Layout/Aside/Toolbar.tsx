@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import QuestionAnswerForm from '@components/Pages/Toolbar/LensQuestions/QuestionListComponent'
-import { Box, Flex, Button, Menu, Text, Anchor, AppShell, Portal, Divider, MantineProvider } from '@mantine/core';
+import { Box, Flex, Button, Menu, Text, Anchor, AppShell, MantineProvider } from '@mantine/core';
 import NextImage from 'next/image';
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
 
-import ConditionalTooltip from '../../ConditionalTooltip';
-import LensChat from '../../Pages/Toolbar/LensChat';
+import ConditionalTooltip from '@components/ConditionalTooltip';
+import LensChat from '@components/Pages/Toolbar/LensChats/LensChatList';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
-import { usePathname, useRouter } from 'next/navigation';
-import OnboardingPopover from '../../Onboarding/OnboardingPopover';
+import { usePathname } from 'next/navigation';
+import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
 import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';

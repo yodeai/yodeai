@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { WidgetType } from '../index';
+import { WidgetType } from '@components/Widgets';
 import { Card, Text } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
 
-import { useWidget } from '../hooks';
+import { useWidget } from '@components/Widgets/hooks';
 import load from '@lib/load';
 import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { PageHeader } from '@components/Layout/PageHeader';

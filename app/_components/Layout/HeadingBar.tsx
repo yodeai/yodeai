@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import UserAccountHandler from '../UserAccount';
+import UserAccountHandler from '@components/UserAccount';
 import { AppShell, Burger, Image } from '@mantine/core';
 import { useAppContext } from "@contexts/context";
 

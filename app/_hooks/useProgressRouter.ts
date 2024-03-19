@@ -1,7 +1,7 @@
 import { useAppContext } from "@contexts/context";
 import { useMediaQuery } from "@mantine/hooks";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getPagePathVersion } from '../_utils/localStorage';
+import { getPagePathVersion } from '@utils/localStorage';
 import { nprogress } from '@mantine/nprogress';
 import { useEffect } from "react";
 
