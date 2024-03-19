@@ -380,11 +380,7 @@ export default function IconLayoutComponent({
     }
   }, [layoutRefs.navbar])
 
-  return <div ref={$gridContainer}
-    style={{
-      height: `${getInnerHeight(layoutRefs.navbar.current) - 60}px`
-    }}
-  >
+  return <div ref={$gridContainer}>
     <ResponsiveReactGridLayout
       layouts={layouts}
       cols={cols}
