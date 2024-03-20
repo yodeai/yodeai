@@ -13,6 +13,7 @@ import LensChatMessage from './LensChatMessage';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
+import { useIntersection } from '@mantine/hooks';
 
 const MESSAGE_LIMIT = 25;
 
@@ -25,8 +26,12 @@ export default function LensChat() {
     const { lensId, lensName, user } = useAppContext();
 
     const supabase = createClientComponentClient()
+    const $container = useRef<HTMLDivElement>(null);
+    const $intersectionObject = useIntersection({
+        root: $container.current,
+        rootMargin: '0px', threshold: 1
+    });
 
-    const $loadMore = useRef<HTMLDivElement>(null);
     const $offset = useRef<number>(0);
     const $hasMore = useRef<boolean>(false);
     const $fetching = useRef<boolean>(false);
@@ -47,7 +52,7 @@ export default function LensChat() {
                 }
             })
             .then(data => {
-                setMessages(_messages => [...data.data.messages, ..._messages]);
+                setMessages(_messages => [..._messages, ...data.data.messages]);
                 setHasMore(data.data.hasMore);
                 $hasMore.current = data.data.hasMore;
             })
@@ -101,7 +106,6 @@ export default function LensChat() {
             setIsLoading(true);
             setIsSending(false);
 
-            $loadMore.current = null;
             $offset.current = 0;
             $hasMore.current = false;
             $fetching.current = false;
@@ -109,24 +113,11 @@ export default function LensChat() {
     }, [lensId, user]);
 
     useEffect(() => {
-        if (!$loadMore.current) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && $hasMore.current && $fetching.current === false) {
-                $offset.current += MESSAGE_LIMIT;
-                fetchLensChat();
-            }
-        }, {
-            root: null,
-            rootMargin: '0px',
-            threshold: 1.0
-        })
-
-        observer.observe($loadMore.current);
-        return () => {
-            observer.disconnect();
+        if ($intersectionObject.entry && $hasMore.current && $fetching.current === false && isLoading === false) {
+            $offset.current += MESSAGE_LIMIT;
+            fetchLensChat();
         }
-    }, [lensId, $loadMore.current])
+    }, [$intersectionObject.entry, lensId]);
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -168,6 +159,10 @@ export default function LensChat() {
         }
     }
 
+    // useEffect(() => {v
+    //     console.log("intersection", $intersectionObject.entry)
+    // }, [$intersectionObject.entry])
+
     return (
         <Flex
             direction={"column"}
@@ -189,12 +184,12 @@ export default function LensChat() {
             </AppShell.Section>
 
             {/* content */}
-            <Box className="grow flex h-full flex-col-reverse gap-3 py-0 px-3 overflow-scroll">
+            <Box ref={$container} className="flex h-full flex-col-reverse gap-3 py-1 px-3 overflow-scroll">
                 {messages.map((message, index) => {
                     return <LensChatMessage key={index} message={message} />
                 })}
                 {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
-                {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
+                {hasMore && <div ref={$intersectionObject.ref} className="loadMore h-8 w-full"></div>}
                 {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
                     label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
                     labelPosition="center" />}

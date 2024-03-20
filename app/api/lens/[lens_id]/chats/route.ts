@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: { lens_id:
             .select(`*, users(*)`, { count: 'exact' })
             .eq('lens_id', params.lens_id)
             .order('created_at', { ascending: false })
-            .range(offset, limit + offset);
+            .range(offset, limit + offset - 1);
 
         if (error) throw error;
 
