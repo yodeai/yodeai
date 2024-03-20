@@ -177,7 +177,14 @@ const QuestionListComponent: React.FC = () => {
     const infoText = useMemo(() => {
         const defaultText = "using the data in your pages.";
         return `Ask a question and Yodeai will respond to it ${lensName ? `based on the pages in the space "${lensName}".` : defaultText}`
-    }, [lensName, lensId])
+    }, [lensName, lensId]);
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleSubmit(event);
+        }
+    }
 
     return (
         <Flex
@@ -246,6 +253,7 @@ const QuestionListComponent: React.FC = () => {
                                         }
                                     >
                                         <Textarea
+                                            onKeyDown={handleKeyDown}
                                             disabled={isSubmitting}
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
@@ -254,6 +262,7 @@ const QuestionListComponent: React.FC = () => {
                                     </OnboardingPopover>
                                     :
                                     <Textarea
+                                        onKeyDown={handleKeyDown}
                                         disabled={isSubmitting}
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
