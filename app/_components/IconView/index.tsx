@@ -25,7 +25,7 @@ import { ViewController } from "@components/Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { WidgetIconItem } from "./_views/Widget";
-import { getInnerHeight, getInnerWidth } from "@utils/style";
+import { getInnerHeight } from "@utils/style";
 
 type IconViewItemType = Block | Subspace | Lens
   | (Tables<"whiteboard"> & {
@@ -77,6 +77,8 @@ export default function IconLayoutComponent({
     zoomLevel,
     setBreadcrumbActivePage
   } = useAppContext();
+
+  const $mounted = useRef(false);
 
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
@@ -341,6 +343,8 @@ export default function IconLayoutComponent({
       event: MouseEvent,
       element: HTMLElement
     ) => {
+      $mounted.current = true;
+
       const target = event.target as HTMLElement;
       if (!newItem.i.startsWith("ss")) return;
 
@@ -367,9 +371,11 @@ export default function IconLayoutComponent({
     }
   }
 
-  const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
+  const onLayoutChange = useCallback((layout: Layout[], newLayouts: Layouts) => {
+    if(!$mounted.current) return;
+
     if (sortingOptions.sortBy !== null) return;
-    onChangeLayout("icon_layout", layouts)
+    onChangeLayout("icon_layout", newLayouts)
   }, [sortingOptions]);
 
   const ROW_HEIGHT = 100;
