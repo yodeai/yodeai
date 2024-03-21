@@ -198,7 +198,7 @@ export default function Block(props: BlockProps) {
                     || ""}
             </div>
         </div>
-    }, [block])
+    }, [block, isEditing])
 
     const openDeleteModal = () => modals.openConfirmModal({
         title: 'Confirm page deletion',
