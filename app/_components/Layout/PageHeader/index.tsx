@@ -5,7 +5,6 @@ import { useMediaQuery } from "@mantine/hooks";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { useEffect, useRef, useState } from "react";
-import { useClickOutside } from "@mantine/hooks";
 
 type PageHeaderProps = {
     title: string;
@@ -36,7 +35,7 @@ export const PageHeader = ({
 }: PageHeaderProps) => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
     const [titleValue, setTitleValue] = useState(title);
-    const $inputContainer = useClickOutside(() => onSaveTitle(titleValue));
+    const $inputContainer = useRef<HTMLInputElement>(null);
 
     const $initialTitle = useRef(title);
 
