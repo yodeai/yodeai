@@ -235,6 +235,7 @@ export default function Block(props: BlockProps) {
             <PageHeader
                 title={block?.title}
                 onSaveTitle={handleSaveTitle}
+                closeEditMode={() => setIsEditing(false)}
                 editMode={isEditing}
                 loading={loading}
                 dropdownItems={[

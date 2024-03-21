@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 
 import { AiOutlineLoading } from "@react-icons/all-files/ai/AiOutlineLoading";
 import { MdCancel } from "@react-icons/all-files/md/MdCancel";
-import { FaRegTrashCan} from "@react-icons/all-files/fa6/FaRegTrashCan";
+import { FaRegTrashCan } from "@react-icons/all-files/fa6/FaRegTrashCan";
 import { FaLink } from "@react-icons/all-files/fa6/FaLink";
 import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
 
@@ -15,8 +15,8 @@ import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { cn } from "@utils/style";
 
-
 import { SpreadsheetPluginParams } from "app/_types/spreadsheet";
+import { useClickOutside } from "@mantine/hooks";
 
 type SpreadsheetProps = {
     icon: JSX.Element,
@@ -33,7 +33,6 @@ export const SpreadsheetIconItem = ({
     handleSpreadsheetChangeName, handleSpreadsheetDelete, unselectBlocks
 }: SpreadsheetProps) => {
     const { showContextMenu } = useContextMenu();
-    const $textarea = useRef<HTMLTextAreaElement>(null);
     const { accessType, zoomLevel } = useAppContext();
     const router = useProgressRouter();
 
@@ -44,9 +43,17 @@ export const SpreadsheetIconItem = ({
         setLoading(["waiting", "queued", "processing"].includes(spreadsheetPluginState?.status));
     }, [spreadsheetPluginState?.status])
 
+    const defaultTitle = useMemo(() => spreadsheet.name || "Untitled", [spreadsheet.name]);
     const [titleText, setTitleText] = useState<string>(spreadsheet.name);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const handleSubmit = () => {
+        setEditMode(false);
+        setLoading(true);
+        handleSpreadsheetChangeName(spreadsheet.spreadsheet_id, titleText).then(res => setLoading(false));
+    }
+    const $inputContainer = useClickOutside<HTMLTextAreaElement>(handleSubmit);
 
     useEffect(() => {
         setTitleText(spreadsheet.name);
@@ -72,14 +79,12 @@ export const SpreadsheetIconItem = ({
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Escape") {
+            setTitleText(defaultTitle);
             setEditMode(false);
             return;
         }
         if (event.key === "Enter") {
-            setEditMode(false)
-            setLoading(true)
-            handleSpreadsheetChangeName(spreadsheet.spreadsheet_id, (event.target as HTMLTextAreaElement).value.trim())
-                .then(res => setLoading(false))
+            handleSubmit();
             return;
         }
     }
@@ -91,8 +96,8 @@ export const SpreadsheetIconItem = ({
 
     useEffect(() => {
         if (editMode) {
-            $textarea.current?.focus();
-            $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+            $inputContainer.current?.focus();
+            $inputContainer.current?.setSelectionRange(0, $inputContainer.current.value.length);
         }
 
         const onClick = (event: MouseEvent) => {
@@ -107,7 +112,7 @@ export const SpreadsheetIconItem = ({
         return () => {
             window.removeEventListener("click", onClick);
         }
-    }, [$textarea, editMode])
+    }, [$inputContainer, editMode])
 
     const actions: ContextMenuContent = useMemo(() => {
         if (spreadsheetPluginState?.status && ["waiting", "queued", "processing"]
@@ -175,7 +180,7 @@ export const SpreadsheetIconItem = ({
                     rows={1}
                     className="z-50 block-input leading-4 w-full"
                     maxRows={2}
-                    ref={$textarea}
+                    ref={$inputContainer}
                     variant="unstyled" ta="center" c="dimmed"
                     onKeyDown={onKeyDown}
                     size={`${7 * 200 / zoomLevel}px`}

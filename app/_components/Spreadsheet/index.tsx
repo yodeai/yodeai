@@ -251,6 +251,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
             editMode={isEditing}
             onSaveTitle={handleSaveTitle}
             actions={headerActions}
+            closeEditMode={() => setIsEditing(false)}
             dropdownItems={headerDropdownItems}
         />
         <PageContent>

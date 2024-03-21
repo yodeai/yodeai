@@ -19,6 +19,7 @@ import { Tables } from "app/_types/supabase";
 import { WhiteboardPluginParams } from "app/_types/whiteboard";
 import { cn } from "@utils/style";
 import { Lens, Subspace } from "app/_types/lens";
+import { useClickOutside } from "@mantine/hooks";
 
 type WhiteboardIconItemProps = {
   icon: JSX.Element
@@ -39,10 +40,17 @@ export const WhiteboardIconItem = ({
   const whiteboardPlugin = useMemo(() => (whiteboard?.plugin as WhiteboardPluginParams), [whiteboard]);
   const whiteboardPluginState = useMemo(() => whiteboardPlugin?.state, [whiteboardPlugin]);
 
+  const defaultTitle = useMemo(() => whiteboard.name || "Untitled", [whiteboard.name]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(["waiting", "queued", "processing"].includes(whiteboardPluginState?.status));
   const [titleText, setTitleText] = useState<string>(whiteboard.name);
-  const $textarea = useRef<HTMLTextAreaElement>(null);
+
+  const handleSubmit = () => {
+    setEditMode(false);
+    setLoading(true);
+    handleWhiteboardChangeName(whiteboard.whiteboard_id, titleText).then(res => setLoading(false));
+  }
+  const $inputContainer = useClickOutside<HTMLTextAreaElement>(handleSubmit);
 
   // const [loading, setLoading] = useState<boolean>(false);
   const router = useProgressRouter();
@@ -71,7 +79,7 @@ export const WhiteboardIconItem = ({
   }
 
   const actions: ContextMenuContent = useMemo(() => {
-    if(whiteboardPluginState?.status && ["waiting", "queued", "processing"].includes(whiteboardPluginState?.status)){
+    if (whiteboardPluginState?.status && ["waiting", "queued", "processing"].includes(whiteboardPluginState?.status)) {
       return [{
         key: 'cancel',
         color: "#ff6b6b",
@@ -126,22 +134,20 @@ export const WhiteboardIconItem = ({
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Escape") {
+      setTitleText(defaultTitle);
       setEditMode(false);
       return;
     }
     if (event.key === "Enter") {
-      setEditMode(false)
-      setLoading(true)
-      handleWhiteboardChangeName(whiteboard.whiteboard_id, (event.target as HTMLTextAreaElement).value.trim())
-        .then(res => setLoading(false))
+      handleSubmit();
       return;
     }
   }
 
   useEffect(() => {
     if (editMode) {
-      $textarea.current?.focus();
-      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+      $inputContainer.current?.focus();
+      $inputContainer.current?.setSelectionRange(0, $inputContainer.current.value.length);
     }
 
     const onClick = (event: MouseEvent) => {
@@ -156,7 +162,7 @@ export const WhiteboardIconItem = ({
     return () => {
       window.removeEventListener("click", onClick);
     }
-  }, [$textarea, editMode])
+  }, [$inputContainer, editMode])
 
 
   const onContextMenu = showContextMenu(actions);
@@ -186,7 +192,7 @@ export const WhiteboardIconItem = ({
             rows={1}
             className="z-50 block-input leading-4 w-full"
             maxRows={2}
-            ref={$textarea}
+            ref={$inputContainer}
             variant="unstyled" ta="center" c="dimmed"
             onKeyDown={onKeyDown}
             size={`${7 * 200 / zoomLevel}px`}

@@ -126,6 +126,7 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
             title={name}
             editMode={isEditing}
             onSaveTitle={updateTitle}
+            closeEditMode={() => setIsEditing(false)}
             dropdownItems={headerDropdownItems}
         />
 

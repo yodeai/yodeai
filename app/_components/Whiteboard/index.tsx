@@ -245,6 +245,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             editMode={isEditing}
             onSaveTitle={onChangeWhiteboardName}
             dropdownItems={headerDropdownItems}
+            closeEditMode={() => setIsEditing(false)}
             actions={headerActions}
         />
         <PageContent>

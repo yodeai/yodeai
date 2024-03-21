@@ -676,6 +676,7 @@ export default function Lens(props: LensProps) {
         secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
+        closeEditMode={() => setIsEditingLensName(false)}
         dropdownItems={headerDropdownItems}
         actions={headerActions}
       />

@@ -4,12 +4,14 @@ import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, Unstyl
 import { useMediaQuery } from "@mantine/hooks";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useClickOutside } from "@mantine/hooks";
 
 type PageHeaderProps = {
     title: string;
     secondaryItem?: JSX.Element;
     onSaveTitle?: (newTitle: string) => void;
+    closeEditMode?: () => void;
     editMode?: boolean;
     loading?: boolean;
     dropdownItems?: {
@@ -25,6 +27,7 @@ export const PageHeader = ({
     title,
     secondaryItem,
     onSaveTitle,
+    closeEditMode,
     editMode = false,
     loading = false,
     dropdownItems,
@@ -32,8 +35,10 @@ export const PageHeader = ({
     accessType
 }: PageHeaderProps) => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
-    const titleInputRef = useRef<HTMLInputElement>(null);
     const [titleValue, setTitleValue] = useState(title);
+    const $inputContainer = useClickOutside(() => onSaveTitle(titleValue));
+
+    const $initialTitle = useRef(title);
 
     useEffect(() => {
         setTitleValue(title);
@@ -41,8 +46,8 @@ export const PageHeader = ({
 
     useEffect(() => {
         if (editMode) {
-            titleInputRef.current?.focus();
-            titleInputRef.current?.setSelectionRange(0, titleInputRef.current?.value.length);
+            $inputContainer.current?.focus();
+            $inputContainer.current?.setSelectionRange(0, $inputContainer.current?.value.length);
         }
     }, [editMode]);
 
@@ -51,6 +56,11 @@ export const PageHeader = ({
     }
 
     const handleKeyPress = (e) => {
+        if (e.key === "Escape") {
+            setTitleValue($initialTitle.current);
+            closeEditMode();
+            return;
+        }
         if (e.key === "Enter") {
             onSaveTitle(titleValue);
         }
@@ -88,7 +98,7 @@ export const PageHeader = ({
                             wrapper: "w-[300px]",
                             input: "w-full inline-block text-xl border border-gray-400 rounded-md outline-none focus:border-gray-500"
                         }}
-                        ref={titleInputRef}
+                        ref={$inputContainer}
                         unstyled
                         fw={700}
                         c={"gray.7"}
