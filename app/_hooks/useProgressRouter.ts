@@ -3,7 +3,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getPagePathVersion } from '@utils/localStorage';
 import { nprogress } from '@mantine/nprogress';
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export const useProgressRouter = () => {
     const pathname = usePathname();
@@ -16,11 +16,12 @@ export const useProgressRouter = () => {
     } = useAppContext();
 
     const router = useRouter();
-    const { push } = router;
 
     useEffect(() => {
         nprogress.complete();
-    }, [pathname, searchParams])
+    }, [pathname, searchParams]);
+
+    const routerPush = useMemo(() => router.push, [pathname]);
 
     router.push = (href, options) => {
         nprogress.reset();
@@ -29,7 +30,8 @@ export const useProgressRouter = () => {
         const getPagePathVersionValue = getPagePathVersion(href);
         href = getPagePathVersionValue ? `${href}?v=${getPagePathVersionValue}` : href;
 
-        push(href, options);
+        routerPush(href, options);
+
         if (matchMobileView) {
             navbarActions.close();
             toolbarActions.close();
