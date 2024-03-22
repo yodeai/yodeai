@@ -167,7 +167,10 @@ export default function Block(props: BlockProps) {
             },
             body: JSON.stringify({ title })
         }).then(res => {
-            if (res.ok) setBlock({ ...block, title })
+            if (res.ok) {
+                setBlock({ ...block, title });
+                revalidateRouterCache(`/block/${block.block_id}`)
+            }
             return res;
         }).finally(() => setIsTitleEditing(false))
     }
@@ -250,7 +253,6 @@ export default function Block(props: BlockProps) {
                         color: "red"
                     }
                 ]}
-                accessType={block?.accessLevel}
                 actions={rightEditButton}
             />
             <PageContent>
