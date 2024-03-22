@@ -238,6 +238,9 @@ export default function Block(props: BlockProps) {
     return (<>
         <Flex direction="column" pt={0}>
             <PageHeader
+                properties={{
+                    accessType: block?.accessLevel 
+                }}
                 title={block?.title}
                 onSaveTitle={handleSaveTitle}
                 closeEditMode={() => setIsTitleEditing(false)}

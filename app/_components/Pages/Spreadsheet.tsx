@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EmitType, registerLicense } from '@syncfusion/ej2-base';
 import { BeforeCellUpdateArgs, SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
-import './styles/styles.css';
-import './styles/bootstrap.css';
-import './styles/material3.css';
+import '@components/Spreadsheet/styles/styles.css';
+import '@components/Spreadsheet/styles/bootstrap.css';
+import '@components/Spreadsheet/styles/material3.css';
 
 registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE);
 
 import { Database, Tables } from 'app/_types/supabase';
 import { SpreadsheetDataSourceObject, SpreadsheetPluginParams } from 'app/_types/spreadsheet';
-import usePlugin from './Plugins';
+import usePlugin from '../Spreadsheet/Plugins';
 import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
@@ -248,6 +248,9 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     return <Box className="flex flex-col justify-between align-middle">
         <PageHeader
             title={spreadsheet.name}
+            properties={{
+                accessType: access_type
+            }}
             editMode={isEditing}
             onSaveTitle={handleSaveTitle}
             actions={headerActions}

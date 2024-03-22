@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { Database } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 
-import widgets, { WidgetComponentType } from '@components/Widgets';
+import widgets, { WidgetComponentType } from '@components/Widgets/Widget';
 import { Result } from "@components/Result";
 import { MdError } from "@react-icons/all-files/md/MdError";
 import { WidgetData } from "app/_types/widget";

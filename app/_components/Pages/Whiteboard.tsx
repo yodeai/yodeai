@@ -7,21 +7,21 @@ import ReactFlow, {
     useNodesState, useEdgesState, addEdge,
     Controls, Background, Node, Edge, MiniMap
 } from 'reactflow';
-import WhiteboardDock from "./Helpers/Dock";
-import NodeContextMenu from './Helpers/ContextMenu/Node';
-import EdgeContextMenu from './Helpers/ContextMenu/Edge';
+import WhiteboardDock from "@components/Whiteboard/Helpers/Dock";
+import NodeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Node';
+import EdgeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 import { Text } from "@mantine/core";
 import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
-import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
-import edgeTypes from './Edges';
+import nodeTypes, { defaultValues, defaultNodeProps } from '@components/Whiteboard/Nodes';
+import edgeTypes from '@components/Whiteboard/Edges';
 import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 import { useAppContext } from '@contexts/context';
-import { FlowWrapper } from './Helpers/FlowWrapper';
+import { FlowWrapper } from '@components/Whiteboard/Helpers/FlowWrapper';
 import { PageHeader } from '@components/Layout/PageHeader';
 import load from '@lib/load';
 import { modals } from '@mantine/modals';
@@ -242,6 +242,9 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         isLocked={isLocked}>
         <PageHeader
             title={whiteboard.name}
+            properties={{
+                accessType: whiteboard.accessType
+            }}
             editMode={isEditing}
             onSaveTitle={onChangeWhiteboardName}
             dropdownItems={headerDropdownItems}

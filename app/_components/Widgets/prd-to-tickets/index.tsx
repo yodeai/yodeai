@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { WidgetType } from '@components/Widgets';
+import { WidgetType } from '@components/Widgets/Widget';
 import { Card, Text } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
 
@@ -119,13 +119,27 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
                 color: "red"
             }
         ]
-    }, [isEditing])
+    }, [isEditing]);
+
+    const onUpdateTitle = (title: string) => {
+        const loadPromise = updateTitle(title);
+        load(loadPromise, {
+            loading: "Updating widget title",
+            success: "Widget title updated",
+            error: "Failed to update widget title",
+        }).then(() => {
+            setIsEditing(false);
+        })
+    }
 
     return <div>
         <PageHeader
             title={name}
+            properties={{
+                accessType: props.access_type
+            }}
             editMode={isEditing}
-            onSaveTitle={updateTitle}
+            onSaveTitle={onUpdateTitle}
             closeEditMode={() => setIsEditing(false)}
             dropdownItems={headerDropdownItems}
         />

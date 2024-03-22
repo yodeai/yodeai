@@ -646,24 +646,6 @@ export default function Lens(props: LensProps) {
     </Box>
   }, [sortingOptions, selectedLayoutType, zoomLevel])
 
-  const titleSecondaryItem = useMemo(() => {
-    return <>
-      {lens.public && <>
-        <Tooltip position="bottom" offset={0} label="Public Space">
-          <UnstyledButton onClick={shareModalController.open}>
-            <CiGlobe size={20} className="mt-2 ml-[5px]" />
-          </UnstyledButton>
-        </Tooltip>
-      </> || ""}
-      {!lens.public && lens.shared && <>
-        <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${accessType}`}>
-          <UnstyledButton onClick={shareModalController.open} disabled={!accessType || accessType !== "owner"}>
-            <FaUserGroup size={20} className="mt-2 ml-[5px] text-gray-600" />
-          </UnstyledButton>
-        </Tooltip>
-      </> || ""}
-    </>
-  }, [lens, accessType])
 
   return (
     <ContentProvider
@@ -673,7 +655,12 @@ export default function Lens(props: LensProps) {
       spreadsheets={spreadsheets}>
       <PageHeader
         title={lens.name}
-        secondaryItem={titleSecondaryItem}
+        properties={{
+          isPublic: lens.public,
+          isShared: lens.shared,
+          accessType: accessType
+        }}
+        // secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
         closeEditMode={() => setIsEditingLensName(false)}

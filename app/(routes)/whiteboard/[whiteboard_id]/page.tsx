@@ -1,6 +1,6 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import Whiteboard from '@components/Whiteboard';
+import Whiteboard from '@components/Pages/Whiteboard';
 import { Database, Tables } from "app/_types/supabase";
 import { redirect } from "next/navigation";
 import { WhiteboardComponentProps } from "app/_types/whiteboard";

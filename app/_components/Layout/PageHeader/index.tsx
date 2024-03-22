@@ -1,13 +1,21 @@
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import { ModalsContainer } from "@components/Modals";
-import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, UnstyledButton } from "@mantine/core";
+import { useAppContext } from "@contexts/context";
+import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { useClickOutside, useMediaQuery } from "@mantine/hooks";
+import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
-import { useEffect, useRef, useState } from "react";
+import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type PageHeaderProps = {
     title: string;
+    properties?: {
+        isPublic?: boolean;
+        isShared?: boolean;
+        accessType?: "owner" | "editor" | "reader";
+    },
     secondaryItem?: JSX.Element;
     onSaveTitle?: (newTitle: string) => void;
     closeEditMode?: () => void;
@@ -19,24 +27,27 @@ type PageHeaderProps = {
         color?: MantineColor
         disabled?: boolean
     }[]
-    actions?: JSX.Element;
-    accessType?: "owner" | "editor" | "reader";
+    actions?: JSX.Element
 }
 export const PageHeader = ({
     title,
+    properties,
     secondaryItem,
     onSaveTitle,
     closeEditMode,
     editMode = false,
     loading = false,
     dropdownItems,
-    actions,
-    accessType
+    actions
 }: PageHeaderProps) => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
     const [titleValue, setTitleValue] = useState(title);
 
     const $initialTitle = useRef(title);
+
+    const {
+        shareModalDisclosure: [shareModalState, shareModalController]
+    } = useAppContext();
 
     const $inputContainer = useRef<HTMLInputElement>(null);
     const $inputWrapper = useClickOutside<HTMLInputElement>(() => {
@@ -76,10 +87,28 @@ export const PageHeader = ({
         </Flex>
     }
 
+    const propertiesItem = useMemo(() => {
+        return <>
+            {properties?.isPublic && <>
+                <Tooltip position="bottom" offset={0} label="Public Space">
+                    <UnstyledButton onClick={shareModalController.open}>
+                        <CiGlobe size={20} className="mt-2 ml-[5px]" />
+                    </UnstyledButton>
+                </Tooltip>
+            </> || ""}
+            {!properties?.isPublic && properties?.isShared && <>
+                <Tooltip position="bottom" offset={0} label={`Shared Space, Collaborative: ${properties.accessType}`}>
+                    <UnstyledButton onClick={shareModalController.open} disabled={properties.accessType !== "owner"}>
+                        <FaUserGroup size={20} className="mt-2 ml-[5px] text-gray-600" />
+                    </UnstyledButton>
+                </Tooltip>
+            </> || ""}
+        </>
+    }, [properties])
+
     return <>
-        <ModalsContainer
-            accessType={accessType}
-        />
+        <ModalsContainer accessType={properties?.accessType} />
+
         <Flex
             className="sticky top-0 border-b border-gray-200"
             direction={
@@ -121,9 +150,9 @@ export const PageHeader = ({
                             <FaCheck size={14} />
                         </ActionIcon>
                     </div>}
-                    {secondaryItem && <Box>
+                    {propertiesItem && <Box>
                         <Divider orientation="vertical" className="mx-3" />
-                        {secondaryItem}
+                        {propertiesItem}
                     </Box>}
                 </Flex>
                 {dropdownItems && Array.isArray(dropdownItems) && <Menu.Dropdown>
