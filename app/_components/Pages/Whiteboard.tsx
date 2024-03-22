@@ -4,8 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import ReactFlow, {
     ReactFlowProvider,
+    NodeSelectionChange,
     useNodesState, useEdgesState, addEdge,
-    Controls, Background, Node, Edge, MiniMap
+    Controls, Background, Node, Edge, MiniMap, OnNodesChange, OnEdgesChange
 } from 'reactflow';
 import WhiteboardDock from "@components/Whiteboard/Helpers/Dock";
 import NodeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Node';
@@ -131,7 +132,10 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         })
             .then(res => res.json())
             .catch(err => console.error(err))
-            .finally(() => setIsSaving(false));
+            .finally(() => {
+                setIsSaving(false);
+                revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
+            });
     }, 1000, [nodes, edges, isSaving]);
 
     const onChangeWhiteboardName = useCallback((name: string) => {
@@ -186,7 +190,6 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     useEffect(() => {
         if (isLocked && (data.plugin ? data.plugin?.rendered === true : true)) return;
         syncWhiteboard(nodes, edges);
-        revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
     }, [nodes, edges]);
 
     useEffect(() => {
@@ -234,7 +237,15 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 color: "red"
             }
         ]
-    }, [isEditing])
+    }, [isEditing]);
+
+    const handleNodesChange: OnNodesChange = useCallback((changes) => {
+        return onNodesChange(changes);
+    }, [onNodesChange]);
+
+    const handleEdgesChange: OnEdgesChange = useCallback((changes) => {
+        return onEdgesChange(changes);
+    }, [onEdgesChange]);
 
     return <FlowWrapper
         whiteboard={whiteboard}
@@ -263,8 +274,8 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 fitViewOptions={{ padding: 0.5 }}
                 nodes={nodes}
                 edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
+                onNodesChange={handleNodesChange}
+                onEdgesChange={handleEdgesChange}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
