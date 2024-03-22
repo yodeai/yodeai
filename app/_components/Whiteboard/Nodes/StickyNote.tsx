@@ -48,10 +48,9 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
     };
 
     useEffect(() => {
-        const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width, node.data.fontSize);
-        if(node.height && node.height !== calculatedHeight && node.data.fontSize !== defaultNodeProps.style.fontSize) {
+        const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width, node?.data?.fontSize);
+        if(node.height && (node.height !== calculatedHeight) && (node?.data?.fontSize !== defaultNodeProps.style.fontSize)) {
             updateNode({ height: calculatedHeight });
-            updateNodeSelf({ height: calculatedHeight });
         }
     }, [node]);
 
@@ -70,8 +69,8 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
                 <textarea
                     style={{
                         backgroundColor: "transparent",
-                        height: node.height || data.height || defaultNodeProps.height,
-                        width: node.width || data.width || defaultNodeProps.width,
+                        height: node.height || defaultNodeProps.height,
+                        width: node.width || defaultNodeProps.width,
                         fontSize: node.data.fontSize || defaultNodeProps.style.fontSize,
                         lineHeight: defaultNodeProps.style.lineHeight,
                         hyphens: "auto"
