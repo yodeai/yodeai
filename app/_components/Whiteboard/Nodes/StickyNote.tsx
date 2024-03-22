@@ -49,8 +49,9 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
 
     useEffect(() => {
         const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width, node?.data?.fontSize);
-        if(node.height && (node.height !== calculatedHeight) && (node?.data?.fontSize !== defaultNodeProps.style.fontSize)) {
+        if (node.height && (node.height !== calculatedHeight) && node.data.fontSize && (node?.data?.fontSize !== defaultNodeProps.style.fontSize)) {
             updateNode({ height: calculatedHeight });
+            updateNodeSelf({ height: calculatedHeight });
         }
     }, [node]);
 
