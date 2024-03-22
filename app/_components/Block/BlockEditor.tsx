@@ -291,7 +291,7 @@ export default function BlockEditor({ refs, withHeader = false, block: initialBl
   }, [])
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col gap-1 w-full pb-6">
       {block && block.block_type === 'pdf' ? (
         !withHeader && (
           <div className="flex justify-between items-center w-full">

@@ -1,7 +1,7 @@
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import { ModalsContainer } from "@components/Modals";
 import { ActionIcon, Box, Divider, Flex, Input, MantineColor, Menu, Text, UnstyledButton } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useClickOutside, useMediaQuery } from "@mantine/hooks";
 import { FaAngleDown } from "@react-icons/all-files/fa/FaAngleDown";
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { useEffect, useRef, useState } from "react";
@@ -35,9 +35,13 @@ export const PageHeader = ({
 }: PageHeaderProps) => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
     const [titleValue, setTitleValue] = useState(title);
-    const $inputContainer = useRef<HTMLInputElement>(null);
 
     const $initialTitle = useRef(title);
+
+    const $inputContainer = useRef<HTMLInputElement>(null);
+    const $inputWrapper = useClickOutside<HTMLInputElement>(() => {
+        onSaveTitle(titleValue);
+    });
 
     useEffect(() => {
         setTitleValue(title);
@@ -92,20 +96,21 @@ export const PageHeader = ({
                             </UnstyledButton>
                         </Menu.Target>}
                     </Box> || ""}
-                    {editMode && <> <Input
-                        classNames={{
-                            wrapper: "w-[300px]",
-                            input: "w-full inline-block text-xl border border-gray-400 rounded-md outline-none focus:border-gray-500"
-                        }}
-                        ref={$inputContainer}
-                        unstyled
-                        fw={700}
-                        c={"gray.7"}
-                        size="xl"
-                        value={titleValue}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyPress}
-                    />
+                    {editMode && <div ref={$inputWrapper} className="flex align-middle items-center gap-3">
+                        <Input
+                            classNames={{
+                                wrapper: "w-[300px]",
+                                input: "w-full inline-block text-xl border border-gray-400 rounded-md outline-none focus:border-gray-500"
+                            }}
+                            ref={$inputContainer}
+                            unstyled
+                            fw={700}
+                            c={"gray.7"}
+                            size="xl"
+                            value={titleValue}
+                            onChange={handleChange}
+                            onKeyDown={handleKeyPress}
+                        />
                         <ActionIcon
                             size="md"
                             color="green"
@@ -115,8 +120,7 @@ export const PageHeader = ({
                         >
                             <FaCheck size={14} />
                         </ActionIcon>
-                    </>
-                    }
+                    </div>}
                     {secondaryItem && <Box>
                         <Divider orientation="vertical" className="mx-3" />
                         {secondaryItem}

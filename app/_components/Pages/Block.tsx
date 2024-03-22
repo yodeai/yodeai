@@ -29,9 +29,11 @@ type BlockProps = {
 
 export default function Block(props: BlockProps) {
     const [block, setBlock] = useState<Block | null>(props.block);
-    const [loading, setLoading] = useState(false);
+
+    const [isTitleEditing, setIsTitleEditing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
+
     const router = useProgressRouter();
     const supabase = createClientComponentClient()
     const $saveButton = useRef<HTMLButtonElement>()
@@ -129,7 +131,7 @@ export default function Block(props: BlockProps) {
             return <PDFViewerIframe url={presignedUrl} />;
         } else {
             return (
-                <ReactMarkdown className="prose text-gray-600">
+                <ReactMarkdown className="prose text-gray-600 pb-8">
                     {block.content}
                 </ReactMarkdown>
             );
@@ -167,7 +169,7 @@ export default function Block(props: BlockProps) {
         }).then(res => {
             if (res.ok) setBlock({ ...block, title })
             return res;
-        })
+        }).finally(() => setIsTitleEditing(false))
     }
 
     const onDelete = async () => {
@@ -227,7 +229,7 @@ export default function Block(props: BlockProps) {
             loading: "Saving page...",
             success: "Page saved.",
             error: "Failed to save page."
-        });
+        })
     }
 
     return (<>
@@ -235,12 +237,11 @@ export default function Block(props: BlockProps) {
             <PageHeader
                 title={block?.title}
                 onSaveTitle={handleSaveTitle}
-                closeEditMode={() => setIsEditing(false)}
-                editMode={isEditing}
-                loading={loading}
+                closeEditMode={() => setIsTitleEditing(false)}
+                editMode={isTitleEditing}
                 dropdownItems={[
                     {
-                        label: "Rename", onClick: () => setIsEditing(true),
+                        label: "Rename", onClick: () => setIsTitleEditing(true),
                         disabled: !["owner", "editor"].includes(block?.accessLevel)
                     },
                     {
@@ -249,11 +250,12 @@ export default function Block(props: BlockProps) {
                         color: "red"
                     }
                 ]}
+                accessType={block?.accessLevel}
                 actions={rightEditButton}
             />
             <PageContent>
-                <div className="w-full lg:w-[800px] mx-auto h-full p-[16px]">
-                    {!loading && block && <>
+                <div className="w-full lg:w-[800px] mx-auto h-full p-[16px] my-8">
+                    {block && <>
                         {isEditing
                             // this recreates the entire block view but allows for editing
                             // drag and drop https://github.com/atlassian/react-beautiful-dnd/tree/master
