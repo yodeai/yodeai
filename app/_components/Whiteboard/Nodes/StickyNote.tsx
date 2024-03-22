@@ -4,7 +4,6 @@ import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
 import { cn } from '@utils/style'
 import { Handles } from '@components/Whiteboard/Helpers/Handles'
-import { calculateStickyNoteBoxHeight } from '@components/Whiteboard/Plugins/utils';
 
 type StickyNoteProps = WrappedComponentType<NodeProps>
 
@@ -49,14 +48,6 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
         updateNode({ text });
         $inialText.current = text;
     }, [text]);
-
-    useEffect(() => {
-        const calculatedHeight = calculateStickyNoteBoxHeight(text, node.width, node?.data?.fontSize);
-        if (node.height && (node.height !== calculatedHeight) && node.data.fontSize && (node?.data?.fontSize !== defaultNodeProps.style.fontSize)) {
-            updateNode({ height: calculatedHeight });
-            updateNodeSelf({ height: calculatedHeight });
-        }
-    }, [node]);
 
     return <ResizableNode selected={selected}>
         <Handles>
