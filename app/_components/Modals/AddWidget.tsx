@@ -151,7 +151,7 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
 
                         <Box className="w-full flex flex-col items-center gap-2 mb-5">
                         <Input.Wrapper label="Product Requirements Document" className="w-full">
-                            <Text className="w-full mb-5 text-gray-300" size="xs">
+                            <Text className="w-full mb-2 text-gray-500" size="xs">
                                 Select the Product Requirements Document you want to create Tickets from.
                             </Text>
                             <Select

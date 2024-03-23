@@ -222,7 +222,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">Company Information</Text>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
+            <Text className="w-full mb-2 text-gray-500" size="xs">
               Enter the company names or URLs you want to analyze.
             </Text>
           </Box>
@@ -265,7 +265,7 @@ export default function AddCompetitiveAnalysis({ lensId, modalController }: AddC
             <Title order={4} className="w-full">
               Areas of Analysis
             </Title>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
+            <Text className="w-full mb-2 text-gray-500" size="xs">
               Leave this blank if you would like to autogenerate 3 areas.
             </Text>
           </Box>

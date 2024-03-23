@@ -47,7 +47,8 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
                     style={{
                         height: node.height || 50,
                         width: node.width || 100,
-                        fontSize: node.data.size
+                        fontSize: node.data.size,
+                        lineHeight: 1.5
                     }}
                     className="border-none m-0 resize-none block w-full bg-transparent"
                     value={text}
