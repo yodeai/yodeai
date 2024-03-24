@@ -2,7 +2,7 @@
 
 import { Text, Title } from "@mantine/core"
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useProgressRouter } from "app/_hooks/useProgressRouter"
 
 type ResultProps = {
     title?: string
@@ -16,7 +16,7 @@ export const Result = ({
     icon,
     refreshInvervally = false
 }: ResultProps) => {
-    const router = useRouter()
+    const router = useProgressRouter()
     const refreshEvery = 5000; // in ms
 
     useEffect(() => {

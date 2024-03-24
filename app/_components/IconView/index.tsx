@@ -21,11 +21,11 @@ import {
   SpreadsheetIconItem
 } from "./_views/index";
 
-import { ViewController } from "../LayoutController";
+import { ViewController } from "@components/Layout/LayoutController";
 import fileTypeIcons from "./_icons/index";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { WidgetIconItem } from "./_views/Widget";
-
+import { getInnerHeight } from "@utils/style";
 
 type IconViewItemType = Block | Subspace | Lens
   | (Tables<"whiteboard"> & {
@@ -77,6 +77,8 @@ export default function IconLayoutComponent({
     zoomLevel,
     setBreadcrumbActivePage
   } = useAppContext();
+
+  const $mounted = useRef(false);
 
   const pinnedLensIds = useMemo(() => pinnedLenses.map(lens => lens.lens_id), [pinnedLenses]);
 
@@ -341,6 +343,8 @@ export default function IconLayoutComponent({
       event: MouseEvent,
       element: HTMLElement
     ) => {
+      $mounted.current = true;
+
       const target = event.target as HTMLElement;
       if (!newItem.i.startsWith("ss")) return;
 
@@ -367,37 +371,42 @@ export default function IconLayoutComponent({
     }
   }
 
-  const onLayoutChange = useCallback((layout: Layout[], layouts: Layouts) => {
+  const onLayoutChange = useCallback((layout: Layout[], newLayouts: Layouts) => {
+    if(!$mounted.current) return;
+
     if (sortingOptions.sortBy !== null) return;
-    onChangeLayout("icon_layout", layouts)
+    onChangeLayout("icon_layout", newLayouts)
   }, [sortingOptions]);
 
   const ROW_HEIGHT = 100;
 
-  return <div className="flex flex-col justify-between z-50">
-    <div ref={$gridContainer} style={{
-      transform: `scale(${zoomLevel / 100}) translateZ(0)`,
-      transformOrigin: 'top left',
-      height: "calc(100vh - 180px)"
-    }}>
-      <ResponsiveReactGridLayout
-        maxRows={$gridContainer.current?.clientHeight ? Math.floor($gridContainer.current.clientHeight / ROW_HEIGHT) : 0}
-        layouts={layouts}
-        cols={cols}
-        breakpoint={breakpoint}
-        breakpoints={breakpoints}
-        rowHeight={ROW_HEIGHT}
-        onLayoutChange={onLayoutChange}
-        isResizable={false}
-        onWidthChange={onWidthChange}
-        onDragStart={onDragStart}
-        onDrag={onDrag}
-        onDragStop={onDragStop}
-        preventCollision={true}
-        verticalCompact={false}
-        transformScale={zoomLevel / 100}>
-        {layoutItems}
-      </ResponsiveReactGridLayout>
-    </div>
-  </div >
+  useEffect(() => {
+    if (layoutRefs.navbar.current) {
+      $gridContainer.current.style.height = `${getInnerHeight(layoutRefs.navbar.current) - 60}px`
+    }
+  }, [layoutRefs.navbar])
+
+  return <div ref={$gridContainer}>
+    <ResponsiveReactGridLayout
+      layouts={layouts}
+      cols={cols}
+      breakpoint={breakpoint}
+      style={{
+        transform: `scale(${zoomLevel / 100}) translateZ(0)`,
+        transformOrigin: 'top left'
+      }}
+      breakpoints={breakpoints}
+      rowHeight={ROW_HEIGHT}
+      onLayoutChange={onLayoutChange}
+      isResizable={false}
+      onWidthChange={onWidthChange}
+      onDragStart={onDragStart}
+      onDrag={onDrag}
+      onDragStop={onDragStop}
+      preventCollision={true}
+      verticalCompact={false}
+      transformScale={zoomLevel / 100}>
+      {layoutItems}
+    </ResponsiveReactGridLayout>
+  </div>
 }

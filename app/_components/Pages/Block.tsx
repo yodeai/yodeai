@@ -7,18 +7,21 @@ import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import BlockEditor from '@components/Block/BlockEditor';
 import PDFViewerIframe from "@components/PDFViewer";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { Box, Button, Flex, Text, Tooltip } from "@mantine/core";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { useAppContext } from "@contexts/context";
-import BlockHeader from "@components/Block/BlockHeader";
 import { timeAgo } from "@utils/index";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
 import { revalidateRouterCache } from '@utils/revalidate';
+import { PageHeader } from '@components/Layout/PageHeader';
+import { modals } from '@mantine/modals';
+import load from '@lib/load';
+import { PageContent } from '@components/Layout/Content';
 
 type BlockProps = {
     block: Block;
@@ -26,9 +29,12 @@ type BlockProps = {
 
 export default function Block(props: BlockProps) {
     const [block, setBlock] = useState<Block | null>(props.block);
+
+    const [isTitleEditing, setIsTitleEditing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-    const router = useRouter();
+
+    const router = useProgressRouter();
     const supabase = createClientComponentClient()
     const $saveButton = useRef<HTMLButtonElement>()
 
@@ -45,7 +51,6 @@ export default function Block(props: BlockProps) {
 
         setBreadcrumbActivePage({ title: block?.title, href: `/block/${block?.block_id}` })
         return () => {
-            setLensId(null);
             setBreadcrumbActivePage(null);
         }
     }, [block]);
@@ -126,7 +131,7 @@ export default function Block(props: BlockProps) {
             return <PDFViewerIframe url={presignedUrl} />;
         } else {
             return (
-                <ReactMarkdown className="prose text-gray-600">
+                <ReactMarkdown className="prose text-gray-600 pb-8">
                     {block.content}
                 </ReactMarkdown>
             );
@@ -162,9 +167,12 @@ export default function Block(props: BlockProps) {
             },
             body: JSON.stringify({ title })
         }).then(res => {
-            if (res.ok) setBlock({ ...block, title })
+            if (res.ok) {
+                setBlock({ ...block, title });
+                revalidateRouterCache(`/block/${block.block_id}`)
+            }
             return res;
-        })
+        }).finally(() => setIsTitleEditing(false))
     }
 
     const onDelete = async () => {
@@ -195,20 +203,63 @@ export default function Block(props: BlockProps) {
                     || ""}
             </div>
         </div>
-    }, [block])
+    }, [block, isEditing])
 
-    return (
-        <main>
-            <Flex direction="column" pt={0}>
-                <BlockHeader
-                    loading={false}
-                    title={block?.title}
-                    accessType={block?.accessLevel}
-                    onSave={onSaveTitle}
-                    onDelete={onDelete}
-                    rightItem={rightEditButton}
-                />
-                <Box p={16} className="mx-auto w-[800px] overflow-scroll h-full">
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm page deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this block? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete page', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: () => {
+            const deletePromise = onDelete();
+            load(deletePromise, {
+                loading: "Deleting page...",
+                success: "Page deleted.",
+                error: "Failed to delete page."
+            });
+        }
+    });
+
+    const handleSaveTitle = (title: string) => {
+        const saveTitlePromise = onSaveTitle(title);
+        load(saveTitlePromise, {
+            loading: "Saving page...",
+            success: "Page saved.",
+            error: "Failed to save page."
+        })
+    }
+
+    return (<>
+        <Flex direction="column" pt={0}>
+            <PageHeader
+                properties={{
+                    accessType: block?.accessLevel 
+                }}
+                title={block?.title}
+                onSaveTitle={handleSaveTitle}
+                closeEditMode={() => setIsTitleEditing(false)}
+                editMode={isTitleEditing}
+                dropdownItems={[
+                    {
+                        label: "Rename", onClick: () => setIsTitleEditing(true),
+                        disabled: !["owner", "editor"].includes(block?.accessLevel)
+                    },
+                    {
+                        label: "Delete", onClick: openDeleteModal,
+                        disabled: !["owner", "editor"].includes(block?.accessLevel),
+                        color: "red"
+                    }
+                ]}
+                actions={rightEditButton}
+            />
+            <PageContent>
+                <div className="w-full lg:w-[800px] mx-auto h-full p-[16px] my-8">
                     {block && <>
                         {isEditing
                             // this recreates the entire block view but allows for editing
@@ -236,10 +287,9 @@ export default function Block(props: BlockProps) {
                         }
                         {!block.content && !isEditing && block.block_type === "note" && <Text size="sm" c="gray">No content in this block.</Text>}
                     </>}
-                </Box>
-            </Flex>
-            <FinishedOnboardingModal />
-        </main >
-
-    );
+                </div>
+            </PageContent>
+        </Flex >
+        <FinishedOnboardingModal />
+    </>);
 }

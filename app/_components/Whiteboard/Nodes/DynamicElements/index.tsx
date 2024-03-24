@@ -17,7 +17,6 @@ type DynamicElementProps = WrappedComponentType<NodeProps<{
     type: "block" | "lens" | "whiteboard"
 }>>
 
-
 export const defaultValues: DynamicElementProps["data"] = undefined;
 export const defaultNodeProps: { height: number; width: number } = {
     height: 200,

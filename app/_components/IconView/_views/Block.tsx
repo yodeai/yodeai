@@ -4,7 +4,7 @@ import { AiOutlineLoading } from "@react-icons/all-files/ai/AiOutlineLoading";
 
 import { Text, Flex, Box, Textarea, Tooltip } from '@mantine/core';
 
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
@@ -14,6 +14,7 @@ import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 import { FaRegTrashCan } from "@react-icons/all-files/fa6/FaRegTrashCan";
 import { FaLink } from "@react-icons/all-files/fa6/FaLink";
+import { useClickOutside } from "@mantine/hooks";
 
 type BlockIconItemProps = {
   icon: JSX.Element,
@@ -25,9 +26,10 @@ type BlockIconItemProps = {
 }
 export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, handleBlockDelete, unselectBlocks }: BlockIconItemProps) => {
   const { showContextMenu } = useContextMenu();
-  const $textarea = useRef<HTMLTextAreaElement>(null);
   const { accessType, zoomLevel } = useAppContext();
-  const router = useRouter();
+  const router = useProgressRouter();
+
+  const defaultTitle = useMemo(() => block.title || "Untitled", [block.title]);
 
   const [titleText, setTitleText] = useState<string>(block.title);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -37,6 +39,13 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
   const onClickBlock = () => {
     router.push(`/block/${block.block_id}`)
   }
+
+  const handleSubmit = () => {
+    setEditMode(false);
+    setLoading(true);
+    handleBlockChangeName(block.block_id, titleText).then(res => setLoading(false));
+  }
+  const $inputContainer = useClickOutside<HTMLTextAreaElement>(handleSubmit);
 
   useEffect(() => {
     setTitleText(block.title);
@@ -62,14 +71,12 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Escape") {
+      setTitleText(defaultTitle);
       setEditMode(false);
       return;
     }
     if (event.key === "Enter") {
-      setEditMode(false)
-      setLoading(true)
-      handleBlockChangeName(block.block_id, (event.target as HTMLTextAreaElement).value.trim())
-        .then(res => setLoading(false))
+      handleSubmit();
       return;
     }
   }
@@ -81,8 +88,8 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
 
   useEffect(() => {
     if (editMode) {
-      $textarea.current?.focus();
-      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+      $inputContainer.current?.focus();
+      $inputContainer.current?.setSelectionRange(0, $inputContainer.current.value.length);
     }
 
     const onClick = (event: MouseEvent) => {
@@ -97,7 +104,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
     return () => {
       window.removeEventListener("click", onClick);
     }
-  }, [$textarea, editMode])
+  }, [$inputContainer, editMode])
 
   const actions: ContextMenuContent = useMemo(() => [{
     key: 'open',
@@ -186,7 +193,7 @@ export const BlockIconItem = ({ block, icon, selected, handleBlockChangeName, ha
               rows={1}
               className="z-50 block-input leading-4 w-full"
               maxRows={2}
-              ref={$textarea}
+              ref={$inputContainer}
               variant="unstyled" ta="center" c="dimmed"
               onKeyDown={onKeyDown}
               size={`${7 * 200 / zoomLevel}px`}

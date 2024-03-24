@@ -5,6 +5,7 @@ import Container from "@components/Container";
 import { Button, Flex, Modal, Text, LoadingOverlay, Input, Box, Checkbox, Select } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import toast from 'react-hot-toast';
+
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import apiClient from '@utils/apiClient';
 import { useContentContext } from '@contexts/content';
@@ -150,7 +151,7 @@ export default function AddWidgetModal({ lensId, modalController }: AddWidgetMod
 
                         <Box className="w-full flex flex-col items-center gap-2 mb-5">
                         <Input.Wrapper label="Product Requirements Document" className="w-full">
-                            <Text className="w-full mb-5 text-gray-300" size="xs">
+                            <Text className="w-full mb-2 text-gray-500" size="xs">
                                 Select the Product Requirements Document you want to create Tickets from.
                             </Text>
                             <Select

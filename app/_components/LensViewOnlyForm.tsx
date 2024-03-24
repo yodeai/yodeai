@@ -3,10 +3,8 @@
 import React, { useState, FormEvent } from 'react';
 import apiClient from '@utils/apiClient';
 import { useAppContext } from "@contexts/context";
-import { useRef, useEffect } from "react";
-import { clearConsole } from 'debug/tools';
-import QuestionComponent from './QuestionComponent';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRef } from "react";
+import QuestionComponent from './Pages/Toolbar/LensQuestions/QuestionComponent';
 
 interface LensViewOnlyFormProps {
     lensId: string;

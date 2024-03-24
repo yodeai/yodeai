@@ -7,14 +7,14 @@ import { FaLink } from "@react-icons/all-files/fa6/FaLink";
 import { MdCancel } from "@react-icons/all-files/md/MdCancel";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { Tables } from "app/_types/supabase";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 import { cn } from "@utils/style";
-
+import { useClickOutside } from "@mantine/hooks";
 
 type WidgetProps = {
     icon: JSX.Element,
@@ -29,19 +29,25 @@ export const WidgetIconItem = ({
     handleWidgetChangeName, handleWidgetDelete, unselectBlocks
 }: WidgetProps) => {
     const { showContextMenu } = useContextMenu();
-    const $textarea = useRef<HTMLTextAreaElement>(null);
     const { accessType, zoomLevel } = useAppContext();
-    const router = useRouter();
+    const router = useProgressRouter();
 
+    const defaultTitle = useMemo(() => widget.name || "Untitled", [widget.name]);
+    const [titleText, setTitleText] = useState<string>(widget.name);
+    const [editMode, setEditMode] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const widgetPluginState = useMemo(() => widget?.state as any, [widget]);
+
+    const handleSubmit = () => {
+        setEditMode(false);
+        setLoading(true);
+        handleWidgetChangeName(widget.widget_id, titleText).then(res => setLoading(false));
+    }
+    const $inputContainer = useClickOutside<HTMLTextAreaElement>(handleSubmit);
 
     useEffect(() => {
         setLoading(["waiting", "queued", "processing"].includes(widgetPluginState?.status));
     }, [widgetPluginState])
-
-    const [titleText, setTitleText] = useState<string>(widget.name);
-    const [editMode, setEditMode] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         setTitleText(widget.name);
@@ -67,6 +73,7 @@ export const WidgetIconItem = ({
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Escape") {
+            setTitleText(defaultTitle);
             setEditMode(false);
             return;
         }
@@ -86,8 +93,8 @@ export const WidgetIconItem = ({
 
     useEffect(() => {
         if (editMode) {
-            $textarea.current?.focus();
-            $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+            $inputContainer.current?.focus();
+            $inputContainer.current?.setSelectionRange(0, $inputContainer.current.value.length);
         }
 
         const onClick = (event: MouseEvent) => {
@@ -102,7 +109,7 @@ export const WidgetIconItem = ({
         return () => {
             window.removeEventListener("click", onClick);
         }
-    }, [$textarea, editMode])
+    }, [$inputContainer, editMode])
 
     const actions: ContextMenuContent = useMemo(() => {
         if (widgetPluginState?.status && ["waiting", "queued", "processing"]
@@ -170,7 +177,7 @@ export const WidgetIconItem = ({
                     rows={1}
                     className="z-50 block-input leading-4 w-full"
                     maxRows={2}
-                    ref={$textarea}
+                    ref={$inputContainer}
                     variant="unstyled" ta="center" c="dimmed"
                     onKeyDown={onKeyDown}
                     size={`${7 * 200 / zoomLevel}px`}

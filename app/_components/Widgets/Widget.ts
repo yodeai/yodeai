@@ -1,7 +1,6 @@
 import PRDTicketPlugin from './prd-to-tickets'
 import { Tables } from 'app/_types/supabase'
 
-
 export type WidgetComponentProps<T, K> = {
     widget_id: number;
     lens_id: number;

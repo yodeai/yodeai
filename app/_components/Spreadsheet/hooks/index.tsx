@@ -4,7 +4,7 @@ import { SpreadsheetDataSourceObject } from "app/_types/spreadsheet";
 import {
     RowDirective, RowsDirective, CellDirective, CellsDirective
 } from '@syncfusion/ej2-react-spreadsheet';
-import { convertIndexToColumnAlphabet } from "../utils";
+import { convertIndexToColumnAlphabet } from "@components/Spreadsheet/utils";
 
 type useSheetDataProps = {
     dataSource: SpreadsheetDataSourceObject;

@@ -9,15 +9,15 @@ import { RiUnpinFill } from "@react-icons/all-files/ri/RiUnpinFill";
 import { RiPushpinFill } from "@react-icons/all-files/ri/RiPushpinFill";
 
 import { Text, Flex, Box, Textarea, Anchor } from '@mantine/core';
-import { useRouter } from 'next/navigation'
+import { useProgressRouter } from 'app/_hooks/useProgressRouter'
 import 'react-grid-layout/css/styles.css';
 import { Subspace, Lens } from "app/_types/lens";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { modals } from '@mantine/modals';
 import { useAppContext } from "@contexts/context";
 
-import ShareLensComponent from '../../ShareLensComponent';
-import { useDisclosure } from "@mantine/hooks";
+import ShareLensComponent from '@components/Modals/ShareLensComponent';
+import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
 type SubspaceIconItemProps = {
@@ -30,12 +30,12 @@ type SubspaceIconItemProps = {
 }
 export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeName, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
-  const router = useRouter();
+  const router = useProgressRouter();
   const { pinnedLenses, accessType, zoomLevel, setPinnedLenses } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const $textarea = useRef<HTMLTextAreaElement>(null);
+  const defaultTitle = useMemo(() => subspace.name || "Untitled", [subspace.name]);
   const [titleText, setTitleText] = useState<string>(subspace.name);
   const [editMode, setEditMode] = useState<boolean>(false);
 
@@ -43,6 +43,13 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
   const [shareModalState, shareModalController] = shareModalDisclosure;
 
   const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding } = useAppContext();
+
+  const handleSubmit = () => {
+    setEditMode(false);
+    setLoading(true);
+    handleLensChangeName(subspace.lens_id, titleText).then(res => setLoading(false));
+  }
+  const $inputContainer = useClickOutside<HTMLTextAreaElement>(handleSubmit);
 
   const handleSubspaceClick = () => {
     if (onboardingStep === 0 && !onboardingIsComplete) goToNextOnboardingStep();
@@ -145,22 +152,19 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Escape") {
+      setTitleText(defaultTitle);
       setEditMode(false);
       return;
     }
     if (event.key === "Enter") {
-      setEditMode(false)
-      setLoading(true)
-      handleLensChangeName(subspace.lens_id, (event.target as HTMLTextAreaElement).value.trim())
-        .then(res => setLoading(false))
-      return;
+      handleSubmit();
     }
   }
 
   useEffect(() => {
     if (editMode) {
-      $textarea.current?.focus();
-      $textarea.current?.setSelectionRange(0, $textarea.current.value.length);
+      $inputContainer.current?.focus();
+      $inputContainer.current?.setSelectionRange(0, $inputContainer.current.value.length);
     }
 
     const onClick = (event: MouseEvent) => {
@@ -175,7 +179,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
     return () => {
       window.removeEventListener("click", onClick);
     }
-  }, [$textarea, editMode])
+  }, [$inputContainer, editMode])
 
   return <>
     {shareModalState && <ShareLensComponent modalController={shareModalDisclosure} lensId={subspace.lens_id} />}
@@ -211,7 +215,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
                 rows={1}
                 className="z-50 block-input leading-4 w-full"
                 maxRows={2}
-                ref={$textarea}
+                ref={$inputContainer}
                 variant="unstyled" ta="center" c="dimmed"
                 onKeyDown={onKeyDown}
                 size={`${7 * 200 / zoomLevel}px`}
@@ -244,7 +248,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
               rows={1}
               className="z-50 block-input leading-4 w-full"
               maxRows={2}
-              ref={$textarea}
+              ref={$inputContainer}
               variant="unstyled" ta="center" c="dimmed"
               onKeyDown={onKeyDown}
               size={`${7 * 200 / zoomLevel}px`}

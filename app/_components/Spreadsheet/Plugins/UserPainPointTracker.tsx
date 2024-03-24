@@ -2,13 +2,13 @@
 
 import { useCallback, useMemo } from 'react';
 import { ColumnDirective, ColumnsDirective, SheetDirective } from '@syncfusion/ej2-react-spreadsheet';
-import { convertDataSource, convertIndexToColumnAlphabet } from '../utils';
+import { convertDataSource, convertIndexToColumnAlphabet } from '@components/Spreadsheet/utils';
 import { PluginInput, PluginOutput } from './index';
 import {
     SheetsDirective
 } from '@syncfusion/ej2-react-spreadsheet';
 import { SpreadsheetDataSource, SpreadsheetDataSourceObject } from 'app/_types/spreadsheet';
-import { useSheetChart, useSheetData, useSheetRange } from '../hooks';
+import { useSheetChart, useSheetData, useSheetRange } from '@components/Spreadsheet/hooks';
 
 export default function ({ $spreadsheet, $dataSource }: PluginInput): PluginOutput {
     const dataSource = useMemo<SpreadsheetDataSourceObject>(() => {

@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { LensLayout } from '../../../../_types/lens';
+import { LensLayout } from 'app/_types/lens';
 
 export const dynamic = 'force-dynamic';
 

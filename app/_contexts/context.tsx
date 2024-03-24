@@ -35,12 +35,15 @@ export type contextType = {
   setAccessType: React.Dispatch<React.SetStateAction<string>>;
 
   layoutRefs: {
+    main: React.RefObject<HTMLDivElement>;
     sidebar: React.RefObject<HTMLDivElement>;
+    navbar: React.RefObject<HTMLDivElement>;
   },
 
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
+  shareModalDisclosure: ReturnType<typeof useDisclosure>;
   subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
   whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
   userInsightsDisclosure: ReturnType<typeof useDisclosure>;
@@ -49,6 +52,9 @@ export type contextType = {
   painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
   iconItemDisclosure: ReturnType<typeof useDisclosure>;
   widgetFormDisclosure: ReturnType<typeof useDisclosure>;
+
+  navbarDisclosure: ReturnType<typeof useDisclosure>;
+  toolbarDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -89,12 +95,15 @@ const defaultValue: contextType = {
   setAccessType: () => { },
 
   layoutRefs: {
+    main: React.createRef<HTMLDivElement>(),
     sidebar: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   },
 
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
+  shareModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
@@ -103,6 +112,9 @@ const defaultValue: contextType = {
   painPointTrackerModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   widgetFormDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+
+  navbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  toolbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
   sortingOptions: getSortingOptionsFromLocalStorage() ?? {
     order: "asc",
@@ -126,13 +138,16 @@ const context = createContext<contextType>(defaultValue);
 // Define the type for the provider props
 type LensProviderProps = {
   children: ReactNode;
+  initialState?: {
+    user: contextType["user"];
+  }
 };
 
 export const useAppContext = () => {
   return useContext(context);
 };
 
-export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+export const LensProvider: React.FC<LensProviderProps> = ({ children, initialState }) => {
   const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
@@ -147,10 +162,11 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
   const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User>(initialState?.user || null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
 
+  const shareModalDisclosure = useDisclosure(false);
   const subspaceModalDisclosure = useDisclosure(false);
   const whiteboardModelDisclosure = useDisclosure(false);
   const userInsightsDisclosure = useDisclosure(false);
@@ -159,6 +175,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
   const widgetFormDisclosure = useDisclosure(false);
+
+  const navbarDisclosure = useDisclosure(false);
+  const toolbarDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
@@ -229,6 +248,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
+    main: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   }
 
   const getAllLenses = async () => {
@@ -334,7 +355,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const memoizedZoomLevel = useMemo(() => {
     return getZoomLevelFromLocalStorage(lensId || "default") || 100;
-  }, [zoomLevel, lensId])
+  }, [zoomLevel, lensId]);
 
   return (
     <context.Provider value={{
@@ -346,11 +367,13 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       activeComponent, setActiveComponent,
       pinnedLensesLoading, pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
+      shareModalDisclosure,
       subspaceModalDisclosure, whiteboardModelDisclosure,
       userInsightsDisclosure, competitiveAnalysisDisclosure,
       spreadsheetModalDisclosure, iconItemDisclosure,
       painPointTrackerModalDisclosure,
       widgetFormDisclosure,
+      navbarDisclosure, toolbarDisclosure,
       sortingOptions, setSortingOptions,
       user,
       zoomLevel: memoizedZoomLevel,

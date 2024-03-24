@@ -12,8 +12,6 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     const { setLensId, setBreadcrumbActivePage } = useAppContext();
 
     useEffect(() => {
-        console.log(widgetData)
-
         setLensId(widgetData.lens_id?.toString())
         setBreadcrumbActivePage({
             title: widgetData.name,
@@ -21,7 +19,6 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
         });
 
         return () => {
-            setLensId(null);
             setBreadcrumbActivePage(null);
         }
     }, [widgetData.lens_id])

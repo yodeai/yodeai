@@ -1,5 +1,5 @@
 import LensViewOnlyForm from '@components/LensViewOnlyForm';
-import QuestionAnswerForm from '@components/QuestionAnswerForm';
+import QuestionAnswerForm from '@components/Pages/Toolbar/LensQuestions/QuestionListComponent';
 import React, { ReactNode } from 'react';
 
 interface ViewLayoutProps {

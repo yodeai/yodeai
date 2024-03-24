@@ -1,20 +1,21 @@
 "use client";
-import React, { useState, FormEvent, useCallback, useMemo } from 'react';
+import React, { useState, FormEvent, useMemo } from 'react';
 import apiClient from '@utils/apiClient';
 import { useAppContext } from "@contexts/context";
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import QuestionComponent from './QuestionComponent';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Box, Button, Divider, Flex, Group, Image, ScrollArea, Text, Textarea } from '@mantine/core';
-import InfoPopover from './InfoPopover';
-import ToolbarHeader from './ToolbarHeader';
-import LoadingSkeleton from './LoadingSkeleton';
-import OnboardingPopover from './Onboarding/OnboardingPopover';
+import { AppShell, Button, Flex, Group, Image, Text, Textarea } from '@mantine/core';
+
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
+import InfoPopover from '@components/InfoPopover';
+import ToolbarHeader from '@components/Layout/Aside/ToolbarHeader';
+import LoadingSkeleton from '@components/LoadingSkeleton';
+import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
 type Question = { pageContent: "", metadata: { "1": "", "2": "", "3": string, "4": "", "5": "" } }
 
-const QuestionAnswerForm: React.FC = () => {
+const QuestionListComponent: React.FC = () => {
     const { lensId, lensName, activeComponent, user, onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
     const [questionHistory, setQuestionHistory] = useState<Array<{ question: string, created_at: string; answer: string, sources: { title: string, blockId: string }[] }>>([]);
@@ -176,14 +177,23 @@ const QuestionAnswerForm: React.FC = () => {
     const infoText = useMemo(() => {
         const defaultText = "using the data in your pages.";
         return `Ask a question and Yodeai will respond to it ${lensName ? `based on the pages in the space "${lensName}".` : defaultText}`
-    }, [lensName])
+    }, [lensName, lensId]);
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleSubmit(event);
+        }
+    }
 
     return (
         <Flex
             direction={"column"}
             className="h-full w-full"
             justify={"space-between"}>
-            <Box>
+
+            {/*toolbar header  */}
+            <AppShell.Section>
                 <ToolbarHeader>
                     <Flex align="center" direction="row">
                         <Text size="sm">
@@ -199,33 +209,34 @@ const QuestionAnswerForm: React.FC = () => {
                         <InfoPopover infoText={infoText} />
                     </Flex>
                 </ToolbarHeader>
+            </AppShell.Section>
 
-                <div className="h-[calc(100vh-235px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
-                    {!isLoading && questionHistory.length === 0 && (
-                        <span className="text-center text-gray-400 text-sm">
-                            No questions yet. Ask a question to get started.
-                        </span>
-                    )}
-                    {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
-                    {questionHistory.map(({ question, answer, created_at, sources }, index) => (
-                        <QuestionComponent
-                            created_at={created_at}
-                            lensID={lensId}
-                            id={null}
-                            key={index}
-                            question={question}
-                            answer={answer}
-                            sources={sources}
-                            published={false}
-                        />
-                    ))}
-                </div>
+            {/* toolbar content */}
+            <div className="grow px-3 pt-3 flex gap-3 flex-col-reverse overflow-scroll">
+                {!isLoading && questionHistory.length === 0 && (
+                    <span className="text-center text-gray-400 text-sm">
+                        No questions yet. Ask a question to get started.
+                    </span>
+                )}
+                {isLoading && (<LoadingSkeleton boxCount={8} lineHeight={80} />)}
+                {questionHistory.map(({ question, answer, created_at, sources }, index) => (
+                    <QuestionComponent
+                        created_at={created_at}
+                        lensID={lensId}
+                        id={null}
+                        key={index}
+                        question={question}
+                        answer={answer}
+                        sources={sources}
+                        published={false}
+                    />
+                ))}
+            </div>
 
-                <Divider color={"#eee"} />
-            </Box>
-            <Box>
+            {/* toolbar footer */}
+            <AppShell.Section>
                 <Flex p={10} pt={0} direction={"column"}>
-                    <Flex justify={'center'} pt={10} pb={0} direction={"column"}>
+                    <Flex justify={'center'} pb={0} direction={"column"}>
                         {(
                             <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                                 {(onboardingStep === 2 && !onboardingIsComplete)
@@ -242,6 +253,7 @@ const QuestionAnswerForm: React.FC = () => {
                                         }
                                     >
                                         <Textarea
+                                            onKeyDown={handleKeyDown}
                                             disabled={isSubmitting}
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
@@ -250,6 +262,7 @@ const QuestionAnswerForm: React.FC = () => {
                                     </OnboardingPopover>
                                     :
                                     <Textarea
+                                        onKeyDown={handleKeyDown}
                                         disabled={isSubmitting}
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
@@ -266,7 +279,7 @@ const QuestionAnswerForm: React.FC = () => {
                         )}
                     </Flex>
                 </Flex>
-            </Box>
+            </AppShell.Section>
             {/* 
                 <form onSubmit={form.onSubmit((values) => console.log(values))}>
                     <TextInput
@@ -292,8 +305,8 @@ const QuestionAnswerForm: React.FC = () => {
                 <h1> Related Questions </h1>
                 {relatedQuestions?.map(q => <div key={q.metadata["5"]}> <br></br><div>{q.pageContent}</div><div>Popularity: {q.metadata["3"]}</div> <div> {q.metadata["1"]} </div> <button onClick={() => {makePatchRequest(q, q.metadata["5"], 1)}}> Thumbs up </button>  <button onClick={() => {makePatchRequest(q, q.metadata["5"], -1)}}> Thumbs Down </button> </div>)}
                 </div> */}
-        </Flex>
+        </Flex >
     );
 };
 
-export default QuestionAnswerForm;
+export default QuestionListComponent;

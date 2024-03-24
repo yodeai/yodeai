@@ -4,13 +4,12 @@ import { Block } from "app/_types/block";
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
-import DynamicSpaceHeader from '@components/DynamicSpaceHeader';
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
-import LayoutController from "@components/LayoutController";
+import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { Box, Flex } from "@mantine/core";
+import { Box, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
@@ -24,14 +23,22 @@ import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@utils/localStorage";
 import { Database, Tables } from "app/_types/supabase";
 import { ContentProvider } from "@contexts/content";
+import { PageHeader } from "@components/Layout/PageHeader";
+import { modals } from "@mantine/modals";
+import { Sort } from "@components/Layout/PageHeader/Sort";
+import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
+import { Zoom } from "@components/Layout/PageHeader/Zoom";
+import { PageContent } from "@components/Layout/Content";
+import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
+import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
 import { revalidateRouterCache } from "@utils/revalidate";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
 export default function Lens(props: LensProps) {
   const { lens_id, user, lensData, path } = props;
 
   const [lens, setLens] = useState<Lens>(lensData);
-
   const [blocks, setBlocks] = useState<Block[]>(lensData.blocks);
   const [subspaces, setSubspaces] = useState<Subspace[]>(lensData.subspaces);
   const [whiteboards, setWhiteboards] = useState<Tables<"whiteboard">[]>(lensData.whiteboards);
@@ -41,7 +48,6 @@ export default function Lens(props: LensProps) {
 
   const [itemIcons, setItemIcons] = useState<Lens["item_icons"]>({});
 
-  const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const defaultSelectedLayoutType = getLayoutViewFromLocalStorage("default_layout") || "icon";
   const [selectedLayoutType, setSelectedLayoutType] = useState<"block" | "icon">(defaultSelectedLayoutType);
@@ -50,19 +56,21 @@ export default function Lens(props: LensProps) {
     Lens | Subspace | Tables<"block"> | Tables<"whiteboard">
   >(null);
 
-  const router = useRouter();
+  const router = useProgressRouter();
   const {
     setLensId, lensName, setLensName,
     reloadLenses, setActiveComponent,
-    accessType, setAccessType, sortingOptions,
-    iconItemDisclosure
+    accessType, setAccessType,
+    sortingOptions, setSortingOptions, zoomLevel, setZoomLevel,
+    shareModalDisclosure,
+    iconItemDisclosure, pinnedLenses, setPinnedLenses
   } = useAppContext();
+
+  const [iconItemModalState, iconItemController] = iconItemDisclosure;
+  const [shareModalState, shareModalController] = shareModalDisclosure;
+
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient<Database>()
-
-  useEffect(() => {
-    setEditingLensName(lensName);
-  }, [lensName]);
 
   useEffect(() => {
     if (!getLayoutViewFromLocalStorage("default_layout")) {
@@ -320,39 +328,24 @@ export default function Lens(props: LensProps) {
     return updatePromise;
   };
 
-  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditingLensName(e.target.value);
-  };
-
-  const saveNewLensName = async () => {
+  const saveNewLensName = async (newName: string) => {
     if (lens) {
       try {
-        if (editingLensName === "") {
-          throw new Error("Space title cannot be empty");
-        }
-        const updatePromise = updateLensName(lens.lens_id, editingLensName);
+        const updatePromise = updateLensName(lens.lens_id, newName);
         await load(updatePromise, {
           loading: "Updating space name...",
           success: "Space name updated!",
           error: "Failed to update space name.",
         });
-        setLens({ ...lens, name: editingLensName });
+        setLens({ ...lens, name: newName });
         setIsEditingLensName(false);  // Turn off edit mode after successful update
         reloadLenses();
-        router.push(`/lens/${lens.lens_id}`);
         return true;
       } catch (error) {
         console.log("error", error.message)
         toast.error('Failed to update space name: ' + error.message);
         return false;
       }
-    }
-  };
-
-  const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      saveNewLensName();
     }
   };
 
@@ -499,8 +492,48 @@ export default function Lens(props: LensProps) {
 
   const handleItemSettings = (item: Lens | Subspace | Tables<"block"> | Tables<"whiteboard">) => {
     $settingsItem.current = item;
-    iconItemDisclosure[1].open();
+    iconItemController.open();
   }
+
+  const onPinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "PUT" });
+      if (pinResponse.ok) {
+        console.log("Pinned spaces", lens.lens_id)
+        setPinnedLenses(pinnedLenses => [...pinnedLenses, lens])
+      }
+      if (!pinResponse.ok) console.error("Failed to pin lens");
+    } catch (error) {
+      console.error("Error pinning spaces:", error);
+    }
+  }
+
+  const onUnpinLens = async () => {
+    try {
+      const pinResponse = await fetch(`/api/lens/${lens.lens_id}/pin`, { method: "DELETE" });
+      if (pinResponse.ok) {
+        console.log("Unpinned lens", lens.lens_id)
+        setPinnedLenses(pinnedLenses => pinnedLenses.filter(pinnedLens => pinnedLens.lens_id !== lens.lens_id))
+      }
+      if (!pinResponse.ok) console.error("Failed to unpin spaces");
+    } catch (error) {
+      console.error("Error unpinning spaces:", error);
+    }
+  }
+
+  const openDeleteModal = () => modals.openConfirmModal({
+    title: 'Confirm space deletion',
+    centered: true,
+    confirmProps: { color: 'red' },
+    children: (
+      <Text size="sm">
+        Are you sure you want to delete this space? This action cannot be undone.
+      </Text>
+    ),
+    labels: { confirm: 'Delete space', cancel: "Cancel" },
+    onCancel: () => console.log('Canceled deletion'),
+    onConfirm: handleDeleteLens
+  });
 
   const typeOrder = {
     "whiteboard": 1,
@@ -578,59 +611,91 @@ export default function Lens(props: LensProps) {
     return sortItems(widgets, sortingOptions.sortBy, sortingOptions.order);
   }, [sortingOptions, widgets]);
 
+  const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(lens?.lens_id), [pinnedLenses, lens]);
+
+  const headerDropdownItems = useMemo(() => {
+    return [
+      {
+        label: "Rename",
+        onClick: () => setIsEditingLensName(true),
+        disabled: !["owner", "editor"].includes(accessType)
+      },
+      {
+        label: "Share",
+        onClick: shareModalController.open,
+        disabled: !["owner"].includes(accessType)
+      },
+      {
+        label: isPinned ? "Unpin this space" : "Pin this space",
+        onClick: isPinned ? onUnpinLens : onPinLens,
+      },
+      {
+        label: "Delete",
+        onClick: openDeleteModal,
+        disabled: !["owner", "editor"].includes(accessType),
+        color: "red"
+      }
+    ]
+  }, [isPinned, accessType])
+
+  const headerActions = useMemo(() => {
+    return <Box className="flex flex-row items-center align-middle">
+      <Sort sortingOptions={sortingOptions} setSortingOptions={setSortingOptions} />
+      <LayoutSwitcher selectedLayoutType={selectedLayoutType} handleChangeLayoutView={handleChangeLayoutView} />
+      <Zoom zoomLevel={zoomLevel} setZoomLevel={val => setZoomLevel(val, lens_id.toString())} />
+    </Box>
+  }, [sortingOptions, selectedLayoutType, zoomLevel])
+
+
   return (
     <ContentProvider
       blocks={blocks}
       whiteboards={whiteboards}
       subspaces={subspaces}
       spreadsheets={spreadsheets}>
-      <Flex direction="column" pt={0} h="100%">
-        <DynamicSpaceHeader
-          loading={false}
-          lens={lens}
-          lensName={lensName}
-          editingLensName={editingLensName}
-          isEditingLensName={isEditingLensName}
-          setIsEditingLensName={setIsEditingLensName}
-          handleNameChange={handleNameChange}
-          handleKeyPress={handleKeyPress}
-          saveNewLensName={saveNewLensName}
-          handleDeleteLens={handleDeleteLens}
-          accessType={accessType}
-          selectedLayoutType={selectedLayoutType}
-          handleChangeLayoutView={handleChangeLayoutView}
-        />
-        <Box className="flex items-stretch flex-col h-full">
-          <LayoutController
-            handleBlockChangeName={handleBlockChangeName}
-            handleBlockDelete={handleBlockDelete}
-            handleLensChangeName={handleLensChangeName}
-            handleLensDelete={handleLensDelete}
-            handleWhiteboardDelete={handleWhiteboardDelete}
-            handleWhiteboardChangeName={handleWhiteboardChangeName}
-            handleSpreadsheetChangeName={handleSpreadsheetChangeName}
-            handleSpreadsheetDelete={handleSpreadsheetDelete}
-            handleWidgetChangeName={handleWidgetChangeName}
-            handleWidgetDelete={handleWidgetDelete}
-            onChangeLayout={onChangeLensLayout}
-            handleItemSettings={handleItemSettings}
-            layout={layoutData}
-            blocks={sortedBlocks}
-            subspaces={sortedSubspaces}
-            whiteboards={sortedWhiteboards}
-            spreadsheets={sortedSpreadsheets}
-            widgets={sortedWidgets}
-
-            itemIcons={itemIcons}
-            layoutView={selectedLayoutType} />
-        </Box>
-        <IconItemSettingsModal
-          item_icons={itemIcons}
-          item={$settingsItem.current}
-          lens_id={lens_id}
-          modalController={iconItemDisclosure} />
-      </Flex>
+      <PageHeader
+        title={lens.name}
+        properties={{
+          isPublic: lens.public,
+          isShared: lens.shared,
+          accessType: accessType
+        }}
+        // secondaryItem={titleSecondaryItem}
+        onSaveTitle={saveNewLensName}
+        editMode={isEditingLensName}
+        closeEditMode={() => setIsEditingLensName(false)}
+        dropdownItems={headerDropdownItems}
+        actions={headerActions}
+      />
+      <PageContent>
+        <LayoutController
+          handleBlockChangeName={handleBlockChangeName}
+          handleBlockDelete={handleBlockDelete}
+          handleLensChangeName={handleLensChangeName}
+          handleLensDelete={handleLensDelete}
+          handleWhiteboardDelete={handleWhiteboardDelete}
+          handleWhiteboardChangeName={handleWhiteboardChangeName}
+          handleSpreadsheetChangeName={handleSpreadsheetChangeName}
+          handleSpreadsheetDelete={handleSpreadsheetDelete}
+          handleWidgetChangeName={handleWidgetChangeName}
+          handleWidgetDelete={handleWidgetDelete}
+          onChangeLayout={onChangeLensLayout}
+          handleItemSettings={handleItemSettings}
+          layout={layoutData}
+          blocks={sortedBlocks}
+          subspaces={sortedSubspaces}
+          whiteboards={sortedWhiteboards}
+          spreadsheets={sortedSpreadsheets}
+          widgets={sortedWidgets}
+          itemIcons={itemIcons}
+          layoutView={selectedLayoutType} />
+      </PageContent>
+      <IconItemSettingsModal
+        item_icons={itemIcons}
+        item={$settingsItem.current}
+        lens_id={lens_id}
+        modalController={iconItemDisclosure} />
       <FinishedOnboardingModal />
-    </ContentProvider>
+    </ContentProvider >
   );
 }

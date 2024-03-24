@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from '@mantine/core';
 import useDrivePicker from 'react-google-drive-picker'
 import { useAppContext } from "@contexts/context";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { checkGoogleAccountConnected, fetchGoogleDocContent } from "@utils/googleUtils";
 import toast from "react-hot-toast";
 import load from "@lib/load";
@@ -15,7 +15,7 @@ export default function GoogleDocs() {
   const { lensId, user } = useAppContext();
 
   const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
-  const router = useRouter();
+  const router = useProgressRouter();
   const supabase = createClientComponentClient();
 
   useEffect(() => {

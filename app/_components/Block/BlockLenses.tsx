@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { useState, useRef } from "react";
 import { useAppContext } from "@contexts/context";
 import load from "@lib/load";
@@ -15,7 +15,7 @@ interface LensProps {
 }
 
 const BlockLenses: React.FC<LensProps> = ({ lenses, block_id }) => {
-  const router = useRouter();
+  const router = useProgressRouter();
   const [showInput, setShowInput] = useState(false);
   const [newLensName, setNewLensName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);

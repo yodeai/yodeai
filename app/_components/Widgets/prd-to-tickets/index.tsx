@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { WidgetType } from '../index';
-import { Card } from '@mantine/core';
+import { useMemo, useState } from 'react';
+import { WidgetType } from '@components/Widgets/Widget';
+import { Card, Text } from '@mantine/core';
 import { TicketComponent } from './TicketComponent';
 
-import WidgetHeader from '@components/Widgets/Header';
-import { useWidget } from '../hooks';
+import { useWidget } from '@components/Widgets/hooks';
 import load from '@lib/load';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
+import { PageHeader } from '@components/Layout/PageHeader';
+import { modals } from '@mantine/modals';
+import { useAppContext } from '@contexts/context';
+import { PageContent } from '@components/Layout/Content';
 
 /** 
  * @name PRDTickets
@@ -29,7 +32,7 @@ export type Ticket = {
     };
 }
 
-type WidgetInputProps = { }
+type WidgetInputProps = {}
 type WidgetOutputProps = {
     tickets: Ticket[];
 }
@@ -44,9 +47,11 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
         updateWidget,
         deleteWidget
     } = useWidget<WidgetInputProps, WidgetOutputProps>(props);
-    const router = useRouter();
+    const router = useProgressRouter();
 
-    const [data, setData] = useState(props);
+    const { layoutRefs } = useAppContext();
+
+    const [isEditing, setIsEditing] = useState(false);
     const [tickets, setTickets] = useState(output.tickets);
 
     const updateTicket = (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket, ticketIndex: number) => {
@@ -85,24 +90,72 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
         })
     }
 
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm widget deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this widget? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete widget', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: handleDeleteWidget
+    });
+
+
+    const headerDropdownItems = useMemo(() => {
+        return [
+            {
+                label: "Rename",
+                onClick: () => setIsEditing(true),
+                disabled: !["owner", "editor"].includes(props.access_type)
+            },
+            {
+                label: "Delete",
+                onClick: openDeleteModal,
+                disabled: !["owner", "editor"].includes(props.access_type),
+                color: "red"
+            }
+        ]
+    }, [isEditing]);
+
+    const onUpdateTitle = (title: string) => {
+        const loadPromise = updateTitle(title);
+        load(loadPromise, {
+            loading: "Updating widget title",
+            success: "Widget title updated",
+            error: "Failed to update widget title",
+        }).then(() => {
+            setIsEditing(false);
+        })
+    }
+
     return <div>
-        <WidgetHeader
+        <PageHeader
             title={name}
-            accessType={props.access_type}
-            onSave={updateTitle}
-            onDelete={handleDeleteWidget}
+            properties={{
+                accessType: props.access_type
+            }}
+            editMode={isEditing}
+            onSaveTitle={onUpdateTitle}
+            closeEditMode={() => setIsEditing(false)}
+            dropdownItems={headerDropdownItems}
         />
 
-        <div className="sm:w-[80%] w-full mx-auto flex flex-col my-[20px] gap-[20px]">
-            {tickets.map((ticket, index) => (
-                <Card key={index} shadow="xs" padding="lg" radius="md">
-                    <TicketComponent
-                        handleChange={(...args) => updateTicket(...args, index)}
-                        handleUpdate={handleUpdateWidget}
-                        onExport={exportToJira} data={ticket} />
-                </Card>
-            ))}
-        </div>
+        <PageContent>
+            <div className="sm:w-[80%] w-full mx-auto flex flex-col my-[20px] gap-[20px]">
+                {tickets.map((ticket, index) => (
+                    <Card key={index} shadow="xs" padding="lg" radius="md">
+                        <TicketComponent
+                            handleChange={(...args) => updateTicket(...args, index)}
+                            handleUpdate={handleUpdateWidget}
+                            onExport={exportToJira} data={ticket} />
+                    </Card>
+                ))}
+            </div>
+        </PageContent>
     </div>
 }
 

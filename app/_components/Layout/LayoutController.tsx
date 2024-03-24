@@ -1,12 +1,11 @@
 
 import { Block } from "app/_types/block";
-import { Subspace, LensLayout, Lens, Whiteboard } from "app/_types/lens";
-import IconLayoutComponent from "./IconView";
+import { Subspace, LensLayout, Lens } from "app/_types/lens";
+import IconLayoutComponent from "@components/IconView";
 import React from "react";
 import { Flex, Text } from "@mantine/core";
-import ListLayoutComponent from "./ListView";
+import ListLayoutComponent from "@components/ListView";
 import { Tables } from "app/_types/supabase";
-import widgets from '@components/Widgets';
 
 export type ViewController = {
     blocks?: Block[]
@@ -15,13 +14,13 @@ export type ViewController = {
     spreadsheets?: Tables<"spreadsheet">[]
     widgets?: Tables<"widget">[]
 
-    onChangeLayout: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
-    layout: LensLayout,
-    itemIcons: Lens["item_icons"];
+    onChangeLayout?: (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => void
+    layout?: LensLayout,
+    itemIcons?: Lens["item_icons"];
     layoutView: "block" | "icon",
-    handleBlockChangeName: (block_id: number, newBlockName: string) => Promise<any>
-    handleBlockDelete: (block_id: number) => Promise<any>
-    handleLensDelete: (lens_id: number) => Promise<any>
+    handleBlockChangeName?: (block_id: number, newBlockName: string) => Promise<any>
+    handleBlockDelete?: (block_id: number) => Promise<any>
+    handleLensDelete?: (lens_id: number) => Promise<any>
     handleLensChangeName?: (lens_id: number, newLensName: string) => Promise<any>
     handleWhiteboardDelete?: (whiteboard_id: number) => Promise<any>
     handleWhiteboardChangeName?: (whiteboard_id: number, newWhiteboardName: string) => Promise<any>
@@ -33,7 +32,7 @@ export type ViewController = {
 }
 
 export type LayoutControllerProps = ViewController & {
-    layout: LensLayout,
+    layout?: LensLayout,
     layoutView: "block" | "icon",
 }
 
@@ -76,18 +75,15 @@ export default function LayoutController(props: LayoutControllerProps) {
                 widgets={widgets}
             />
         case "icon":
-            return <div className="w-full h-full overflow-scroll">
-                <IconLayoutComponent
-                    subspaces={subspaces}
-                    layouts={layout?.icon_layout || {}}
-                    onChangeLayout={onChangeLayout}
-                    blocks={blocks || []}
-                    whiteboards={whiteboards || []}
-                    spreadsheets={spreadsheets || []}
-                    widgets={widgets || []}
-
-                    {...props}
-                />
-            </div>
+            return <IconLayoutComponent
+                subspaces={subspaces}
+                layouts={layout?.icon_layout}
+                onChangeLayout={onChangeLayout}
+                blocks={blocks || []}
+                whiteboards={whiteboards || []}
+                spreadsheets={spreadsheets || []}
+                widgets={widgets || []}
+                {...props}
+            />
     }
 }

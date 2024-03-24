@@ -5,7 +5,8 @@ import { Lens } from "app/_types/lens";
 import load from "@lib/load";
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { useAppContext } from "@contexts/context";
 
 import toast from "react-hot-toast";
@@ -20,7 +21,7 @@ export default function Lens({ params }: { params: { lens_id: string } }) {
   const [editingLensName, setEditingLensName] = useState("");
   const [isEditingLensName, setIsEditingLensName] = useState(false);
   const [accessType, setAccessType] = useState(null);
-  const router = useRouter();
+  const router = useProgressRouter();
   const { setLensId, lensName, setLensName, reloadLenses, setActiveComponent, user } = useAppContext();
   const searchParams = useSearchParams();
 

@@ -7,8 +7,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Text, Tooltip, Flex, ActionIcon, Grid, Anchor } from "@mantine/core";
-import InlineSpoiler from "../../InlineSpoiler";
-import { useRouter } from "next/navigation";
+import InlineSpoiler from "@components/InlineSpoiler";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";
 
@@ -24,7 +24,7 @@ interface BlockProps {
 }
 
 export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();

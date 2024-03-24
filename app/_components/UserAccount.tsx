@@ -1,13 +1,15 @@
 "use client"
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FaAngleDown } from '@react-icons/all-files/fa/FaAngleDown';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
-import { User } from '@supabase/supabase-js';
-import { Button, Flex, Text } from '@mantine/core';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Button, Flex, Menu, Text } from '@mantine/core';
 import { checkGoogleAccountConnected, clearCookies } from '@utils/googleUtils';
+import { useAppContext } from '@contexts/context';
+import { User } from '@supabase/auth-helpers-nextjs';
 import toast from 'react-hot-toast';
 import { ImSpinner8 } from '@react-icons/all-files/im/ImSpinner8';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { useLocalStorage } from '@mantine/hooks';
 import { usePathname } from 'next/navigation';
@@ -16,6 +18,8 @@ type UserAccountHandlerProps = {
   user: User | null;
 }
 const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
+  const [googleAccountConnected, setGoogleAccountConnected] = useState(false);
+  const [redirectUri, setRedirectUri] = useState("")
   const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
@@ -67,64 +71,78 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
     }, 1000)
   }
 
-  // useEffect(() => {
-  //   let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  //   const fetchAndCheckGoogle = async () => {
-  //     const connected = await checkGoogleAccountConnected();
-  //     setGoogleAccountConnected(connected);
-  //     const response = await fetch(`/api/google/redirectURI`)
-  //     if (response.ok) {
-  //       // Assuming the document content is in plain text
-  //       const content = await response.json();
-  //       setRedirectUri(content.uri)
-  //     } else {
-  //       console.error("Failed to fetch Google redirect uri", response.statusText);
-  //     }
-  //   };
+    const fetchAndCheckGoogle = async () => {
+      const connected = await checkGoogleAccountConnected();
+      setGoogleAccountConnected(connected);
+      const response = await fetch(`/api/google/redirectURI`)
+      if (response.ok) {
+        // Assuming the document content is in plain text
+        const content = await response.json();
+        setRedirectUri(content.uri)
+      } else {
+        console.error("Failed to fetch Google redirect uri", response.statusText);
+      }
+    };
 
-  //   fetchAndCheckGoogle();
+    fetchAndCheckGoogle();
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, [user]);
+  const onClickSignOut = async () => {
+    // redirect window to sign out page with POST
+    fetch('/api/auth/sign-out', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+    }).then(res => {
+      if (res.ok) window.location.href = '/login';
+    })
+  }
 
   return (
     <nav className="w-full">
       <Flex align={"center"} justify={"flex-end"}>
-        {user && user.email ? (
-          <div className="flex gap-4 items-center">
-            <Text
-              size='sm'
-              c={"gray.8"}
-              fw={500}
-            >
-              Hey, {user.email}!
-            </Text>
-            {isGoogleAccountConnected ?
-              <Button disabled={loading} onClick={removeGoogleAccount} color="red" size="xs" variant="light"
-                className="flex justify-center align-middle gap-2">
-                {loading && <ImSpinner8 size={12} className="animate-spin mr-2" />}
-                <Text size="sm">Remove Google Account</Text>
-              </Button> :
-              <Button disabled={loading} onClick={openGoogleAuthWindow} color="blue" size="xs" variant="light">
-                {loading && <ImSpinner8 size={12} className="animate-spin mr-2" />}
-                <Text size="sm">Connect Google Account</Text>
+        {user && user.email
+          ? <Menu>
+            <Menu.Target>
+              <Button variant="outline" color="gray" className="flex gap-3 text-center align-middle">
+                <Text
+                  size='sm'
+                  c={"gray.8"}
+                  fw={500}
+                >
+                  {user.email}
+                </Text>
+                <FaAngleDown size={18} className="ml-1 text-gray-500" />
               </Button>
-            }
-            <LogoutButton />
-          </div>
-        ) : (
-          <Link href="/login">
+            </Menu.Target>
+            <Menu.Dropdown>
+              {googleAccountConnected && <Menu.Item onClick={removeGoogleAccount} color="red" variant="light">
+                Remove Google Account
+              </Menu.Item>}
+              {!googleAccountConnected &&
+                <Menu.Item onClick={openGoogleAuthWindow} color="blue" variant="light">
+                  Connect Google Account
+                </Menu.Item>}
+              <Menu.Item onClick={onClickSignOut}>
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          : <Link href="/login">
             <Button type="submit" color="blue" size="xs" variant="light">
               Login
             </Button>
-          </Link>
-        )}
-
+          </Link>}
       </Flex>
-    </nav>
+    </nav >
   );
 };
 

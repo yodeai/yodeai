@@ -4,25 +4,29 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import ReactFlow, {
     ReactFlowProvider,
+    NodeSelectionChange,
     useNodesState, useEdgesState, addEdge,
-    Controls, Background, Node, Edge, MiniMap
+    Controls, Background, Node, Edge, MiniMap, OnNodesChange, OnEdgesChange
 } from 'reactflow';
-import WhiteboardDock from "./Helpers/Dock";
-import NodeContextMenu from './Helpers/ContextMenu/Node';
-import EdgeContextMenu from './Helpers/ContextMenu/Edge';
+import WhiteboardDock from "@components/Whiteboard/Helpers/Dock";
+import NodeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Node';
+import EdgeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Edge';
 
 import 'reactflow/dist/style.css';
 import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
-import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
 import { Text } from "@mantine/core";
-import nodeTypes, { defaultValues, defaultNodeProps } from './Nodes';
-import edgeTypes from './Edges';
-import WhiteboardHeader from './Header';
-import { useRouter } from 'next/navigation';
+import { ImSpinner8 } from "@react-icons/all-files/im/ImSpinner8";
+import nodeTypes, { defaultValues, defaultNodeProps } from '@components/Whiteboard/Nodes';
+import edgeTypes from '@components/Whiteboard/Edges';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { WhiteboardComponentProps } from 'app/_types/whiteboard';
 import whiteboardPluginRenderers from '@components/Whiteboard/Plugins'
 import { useAppContext } from '@contexts/context';
-import { FlowWrapper } from './Helpers/FlowWrapper';
+import { FlowWrapper } from '@components/Whiteboard/Helpers/FlowWrapper';
+import { PageHeader } from '@components/Layout/PageHeader';
+import load from '@lib/load';
+import { modals } from '@mantine/modals';
+import { PageContent } from '@components/Layout/Content';
 import { revalidateRouterCache } from '@utils/revalidate';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
@@ -40,6 +44,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [nodeMenu, setNodeMenu] = useState(null);
     const [edgeMenu, setEdgeMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
+    const [isEditing, setIsEditing] = useState(false);
 
     const { setLensId, setBreadcrumbActivePage, layoutRefs } = useAppContext();
 
@@ -55,7 +60,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [isLocked, setIsLocked] = useState(getInitialLockState());
 
     const $whiteboard = useRef(null);
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const onConnect = useCallback((params) => {
         setEdges((eds) => addEdge(params, eds))
@@ -127,12 +132,14 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         })
             .then(res => res.json())
             .catch(err => console.error(err))
-            .finally(() => setIsSaving(false));
+            .finally(() => {
+                setIsSaving(false);
+                revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
+            });
     }, 1000, [nodes, edges, isSaving]);
 
     const onChangeWhiteboardName = useCallback((name: string) => {
-        setIsSaving(true);
-        return fetch(`/api/whiteboard/${data.whiteboard_id}`, {
+        const savePromise = fetch(`/api/whiteboard/${data.whiteboard_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name })
@@ -143,8 +150,14 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 return res;
             })
             .finally(() => {
-                setIsSaving(false);
+                setIsEditing(false);
             })
+
+        load(savePromise, {
+            loading: "Saving title...",
+            success: "Saved title.",
+            error: "Failed to save title."
+        })
     }, []);
 
     const onDeleteWhiteboard = useCallback(() => {
@@ -160,10 +173,23 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             })
     }, []);
 
+    const openDeleteModal = () => modals.openConfirmModal({
+        title: 'Confirm whiteboard deletion',
+        centered: true,
+        confirmProps: { color: 'red' },
+        children: (
+            <Text size="sm">
+                Are you sure you want to delete this whiteboard? This action cannot be undone.
+            </Text>
+        ),
+        labels: { confirm: 'Delete whiteboard', cancel: "Cancel" },
+        onCancel: () => console.log('Canceled deletion'),
+        onConfirm: onDeleteWhiteboard
+    });
+
     useEffect(() => {
         if (isLocked && (data.plugin ? data.plugin?.rendered === true : true)) return;
         syncWhiteboard(nodes, edges);
-        revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
     }, [nodes, edges]);
 
     useEffect(() => {
@@ -183,24 +209,64 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         setNodeMenu(null);
     }, [setEdgeMenu, setNodeMenu]);
 
+    useEffect(() => {
+        const mainHeight = layoutRefs.main.current.getBoundingClientRect().height;
+        $whiteboard.current.style.height = `${mainHeight - 180}px`;
+    }, [])
+
+    const headerActions = useMemo(() => {
+        return <>
+            {isSaving && <div className="flex items-center gap-2 px-2 py-1">
+                <ImSpinner8 size={10} className="animate-spin" />
+                <Text size="sm" c="gray.7">Auto-save...</Text>
+            </div>}
+        </>
+    }, [isSaving])
+
+    const headerDropdownItems = useMemo(() => {
+        return [
+            {
+                label: "Rename",
+                onClick: () => setIsEditing(true),
+                disabled: !["owner", "editor"].includes(data.accessType)
+            },
+            {
+                label: "Delete",
+                onClick: openDeleteModal,
+                disabled: !["owner", "editor"].includes(data.accessType),
+                color: "red"
+            }
+        ]
+    }, [isEditing]);
+
+    const handleNodesChange: OnNodesChange = useCallback((changes) => {
+        return onNodesChange(changes);
+    }, [onNodesChange]);
+
+    const handleEdgesChange: OnEdgesChange = useCallback((changes) => {
+        return onEdgesChange(changes);
+    }, [onEdgesChange]);
+
     return <FlowWrapper
         whiteboard={whiteboard}
         isSaving={isSaving}
         isLocked={isLocked}>
-        <div className="w-full h-full relative flex flex-col">
-            <WhiteboardHeader
-                title={whiteboard.name} accessType={data.accessType}
-                onSave={onChangeWhiteboardName} onDelete={onDeleteWhiteboard} />
-            {isSaving &&
-                <div className="absolute top-[70px] right-5 flex items-center gap-2 border border-gray-400 bg-gray-100 rounded-lg px-2 py-1">
-                    <ImSpinner8 size={10} className="animate-spin" />
-                    <Text size="sm" c="gray.7">Auto-save...</Text>
-                </div>}
+        <PageHeader
+            title={whiteboard.name}
+            properties={{
+                accessType: whiteboard.accessType
+            }}
+            editMode={isEditing}
+            onSaveTitle={onChangeWhiteboardName}
+            dropdownItems={headerDropdownItems}
+            closeEditMode={() => setIsEditing(false)}
+            actions={headerActions}
+        />
+        <PageContent>
             <ReactFlow
                 nodesDraggable={!isLocked}
                 nodesConnectable={!isLocked}
                 elementsSelectable={!isLocked}
-                className="flex-1"
                 minZoom={0.05}
                 maxZoom={4}
                 ref={$whiteboard}
@@ -208,8 +274,8 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 fitViewOptions={{ padding: 0.5 }}
                 nodes={nodes}
                 edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
+                onNodesChange={handleNodesChange}
+                onEdgesChange={handleEdgesChange}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
@@ -226,7 +292,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 <MiniMap />
             </ReactFlow>
             {!isLocked && <WhiteboardDock />}
-        </div>
+        </PageContent>
     </FlowWrapper>
 }
 

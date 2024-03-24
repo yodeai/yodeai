@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Anchor, Text, Button, Flex, Skeleton, Popover, Image } from '@mantine/core';
 import BlockComponent from './BlockComponent';
-import LoadingSkeleton from '../../LoadingSkeleton';
-import { useRouter } from 'next/navigation';
+import LoadingSkeleton from '@components/LoadingSkeleton';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 import { Lens, LensData, Subspace } from 'app/_types/lens';
 import { Block } from 'app/_types/block';
 import { useAppContext } from "@contexts/context";
@@ -28,7 +28,7 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   const [fetching, setFetching] = useState(false);
 
   const [lensData, setLensData] = useState<LensData>();
-  const router = useRouter();
+  const router = useProgressRouter();
 
   const { onboardingStep, onboardingIsComplete, sortingOptions, goToNextOnboardingStep, completeOnboarding } = useAppContext();
 
@@ -105,6 +105,13 @@ export default function SubspaceComponent({ leftComponent, subspace }: SubspaceC
   }
 
   const expandedContent = useMemo(() => {
+    if (sortedItems.length === 0) {
+      return (
+        <Flex mt={10}>
+          <Text size="sm" fw={400} c="gray.6">No pages found within this subspace.</Text>
+        </Flex>
+      )
+    }
     return (
       <div>
         {sortedItems.map(itemRenderer)}

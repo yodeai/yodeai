@@ -154,7 +154,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">User Insight Areas</Text>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
+            <Text className="w-full mb-2 text-gray-500" size="xs">
               Enter the topics you wish to extract from these user interviews. If left blank, then topics will be auto extracted.
             </Text>
           </Box>
@@ -198,7 +198,7 @@ export default function AddUserInsight({ lensId, modalController }: AddUserInsig
 
           <Box className="w-full flex flex-col items-center gap-2 mb-2">
             <Text className="w-full" size="18px" fw="bold">Pages to include</Text>
-            <Text className="w-full mb-5 text-gray-300" size="xs">
+            <Text className="w-full mb-2 text-gray-500" size="xs">
               Adjust the pages you would like to include in the analysis.
             </Text>
             <Flex className="flex-1 w-full flex-col">

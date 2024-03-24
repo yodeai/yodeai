@@ -7,14 +7,14 @@ import { Block } from 'app/_types/block';
 import { useEffect } from 'react';
 import Link from "next/link";
 import PDFViewerIframe from "@components/PDFViewer";
-import { useRouter } from "next/navigation";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 export default function Block({ params }: { params: { id: string } }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
-  const router = useRouter();
+  const router = useProgressRouter();
 
 
   useEffect(() => {

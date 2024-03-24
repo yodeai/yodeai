@@ -1,20 +1,19 @@
 // components/QuestionAnswerForm.tsx
 "use client";
 
-import React, { useState, FormEvent, useMemo } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { ChatMessage } from 'app/_types/chat';
 import { useAppContext } from "@contexts/context";
 import { useRef, useEffect } from "react";
-import { Box, Button, Divider, Flex, Group, ScrollArea, Text, Textarea } from '@mantine/core';
-import InfoPopover from './InfoPopover';
-import ToolbarHeader from './ToolbarHeader';
-import { timeAgo } from '@utils/index';
-import LoadingSkeleton from './LoadingSkeleton';
-import { cn } from '@utils/style';
-import Gravatar from 'react-gravatar';
+import { AppShell, Box, Button, Divider, Flex, Group, Text, Textarea } from '@mantine/core';
+import InfoPopover from '@components/InfoPopover';
+import ToolbarHeader from '@components/Layout/Aside/ToolbarHeader';
+import LoadingSkeleton from '@components/LoadingSkeleton';
+import LensChatMessage from './LensChatMessage';
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useDebouncedCallback } from 'app/_hooks/useDebouncedCallback';
+import { useIntersection } from '@mantine/hooks';
 
 const MESSAGE_LIMIT = 25;
 
@@ -27,8 +26,12 @@ export default function LensChat() {
     const { lensId, lensName, user } = useAppContext();
 
     const supabase = createClientComponentClient()
+    const $container = useRef<HTMLDivElement>(null);
+    const $intersectionObject = useIntersection({
+        root: $container.current,
+        rootMargin: '0px', threshold: 1
+    });
 
-    const $loadMore = useRef<HTMLDivElement>(null);
     const $offset = useRef<number>(0);
     const $hasMore = useRef<boolean>(false);
     const $fetching = useRef<boolean>(false);
@@ -49,7 +52,7 @@ export default function LensChat() {
                 }
             })
             .then(data => {
-                setMessages(_messages => [...data.data.messages, ..._messages]);
+                setMessages(_messages => [..._messages, ...data.data.messages]);
                 setHasMore(data.data.hasMore);
                 $hasMore.current = data.data.hasMore;
             })
@@ -103,7 +106,6 @@ export default function LensChat() {
             setIsLoading(true);
             setIsSending(false);
 
-            $loadMore.current = null;
             $offset.current = 0;
             $hasMore.current = false;
             $fetching.current = false;
@@ -111,24 +113,11 @@ export default function LensChat() {
     }, [lensId, user]);
 
     useEffect(() => {
-        if (!$loadMore.current) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && $hasMore.current && $fetching.current === false) {
-                $offset.current += MESSAGE_LIMIT;
-                fetchLensChat();
-            }
-        }, {
-            root: null,
-            rootMargin: '0px',
-            threshold: 1.0
-        })
-
-        observer.observe($loadMore.current);
-        return () => {
-            observer.disconnect();
+        if ($intersectionObject.entry && $hasMore.current && $fetching.current === false && isLoading === false) {
+            $offset.current += MESSAGE_LIMIT;
+            fetchLensChat();
         }
-    }, [lensId, $loadMore.current])
+    }, [$intersectionObject.entry, lensId]);
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -170,12 +159,18 @@ export default function LensChat() {
         }
     }
 
+    // useEffect(() => {v
+    //     console.log("intersection", $intersectionObject.entry)
+    // }, [$intersectionObject.entry])
+
     return (
         <Flex
             direction={"column"}
             className="h-full w-full"
             justify={"space-between"}>
-            <Box>
+
+            {/* headaer */}
+            <AppShell.Section>
                 <ToolbarHeader>
                     <Flex align="center" direction="row">
                         <Text size="sm">
@@ -186,21 +181,24 @@ export default function LensChat() {
                         <InfoPopover infoText={`This chat is for communicating with other users on the "${lensName}" space.`} />
                     </Flex>
                 </ToolbarHeader>
+            </AppShell.Section>
 
-                <div className="h-[calc(100vh-225px)] overflow-scroll px-3 pt-3 flex gap-3 flex-col-reverse">
-                    {messages.map((message, index) => {
-                        return <MessageBox key={index} message={message} />
-                    })}
-                    {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
-                    {hasMore && <div ref={$loadMore} className="loadMore h-8 w-full" />}
-                    {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
-                        label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
-                        labelPosition="center" />}
-                </div>
+            {/* content */}
+            <Box ref={$container} className="flex h-full flex-col-reverse gap-3 py-1 px-3 overflow-scroll">
+                {messages.map((message, index) => {
+                    return <LensChatMessage key={index} message={message} />
+                })}
+                {isLoading && (<LoadingSkeleton boxCount={$offset?.current ? 1 : 8} lineHeight={80} />)}
+                {hasMore && <div ref={$intersectionObject.ref} className="loadMore h-8 w-full"></div>}
+                {!hasMore && !isLoading && messages.length > 0 && <Divider mb={0} size={1.5}
+                    label={<Text c={"gray.5"} size="sm" fw={500}>You've reached the start of the chat.</Text>}
+                    labelPosition="center" />}
             </Box>
-            <Box className="relative">
+
+            {/* footer */}
+            <AppShell.Section>
                 <Flex p={10} pt={0} direction={"column"}>
-                    <Flex justify={'center'} pt={5} pb={0} direction={"column"}>
+                    <Flex justify={'center'} pb={0} direction={"column"}>
                         <form onSubmit={handleSubmit} style={{ flexDirection: 'column' }} className="flex">
                             <Textarea
                                 disabled={isSending}
@@ -217,35 +215,7 @@ export default function LensChat() {
                         </form>
                     </Flex>
                 </Flex>
-            </Box>
+            </AppShell.Section>
         </Flex>
     );
 };
-
-type MessageBoxProps = {
-    message: ChatMessage;
-}
-const MessageBox = (props: MessageBoxProps) => {
-    const { message } = props;
-    const { user } = useAppContext();
-
-    const selfMessage = message.users.id === user?.id;
-
-    return <div className={
-        cn("flex gap-1.5", selfMessage ? "justify-end" : "justify-start")
-    }>
-        <Gravatar email={message.users.email} size={32} className="rounded-md" />
-        <div className={cn(
-            "flex flex-col w-full max-w-[250px] p-2 border",
-            selfMessage
-                ? "bg-indigo-600 border-indigo-700 text-gray-200 rounded-s-xl rounded-se-xl"
-                : "bg-gray-200 border-gray-300 text-gray-800 rounded-e-xl rounded-es-xl"
-        )}>
-            <div className="flex items-center justify-between">
-                <span className="truncate text-sm font-semibold">{message.users.email}</span>
-                <span className="truncate text-sm font-normal ">{timeAgo(message.created_at)}</span>
-            </div>
-            <p className="text-sm font-normal whitespace-break-spaces">{message.message.trim()}</p>
-        </div>
-    </div>
-}

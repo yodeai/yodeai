@@ -19,19 +19,19 @@ import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
 import LensComponent from "@components/LensComponent";
 import { useAppContext } from "@contexts/context";
 import React, { useCallback, useState } from "react";
-import { Anchor, Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text } from "@mantine/core";
+import { Box, Button, Divider, Flex, LoadingOverlay, NavLink, Popover, ScrollArea, Text, AppShell } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
-import LoadingSkeleton from "./LoadingSkeleton";
+import LoadingSkeleton from "@components/LoadingSkeleton";
 
-import { Database } from "app/_types/supabase";
-
-const supabase = createClientComponentClient<Database>()
+import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 export default function Navbar() {
-  const router = useRouter();
+  const router = useProgressRouter();
   const {
     lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
-    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs
+    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
+    onboardingStep, onboardingIsComplete
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
@@ -109,13 +109,39 @@ export default function Navbar() {
     setOpened(newState);
   };
 
-  return <>
+  return <AppShell.Navbar ref={layoutRefs.navbar}>
     <Popover opened={opened} onChange={setOpened} width={200} position="bottom" shadow="md">
       <Popover.Target>
         <Flex align={"center"} justify={"center"}>
+          {(onboardingStep === 5 && !onboardingIsComplete)
+            ?
+            <OnboardingPopover
+              width={430}
+              stepToShow={5}
+              position="right-start"
+              popoverContent={
+                <>
+                  <Text size="sm" mb={10}>The Yodeai agent answers questions based on the pages within a particular <b>space.</b></Text>
+                  <Text size="sm">To create a space, click <b>+ New</b> then <b>+ New Space</b></Text>
+                </>
+              }
+            >
+              <Button
+                onClick={togglePopover}
+                className="w-full"
+                style={{ width: "100%", height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+                leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
+                color="gray"
+                variant="gradient"
+                opacity={0.9}
+              >
+                New
+              </Button>
+            </OnboardingPopover>
+            :
             <Button
               onClick={togglePopover}
-              style={{ width: 200, height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
+              style={{ width: "100%", height: 30, alignSelf: "center", margin: 10, marginBottom: 0, borderRadius: 10, textAlign: "center" }}
               leftSection={<FaPlusSquare size={14} style={{ right: 10 }} />}
               color="gray"
               variant="gradient"
@@ -123,6 +149,7 @@ export default function Navbar() {
             >
               New
             </Button>
+          }
         </Flex>
       </Popover.Target>
       <Popover.Dropdown p={0}>
@@ -211,7 +238,7 @@ export default function Navbar() {
         {pinnedLensesLoading && (<LoadingSkeleton m={10} />) || ""}
         {!pinnedLensesLoading && (pinnedLenses.length > 0
           ? pinnedLenses.map((lens) => (
-            <Box key={lens.lens_id} pos="relative" className="max-w-[350px]">
+            <Box key={lens.lens_id} pos="relative">
               <LoadingOverlay visible={stateOfLenses[lens.lens_id] || false} loaderProps={{ size: 20 }}></LoadingOverlay>
               <LensComponent
                 lens={lens} compact={true}
@@ -228,6 +255,6 @@ export default function Navbar() {
           ))}
       </ScrollArea.Autosize>
     </Flex>
-  </>
+  </AppShell.Navbar>
 }
 

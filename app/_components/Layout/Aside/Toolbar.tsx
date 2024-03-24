@@ -1,22 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
-import QuestionAnswerForm from '@components/QuestionAnswerForm'
-import { Box, Flex, Button, Menu, Text, Anchor } from '@mantine/core';
+import QuestionAnswerForm from '@components/Pages/Toolbar/LensQuestions/QuestionListComponent'
+import { Box, Flex, Button, Menu, Text, Anchor, AppShell, MantineProvider } from '@mantine/core';
 import NextImage from 'next/image';
 import { useAppContext } from '@contexts/context';
 import { cn } from '@utils/style';
 import Link from 'next/link';
 
-import ConditionalTooltip from './ConditionalTooltip';
-import LensChat from './LensChat';
+import ConditionalTooltip from '@components/ConditionalTooltip';
+import LensChat from '@components/Pages/Toolbar/LensChats/LensChatList';
 import { getActiveToolbarTab, setActiveToolbarTab } from '@utils/localStorage';
-import { usePathname, useRouter } from 'next/navigation';
-import OnboardingPopover from './Onboarding/OnboardingPopover';
+import { usePathname } from 'next/navigation';
+import OnboardingPopover from '@components/Onboarding/OnboardingPopover';
 
-import { FaAngleRight} from '@react-icons/all-files/fa/FaAngleRight';
+import { FaAngleRight } from '@react-icons/all-files/fa/FaAngleRight';
 import { FaPlus } from '@react-icons/all-files/fa/FaPlus';
 import { IoIosChatbubbles } from '@react-icons/all-files/io/IoIosChatbubbles';
+import { usePortal } from 'app/_hooks/usePortal';
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 type contextType = {
     activeToolbarComponent: "social" | "questionform";
@@ -36,7 +38,7 @@ export const useToolbarContext = () => {
 
 export default function Toolbar() {
     const pathname = usePathname();
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
 
@@ -45,7 +47,8 @@ export default function Toolbar() {
     const {
         accessType, subspaceModalDisclosure, lensId,
         whiteboardModelDisclosure, userInsightsDisclosure, competitiveAnalysisDisclosure, spreadsheetModalDisclosure,
-        painPointTrackerModalDisclosure, widgetFormDisclosure
+        painPointTrackerModalDisclosure, widgetFormDisclosure,
+        toolbarDisclosure: [toolbarOpened, toolbarDisclosure]
     } = useAppContext();
 
     const [subspaceModalState, subspaceModalController] = subspaceModalDisclosure;
@@ -67,12 +70,23 @@ export default function Toolbar() {
 
     const closeComponent = () => {
         setActiveToolbarComponent(null);
+        toolbarDisclosure.close();
     }
 
     const switchComponent = (component: contextType["activeToolbarComponent"]) => {
-        if (activeToolbarComponent === component) return closeComponent();
+        if (activeToolbarComponent === component) {
+            toolbarDisclosure.close();
+            return closeComponent();
+        }
         setActiveToolbarComponent(component);
+        toolbarDisclosure.open();
     }
+
+    useEffect(() => {
+        if (toolbarOpened && !activeToolbarComponent) {
+            setActiveToolbarComponent(getActiveToolbarTab() || "questionform");
+        }
+    }, [toolbarOpened, activeToolbarComponent])
 
     useEffect(() => {
         setActiveToolbarTab(activeToolbarComponent);
@@ -125,11 +139,31 @@ export default function Toolbar() {
 
     useEffect(() => {
         if (!lensId && activeToolbarComponent === "social") closeComponent();
-    }, [lensId])
+    }, [lensId]);
 
-    return <Flex direction="row" className="h-[calc(100vh-60px)] w-full z-50">
+    const toolbarMobileButton = useMemo(() => {
+        return <MantineProvider>
+            <Button
+                variant="subtle"
+                className="h-full w-full"
+                onClick={() => {
+                    switchComponent("questionform");
+                    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
+                }}
+                c="gray.6">
+                <NextImage src="/yodeai.png" alt="yodeai" width={22} height={22} />
+            </Button>
+        </MantineProvider>
+    }, []);
+
+    usePortal({
+        children: toolbarMobileButton,
+        containerSelector: "#toolbar_mobile_button",
+    }, [pathname])
+
+    return <AppShell.Aside className="flex !flex-row">
         { /*toolbar buttons*/}
-        <Box component='div' className="h-full bg-white border-l border-l-[#eeeeee]">
+        <Box component='div' className="h-full bg-white">
             <Flex direction="column" gap={5} className="mt-1 p-1">
                 <Box>
                     {(onboardingStep === 1 && !onboardingIsComplete)
@@ -259,7 +293,8 @@ export default function Toolbar() {
                 </Box> */}
             </Flex>
         </Box >
-        <Box component='div' className={cn("bg-white border-l border-l-[#eeeeee]", activeToolbarComponent ? "min-w-[400px] max-w-[400px]" : "w-[0px]")}>
+
+        <Box component='div' className="border-l border-l-[#eeeeee] w-full">
             { /* toolbar content with context */}
             <context.Provider value={{
                 closeComponent,
@@ -269,5 +304,5 @@ export default function Toolbar() {
                 {activeToolbarComponent === "social" && <LensChat />}
             </context.Provider>
         </Box>
-    </Flex >
+    </AppShell.Aside>
 }

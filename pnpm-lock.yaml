@@ -41,7 +41,7 @@ dependencies:
     specifier: ^7.2.0
     version: 7.2.2(@mantine/core@7.2.2)(@mantine/hooks@7.6.2)(react-dom@18.2.0)(react@18.2.0)
   '@mantine/nprogress':
-    specifier: ^7.2.0
+    specifier: ^7.2.2
     version: 7.2.2(@mantine/core@7.2.2)(@mantine/hooks@7.6.2)(react-dom@18.2.0)(react@18.2.0)
   '@mantine/spotlight':
     specifier: ^7.2.0
@@ -169,15 +169,9 @@ dependencies:
   next:
     specifier: ^13.4.17
     version: 13.5.6(react-dom@18.2.0)(react@18.2.0)
-  nextjs-toploader:
-    specifier: ^1.6.6
-    version: 1.6.6(next@13.5.6)(react-dom@18.2.0)(react@18.2.0)
   npm:
     specifier: ^10.1.0
     version: 10.2.4
-  nprogress:
-    specifier: ^0.2.0
-    version: 0.2.0
   openai:
     specifier: ^4.0.0
     version: 4.20.1(encoding@0.1.13)
@@ -261,9 +255,6 @@ devDependencies:
   '@types/node':
     specifier: 20.2.4
     version: 20.2.4
-  '@types/nprogress':
-    specifier: ^0.2.3
-    version: 0.2.3
   '@types/react':
     specifier: 18.2.7
     version: 18.2.7
@@ -2246,9 +2237,6 @@ packages:
 
   /@types/node@20.2.4:
     resolution: {integrity: sha512-ni5f8Xlf4PwnT/Z3f0HURc3ZSw8UyrqMqmM3L5ysa7VjHu8c3FOmIo1nKCcLrV/OAmtf3N4kFna/aJqxsfEtnA==}
-
-  /@types/nprogress@0.2.3:
-    resolution: {integrity: sha512-k7kRA033QNtC+gLc4VPlfnue58CM1iQLgn1IMAU8VPHGOj7oIHPp9UlhedEnD/Gl8evoCjwkZjlBORtZ3JByUA==}
 
   /@types/object.omit@3.0.3:
     resolution: {integrity: sha512-xrq4bQTBGYY2cw+gV4PzoG2Lv3L0pjZ1uXStRRDQoATOYW1lCsFQHhQ+OkPhIcQoqLjAq7gYif7D14Qaa6Zbew==}
@@ -6235,21 +6223,6 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /nextjs-toploader@1.6.6(next@13.5.6)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-LKow/aV28/DLhj4yH1E8ydF/I5QDNsb5NqlbsXBaIVFrmZ9/OGHyxPLdumvPE2IOYoQdvJ4XWoaCA1v7aivYBg==}
-    peerDependencies:
-      next: '>= 6.0.0'
-      react: '>= 16.0.0'
-      react-dom: '>= 16.0.0'
-    dependencies:
-      '@types/nprogress': 0.2.3
-      next: 13.5.6(react-dom@18.2.0)(react@18.2.0)
-      nprogress: 0.2.0
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
     dev: false
@@ -6398,10 +6371,6 @@ packages:
       - validate-npm-package-name
       - which
       - write-file-atomic
-
-  /nprogress@0.2.0:
-    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
-    dev: false
 
   /num-sort@2.1.0:
     resolution: {integrity: sha512-1MQz1Ed8z2yckoBeSfkQHHO9K1yDRxxtotKSJ9yvcTUUxSvfvzEq5GwBrjjHEpMlq/k5gvXdmJ1SbYxWtpNoVg==}
