@@ -60,7 +60,8 @@ export default function Lens(props: LensProps) {
     accessType, setAccessType,
     sortingOptions, setSortingOptions, zoomLevel, setZoomLevel,
     shareModalDisclosure,
-    iconItemDisclosure, pinnedLenses, setPinnedLenses
+    iconItemDisclosure,
+    getPinnedLenses, pinnedLenses, setPinnedLenses
   } = useAppContext();
 
   const [iconItemModalState, iconItemController] = iconItemDisclosure;
@@ -338,6 +339,7 @@ export default function Lens(props: LensProps) {
         toast.error('Failed to update space name: ' + error.message);
         return false;
       } finally {
+        getPinnedLenses();
         router.revalidate();
       }
     }
@@ -423,6 +425,7 @@ export default function Lens(props: LensProps) {
       success: "Space name updated!",
       error: "Failed to update space name.",
     }).finally(() => {
+      getPinnedLenses();
       router.revalidate();
     });
   }

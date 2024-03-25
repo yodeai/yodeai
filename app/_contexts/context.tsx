@@ -27,7 +27,9 @@ export type contextType = {
   }
   setBreadcrumbActivePage: React.Dispatch<React.SetStateAction<contextType["breadcrumbActivePage"]>>;
 
+  getPinnedLenses: () => void;
   pinnedLensesLoading: boolean;
+  setPinnedLensesLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pinnedLenses: Lens[];
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
   accessType: "owner" | "editor" | "reader",
@@ -87,6 +89,8 @@ const defaultValue: contextType = {
   breadcrumbActivePage: undefined,
   setBreadcrumbActivePage: () => { },
 
+  getPinnedLenses: () => { },
+  setPinnedLensesLoading: () => { },
   pinnedLensesLoading: true,
   pinnedLenses: [],
   setPinnedLenses: () => { },
@@ -363,7 +367,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
       lensName, setLensName,
       reloadKey, reloadLenses, allLenses,
       activeComponent, setActiveComponent,
-      pinnedLensesLoading, pinnedLenses, setPinnedLenses,
+      getPinnedLenses,
+      pinnedLensesLoading, setPinnedLensesLoading,
+      pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
       shareModalDisclosure,
       subspaceModalDisclosure, whiteboardModelDisclosure,
@@ -373,8 +379,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
       widgetFormDisclosure,
       navbarDisclosure, toolbarDisclosure,
       sortingOptions, setSortingOptions,
-      user,
-      zoomLevel: memoizedZoomLevel,
+      user, zoomLevel: memoizedZoomLevel,
       setZoomLevel: setIconViewZoomLevel,
       breadcrumbActivePage, setBreadcrumbActivePage,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding
