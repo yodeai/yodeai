@@ -6,16 +6,15 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Flex, Text, Box } from "@mantine/core";
 import { useSort } from "app/_hooks/useSort";
-import { revalidateRouterCache } from "@utils/revalidate";
 import { useInViewport } from '@mantine/hooks';
 import LoadingSkeleton from "@components/LoadingSkeleton";
 import { useDebouncedCallback } from "app/_hooks/useDebouncedCallback";
 
 import { PageHeader } from "@components/Layout/PageHeader";
 import { Sort } from "@components/Layout/PageHeader/Sort";
-import LayoutController from "@components/Layout/LayoutController";
 import { PageContent } from "@components/Layout/Content";
 import BlockComponent from "@components/ListView/Views/BlockComponent";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import BlockColumnHeader from "@components/Block/BlockColumnHeader";
 
 type MyBlocksProps = {
@@ -24,6 +23,7 @@ type MyBlocksProps = {
 export default function MyBlocks(props: MyBlocksProps) {
     const supabase = createClientComponentClient()
     const { sortingOptions, setSortingOptions, setLensId } = useAppContext();
+    const router = useProgressRouter();
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [blocks, setBlocks] = useState<Block[]>(props.blocks);
@@ -44,8 +44,7 @@ export default function MyBlocks(props: MyBlocksProps) {
                     return item;
                 })
             );
-
-            revalidateRouterCache(`/myblocks`)
+            router.revalidate();
         };
 
         const addBlocks = (payload) => {
@@ -55,14 +54,14 @@ export default function MyBlocks(props: MyBlocksProps) {
             if (!blocks.some(item => item.block_id === block_id)) {
                 setBlocks([newBlock, ...blocks]);
             }
-            revalidateRouterCache(`/myblocks`)
+            router.revalidate();
         }
 
         const deleteBlocks = (payload) => {
             let block_id = payload["new"]["block_id"]
             console.log("Deleting block", block_id);
             setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-            revalidateRouterCache(`/myblocks`)
+            router.revalidate();
         }
 
         const channel = supabase

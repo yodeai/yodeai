@@ -16,6 +16,7 @@ import { useInViewport } from "@mantine/hooks";
 
 import { PageHeader } from "@components/Layout/PageHeader";
 import { PageContent } from "@components/Layout/Content";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 type InboxProps = {
     blocks: Block[];
@@ -29,6 +30,7 @@ export default function Inbox(props: InboxProps) {
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const { ref, inViewport } = useInViewport();
+    const router = useProgressRouter();
 
     const { setLensId, user } = useAppContext();
     const supabase = createClientComponentClient()
@@ -44,6 +46,7 @@ export default function Inbox(props: InboxProps) {
                     return item;
                 })
             );
+            router.revalidate();
         };
 
         const addBlocks = (payload) => {
@@ -53,13 +56,14 @@ export default function Inbox(props: InboxProps) {
             if (!blocks.some(item => item.block_id === block_id)) {
                 setBlocks([newBlock, ...blocks]);
             }
+            router.revalidate();
         }
 
         const deleteBlocks = (payload) => {
             let block_id = payload["new"]["block_id"]
             console.log("Deleting block", block_id);
             setBlocks((blocks) => blocks.filter((block) => block.block_id != block_id))
-
+            router.revalidate();
         }
 
         const channel = supabase

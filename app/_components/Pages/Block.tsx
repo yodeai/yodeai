@@ -17,7 +17,6 @@ import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingMo
 
 import { FaPen } from '@react-icons/all-files/fa6/FaPen';
 import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
-import { revalidateRouterCache } from '@utils/revalidate';
 import { PageHeader } from '@components/Layout/PageHeader';
 import { modals } from '@mantine/modals';
 import load from '@lib/load';
@@ -155,8 +154,7 @@ export default function Block(props: BlockProps) {
         setIsEditing(false);
         handleEditing(false)
         setBlock(block);
-
-        revalidateRouterCache(`/block/${block.block_id}`)
+        router.revalidate();
     }
 
     const onSaveTitle = async (title: string) => {
@@ -169,10 +167,12 @@ export default function Block(props: BlockProps) {
         }).then(res => {
             if (res.ok) {
                 setBlock({ ...block, title });
-                revalidateRouterCache(`/block/${block.block_id}`)
             }
             return res;
-        }).finally(() => setIsTitleEditing(false))
+        }).finally(() => {
+            setIsTitleEditing(false);
+            router.revalidate();
+        })
     }
 
     const onDelete = async () => {
@@ -184,7 +184,9 @@ export default function Block(props: BlockProps) {
         }).then(res => {
             if (res.ok) router.replace('/myblocks')
             return res;
-        })
+        }).finally(() => {
+            router.revalidate();
+        });
     }
 
     const rightEditButton = useMemo(() => {
@@ -222,7 +224,9 @@ export default function Block(props: BlockProps) {
                 loading: "Deleting page...",
                 success: "Page deleted.",
                 error: "Failed to delete page."
-            });
+            }).finally(() => {
+                router.revalidate();
+            })
         }
     });
 
@@ -232,6 +236,8 @@ export default function Block(props: BlockProps) {
             loading: "Saving page...",
             success: "Page saved.",
             error: "Failed to save page."
+        }).finally(() => {
+            router.revalidate();
         })
     }
 
@@ -239,7 +245,7 @@ export default function Block(props: BlockProps) {
         <Flex direction="column" pt={0}>
             <PageHeader
                 properties={{
-                    accessType: block?.accessLevel 
+                    accessType: block?.accessLevel
                 }}
                 title={block?.title}
                 onSaveTitle={handleSaveTitle}

@@ -23,7 +23,6 @@ import { PageHeader } from '@components/Layout/PageHeader';
 import { modals } from '@mantine/modals';
 import load from '@lib/load';
 import { PageContent } from '@components/Layout/Content';
-import { revalidateRouterCache } from '@utils/revalidate';
 import { getInnerHeight } from '@utils/style';
 
 type SpreadsheetProps = {
@@ -53,7 +52,6 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
         return true;
     }, [access_type]);
 
-
     const onHandleResize = useCallback(() => {
         const eSheetPanel = $container.current?.querySelector<HTMLDivElement>('.e-sheet-panel');
         if (!eSheetPanel) return;
@@ -77,7 +75,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     const handleUpdateSpreadsheet = useCallback((payload) => {
         if (payload.new.name === spreadsheet.name) return;
         setSpreadsheet((prev) => ({ ...prev, name: payload.new.name }))
-        revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
+        router.revalidate();
     }, []);
 
     useEffect(() => {
@@ -116,14 +114,16 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
             loading: "Changing name...",
             success: "Name changed.",
             error: "Failed to change name."
-        });
+        })
         setIsEditing(false);
+        router.revalidate();
     }
 
     const handleDelete = async () => {
         return fetch(`/api/spreadsheet/${spreadsheet.spreadsheet_id}`, {
             method: 'DELETE'
         }).finally(() => {
+            router.revalidate();
             router.push(`/lens/${spreadsheet.lens_id}`);
         })
     }
@@ -137,7 +137,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                 'Content-Type': 'application/json'
             }
         }).finally(() => {
-            revalidateRouterCache(`/spreadsheet/${spreadsheet.spreadsheet_id}`);
+            router.revalidate();
             setIsSaving(false);
         });
     }, 1000, []);
@@ -160,6 +160,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
                 success: "Spreadsheet deleted.",
                 error: "Failed to delete spreadsheet."
             }).then(() => {
+                router.revalidate();
                 router.back();
             })
         }
@@ -185,7 +186,7 @@ const Spreadsheet = ({ spreadsheet: _spreadsheet, access_type }: SpreadsheetProp
     }, []);
 
     const onBeforeDataBound = useCallback(() => {
-        onHandleResize() ;
+        onHandleResize();
     }, []);
 
     const {

@@ -46,6 +46,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       error: "Failed to archive.",
     });
     onArchive(block);
+    router.revalidate();
   };
 
   const retryProcessBlock = async () => {
