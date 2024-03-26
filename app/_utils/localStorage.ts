@@ -25,28 +25,6 @@ export function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "i
     }
 }
 
-export function getSortingOptionsFromLocalStorage() {
-    let sortingOptions = null;
-    if (global.localStorage) {
-        try {
-            sortingOptions = JSON.parse(global.localStorage.getItem("sortingOptions")) || null;
-        } catch (e) {
-            /*Ignore*/
-        }
-    }
-
-    return sortingOptions;
-}
-
-export function setSortingOptionsToLocalStorage(sortingOptions: {
-    order: "asc" | "desc",
-    sortBy: null | "name" | "createdAt" | "updatedAt" | "type"
-}) {
-    if (global.localStorage) {
-        global.localStorage.setItem("sortingOptions", JSON.stringify(sortingOptions));
-    }
-}
-
 export function getActiveToolbarTab() {
     let activeTab = null;
     if (global.localStorage) {

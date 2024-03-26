@@ -8,7 +8,6 @@ import { FaICursor } from "@react-icons/all-files/fa/FaICursor";
 
 import { Text, Flex, Box, Textarea, Tooltip, Breadcrumbs } from '@mantine/core';
 import { useProgressRouter } from 'app/_hooks/useProgressRouter'
-import 'react-grid-layout/css/styles.css';
 import { Tables } from "app/_types/supabase";
 import { ContextMenuContent, useContextMenu } from 'mantine-contextmenu';
 import { modals } from '@mantine/modals';
