@@ -76,10 +76,10 @@ export const TextSizer = ({ value, selected, handleTextSizeChange }: TextSizerPr
         { value: 32 },
         { value: 48 },
         { value: 64 },
-    ]
+    ];
 
     return <div className={cn(
-        "absolute -top-16 border border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
+        "absolute border -top-[90px] border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
         selected ? "flex" : "hidden"
     )}>
         {sizes.map(size =>
