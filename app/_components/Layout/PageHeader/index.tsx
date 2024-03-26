@@ -167,7 +167,7 @@ export const PageHeader = ({
                     {actions}
                 </div>
                 <Divider orientation="vertical" className="block sm:hidden" />
-                <div id="toolbar_mobile_button" className="block sm:hidden p-2"></div>
+                <div id="toolbar_mobile_button" className="block sm:hidden p-2 h-full"></div>
             </Flex>
         </Flex>
     </>
