@@ -216,6 +216,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    router.revalidate();
   }, []);
 
   const addSpreadsheet = useCallback((payload) => {
@@ -245,6 +246,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    router.revalidate();
   }, []);
 
   const addWidget = useCallback((payload) => {
@@ -274,6 +276,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
+    router.revalidate();
   }, []);
 
   const updateLensLayout = useCallback((payload) => {
