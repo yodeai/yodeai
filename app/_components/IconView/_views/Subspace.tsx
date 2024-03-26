@@ -31,7 +31,7 @@ type SubspaceIconItemProps = {
 export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensChangeName, unselectBlocks }: SubspaceIconItemProps) => {
   const { showContextMenu } = useContextMenu();
   const router = useProgressRouter();
-  const { pinnedLenses, accessType, zoomLevel, setPinnedLenses } = useAppContext();
+  const { pinnedLenses, accessType, zoomLevel, setPinnedLenses, user } = useAppContext();
   const isPinned = useMemo(() => pinnedLenses.map(lens => lens.lens_id).includes(subspace.lens_id), [pinnedLenses, subspace]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -116,7 +116,7 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
     color: "#228be6",
     icon: <FaShare size={14} />,
     title: "Share",
-    disabled: ["owner"].includes(subspace.access_type || accessType) === false,
+    disabled: (subspace.owner_id === user.id ? false : accessType !== "owner"),
     onClick: () => shareModalController.open()
   },
   {
@@ -139,10 +139,8 @@ export const SubspaceIconItem = ({ subspace, icon, handleLensDelete, handleLensC
     icon: <FaRegTrashCan size={16} />,
     title: "Delete",
     onClick: openDeleteModal,
-    disabled: ["owner", "editor"].includes(subspace.access_type || accessType) === false,
-  }
-
-  ], [isPinned, accessType]);
+    disabled: (subspace.owner_id === user.id ? false : accessType !== "owner"),
+  }], [isPinned, accessType]);
 
   const onContextMenu = showContextMenu(actions);
 

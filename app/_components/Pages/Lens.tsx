@@ -658,7 +658,7 @@ export default function Lens(props: LensProps) {
       {
         label: "Delete",
         onClick: openDeleteModal,
-        disabled: !["owner", "editor"].includes(accessType),
+        disabled: !["owner"].includes(accessType),
         color: "red"
       }
     ]
@@ -686,7 +686,6 @@ export default function Lens(props: LensProps) {
           isShared: lens.shared,
           accessType: accessType
         }}
-        // secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
         closeEditMode={() => setIsEditingLensName(false)}
