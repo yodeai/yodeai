@@ -14,12 +14,12 @@ import { getLayoutViewFromLocalStorage, setLayoutViewToLocalStorage } from "@uti
 import { Database } from "app/_types/supabase";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
-import { revalidateRouterCache } from "@utils/revalidate";
 import { PageHeader } from "@components/Layout/PageHeader";
 import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
 import { PageContent } from "@components/Layout/Content";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 const supabase = createClientComponentClient<Database>()
 
@@ -31,6 +31,7 @@ type HomePageProps = {
 export default function HomePage(props: HomePageProps) {
     const [lenses, setLenses] = useState<(Lens)[]>(props.lenses);
     const [layoutData, setLayoutData] = useState<LensLayout>(props.layoutData);
+    const router = useProgressRouter();
 
     const {
         sortingOptions, setSortingOptions, setLensId, setLensName,
@@ -62,7 +63,10 @@ export default function HomePage(props: HomePageProps) {
             loading: "Updating page name...",
             success: "Page name updated!",
             error: "Failed to update page name.",
-        });
+        }).then(res => {
+            router.revalidate();
+            return res;
+        })
     }
 
     const handleBlockDelete = (block_id: number) => {
@@ -73,7 +77,10 @@ export default function HomePage(props: HomePageProps) {
             loading: "Deleting page...",
             success: "Page deleted!",
             error: "Failed to delete page.",
-        });
+        }).then(res => {
+            router.revalidate();
+            return res;
+        })
     }
 
     const handleLensDelete = async (lens_id: number) => {
@@ -82,7 +89,10 @@ export default function HomePage(props: HomePageProps) {
             loading: "Deleting space...",
             success: "Space deleted!",
             error: "Failed to delete space.",
-        });
+        }).then(res => {
+            router.revalidate();
+            return res;
+        })
     }
 
     const handleChangeLayoutView = (newLayoutView: "block" | "icon") => {
@@ -97,14 +107,14 @@ export default function HomePage(props: HomePageProps) {
         if (!lenses.some(item => item.lens_id === lens_id)) {
             setLenses(prevSubspaces => [newSubspace, ...prevSubspaces]);
         }
-        revalidateRouterCache(`/`)
+        router.revalidate();
     }, [lenses]);
 
     const deleteSubspace = useCallback((payload) => {
         let lens_id = payload["old"]["lens_id"]
         console.log("Deleting space", payload);
         setLenses((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== lens_id))
-        revalidateRouterCache(`/`)
+        router.revalidate();
     }, []);
 
     const handleLensChangeName = async (lens_id: number, newLensName: string) => {
@@ -117,7 +127,10 @@ export default function HomePage(props: HomePageProps) {
             loading: "Updating space name...",
             success: "Space name updated!",
             error: "Failed to update space name.",
-        });
+        }).then(res => {
+            router.revalidate();
+            return res;
+        })
     }
 
     useEffect(() => {

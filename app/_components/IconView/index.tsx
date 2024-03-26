@@ -293,9 +293,9 @@ export default function IconLayoutComponent({
         handleLensDelete={handleLensDelete}
         handleLensChangeName={handleLensChangeName}
         icon={
-          (item.access_type === "owner" || !item?.access_type)
-            ? <fileTypeIcons.subspace color="#fd7e14" />
-            : <fileTypeIcons.shared_subspace color="#fd7e14" />
+          item.shared
+            ? <fileTypeIcons.shared_subspace color="#fd7e14" />
+            : <fileTypeIcons.subspace color="#fd7e14" />
         } subspace={item} />
     }
 

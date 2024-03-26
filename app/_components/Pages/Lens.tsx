@@ -1,15 +1,15 @@
 "use client";
 
 import { Block } from "app/_types/block";
-import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Lens, LensData, LensLayout, Subspace } from "app/_types/lens";
 import load from "@lib/load";
 import { User, createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAppContext } from "@contexts/context";
 import LayoutController from "@components/Layout/LayoutController";
 import toast from "react-hot-toast";
-import { Box, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import { Box, Text } from "@mantine/core";
 import IconItemSettingsModal from "@components/IconView/IconSettingsModal";
 
 export type LensProps = {
@@ -29,9 +29,6 @@ import { Sort } from "@components/Layout/PageHeader/Sort";
 import { LayoutSwitcher } from "@components/Layout/PageHeader/LayoutSwitcher";
 import { Zoom } from "@components/Layout/PageHeader/Zoom";
 import { PageContent } from "@components/Layout/Content";
-import { CiGlobe } from "@react-icons/all-files/ci/CiGlobe";
-import { FaUserGroup } from "@react-icons/all-files/fa6/FaUserGroup";
-import { revalidateRouterCache } from "@utils/revalidate";
 import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import FinishedOnboardingModal from "@components/Onboarding/FinishedOnboardingModal";
 
@@ -63,7 +60,8 @@ export default function Lens(props: LensProps) {
     accessType, setAccessType,
     sortingOptions, setSortingOptions, zoomLevel, setZoomLevel,
     shareModalDisclosure,
-    iconItemDisclosure, pinnedLenses, setPinnedLenses
+    iconItemDisclosure,
+    getPinnedLenses, pinnedLenses, setPinnedLenses
   } = useAppContext();
 
   const [iconItemModalState, iconItemController] = iconItemDisclosure;
@@ -113,7 +111,9 @@ export default function Lens(props: LensProps) {
       })
       .catch((error) => {
         console.error('Error fetching lens:', error);
-      })
+      }).finally(() => {
+        router.revalidate();
+      });
   }
 
   const saveLayoutToSupabase = useDebouncedCallback(async (layoutName: keyof LensLayout, layouts: LensLayout[keyof LensLayout]) => {
@@ -129,7 +129,9 @@ export default function Lens(props: LensProps) {
       }
     }).catch(err => {
       console.log("Error saving layout to supabase:", err.message)
-    })
+    }).finally(() => {
+      router.revalidate();
+    });
   }, 1000);
 
   const onChangeLensLayout = async (layoutName: keyof LensLayout, layoutData: LensLayout[keyof LensLayout]) => {
@@ -151,7 +153,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidateRouterCache(path);
+    router.revalidate();
   }, []);
 
   const addBlocks = useCallback((payload) => {
@@ -161,14 +163,13 @@ export default function Lens(props: LensProps) {
     if (!blocks.some(item => item.block_id === block_id)) {
       setBlocks(prevBlocks => [newBlock, ...prevBlocks]);
     }
-    revalidateRouterCache(path);
+    router.revalidate();
   }, [blocks])
 
   const deleteBlocks = useCallback((payload) => {
     let block_id = payload["old"]["block_id"]
     console.log("Deleting block", block_id);
     setBlocks((prevBlocks) => prevBlocks.filter((block) => block.block_id !== block_id))
-    revalidateRouterCache(path);
   }, [blocks]);
 
   const addSubspaces = useCallback((payload) => {
@@ -178,14 +179,13 @@ export default function Lens(props: LensProps) {
     if (!subspaces.some(item => item.lens_id === new_lens_id)) {
       setSubspaces(prevSubspaces => [newSubspace, ...prevSubspaces]);
     }
-    revalidateRouterCache(path);
+    router.revalidate();
   }, [subspaces]);
 
   const deleteSubspace = useCallback((payload) => {
     let old_lens_id = payload["old"]["lens_id"]
     console.log("Deleting lens", payload);
     setSubspaces((prevSubspaces) => prevSubspaces.filter((subspace) => subspace.lens_id !== old_lens_id))
-    revalidateRouterCache(path)
   }, []);
 
   const addWhiteBoard = useCallback((payload) => {
@@ -195,7 +195,7 @@ export default function Lens(props: LensProps) {
     if (!whiteboards.some(item => item.whiteboard_id === whiteboard_id)) {
       setWhiteboards(prevWhiteboards => [newWhiteboard, ...prevWhiteboards]);
     }
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
 
@@ -203,7 +203,6 @@ export default function Lens(props: LensProps) {
     let whiteboard_id = payload["old"]["whiteboard_id"]
     console.log("Deleting whiteboard", whiteboard_id);
     setWhiteboards((prevWhiteboards) => prevWhiteboards.filter((whiteboard) => whiteboard.whiteboard_id !== whiteboard_id))
-    revalidateRouterCache(path)
   }, []);
 
   const updateWhiteboard = useCallback((payload) => {
@@ -217,7 +216,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
   const addSpreadsheet = useCallback((payload) => {
@@ -227,14 +226,13 @@ export default function Lens(props: LensProps) {
     if (!spreadsheets.some(item => item.spreadsheet_id === spreadsheet_id)) {
       setSpreadsheets(prevSpreadsheets => [newSpreadsheet, ...prevSpreadsheets]);
     }
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
   const deleteSpreadsheet = useCallback((payload) => {
     let spreadsheet_id = payload["old"]["spreadsheet_id"]
     console.log("Deleting spreadsheet", spreadsheet_id);
     setSpreadsheets((prevSpreadsheets) => prevSpreadsheets.filter((spreadsheet) => spreadsheet.spreadsheet_id !== spreadsheet_id))
-    revalidateRouterCache(path)
   }, []);
 
   const updateSpreadsheet = useCallback((payload) => {
@@ -248,7 +246,7 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
   const addWidget = useCallback((payload) => {
@@ -258,14 +256,13 @@ export default function Lens(props: LensProps) {
     if (!widgets.some(item => item.widget_id === widget_id)) {
       setWidgets(prevWidgets => [newWidget, ...prevWidgets]);
     }
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
   const deleteWidget = useCallback((payload) => {
     let widget_id = payload["old"]["widget_id"]
     console.log("Deleting widget", widget_id);
     setWidgets((prevWidgets) => prevWidgets.filter((widget) => widget.widget_id !== widget_id))
-    revalidateRouterCache(path)
   }, []);
 
   const updateWidget = useCallback((payload) => {
@@ -279,14 +276,13 @@ export default function Lens(props: LensProps) {
         return item;
       })
     );
-    revalidateRouterCache(path)
+    router.revalidate();
   }, []);
 
   const updateLensLayout = useCallback((payload) => {
-    console.log(payload)
     setItemIcons(payload["new"]?.item_icons || {});
+    router.revalidate();
   }, []);
-
 
   useEffect(() => {
     console.log("Subscribing to lens changes...", { lens_id })
@@ -338,13 +334,16 @@ export default function Lens(props: LensProps) {
           error: "Failed to update space name.",
         });
         setLens({ ...lens, name: newName });
-        setIsEditingLensName(false);  // Turn off edit mode after successful update
+        setIsEditingLensName(false);
         reloadLenses();
         return true;
       } catch (error) {
         console.log("error", error.message)
         toast.error('Failed to update space name: ' + error.message);
         return false;
+      } finally {
+        getPinnedLenses();
+        router.revalidate();
       }
     }
   };
@@ -366,6 +365,8 @@ export default function Lens(props: LensProps) {
       }
     } catch (error) {
       console.error("Error deleting lens:", error);
+    } finally {
+      router.revalidate();
     }
   };
 
@@ -387,6 +388,8 @@ export default function Lens(props: LensProps) {
       loading: "Updating page name...",
       success: "Page name updated!",
       error: "Failed to update page name.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -398,6 +401,8 @@ export default function Lens(props: LensProps) {
       loading: "Deleting page...",
       success: "Page deleted!",
       error: "Failed to delete page.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -407,6 +412,8 @@ export default function Lens(props: LensProps) {
       loading: "Deleting space...",
       success: "Space deleted!",
       error: "Failed to delete space.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -420,6 +427,9 @@ export default function Lens(props: LensProps) {
       loading: "Updating space name...",
       success: "Space name updated!",
       error: "Failed to update space name.",
+    }).finally(() => {
+      getPinnedLenses();
+      router.revalidate();
     });
   }
 
@@ -429,6 +439,8 @@ export default function Lens(props: LensProps) {
       loading: "Deleting whiteboard...",
       success: "Whiteboard deleted!",
       error: "Failed to delete whiteboard.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -442,6 +454,8 @@ export default function Lens(props: LensProps) {
       loading: "Updating whiteboard name...",
       success: "Whiteboard name updated!",
       error: "Failed to update whiteboard name.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -455,6 +469,8 @@ export default function Lens(props: LensProps) {
       loading: "Updating spreadsheet name...",
       success: "Spreadsheet name updated!",
       error: "Failed to update spreadsheet name.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -464,6 +480,8 @@ export default function Lens(props: LensProps) {
       loading: "Deleting spreadsheet...",
       success: "Spreadsheet deleted!",
       error: "Failed to delete spreadsheet.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -477,6 +495,8 @@ export default function Lens(props: LensProps) {
       loading: "Updating widget name...",
       success: "Widget name updated!",
       error: "Failed to update widget name.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -487,6 +507,8 @@ export default function Lens(props: LensProps) {
       loading: "Deleting widget...",
       success: "Widget deleted!",
       error: "Failed to delete widget.",
+    }).finally(() => {
+      router.revalidate();
     });
   }
 
@@ -505,6 +527,8 @@ export default function Lens(props: LensProps) {
       if (!pinResponse.ok) console.error("Failed to pin lens");
     } catch (error) {
       console.error("Error pinning spaces:", error);
+    } finally {
+      router.revalidate();
     }
   }
 
@@ -518,6 +542,8 @@ export default function Lens(props: LensProps) {
       if (!pinResponse.ok) console.error("Failed to unpin spaces");
     } catch (error) {
       console.error("Error unpinning spaces:", error);
+    } finally {
+      router.revalidate();
     }
   }
 
@@ -632,7 +658,7 @@ export default function Lens(props: LensProps) {
       {
         label: "Delete",
         onClick: openDeleteModal,
-        disabled: !["owner", "editor"].includes(accessType),
+        disabled: !["owner"].includes(accessType),
         color: "red"
       }
     ]
@@ -660,7 +686,6 @@ export default function Lens(props: LensProps) {
           isShared: lens.shared,
           accessType: accessType
         }}
-        // secondaryItem={titleSecondaryItem}
         onSaveTitle={saveNewLensName}
         editMode={isEditingLensName}
         closeEditMode={() => setIsEditingLensName(false)}

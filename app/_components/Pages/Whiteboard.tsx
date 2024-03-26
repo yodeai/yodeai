@@ -27,7 +27,6 @@ import { PageHeader } from '@components/Layout/PageHeader';
 import load from '@lib/load';
 import { modals } from '@mantine/modals';
 import { PageContent } from '@components/Layout/Content';
-import { revalidateRouterCache } from '@utils/revalidate';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -134,7 +133,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             .catch(err => console.error(err))
             .finally(() => {
                 setIsSaving(false);
-                revalidateRouterCache(`/whiteboard/${data.whiteboard_id}`);
+                router.revalidate();
             });
     }, 1000, [nodes, edges, isSaving]);
 

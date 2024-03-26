@@ -68,13 +68,10 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
 
     const handleUpdateWidget = async () => {
         const promise = updateWidget({ output: { tickets: tickets } });
-
         return load<Response>(promise, {
             loading: "Updating widget",
             success: "Widget updated",
             error: "Failed to update widget",
-        }).then(res => {
-            console.log(res)
         })
     }
 
@@ -86,7 +83,6 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
             success: "Widget deleted",
             error: "Failed to delete widget",
         }).then(() => {
-            router.replace(`/`)
         })
     }
 
@@ -103,7 +99,6 @@ const Widget: WidgetType<WidgetInputProps, WidgetOutputProps> = (props) => {
         onCancel: () => console.log('Canceled deletion'),
         onConfirm: handleDeleteWidget
     });
-
 
     const headerDropdownItems = useMemo(() => {
         return [

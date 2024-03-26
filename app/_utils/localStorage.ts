@@ -25,28 +25,6 @@ export function setLayoutViewToLocalStorage(lens_id: string, value: "block" | "i
     }
 }
 
-export function getSortingOptionsFromLocalStorage() {
-    let sortingOptions = null;
-    if (global.localStorage) {
-        try {
-            sortingOptions = JSON.parse(global.localStorage.getItem("sortingOptions")) || null;
-        } catch (e) {
-            /*Ignore*/
-        }
-    }
-
-    return sortingOptions;
-}
-
-export function setSortingOptionsToLocalStorage(sortingOptions: {
-    order: "asc" | "desc",
-    sortBy: null | "name" | "createdAt" | "updatedAt" | "type"
-}) {
-    if (global.localStorage) {
-        global.localStorage.setItem("sortingOptions", JSON.stringify(sortingOptions));
-    }
-}
-
 export function getActiveToolbarTab() {
     let activeTab = null;
     if (global.localStorage) {
@@ -89,32 +67,5 @@ export function setZoomLevelToLocalStorage(lensIdOrTitle: string, zoomLevel: num
                 [lensIdOrTitle]: zoomLevel
             })
         );
-    }
-}
-
-export const getPagePathVersion = (path: string) => {
-    if (global.localStorage) {
-        const pagePaths = JSON.parse(global.localStorage.getItem("pagePaths") || "{}");
-        return pagePaths[path];
-    }
-    return null;
-}
-
-export const setPagePathVersion = (path: string, version: string) => {
-    if (global.localStorage) {
-        const pagePaths = JSON.parse(global.localStorage.getItem("pagePaths") || "{}");
-        global.localStorage.setItem(
-            "pagePaths",
-            JSON.stringify({
-                ...pagePaths,
-                [path]: version
-            })
-        );
-    }
-}
-
-export const clearPagePathVersions = () => {
-    if (global.localStorage) {
-        global.localStorage.setItem("pagePaths", "{}");
     }
 }

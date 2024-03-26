@@ -1,13 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { clearPagePathVersions, getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
+import { getZoomLevelFromLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 import { usePathname } from 'next/navigation';
 import { getUserInfo } from '@utils/googleUtils';
+import { useLocalStorage } from '@mantine/hooks';
 
 // Update the type for the context value
 export type contextType = {
@@ -28,7 +28,9 @@ export type contextType = {
   }
   setBreadcrumbActivePage: React.Dispatch<React.SetStateAction<contextType["breadcrumbActivePage"]>>;
 
+  getPinnedLenses: () => void;
   pinnedLensesLoading: boolean;
+  setPinnedLensesLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pinnedLenses: Lens[];
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
   accessType: "owner" | "editor" | "reader",
@@ -88,6 +90,8 @@ const defaultValue: contextType = {
   breadcrumbActivePage: undefined,
   setBreadcrumbActivePage: () => { },
 
+  getPinnedLenses: () => { },
+  setPinnedLensesLoading: () => { },
   pinnedLensesLoading: true,
   pinnedLenses: [],
   setPinnedLenses: () => { },
@@ -116,7 +120,7 @@ const defaultValue: contextType = {
   navbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   toolbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
-  sortingOptions: getSortingOptionsFromLocalStorage() ?? {
+  sortingOptions: {
     order: "asc",
     sortBy: null
   },
@@ -161,10 +165,14 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
   const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
-  const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
   const [user, setUser] = useState<User>(initialState?.user || null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
+
+  const [sortingOptions, setSortingOptions] = useLocalStorage<contextType["sortingOptions"]>({
+    key: 'sortingOptions',
+    defaultValue: initialState?.user?.user_metadata?.sortingOptions || defaultValue.sortingOptions
+  });
 
   const shareModalDisclosure = useDisclosure(false);
   const subspaceModalDisclosure = useDisclosure(false);
@@ -334,15 +342,19 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
   }, [lensId]);
 
   useEffect(() => {
+    supabase.auth.updateUser({
+      data: {
+        ...(user?.user_metadata || {}),
+        sortingOptions: sortingOptions
+      }
+    })
+  }, [sortingOptions])
+
+  useEffect(() => {
     getAllLenses();
     getPinnedLenses();
     getUser();
-    clearPagePathVersions();
   }, [])
-
-  useEffect(() => {
-    setSortingOptionsToLocalStorage(sortingOptions);
-  }, [sortingOptions])
 
   const reloadLenses = () => {
     setReloadKey(prevKey => prevKey + 1);
@@ -365,7 +377,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
       lensName, setLensName,
       reloadKey, reloadLenses, allLenses,
       activeComponent, setActiveComponent,
-      pinnedLensesLoading, pinnedLenses, setPinnedLenses,
+      getPinnedLenses,
+      pinnedLensesLoading, setPinnedLensesLoading,
+      pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
       shareModalDisclosure,
       subspaceModalDisclosure, whiteboardModelDisclosure,
@@ -375,8 +389,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
       widgetFormDisclosure,
       navbarDisclosure, toolbarDisclosure,
       sortingOptions, setSortingOptions,
-      user,
-      zoomLevel: memoizedZoomLevel,
+      user, zoomLevel: memoizedZoomLevel,
       setZoomLevel: setIconViewZoomLevel,
       breadcrumbActivePage, setBreadcrumbActivePage,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding

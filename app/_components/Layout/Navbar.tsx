@@ -29,28 +29,13 @@ import { useProgressRouter } from "app/_hooks/useProgressRouter";
 export default function Navbar() {
   const router = useProgressRouter();
   const {
-    lensId, setLensId, reloadLenses, activeComponent, setActiveComponent,
-    pinnedLenses, setPinnedLenses, draggingNewBlock, layoutRefs,
-    onboardingStep, onboardingIsComplete
+    lensId, setLensId, reloadLenses, setActiveComponent,
+    getPinnedLenses, pinnedLenses, setPinnedLenses,
+    draggingNewBlock, layoutRefs, onboardingStep, onboardingIsComplete,
+    pinnedLensesLoading
   } = useAppContext();
   const [stateOfLenses, setStateOfLenses] = useState<{ [key: string]: boolean }>({});
   const pathname = usePathname();
-  const [pinnedLensesLoading, setPinnedLensesLoading] = useState(true);
-
-  const getPinnedLenses = async () => {
-    fetch(`/api/lens/pinneds`)
-      .then((response) => response.json())
-      .then((data) => {
-        setPinnedLenses(data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching lens:", error);
-        // notFound();
-      })
-      .finally(() => {
-        setPinnedLensesLoading(false);
-      })
-  }
 
   const handleCreateLens = useCallback(async () => {
     const response = await fetch("/api/lens", {

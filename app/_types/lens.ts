@@ -22,6 +22,7 @@ export type Lens = {
   user_to_access_type: UserToAccessType
   parent_id: number;
   access_type: string;
+  owner_id: string;
   item_icons: ItemIcons;
 }
 
