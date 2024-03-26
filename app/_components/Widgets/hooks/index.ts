@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { Tables } from "app/_types/supabase";
 import { useAppContext } from "@contexts/context";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
     input: K;
     output: L;
 }) => {
     const [data, setData] = useState(widgetData);
+    const router = useProgressRouter();
 
     const { setLensId, setBreadcrumbActivePage } = useAppContext();
 
     useEffect(() => {
-        console.log(widgetData)
-
         setLensId(widgetData.lens_id?.toString())
         setBreadcrumbActivePage({
             title: widgetData.name,
@@ -20,7 +20,6 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
         });
 
         return () => {
-            setLensId(null);
             setBreadcrumbActivePage(null);
         }
     }, [widgetData.lens_id])
@@ -34,6 +33,7 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
             }
         }).finally(() => {
             setData({ ...data, name: newTitle })
+            router.revalidate();
         })
     }
 
@@ -45,13 +45,21 @@ export const useWidget = <K, L>(widgetData: Tables<"widget"> & {
                 'Content-Type': 'application/json'
             }
         }).finally(() => {
-            return setData({ ...data, ...newData } as Tables<"widget"> & { input: K; output: L });
+            setData({ ...data, ...newData } as Tables<"widget"> & { input: K; output: L });
+            router.revalidate();
         })
     }
 
     const deleteWidget = async () => {
         return fetch(`/api/widget/${data.widget_id}`, {
             method: 'DELETE'
+        }).then(res => {
+            if (res.ok) {
+                router.replace(`/lens/${data.lens_id}`)
+            }
+            return res;
+        }).finally(() => {
+            router.revalidate();
         })
     }
 

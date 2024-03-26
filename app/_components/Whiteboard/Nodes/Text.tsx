@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useEffect } from 'react'
+import React, { memo, useState, useRef, useEffect, useCallback } from 'react'
 import { NodeProps, Handle, Position } from 'reactflow'
 import { WrappedComponentType } from '@components/Whiteboard/Helpers/NodeWrapper'
 import ResizableNode from '@components/Whiteboard/Helpers/Resizer'
@@ -27,14 +27,17 @@ export const defaultNodeProps: { height: number; width: number } = {
 export const Component = memo(({ data, node, selected, updateNode, updateNodeSelf }: StickyNoteProps) => {
     const [text, setText] = useState(data.text);
     const { isLocked } = useFlow();
+    const $inialText = useRef(data.text);
 
     const handleChange = (event) => {
         setText(event.target.value);
     };
 
-    const handleBlur = () => {
+    const handleBlur = useCallback(() => {
+        if ($inialText.current === text) return;
         updateNode({ text });
-    };
+        $inialText.current = text;
+    }, [text]);
 
     return <ResizableNode selected={selected}>
         <TextSizer value={node.data.size} selected={selected} handleTextSizeChange={(size) => updateNode({ size })} />
@@ -44,7 +47,8 @@ export const Component = memo(({ data, node, selected, updateNode, updateNodeSel
                     style={{
                         height: node.height || 50,
                         width: node.width || 100,
-                        fontSize: node.data.size
+                        fontSize: node.data.size,
+                        lineHeight: 1.5
                     }}
                     className="border-none m-0 resize-none block w-full bg-transparent"
                     value={text}

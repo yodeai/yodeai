@@ -38,7 +38,7 @@ export type Block = {
   file_url?: string;
   preview: string;
   lens_blocks: LensBlock;
-  accessLevel?: string;
+  accessLevel?: "owner" | "editor" | "reader";
   google_doc_id: string;
   google_user_id: string;
   current_editor: string;

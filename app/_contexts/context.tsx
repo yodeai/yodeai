@@ -1,12 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { RealtimeChannel, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { Lens } from 'app/_types/lens';
-import { getSortingOptionsFromLocalStorage, getZoomLevelFromLocalStorage, setSortingOptionsToLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
+import { getZoomLevelFromLocalStorage, setZoomLevelToLocalStorage } from '@utils/localStorage';
 import { User } from '@supabase/auth-helpers-nextjs';
 import { useDisclosure } from "@mantine/hooks";
 import { usePathname } from 'next/navigation';
+import { getUserInfo } from '@utils/googleUtils';
+import { useLocalStorage } from '@mantine/hooks';
 
 // Update the type for the context value
 export type contextType = {
@@ -27,19 +28,24 @@ export type contextType = {
   }
   setBreadcrumbActivePage: React.Dispatch<React.SetStateAction<contextType["breadcrumbActivePage"]>>;
 
+  getPinnedLenses: () => void;
   pinnedLensesLoading: boolean;
+  setPinnedLensesLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pinnedLenses: Lens[];
   setPinnedLenses: React.Dispatch<React.SetStateAction<Lens[]>>;
   accessType: "owner" | "editor" | "reader",
   setAccessType: React.Dispatch<React.SetStateAction<string>>;
 
   layoutRefs: {
+    main: React.RefObject<HTMLDivElement>;
     sidebar: React.RefObject<HTMLDivElement>;
+    navbar: React.RefObject<HTMLDivElement>;
   },
 
   draggingNewBlock: boolean;
   setDraggingNewBlock: React.Dispatch<React.SetStateAction<boolean>>;
 
+  shareModalDisclosure: ReturnType<typeof useDisclosure>;
   subspaceModalDisclosure: ReturnType<typeof useDisclosure>;
   whiteboardModelDisclosure: ReturnType<typeof useDisclosure>;
   userInsightsDisclosure: ReturnType<typeof useDisclosure>;
@@ -48,6 +54,9 @@ export type contextType = {
   painPointTrackerModalDisclosure: ReturnType<typeof useDisclosure>;
   iconItemDisclosure: ReturnType<typeof useDisclosure>;
   widgetFormDisclosure: ReturnType<typeof useDisclosure>;
+
+  navbarDisclosure: ReturnType<typeof useDisclosure>;
+  toolbarDisclosure: ReturnType<typeof useDisclosure>;
 
   sortingOptions: {
     order: "asc" | "desc",
@@ -81,6 +90,8 @@ const defaultValue: contextType = {
   breadcrumbActivePage: undefined,
   setBreadcrumbActivePage: () => { },
 
+  getPinnedLenses: () => { },
+  setPinnedLensesLoading: () => { },
   pinnedLensesLoading: true,
   pinnedLenses: [],
   setPinnedLenses: () => { },
@@ -88,12 +99,15 @@ const defaultValue: contextType = {
   setAccessType: () => { },
 
   layoutRefs: {
+    main: React.createRef<HTMLDivElement>(),
     sidebar: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   },
 
   draggingNewBlock: false,
   setDraggingNewBlock: () => { },
 
+  shareModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   subspaceModalDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   whiteboardModelDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   userInsightsDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
@@ -103,7 +117,10 @@ const defaultValue: contextType = {
   iconItemDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
   widgetFormDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
 
-  sortingOptions: getSortingOptionsFromLocalStorage() ?? {
+  navbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+  toolbarDisclosure: [false, { open: () => { }, close: () => { }, toggle: () => { } }],
+
+  sortingOptions: {
     order: "asc",
     sortBy: null
   },
@@ -125,13 +142,16 @@ const context = createContext<contextType>(defaultValue);
 // Define the type for the provider props
 type LensProviderProps = {
   children: ReactNode;
+  initialState?: {
+    user: contextType["user"];
+  }
 };
 
 export const useAppContext = () => {
   return useContext(context);
 };
 
-export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
+export const LensProvider: React.FC<LensProviderProps> = ({ children, initialState }) => {
   const pathname = usePathname();
   const supabase = createClientComponentClient()
   const [lensId, setLensId] = useState<string | null>(null);
@@ -145,11 +165,16 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const [activeComponent, setActiveComponent] = useState<contextType["activeComponent"]>("global");
   const [accessType, setAccessType] = useState<contextType["accessType"]>(null);
   const [draggingNewBlock, setDraggingNewBlock] = useState(false);
-  const [sortingOptions, setSortingOptions] = useState<contextType["sortingOptions"]>(defaultValue.sortingOptions);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User>(initialState?.user || null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [breadcrumbActivePage, setBreadcrumbActivePage] = useState<contextType["breadcrumbActivePage"]>(undefined);
 
+  const [sortingOptions, setSortingOptions] = useLocalStorage<contextType["sortingOptions"]>({
+    key: 'sortingOptions',
+    defaultValue: initialState?.user?.user_metadata?.sortingOptions || defaultValue.sortingOptions
+  });
+
+  const shareModalDisclosure = useDisclosure(false);
   const subspaceModalDisclosure = useDisclosure(false);
   const whiteboardModelDisclosure = useDisclosure(false);
   const userInsightsDisclosure = useDisclosure(false);
@@ -158,6 +183,9 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   const painPointTrackerModalDisclosure = useDisclosure(false);
   const iconItemDisclosure = useDisclosure(false);
   const widgetFormDisclosure = useDisclosure(false);
+
+  const navbarDisclosure = useDisclosure(false);
+  const toolbarDisclosure = useDisclosure(false);
 
   // Onboarding Context Data
   const [onboardingStep, setOnboardingStep] = useState(-1);
@@ -228,6 +256,8 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const layoutRefs = {
     sidebar: React.createRef<HTMLDivElement>(),
+    main: React.createRef<HTMLDivElement>(),
+    navbar: React.createRef<HTMLDivElement>()
   }
 
   const getAllLenses = async () => {
@@ -258,6 +288,15 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       if (!user?.data?.user) return;
       setUser(user.data.user);
     })
+
+    // setting google user id
+    getUserInfo().then((googleUser) => {
+      supabase.auth.updateUser({
+        data: {
+          google_user_id: googleUser
+        }
+      })
+    });
   }
 
   useEffect(() => {
@@ -303,14 +342,19 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
   }, [lensId]);
 
   useEffect(() => {
+    supabase.auth.updateUser({
+      data: {
+        ...(user?.user_metadata || {}),
+        sortingOptions: sortingOptions
+      }
+    })
+  }, [sortingOptions])
+
+  useEffect(() => {
     getAllLenses();
     getPinnedLenses();
     getUser();
   }, [])
-
-  useEffect(() => {
-    setSortingOptionsToLocalStorage(sortingOptions);
-  }, [sortingOptions])
 
   const reloadLenses = () => {
     setReloadKey(prevKey => prevKey + 1);
@@ -323,7 +367,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
 
   const memoizedZoomLevel = useMemo(() => {
     return getZoomLevelFromLocalStorage(lensId || "default") || 100;
-  }, [zoomLevel, lensId])
+  }, [zoomLevel, lensId]);
 
   return (
     <context.Provider value={{
@@ -333,16 +377,19 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children }) => {
       lensName, setLensName,
       reloadKey, reloadLenses, allLenses,
       activeComponent, setActiveComponent,
-      pinnedLensesLoading, pinnedLenses, setPinnedLenses,
+      getPinnedLenses,
+      pinnedLensesLoading, setPinnedLensesLoading,
+      pinnedLenses, setPinnedLenses,
       accessType, setAccessType,
+      shareModalDisclosure,
       subspaceModalDisclosure, whiteboardModelDisclosure,
       userInsightsDisclosure, competitiveAnalysisDisclosure,
       spreadsheetModalDisclosure, iconItemDisclosure,
       painPointTrackerModalDisclosure,
       widgetFormDisclosure,
+      navbarDisclosure, toolbarDisclosure,
       sortingOptions, setSortingOptions,
-      user,
-      zoomLevel: memoizedZoomLevel,
+      user, zoomLevel: memoizedZoomLevel,
       setZoomLevel: setIconViewZoomLevel,
       breadcrumbActivePage, setBreadcrumbActivePage,
       onboardingStep, onboardingIsComplete, goToNextOnboardingStep, completeOnboarding, resetOnboarding

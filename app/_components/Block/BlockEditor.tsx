@@ -11,12 +11,13 @@ import { usePathname, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 import { useAppContext } from "@contexts/context";
 import { ActionIcon, Button, Flex, Text, TextInput, Select } from '@mantine/core';
-import { getUserInfo, fetchGoogleDocContent } from '@utils/googleUtils';
+import { fetchGoogleDocContent } from '@utils/googleUtils';
 import { RequestBodyType } from '@api/types';
 
-import { FaCheck} from '@react-icons/all-files/fa/FaCheck';
+import { FaCheck } from '@react-icons/all-files/fa/FaCheck';
 import { FaCheckCircle } from '@react-icons/all-files/fa/FaCheckCircle';
 import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 
 const DynamicSimpleMDE = dynamic(
   () => import('react-simplemde-editor').then(mod => mod.SimpleMdeReact),
@@ -38,11 +39,11 @@ type BlockEditorProps = {
 }
 
 export default function BlockEditor({ refs, withHeader = false, block: initialBlock, onSave }: BlockEditorProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const pathname = usePathname();
 
   const [block, setBlock] = useState<Block | undefined>(initialBlock);
-  const { lensId } = useAppContext();
+  const { lensId, user } = useAppContext();
   const [documentType, setDocumentType] = useState(block?.block_type || 'note');
 
   const [content, setContent] = useState(block?.content || "");
@@ -53,8 +54,11 @@ export default function BlockEditor({ refs, withHeader = false, block: initialBl
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [googleDocId, setGoogleDocId] = useState(block?.google_doc_id || null)
-  const [googleUserId, setGoogleUserId] = useState(block?.google_user_id || 'global')
   const [isLoadingContent, setIsLoadingContent] = useState(false);
+
+  const googleUserId = useMemo(() => {
+    return user?.user_metadata?.google_user_id || "global";
+  }, [user])
 
   useEffect(() => {
     const updateGoogleDocContent = async () => {
@@ -68,7 +72,6 @@ export default function BlockEditor({ refs, withHeader = false, block: initialBl
           setIsLoadingContent(false); // Reset loading state after content is fetched
         }
       }
-      if (!block || block.google_user_id === 'global') setGoogleUserId(await getUserInfo());
     };
 
     updateGoogleDocContent();
@@ -288,7 +291,7 @@ export default function BlockEditor({ refs, withHeader = false, block: initialBl
   }, [])
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col gap-1 w-full pb-6">
       {block && block.block_type === 'pdf' ? (
         !withHeader && (
           <div className="flex justify-between items-center w-full">

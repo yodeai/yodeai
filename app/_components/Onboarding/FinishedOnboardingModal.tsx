@@ -3,7 +3,7 @@ import { Popover, Button, Anchor, Flex, Text, Modal, Image } from '@mantine/core
 import { useAppContext } from '@contexts/context';
 import { createClient } from '@supabase/supabase-js';
 import { useDisclosure } from '@mantine/hooks';
-import { useRouter } from 'next/navigation';
+import { useProgressRouter } from 'app/_hooks/useProgressRouter';
 
 // Assuming you have your Supabase credentials set up
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -11,12 +11,12 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 export default function FinishedOnboardingModal() {
     const { user, onboardingStep, completeOnboarding } = useAppContext();
 
-    const router = useRouter();
+    const router = useProgressRouter();
 
     const [opened, { open, close }] = useDisclosure(true);
 
     useEffect(() => {
-        if (onboardingStep === 6) {
+        if (onboardingStep === 4) {
             open();
         }
     }, [onboardingStep]);
@@ -27,7 +27,7 @@ export default function FinishedOnboardingModal() {
 
     return (
         <Modal
-            opened={opened && onboardingStep === 6}
+            opened={opened && onboardingStep === 4}
             onClose={dismissOnboarding}
             centered
             withCloseButton={true}

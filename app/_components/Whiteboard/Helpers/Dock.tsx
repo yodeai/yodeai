@@ -61,7 +61,7 @@ export default function WhiteboardDock() {
         ]);
     }
 
-    return <aside className="absolute bottom-3 left-[50%] -translate-x-[50%] min-w-min border border-gray-400 bg-slate-100 flex flex-row rounded-lg px-2 py-3">
+    return <aside className="absolute bottom-[75px] left-[50%] -translate-x-[50%] min-w-min border border-gray-400 bg-slate-100 flex flex-row rounded-lg px-2 py-3">
         <Tooltip label="Sticky Note" position="top">
             <div className="default p-3 rounded-full flex items-center cursor-pointer"
                 onDragStart={(event) => onDragStart(event, 'stickyNote')} draggable>

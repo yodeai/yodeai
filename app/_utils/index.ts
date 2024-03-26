@@ -1,4 +1,3 @@
-
 export const truncateText = (text: string, {
     from,
     maxLength = 16

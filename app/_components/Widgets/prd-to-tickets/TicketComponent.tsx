@@ -16,7 +16,7 @@ import Link from 'next/link';
 type TicketProps = {
     data: Ticket
     handleChange: (event: React.ChangeEvent<HTMLInputElement>, ticket: Ticket) => void
-    handleUpdate: () => Promise<void>;
+    handleUpdate: () => Promise<unknown>
     onExport?: (ticket: Ticket) => Promise<any>;
 }
 export const TicketComponent = ({ data, handleChange, handleUpdate, onExport }: TicketProps) => {

@@ -1,5 +1,6 @@
 import { Input, Text } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
+import { useClickOutside } from '@mantine/hooks';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
     BaseEdge,
@@ -33,8 +34,8 @@ export default function CustomEdge({
         targetPosition,
     });
 
-    const $input = React.useRef(null);
-    const $label = React.useRef(label);
+    const $input = useRef<HTMLInputElement>();
+    const $label = useRef(label);
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -49,11 +50,11 @@ export default function CustomEdge({
     }
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Escape") {
+            setIsEditing(false);
+            return;
+        }
         if (event.key === 'Enter') setIsEditing(false);
-    }
-
-    const switchEditable = () => {
-        setIsEditing(val => !val)
     }
 
     useEffect(() => {
@@ -64,7 +65,7 @@ export default function CustomEdge({
     useEffect(() => {
         if (isEditing) {
             $input.current.focus();
-            $input.current.select();
+            $input.current?.setSelectionRange(0, $input.current.value.length);
         }
     }, [isEditing]);
 

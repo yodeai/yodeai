@@ -4,7 +4,7 @@ import { SpreadsheetDataSourceObject } from "app/_types/spreadsheet";
 import {
     RowDirective, RowsDirective, CellDirective, CellsDirective
 } from '@syncfusion/ej2-react-spreadsheet';
-import { convertIndexToColumnAlphabet } from "../utils";
+import { convertIndexToColumnAlphabet } from "@components/Spreadsheet/utils";
 
 type useSheetDataProps = {
     dataSource: SpreadsheetDataSourceObject;
@@ -44,6 +44,7 @@ export const useSheetChart = ({ dataSource }: useSheetCharttProps) => {
             width: range.colIndex * 101,
             top: (range.rowIndex * 20) + 20,
             left: 230,
+            isSeriesInRows: true,
             markerSettings: {
                 shape: "Circle",
                 size: 5,

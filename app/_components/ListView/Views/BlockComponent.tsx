@@ -7,11 +7,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import load from "@lib/load";
 import toast from "react-hot-toast";
 import { Divider, Text, Tooltip, Flex, ActionIcon, Grid, Anchor } from "@mantine/core";
-import InlineSpoiler from "../../InlineSpoiler";
-import { useRouter } from "next/navigation";
+import InlineSpoiler from "@components/InlineSpoiler";
+import { useProgressRouter } from "app/_hooks/useProgressRouter";
 import { timeAgo } from "@utils/index";
 import { useAppContext } from "@contexts/context";
-import OnboardingPopover from "@components/Onboarding/OnboardingPopover";
 
 import { FaArchive, } from "@react-icons/all-files/fa/FaArchive";
 import { FaFile } from "@react-icons/all-files/fa/FaFile";
@@ -20,15 +19,12 @@ interface BlockProps {
   compact?: boolean;
   block: Block;
   hasArchiveButton?: boolean
-  onArchive?: (googleUserId) => void;
-  hierarchy?: number;
-  googleUserId?: string;
+  onArchive?: (block: Block) => void;
+  hierarchy?: number
 }
 
-export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0, googleUserId = "" }: BlockProps) {
-  const router = useRouter();
-
-  const { onboardingStep, onboardingIsComplete, goToNextOnboardingStep } = useAppContext();
+export default function BlockComponent({ block, compact, hasArchiveButton = false, onArchive, hierarchy = 0 }: BlockProps) {
+  const router = useProgressRouter();
 
   const handleArchive = async () => {
     const supabase = createClientComponentClient();
@@ -49,7 +45,8 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
       success: "Archived!",
       error: "Failed to archive.",
     });
-    onArchive(googleUserId);
+    onArchive(block);
+    router.revalidate();
   };
 
   const retryProcessBlock = async () => {
@@ -82,7 +79,6 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
   // }, [])
 
   const onClickBlock = () => {
-    if (onboardingStep === 1 && !onboardingIsComplete) goToNextOnboardingStep();
     router.push(`/block/${block.block_id}`)
   }
 
@@ -99,26 +95,7 @@ export default function BlockComponent({ block, compact, hasArchiveButton = fals
                 underline="never"
                 onClick={onClickBlock}
               >
-
-                {((block.title === "About Pages and Spaces" || block.title === "About Blocks and Spaces") && onboardingStep === 1 && !onboardingIsComplete)
-                  ?
-                  <OnboardingPopover
-                    width={400}
-                    stepToShow={1}
-                    position="right-start"
-                    popoverContent={
-                      <>
-                        <Text size="sm" mb={10}>This is a <b>page</b>, a unit of information in Yodeai.</Text>
-                        <Text size="sm">Click <b>About pages and spaces.</b></Text>
-                      </>
-                    }
-                  >
-                    <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
-                  </OnboardingPopover>
-                  :
-                  <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
-                }
-
+                <Text size={"md"} fw={500} c="gray.7">{block.title}</Text>
               </Anchor>
 
               {hasArchiveButton && (

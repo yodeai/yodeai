@@ -1,19 +1,17 @@
 import '@mantine/core/styles.css';
 import "./globals.css";
 import 'mantine-contextmenu/styles.css';
+import '@mantine/nprogress/styles.css';
 
-import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import HeadingBar from "@components/HeadingBar";
-
-import { MantineProvider, ColorSchemeScript, Flex } from '@mantine/core';
+import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { ContextMenuProvider } from 'mantine-contextmenu';
 import { ModalsProvider } from "@mantine/modals";
-
-const inter = Inter({ subsets: ["latin"] });
+import AppLayout from '@components/Layout';
+import { LensProvider } from '@contexts/context';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Yodeai",
   description: "Created at the UC, Berkeley School of Information",
@@ -24,6 +22,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = createServerComponentClient({ cookies });
+  const user = await supabase.auth.getUser();
 
   return (
     <html lang="en" >
@@ -35,14 +35,11 @@ export default async function RootLayout({
         <MantineProvider defaultColorScheme="light">
           <ModalsProvider>
             <ContextMenuProvider>
-              <header>
-                {/* @ts-expect-error Server Component */}
-                <HeadingBar />
-              </header>
-              <Toaster />
-              <Flex direction='column' w='100%' className="h-[calc(100%-60px)]">
-                {children}
-              </Flex>
+              <LensProvider initialState={{ user: user?.data?.user }}>
+                <AppLayout>
+                  {children}
+                </AppLayout>
+              </LensProvider>
             </ContextMenuProvider>
           </ModalsProvider>
         </MantineProvider>
