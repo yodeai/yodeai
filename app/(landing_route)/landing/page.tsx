@@ -241,7 +241,7 @@ export default function Landing() {
                   {teamMembers
                     .filter((member) => member.group === group)
                     .map((member, index) => (
-                      <Grid.Col key={group} span={{ base: 12, sm: 6 }}>
+                      <Grid.Col key={`${group}_${index}`} span={{ base: 12, sm: 6 }}>
                         <Flex direction={"column"} align={"center"}>
                           <Avatar
                             component="a"

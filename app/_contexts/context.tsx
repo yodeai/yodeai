@@ -224,6 +224,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
 
     const checkOnboardingStatus = async () => {
       try {
+        if(!user) return;
         const { data, error } = await supabase
           .from('onboarding_list')
           .select('*')
@@ -351,6 +352,7 @@ export const LensProvider: React.FC<LensProviderProps> = ({ children, initialSta
   }, [sortingOptions])
 
   useEffect(() => {
+    if(["/landing", "/login"].includes(pathname)) return;
     getAllLenses();
     getPinnedLenses();
     getUser();
