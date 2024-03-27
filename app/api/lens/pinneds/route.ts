@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         }
 
         const filteredLenses = lenses
-            .filter(lens => lens.lens_users.some(lens_user => lens_user.pinned && lens_user.user_id === user.id));
+            .filter(lens => lens.lens_users.some(lens_user => lens_user.pinned && lens_user.user_id === user?.id));
 
         for (const lens of filteredLenses) {
             lens.user_to_access_type = {};

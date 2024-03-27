@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         
         const { data: { user } } = await supabase.auth.getUser()
 
-        let access_types = findAccessType(lenses, user.id)
+        let access_types = findAccessType(lenses, user?.id)
 
         const lensNames = lenses.map(lens => ({
             lens_id: lens.lens_id,
