@@ -61,29 +61,37 @@ export default function WhiteboardDock() {
         ]);
     }
 
-    return <aside className="absolute bottom-[75px] left-[50%] -translate-x-[50%] min-w-min border border-gray-400 bg-slate-100 flex flex-row rounded-lg px-2 py-3">
+    return <aside className="absolute bottom-[75px] left-[50%] -translate-x-[50%] min-w-min overflow-hidden border border-gray-300 bg-white divide-gray-300 divide-x flex flex-row rounded-lg">
         <Tooltip label="Sticky Note" position="top">
-            <div className="default p-3 rounded-full flex items-center cursor-pointer"
-                onDragStart={(event) => onDragStart(event, 'stickyNote')} draggable>
-                <FaStickyNote color="#ffd43b" size={24} />
+            <div>
+                <div className="default p-5 flex items-center cursor-pointer hover:bg-gray-100"
+                    onDragStart={(event) => onDragStart(event, 'stickyNote')} draggable>
+                    <FaStickyNote color="#ffd43b" size={24} />
+                </div>
             </div>
         </Tooltip>
         <Tooltip label="Element" position="top">
-            <div className="default p-3 rounded-full flex items-center cursor-pointer"
-                onDragStart={(event) => onDragStart(event, 'dynamicElement')} draggable>
-                <FaFile color="#aaa" size={24} />
+            <div>
+                <div className="default p-5 flex items-center cursor-pointer hover:bg-gray-100"
+                    onDragStart={(event) => onDragStart(event, 'dynamicElement')} draggable>
+                    <FaFile color="#333" size={24} />
+                </div>
             </div>
         </Tooltip>
         <Tooltip label="Text" position="top">
-            <div className="default p-3 rounded-full flex items-center cursor-pointer"
-                onDragStart={(event) => onDragStart(event, 'text')} draggable>
-                <FaA color="#aaa" size={24} />
+            <div>
+                <div className="default p-5 flex items-center cursor-pointer hover:bg-gray-100"
+                    onDragStart={(event) => onDragStart(event, 'text')} draggable>
+                    <FaA color="#333" size={24} />
+                </div>
             </div>
         </Tooltip>
         <Tooltip label="Group" position="top">
-            <div className="default p-3 rounded-full flex items-center cursor-pointer"
-                onClick={handleNodeGroup}>
-                <FaLayerGroup color="#aaa" size={24} />
+            <div>
+                <div className="default p-5 flex items-center cursor-pointer hover:bg-gray-100"
+                    onClick={handleNodeGroup}>
+                    <FaLayerGroup color="#333" size={24} />
+                </div>
             </div>
         </Tooltip>
     </aside>

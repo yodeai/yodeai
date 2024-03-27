@@ -27,6 +27,7 @@ import load from '@lib/load';
 import { modals } from '@mantine/modals';
 import { PageContent } from '@components/Layout/Content';
 import { deepEqual } from '@utils/index';
+import { useMediaQuery } from '@mantine/hooks';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -36,6 +37,8 @@ const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
 }
 
 function Whiteboard({ data }: WhiteboardComponentProps) {
+    const matchMobileView = useMediaQuery("(max-width: 768px)", window.matchMedia("(max-width: 768px)").matches);
+
     const [nodes, setNodes, onNodesChange] = useNodesState(getWhiteboardNodes(data));
     const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges as any || []);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -50,11 +53,13 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
 
     const { setLensId, setBreadcrumbActivePage, layoutRefs } = useAppContext();
 
-    const getInitialLockState = () => {
+    const getInitialLockState = useCallback(() => {
+        if (matchMobileView || matchMobileView === undefined) return true;
         if (data.plugin) return true;
         if (["owner", "editor"].includes(data.accessType) === false) return true;
         return false;
-    }
+    }, [data, matchMobileView]);
+
     const canBeUnlocked = useMemo(() => {
         if (["owner", "editor"].includes(data.accessType)) return true;
         return false;
@@ -286,6 +291,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             dropdownItems={headerDropdownItems}
             closeEditMode={() => setIsEditing(false)}
             actions={headerActions}
+            singleLine
         />
         <PageContent>
             <ReactFlow
@@ -314,7 +320,7 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
                 <Background gap={12} size={1} />
                 {nodeMenu && <NodeContextMenu onClick={onPaneClick} {...nodeMenu} />}
                 {edgeMenu && <EdgeContextMenu onClick={onPaneClick} {...edgeMenu} />}
-                <MiniMap />
+                {!matchMobileView && <MiniMap />}
             </ReactFlow>
             {!isLocked && <WhiteboardDock />}
         </PageContent>
