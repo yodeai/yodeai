@@ -29,6 +29,7 @@ export default function Login() {
             label="Email"
             placeholder="Your email"
             required
+            data-cy="email"
           />
 
           <PasswordInput
@@ -37,6 +38,7 @@ export default function Login() {
             type="password"
             name="password"
             required
+            data-cy="password"
           />
 
           <Button
@@ -44,6 +46,7 @@ export default function Login() {
             type="submit"
             variant="gradient"
             gradient={{ from: 'blue', to: 'indigo', deg: 116 }}
+            data-cy="submit"
           >
             Sign In
           </Button>

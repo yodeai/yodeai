@@ -72,6 +72,8 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
   }
 
   useEffect(() => {
+    if(["/login", "/landing"].includes(pathname)) return;
+
     let isMounted = true;
 
     const fetchAndCheckGoogle = async () => {
@@ -91,7 +93,7 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, pathname]);
 
   const onClickSignOut = async () => {
     // redirect window to sign out page with POST
@@ -112,7 +114,7 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
         {user && user.email
           ? <Menu>
             <Menu.Target>
-              <Button variant="outline" color="gray" className="flex gap-3 text-center align-middle">
+              <Button variant="outline" color="gray" className="flex gap-3 text-center align-middle" data-cy="user-account">
                 <Text
                   size='sm'
                   c={"gray.8"}
@@ -131,13 +133,13 @@ const UserAccountHandler = ({ user }: UserAccountHandlerProps) => {
                 <Menu.Item onClick={openGoogleAuthWindow} color="blue" variant="light">
                   Connect Google Account
                 </Menu.Item>}
-              <Menu.Item onClick={onClickSignOut}>
+              <Menu.Item onClick={onClickSignOut} data-cy="logout">
                 Logout
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
           : <Link href="/login">
-            <Button type="submit" color="blue" size="xs" variant="light">
+            <Button type="submit" color="blue" size="xs" variant="light" data-cy="submit">
               Login
             </Button>
           </Link>}
