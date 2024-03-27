@@ -96,7 +96,7 @@ export const ColorPicker = ({ value, selected, handleColorChange }: ColorPickerP
     ]
 
     return <div className={cn(
-        "absolute -top-12 border border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
+        "absolute -top-[50px] border border-gray-500 bg-slate-100 rounded-sm flex-row p-2 gap-1 cursor-pointer",
         selected ? "flex" : "hidden"
     )}>
         {colors.map(color =>

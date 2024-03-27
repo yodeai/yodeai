@@ -16,7 +16,6 @@ type PageHeaderProps = {
         isShared?: boolean;
         accessType?: "owner" | "editor" | "reader";
     },
-    secondaryItem?: JSX.Element;
     onSaveTitle?: (newTitle: string) => void;
     closeEditMode?: () => void;
     editMode?: boolean;
@@ -28,17 +27,18 @@ type PageHeaderProps = {
         disabled?: boolean
     }[]
     actions?: JSX.Element
+    singleLine?: boolean
 }
 export const PageHeader = ({
     title,
     properties,
-    secondaryItem,
     onSaveTitle,
     closeEditMode,
     editMode = false,
     loading = false,
     dropdownItems,
-    actions
+    actions,
+    singleLine = false
 }: PageHeaderProps) => {
     const matchMobileView = useMediaQuery("(max-width: 768px)");
     const [titleValue, setTitleValue] = useState(title);
@@ -112,7 +112,7 @@ export const PageHeader = ({
         <Flex
             className="sticky top-0 border-b border-gray-200"
             direction={
-                matchMobileView && (actions || secondaryItem) ? "column" : "row"
+                matchMobileView && actions && !singleLine ? "column" : "row"
             }
             justify="space-between">
             <Menu shadow="md" position="bottom-start" width={150}>
