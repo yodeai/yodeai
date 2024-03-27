@@ -4,9 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import ReactFlow, {
     ReactFlowProvider,
-    NodeSelectionChange,
     useNodesState, useEdgesState, addEdge,
-    Controls, Background, Node, Edge, MiniMap, OnNodesChange, OnEdgesChange
+    Controls, Background, Node, Edge, MiniMap, OnNodesChange, OnEdgesChange, NodePositionChange
 } from 'reactflow';
 import WhiteboardDock from "@components/Whiteboard/Helpers/Dock";
 import NodeContextMenu from '@components/Whiteboard/Helpers/ContextMenu/Node';
@@ -27,6 +26,7 @@ import { PageHeader } from '@components/Layout/PageHeader';
 import load from '@lib/load';
 import { modals } from '@mantine/modals';
 import { PageContent } from '@components/Layout/Content';
+import { deepEqual } from '@utils/index';
 
 const getWhiteboardNodes = (whiteboard: WhiteboardComponentProps["data"]) => {
     if (!whiteboard?.plugin || whiteboard?.plugin?.rendered) return whiteboard.nodes as any || [];
@@ -44,6 +44,9 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
     const [edgeMenu, setEdgeMenu] = useState(null);
     const [whiteboard, setWhiteboard] = useState(data);
     const [isEditing, setIsEditing] = useState(false);
+
+    const $nodes = useRef(nodes);
+    const $edges = useRef(edges);
 
     const { setLensId, setBreadcrumbActivePage, layoutRefs } = useAppContext();
 
@@ -120,13 +123,34 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
         [setEdgeMenu],
     );
 
-    const syncWhiteboard = useDebouncedCallback(async (nodes: Node[], edges: Edge[]) => {
+    const prepareNode = (node: Node) => {
+        delete node.dragging;
+        delete node.resizing;
+        delete node.selected;
+        return node;
+    }
+
+    const prepareEdge = (edge: Edge) => {
+        delete edge.selected
+        return edge;
+    }
+
+    const syncWhiteboard = useDebouncedCallback(async (_nodes: Node[], _edges: Edge[]) => {
+        const newNodes = _nodes.map(prepareNode);
+        const newEdges = _edges.map(prepareEdge);
+
+        if (deepEqual(newNodes, $nodes.current) && deepEqual(newEdges, $edges.current)) {
+            return;
+        }
+
         setIsSaving(true);
-        fetch(`/api/whiteboard/${data.whiteboard_id}`, {
+        return fetch(`/api/whiteboard/${data.whiteboard_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                nodes, edges, plugin: data.plugin ? { ...data.plugin as any, rendered: true } : null
+                nodes: newNodes,
+                edges: newEdges,
+                plugin: data.plugin ? { ...data.plugin as any, rendered: true } : null
             })
         })
             .then(res => res.json())
@@ -134,6 +158,8 @@ function Whiteboard({ data }: WhiteboardComponentProps) {
             .finally(() => {
                 setIsSaving(false);
                 router.revalidate();
+                $nodes.current = newNodes;
+                $edges.current = newEdges;
             });
     }, 1000, [nodes, edges, isSaving]);
 
