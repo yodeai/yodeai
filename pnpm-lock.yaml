@@ -252,6 +252,9 @@ devDependencies:
   '@tailwindcss/typography':
     specifier: ^0.5.10
     version: 0.5.10(tailwindcss@3.3.2)
+  '@types/dotenv':
+    specifier: ^8.2.0
+    version: 8.2.0
   '@types/node':
     specifier: 20.2.4
     version: 20.2.4
@@ -276,6 +279,9 @@ devDependencies:
   cypress:
     specifier: ^13.7.1
     version: 13.7.1
+  dotenv:
+    specifier: ^16.4.5
+    version: 16.4.5
   encoding:
     specifier: ^0.1.13
     version: 0.1.13
@@ -2214,6 +2220,13 @@ packages:
       '@types/ms': 0.7.34
     dev: false
 
+  /@types/dotenv@8.2.0:
+    resolution: {integrity: sha512-ylSC9GhfRH7m1EUXBXofhgx4lUWmFeQDINW5oLuS+gxWdfUeW4zJdeVTYVkexEW+e2VUvlZR2kGnGGipAWR7kw==}
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
+    dependencies:
+      dotenv: 16.4.5
+    dev: true
+
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
     dev: false
@@ -3796,6 +3809,11 @@ packages:
       '@babel/runtime': 7.23.5
       csstype: 3.1.2
     dev: false
+
+  /dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
+    dev: true
 
   /easy-bem@1.1.1:
     resolution: {integrity: sha512-GJRqdiy2h+EXy6a8E6R+ubmqUM08BK0FWNq41k24fup6045biQ8NXxoXimiwegMQvFFV3t1emADdGNL1TlS61A==}

@@ -9,7 +9,6 @@
     "sync:types": "npx supabase gen types typescript --project-id bkqpjlaqikbkgjyzmujb --schema public > app/_types/supabase.ts",
     "cypress:open": "cypress open",
     "prepare:test": "npm run build && npm run start"
-
   },
   "dependencies": {
     "@catppuccin/highlightjs": "^0.1.2",
@@ -97,6 +96,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
+    "@types/dotenv": "^8.2.0",
     "@types/node": "20.2.4",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
@@ -105,6 +105,7 @@
     "@types/uuid": "^9.0.7",
     "autoprefixer": "10.4.14",
     "cypress": "^13.7.1",
+    "dotenv": "^16.4.5",
     "encoding": "^0.1.13",
     "postcss": "8.4.24",
     "postcss-preset-mantine": "^1.9.1",
