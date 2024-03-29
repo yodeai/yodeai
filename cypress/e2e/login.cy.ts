@@ -21,4 +21,17 @@ describe("Login", () => {
 
     cy.location("href").should("eq", "http://localhost:3000/login");
   });
+
+  it("An invalid login attept should fail", () => {
+    cy.viewport(1680, 489);
+    cy.visit("http://localhost:3000/landing");
+    cy.get('[data-cy="submit"]').click()
+
+    cy.get("header span > span").click();
+    cy.get('[data-cy="email"]').focus().type("test@test.com");
+    cy.get('[data-cy="password"]').type("test");
+    cy.get('form [data-cy="submit"]').click();
+
+    cy.get('[data-cy="error"]').should('be.visible');
+  });
 });
