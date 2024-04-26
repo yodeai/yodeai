@@ -5,14 +5,7 @@
 
 A large amount of essential information gets buried in unstructured data - from extensive PDFs to scattered meeting notes and one-off spreadsheets.
 
-#### Organize: your unstructured data
-<img width="300" src="public/image1.png" />
-
-#### Browse: zoom in and out for a global view
-<img width="300" src="public/image2.png" />
-
-#### Ask: get answers based on your data
-<img width="300" src="public/image3.png" />
+![YodeAI introduction](/public/image4.png)
 </center>
 
 ## Demo
