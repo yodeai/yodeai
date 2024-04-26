@@ -1,9 +1,8 @@
-## Introduction
-
 <center>
-<i>Transform information overload into knowledge power.</i>
+<h2>YodeaAI</h2>
+<b>Transform information overload into knowledge power.</b>
 
-A large amount of essential information gets buried in unstructured data - from extensive PDFs to scattered meeting notes and one-off spreadsheets.
+<p>A large amount of essential information gets buried in unstructured data - from extensive PDFs to scattered meeting notes and one-off spreadsheets.</p>
 
 ![YodeAI introduction](/public/image4.png)
 </center>
@@ -12,44 +11,29 @@ A large amount of essential information gets buried in unstructured data - from 
 
 [https://yodeai.vercel.app](https://yodeai.vercel.app/)
 
+## Getting Started
+
+```bash
+pnpm install # installing dependencies
+pnpm run dev # runing development environment 
+```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can get a build on your local and test it:
+
+```bash
+pnpm run build # it will build the application
+pnpm run start # this will run the application on production mode
+```
+
+> You need to run [yodeai-server](https://github.dev/yodeai/yodeai-server) to make the application available with all the features.
+> Once it is running, it'll be good to go 🙌🏻
+
 ## Deploy Your Own
 
 You can clone & deploy it to Vercel with one click:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/samet-uns-projects/clone?repository-url=https://github.com/yodeai/yodeain)
-
-## Developing Locally
-
-You can clone & create this repo with the following command
-
-```bash
-npm run dev
-```
-
-## Getting Started
-
-First, install the dependencies:
-
-```bash
-pnpm install
-```
-
-install pnpm
-```bash
-pnpm install
-```
-
-
-
-Then, run the development server:
-
-```bash
-pnpm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-The FastApi server will be running on [http://127.0.0.1:8000](http://127.0.0.1:8000) – feel free to change the port in `package.json` (you'll also need to update it in `next.config.js`).
 
 ## Learn More
 
