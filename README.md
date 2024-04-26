@@ -13,12 +13,19 @@
 
 ## Getting Started
 
+### Development
+
+Clone the `.env.example` file and rename it as `.env.local`, and use your own keys.
+
+Then you can install the dependencies and start to develop.
+
 ```bash
 pnpm install # installing dependencies
 pnpm run dev # runing development environment 
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Build
 You can get a build on your local and test it:
 
 ```bash
