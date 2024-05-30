@@ -1,5 +1,5 @@
 <center>
-<h2>YodeAI</h2>
+<h2>Yodeai</h2>
 <b>Transform information overload into knowledge power.</b>
 
 <p>A large amount of essential information gets buried in unstructured data - from extensive PDFs to scattered meeting notes and one-off spreadsheets.</p>
